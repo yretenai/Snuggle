@@ -9,14 +9,13 @@ namespace Equilibrium.Models.Bundle {
         long Size,
         uint Flags,
         string Path) {
-        public static UnityBundleBlock FromReader(BiEndianBinaryReader reader) {
-            return new(
+        public static UnityBundleBlock FromReader(BiEndianBinaryReader reader) =>
+            new(
                 reader.ReadInt64(),
                 reader.ReadInt64(),
                 reader.ReadUInt32(),
                 reader.ReadNullString()
             );
-        }
 
         public static ICollection<UnityBundleBlock> ArrayFromReader(BiEndianBinaryReader reader,
             UnityBundle header,
@@ -25,7 +24,7 @@ namespace Equilibrium.Models.Bundle {
                 case UnityFormat.FS: {
                     var container = new List<UnityBundleBlock>(count);
                     for (var i = 0; i < count; ++i) {
-                        container[i] = FromReader(reader);
+                        container.Add(FromReader(reader));
                     }
 
                     return container;

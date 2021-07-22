@@ -2,7 +2,7 @@
 
 namespace Equilibrium.Models.Bundle {
     [PublicAPI]
-    public enum UnityFSCompressionType : uint {
+    public enum UnityCompressionType : uint {
         None,
         LZMA,
         LZ4,

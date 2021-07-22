@@ -1,17 +1,17 @@
 ﻿using System;
+using System.Buffers.Binary;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using JetBrains.Annotations;
 
 namespace Equilibrium.Models.Bundle {
-    [PublicAPI]
-    public struct UnityBundleBlockInfo {
-        public int CompressedSize { get; set; }
+    [PublicAPI, StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct UnityBundleBlockInfo : IReversibleStruct {
         public int Size { get; set; }
-        public ushort Flags { get; set; }
+        public int CompressedSize { get; set; }
+        public UnityBundleBlockFlags Flags { get; set; }
 
-        public static UnityBundleBlockInfo FromReader(BiEndianBinaryReader reader) {
-            return reader.ReadStruct<UnityBundleBlockInfo>();
-        }
+        public static UnityBundleBlockInfo FromReader(BiEndianBinaryReader reader) => reader.ReadStruct<UnityBundleBlockInfo>();
 
         public static ICollection<UnityBundleBlockInfo> ArrayFromReader(BiEndianBinaryReader reader, UnityBundle header, int count) {
             switch (header.Format) {
@@ -24,6 +24,12 @@ namespace Equilibrium.Models.Bundle {
                 default:
                     throw new NotImplementedException();
             }
+        }
+
+        public void ReverseEndianness() {
+            CompressedSize = BinaryPrimitives.ReverseEndianness(CompressedSize);
+            Size = BinaryPrimitives.ReverseEndianness(Size);
+            Flags = (UnityBundleBlockFlags) BinaryPrimitives.ReverseEndianness((ushort) Flags);
         }
     }
 }

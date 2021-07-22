@@ -1,26 +1,26 @@
 ﻿using System;
 using System.Buffers.Binary;
-using System.Data;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
+using Equilibrium.Models;
 using JetBrains.Annotations;
 
 namespace Equilibrium {
     [PublicAPI]
     public class BiEndianBinaryReader : BinaryReader {
-        public bool IsBigEndian { get; set; }
-
-        private Encoding Encoding { get; init; }
-
-        protected bool ShouldInvertEndianness => BitConverter.IsLittleEndian == !IsBigEndian;
-
         public BiEndianBinaryReader(Stream input, bool isBigEndian = true, Encoding? encoding = null, bool leaveOpen = false) :
             base(input, encoding ?? Encoding.UTF8, leaveOpen) {
             IsBigEndian = isBigEndian;
             Encoding = encoding ?? Encoding.UTF8;
         }
+
+        public bool IsBigEndian { get; set; }
+
+        private Encoding Encoding { get; init; }
+
+        protected bool ShouldInvertEndianness => BitConverter.IsLittleEndian ? IsBigEndian : !IsBigEndian;
 
         public static BiEndianBinaryReader FromSpan(Span<byte> span, bool isBigEndian = true, Encoding? encoding = null) {
             var ms = new MemoryStream(span.ToArray()) { Position = 0 };
@@ -190,23 +190,31 @@ namespace Equilibrium {
         }
 
         public Span<T> ReadArray<T>(int count) where T : struct {
-            if (ShouldInvertEndianness) {
-                throw new InvalidConstraintException();
-            }
-
             Span<byte> span = new byte[Unsafe.SizeOf<T>() * count];
             Read(span);
-            return MemoryMarshal.Cast<byte, T>(span);
+            var value = MemoryMarshal.Cast<byte, T>(span);
+            if (ShouldInvertEndianness) {
+                for (var i = 0; i < count; ++i) {
+                    if (value[i] is IReversibleStruct reversibleStruct) {
+                        reversibleStruct.ReverseEndianness();
+                        value[i] = (T) reversibleStruct;
+                    }
+                }
+            }
+
+            return value;
         }
 
         public T ReadStruct<T>() where T : struct {
-            if (ShouldInvertEndianness) {
-                throw new InvalidConstraintException();
-            }
-
             Span<byte> span = new byte[Unsafe.SizeOf<T>()];
             Read(span);
-            return MemoryMarshal.Read<T>(span);
+            var value = MemoryMarshal.Read<T>(span);
+            if (ShouldInvertEndianness && value is IReversibleStruct reversibleStruct) {
+                reversibleStruct.ReverseEndianness();
+                value = (T) reversibleStruct;
+            }
+
+            return value;
         }
     }
 }
