@@ -1,22 +1,24 @@
 ﻿using System;
-using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using JetBrains.Annotations;
 
 namespace Equilibrium.Models.Bundle {
     [PublicAPI, StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct UnityBundleBlockInfo : IReversibleStruct {
-        public int Size { get; set; }
-        public int CompressedSize { get; set; }
-        public UnityBundleBlockFlags Flags { get; set; }
-
-        public static UnityBundleBlockInfo FromReader(BiEndianBinaryReader reader) => reader.ReadStruct<UnityBundleBlockInfo>();
+    public record UnityBundleBlockInfo(int Size, int CompressedSize, UnityBundleBlockFlags Flags) {
+        public static UnityBundleBlockInfo FromReader(BiEndianBinaryReader reader) {
+            return new(reader.ReadInt32(), reader.ReadInt32(), (UnityBundleBlockFlags) reader.ReadInt16());
+        }
 
         public static ICollection<UnityBundleBlockInfo> ArrayFromReader(BiEndianBinaryReader reader, UnityBundle header, int count) {
+            var container = new List<UnityBundleBlockInfo>(count);
             switch (header.Format) {
-                case UnityFormat.FS:
-                    return reader.ReadArray<UnityBundleBlockInfo>(count).ToArray();
+                case UnityFormat.FS: {
+                    for (var i = 0; i < count; ++i) {
+                        container.Add(FromReader(reader));
+                    }
+                }
+                    break;
                 case UnityFormat.Raw:
                 case UnityFormat.Web:
                 case UnityFormat.Archive:
@@ -24,12 +26,8 @@ namespace Equilibrium.Models.Bundle {
                 default:
                     throw new NotImplementedException();
             }
-        }
 
-        public void ReverseEndianness() {
-            CompressedSize = BinaryPrimitives.ReverseEndianness(CompressedSize);
-            Size = BinaryPrimitives.ReverseEndianness(Size);
-            Flags = (UnityBundleBlockFlags) BinaryPrimitives.ReverseEndianness((ushort) Flags);
+            return container;
         }
     }
 }

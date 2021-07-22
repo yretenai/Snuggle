@@ -28,13 +28,13 @@ namespace Equilibrium.Models.Bundle {
                 var streamOffset = 0L;
                 var cur = -1L;
                 stream = new MemoryStream();
-                foreach (var blockInfo in BlockInfos ?? ArraySegment<UnityBundleBlockInfo>.Empty) {
-                    if (streamOffset + blockInfo.Size < block.Offset) {
-                        reader.BaseStream.Seek(blockInfo.CompressedSize, SeekOrigin.Current);
+                foreach (var (size, compressedSize, unityBundleBlockFlags) in BlockInfos ?? ArraySegment<UnityBundleBlockInfo>.Empty) {
+                    if (streamOffset + size < block.Offset) {
+                        reader.BaseStream.Seek(compressedSize, SeekOrigin.Current);
                         continue;
                     }
 
-                    if (streamOffset + blockInfo.Size > block.Size + block.Offset) {
+                    if (streamOffset + size > block.Size + block.Offset) {
                         break;
                     }
 
@@ -42,25 +42,25 @@ namespace Equilibrium.Models.Bundle {
                         cur = block.Offset - streamOffset;
                     }
 
-                    Span<byte> buffer = reader.ReadBytes(blockInfo.CompressedSize);
+                    Span<byte> buffer = reader.ReadBytes(compressedSize);
 
-                    var compressionType = (UnityCompressionType) (blockInfo.Flags & UnityBundleBlockFlags.CompressionMask);
+                    var compressionType = (UnityCompressionType) (unityBundleBlockFlags & UnityBundleBlockFlags.CompressionMask);
                     switch (compressionType) {
                         case UnityCompressionType.None:
                             stream.Write(buffer);
                             break;
                         case UnityCompressionType.LZMA:
-                            Utils.DecodeLZMA(buffer, blockInfo.CompressedSize, blockInfo.Size, stream);
+                            Utils.DecodeLZMA(buffer, compressedSize, size, stream);
                             break;
                         case UnityCompressionType.LZ4:
                         case UnityCompressionType.LZ4HC:
-                            stream.Write(CompressionEncryption.DecompressLZ4(buffer, blockInfo.Size));
+                            stream.Write(CompressionEncryption.DecompressLZ4(buffer, size));
                             break;
                         default:
                             throw new NotImplementedException();
                     }
 
-                    streamOffset += blockInfo.Size;
+                    streamOffset += size;
                 }
 
                 stream.Seek((int) cur, SeekOrigin.Begin);
@@ -96,13 +96,9 @@ namespace Equilibrium.Models.Bundle {
             var compressionType = (UnityCompressionType) (fs.Flags & UnityFSFlags.CompressionRange);
             using var blocksReader = compressionType switch {
                 UnityCompressionType.None => BiEndianBinaryReader.FromSpan(blocksBuffer),
-                UnityCompressionType.LZMA => new BiEndianBinaryReader(Utils.DecodeLZMA(blocksBuffer,
-                    fs.CompressedBlockInfoSize,
-                    fs.BlockInfoSize)),
-                UnityCompressionType.LZ4 => BiEndianBinaryReader.FromSpan(
-                    CompressionEncryption.DecompressLZ4(blocksBuffer, fs.BlockInfoSize)),
-                UnityCompressionType.LZ4HC => BiEndianBinaryReader.FromSpan(
-                    CompressionEncryption.DecompressLZ4(blocksBuffer, fs.BlockInfoSize)),
+                UnityCompressionType.LZMA => new BiEndianBinaryReader(Utils.DecodeLZMA(blocksBuffer, fs.CompressedBlockInfoSize, fs.BlockInfoSize)),
+                UnityCompressionType.LZ4 => BiEndianBinaryReader.FromSpan(CompressionEncryption.DecompressLZ4(blocksBuffer, fs.BlockInfoSize)),
+                UnityCompressionType.LZ4HC => BiEndianBinaryReader.FromSpan(CompressionEncryption.DecompressLZ4(blocksBuffer, fs.BlockInfoSize)),
                 _ => throw new NotImplementedException(),
             };
             fs.Hash = blocksReader.ReadBytes(16);

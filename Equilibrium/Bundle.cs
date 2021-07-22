@@ -17,6 +17,9 @@ namespace Equilibrium {
             Header = UnityBundle.FromReader(reader);
             Container = Header.Format switch {
                 UnityFormat.FS => UnityFS.FromReader(reader, Header),
+                UnityFormat.Archive => throw new NotImplementedException(),
+                UnityFormat.Web => throw new NotImplementedException(),
+                UnityFormat.Raw => throw new NotImplementedException(),
                 _ => throw new NotImplementedException(),
             };
 
@@ -25,13 +28,7 @@ namespace Equilibrium {
             Tag = tag;
 
             if (ShouldCacheData) {
-                DataStream = new MemoryStream(
-                    Container.OpenFile(new UnityBundleBlock(0,
-                                (Container.BlockInfos ?? ArraySegment<UnityBundleBlockInfo>.Empty).Select(x => x.Size).Sum(),
-                                0,
-                                ""),
-                            reader)
-                        .ToArray());
+                DataStream = new MemoryStream(Container.OpenFile(new UnityBundleBlock(0, (Container.BlockInfos ?? ArraySegment<UnityBundleBlockInfo>.Empty).Select(x => x.Size).Sum(), 0, ""), reader).ToArray());
             }
         }
 

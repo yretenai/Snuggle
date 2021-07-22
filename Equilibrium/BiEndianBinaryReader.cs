@@ -105,11 +105,7 @@ namespace Equilibrium {
             Read(span);
 
             var value = BinaryPrimitives.ReadInt16LittleEndian(span);
-            if (ShouldInvertEndianness) {
-                value = BinaryPrimitives.ReverseEndianness(value);
-            }
-
-            return value;
+            return ShouldInvertEndianness ? BinaryPrimitives.ReverseEndianness(value) : value;
         }
 
         public override int ReadInt32() {
@@ -117,11 +113,7 @@ namespace Equilibrium {
             Read(span);
 
             var value = BinaryPrimitives.ReadInt32LittleEndian(span);
-            if (ShouldInvertEndianness) {
-                value = BinaryPrimitives.ReverseEndianness(value);
-            }
-
-            return value;
+            return ShouldInvertEndianness ? BinaryPrimitives.ReverseEndianness(value) : value;
         }
 
         public override long ReadInt64() {
@@ -129,11 +121,7 @@ namespace Equilibrium {
             Read(span);
 
             var value = BinaryPrimitives.ReadInt64LittleEndian(span);
-            if (ShouldInvertEndianness) {
-                value = BinaryPrimitives.ReverseEndianness(value);
-            }
-
-            return value;
+            return ShouldInvertEndianness ? BinaryPrimitives.ReverseEndianness(value) : value;
         }
 
         public override ushort ReadUInt16() {
@@ -141,11 +129,7 @@ namespace Equilibrium {
             Read(span);
 
             var value = BinaryPrimitives.ReadUInt16LittleEndian(span);
-            if (ShouldInvertEndianness) {
-                value = BinaryPrimitives.ReverseEndianness(value);
-            }
-
-            return value;
+            return ShouldInvertEndianness ? BinaryPrimitives.ReverseEndianness(value) : value;
         }
 
         public override uint ReadUInt32() {
@@ -153,11 +137,7 @@ namespace Equilibrium {
             Read(span);
 
             var value = BinaryPrimitives.ReadUInt32LittleEndian(span);
-            if (ShouldInvertEndianness) {
-                value = BinaryPrimitives.ReverseEndianness(value);
-            }
-
-            return value;
+            return ShouldInvertEndianness ? BinaryPrimitives.ReverseEndianness(value) : value;
         }
 
         public override ulong ReadUInt64() {
@@ -165,11 +145,7 @@ namespace Equilibrium {
             Read(span);
 
             var value = BinaryPrimitives.ReadUInt64LittleEndian(span);
-            if (ShouldInvertEndianness) {
-                value = BinaryPrimitives.ReverseEndianness(value);
-            }
-
-            return value;
+            return ShouldInvertEndianness ? BinaryPrimitives.ReverseEndianness(value) : value;
         }
 
         public string ReadString32() {
@@ -211,7 +187,7 @@ namespace Equilibrium {
             var value = MemoryMarshal.Read<T>(span);
             if (ShouldInvertEndianness && value is IReversibleStruct reversibleStruct) {
                 reversibleStruct.ReverseEndianness();
-                value = (T) reversibleStruct;
+                return (T) reversibleStruct;
             }
 
             return value;
