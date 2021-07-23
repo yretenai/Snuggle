@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 
 namespace Equilibrium.Meta {
     [PublicAPI]
-    public class UnityVersion : ICloneable, IComparable, IComparable<UnityVersion?>, IEquatable<UnityVersion?>, ISpanFormattable {
+    public class UnityVersion : ICloneable, IComparable, IComparable<UnityVersion?>, IEquatable<UnityVersion?>, IComparable<Version?>, IEquatable<Version?>, ISpanFormattable {
         public UnityVersion(int major, int minor = 0, int build = 0, int revision = 0, UnityBuildType type = UnityBuildType.None, int extraVersion = 0) {
             Major = major;
             Minor = minor;
@@ -28,9 +28,15 @@ namespace Equilibrium.Meta {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int CompareTo(object? version) {
             return version switch {
+                Version v => CompareTo(v),
                 UnityVersion v => CompareTo(v),
                 _ => 1,
             };
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int CompareTo(Version? value) {
+            return value is null ? 1 : ((Version) this).CompareTo(value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -57,6 +63,14 @@ namespace Equilibrium.Meta {
             }
 
             return other.Major == Major && other.Minor == Minor && other.Build == Build && other.Type == Type && other.Revision == Revision && other.ExtraVersion == ExtraVersion;
+        }
+
+        public bool Equals(Version? other) {
+            if (other == null) {
+                return false;
+            }
+
+            return other == (Version) this;
         }
 
         public string ToString(string? format, IFormatProvider? formatProvider) => ToString();
@@ -146,7 +160,7 @@ namespace Equilibrium.Meta {
             }
 
             return obj switch {
-                Version version => version == (Version) this,
+                Version version => Equals(version),
                 UnityVersion unityVersion => Equals(unityVersion),
                 _ => false,
             };
