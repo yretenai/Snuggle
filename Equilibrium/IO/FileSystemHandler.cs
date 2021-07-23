@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
-using Equilibrium.Models;
+using Equilibrium.Models.IO;
 using JetBrains.Annotations;
 
-namespace Equilibrium {
+namespace Equilibrium.IO {
     [PublicAPI]
     public class FileSystemHandler : IFileHandler {
         public static Lazy<FileSystemHandler> Instance { get; } = new();

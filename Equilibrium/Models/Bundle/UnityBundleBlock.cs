@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Equilibrium.IO;
 using JetBrains.Annotations;
 
 namespace Equilibrium.Models.Bundle {

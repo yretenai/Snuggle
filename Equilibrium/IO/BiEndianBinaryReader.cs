@@ -4,10 +4,10 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
-using Equilibrium.Models;
+using Equilibrium.Models.IO;
 using JetBrains.Annotations;
 
-namespace Equilibrium {
+namespace Equilibrium.IO {
     [PublicAPI]
     public class BiEndianBinaryReader : BinaryReader {
         public BiEndianBinaryReader(Stream input, bool isBigEndian = true, Encoding? encoding = null, bool leaveOpen = false) :
