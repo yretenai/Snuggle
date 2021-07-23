@@ -86,6 +86,11 @@ namespace Equilibrium.Meta {
         private bool TryFormat(Span<char> destination, out int charsWritten) {
             var totalCharsWritten = 0;
             for (var i = 0; i < 6; i++) {
+                if (destination.IsEmpty) {
+                    charsWritten = 0;
+                    return false;
+                }
+
                 switch (i) {
                     case 5 when ExtraVersion == 0:
                     case 4 when ExtraVersion == 0 && Revision == 0:
@@ -93,22 +98,25 @@ namespace Equilibrium.Meta {
                         continue;
                 }
 
-                if (i != 0 &&
-                    i < 3) {
-                    if (destination.IsEmpty) {
-                        charsWritten = 0;
-                        return false;
-                    }
-
-                    destination[0] = '.';
-                    destination = destination[1..];
-                    totalCharsWritten++;
-                }
-
-                if (i == 3) {
-                    destination[0] = (char) Type;
-                    totalCharsWritten += 1;
-                    destination = destination[1..];
+                switch (i) {
+                    case 0:
+                    case 1:
+                        destination[0] = '.';
+                        destination = destination[1..];
+                        totalCharsWritten++;
+                        break;
+                    case 3:
+                        destination[0] = (char) Type;
+                        destination = destination[1..];
+                        totalCharsWritten++;
+                        continue;
+                    case 4:
+                        break;
+                    case 5:
+                        destination[0] = '\n';
+                        destination = destination[1..];
+                        totalCharsWritten++;
+                        break;
                 }
 
                 var value = i switch {
