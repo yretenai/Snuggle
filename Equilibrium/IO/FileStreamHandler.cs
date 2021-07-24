@@ -5,8 +5,8 @@ using JetBrains.Annotations;
 
 namespace Equilibrium.IO {
     [PublicAPI]
-    public class FileSystemHandler : IFileHandler {
-        public static Lazy<FileSystemHandler> Instance { get; } = new();
+    public class FileStreamHandler : IFileHandler {
+        public static Lazy<FileStreamHandler> Instance { get; } = new();
 
         public Stream OpenFile(object tag) {
             string path = tag switch {
@@ -16,6 +16,10 @@ namespace Equilibrium.IO {
             };
 
             return File.OpenRead(path);
+        }
+
+        public void Dispose() {
+            GC.SuppressFinalize(this);
         }
     }
 }

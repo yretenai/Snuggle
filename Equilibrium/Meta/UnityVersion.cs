@@ -35,11 +35,6 @@ namespace Equilibrium.Meta {
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int CompareTo(Version? value) {
-            return value is null ? 1 : ((Version) this).CompareTo(value);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int CompareTo(UnityVersion? value) {
             if (value is null) {
                 return 1;
@@ -56,6 +51,9 @@ namespace Equilibrium.Meta {
                 Revision != value.Revision ? Revision > value.Revision ? 1 : -1 :
                 0;
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int CompareTo(Version? value) => value is null ? 1 : ((Version) this).CompareTo(value);
 
         public bool Equals(UnityVersion? other) {
             if (other == null) {

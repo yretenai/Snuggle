@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using DragonLib;
 using Equilibrium.IO;
@@ -13,8 +13,8 @@ namespace Equilibrium.Models.Bundle {
         int BlockInfoSize,
         UnityFSFlags Flags) : IUnityContainer {
         public byte[] Hash { get; set; } = Array.Empty<byte>();
-        public ICollection<UnityBundleBlockInfo>? BlockInfos { get; set; }
-        public ICollection<UnityBundleBlock>? Blocks { get; set; }
+        public ImmutableArray<UnityBundleBlockInfo>? BlockInfos { get; set; }
+        public ImmutableArray<UnityBundleBlock>? Blocks { get; set; }
 
         public Span<byte> OpenFile(UnityBundleBlock? block, BiEndianBinaryReader? reader = null, Stream? stream = null) {
             if (block == null) {
@@ -29,7 +29,7 @@ namespace Equilibrium.Models.Bundle {
                 var streamOffset = 0L;
                 var cur = -1L;
                 stream = new MemoryStream();
-                foreach (var (size, compressedSize, unityBundleBlockFlags) in BlockInfos ?? ArraySegment<UnityBundleBlockInfo>.Empty) {
+                foreach (var (size, compressedSize, unityBundleBlockFlags) in BlockInfos ?? ImmutableArray<UnityBundleBlockInfo>.Empty) {
                     if (streamOffset + size < block.Offset) {
                         reader.BaseStream.Seek(compressedSize, SeekOrigin.Current);
                         continue;
@@ -96,17 +96,17 @@ namespace Equilibrium.Models.Bundle {
 
             var compressionType = (UnityCompressionType) (fs.Flags & UnityFSFlags.CompressionRange);
             using var blocksReader = compressionType switch {
-                UnityCompressionType.None => BiEndianBinaryReader.FromSpan(blocksBuffer),
-                UnityCompressionType.LZMA => new BiEndianBinaryReader(Utils.DecodeLZMA(blocksBuffer, fs.CompressedBlockInfoSize, fs.BlockInfoSize)),
-                UnityCompressionType.LZ4 => BiEndianBinaryReader.FromSpan(CompressionEncryption.DecompressLZ4(blocksBuffer, fs.BlockInfoSize)),
-                UnityCompressionType.LZ4HC => BiEndianBinaryReader.FromSpan(CompressionEncryption.DecompressLZ4(blocksBuffer, fs.BlockInfoSize)),
+                UnityCompressionType.None => BiEndianBinaryReader.FromSpan(blocksBuffer, true),
+                UnityCompressionType.LZMA => new BiEndianBinaryReader(Utils.DecodeLZMA(blocksBuffer, fs.CompressedBlockInfoSize, fs.BlockInfoSize), true),
+                UnityCompressionType.LZ4 => BiEndianBinaryReader.FromSpan(CompressionEncryption.DecompressLZ4(blocksBuffer, fs.BlockInfoSize), true),
+                UnityCompressionType.LZ4HC => BiEndianBinaryReader.FromSpan(CompressionEncryption.DecompressLZ4(blocksBuffer, fs.BlockInfoSize), true),
                 _ => throw new NotImplementedException(),
             };
             fs.Hash = blocksReader.ReadBytes(16);
             var infoCount = blocksReader.ReadInt32();
-            fs.BlockInfos = UnityBundleBlockInfo.ArrayFromReader(blocksReader, header, infoCount);
+            fs.BlockInfos = UnityBundleBlockInfo.ArrayFromReader(blocksReader, header, infoCount).ToImmutableArray();
             var blockCount = blocksReader.ReadInt32();
-            fs.Blocks = UnityBundleBlock.ArrayFromReader(blocksReader, header, blockCount);
+            fs.Blocks = UnityBundleBlock.ArrayFromReader(blocksReader, header, blockCount).ToImmutableArray();
 
             return fs;
         }

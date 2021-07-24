@@ -1,7 +1,8 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace Equilibrium.Models.IO {
-    public interface IFileHandler {
+    public interface IFileHandler : IDisposable {
         public Stream OpenFile(object tag);
     }
 }

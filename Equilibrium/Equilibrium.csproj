@@ -16,8 +16,4 @@
     <PackageReference Include="SevenZip" Version="19.0.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Implementations" />
-  </ItemGroup>
-
 </Project>

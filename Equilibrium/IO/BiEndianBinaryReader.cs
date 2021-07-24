@@ -10,21 +10,21 @@ using JetBrains.Annotations;
 namespace Equilibrium.IO {
     [PublicAPI]
     public class BiEndianBinaryReader : BinaryReader {
-        public BiEndianBinaryReader(Stream input, bool isBigEndian = true, Encoding? encoding = null, bool leaveOpen = false) :
-            base(input, encoding ?? Encoding.UTF8, leaveOpen) {
+        public BiEndianBinaryReader(Stream input, bool isBigEndian = false, bool leaveOpen = false) :
+            base(input, Encoding.UTF8, leaveOpen) {
             IsBigEndian = isBigEndian;
-            Encoding = encoding ?? Encoding.UTF8;
+            Encoding = Encoding.UTF8;
         }
 
         public bool IsBigEndian { get; set; }
 
-        private Encoding Encoding { get; init; }
+        public Encoding Encoding { get; private init; }
 
         protected bool ShouldInvertEndianness => BitConverter.IsLittleEndian ? IsBigEndian : !IsBigEndian;
 
-        public static BiEndianBinaryReader FromSpan(Span<byte> span, bool isBigEndian = true, Encoding? encoding = null) {
+        public static BiEndianBinaryReader FromSpan(Span<byte> span, bool isBigEndian = false) {
             var ms = new MemoryStream(span.ToArray()) { Position = 0 };
-            return new BiEndianBinaryReader(ms, isBigEndian, encoding);
+            return new BiEndianBinaryReader(ms, isBigEndian);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
