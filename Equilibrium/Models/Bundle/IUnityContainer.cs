@@ -12,8 +12,8 @@ namespace Equilibrium.Models.Bundle {
         public ImmutableArray<UnityBundleBlock> Blocks { get; set; }
         public long Length { get; }
 
-        public Span<byte> OpenFile(string path, BiEndianBinaryReader? reader = null, Stream? stream = null) => OpenFile(Blocks.FirstOrDefault(x => x.Path.Equals(path, StringComparison.InvariantCultureIgnoreCase)), reader, stream);
+        public byte[] OpenFile(string path, BiEndianBinaryReader? reader = null, Stream? stream = null) => OpenFile(Blocks.FirstOrDefault(x => x.Path.Equals(path, StringComparison.InvariantCultureIgnoreCase)), reader, stream);
 
-        public Span<byte> OpenFile(UnityBundleBlock? block, BiEndianBinaryReader? reader = null, Stream? stream = null);
+        public byte[] OpenFile(UnityBundleBlock? block, BiEndianBinaryReader? reader = null, Stream? stream = null);
     }
 }

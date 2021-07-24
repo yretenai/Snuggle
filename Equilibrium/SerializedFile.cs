@@ -38,10 +38,10 @@ namespace Equilibrium {
         public object Tag { get; set; }
         public IFileHandler Handler { get; set; }
 
-        public Span<byte> OpenFile(long pathId) {
+        public byte[] OpenFile(long pathId) {
             using var reader = Handler.OpenFile(Tag);
             // TODO
-            return Span<byte>.Empty;
+            return Array.Empty<byte>();
         }
 
         public static bool IsSerializedFile(BiEndianBinaryReader reader) {

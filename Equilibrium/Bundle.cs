@@ -29,6 +29,7 @@ namespace Equilibrium {
             DataStart = dataStream.Position;
             Handler = fileHandler;
             Tag = fileHandler.GetTag(tag, this);
+            ShouldCacheData = cacheData;
 
             if (ShouldCacheData) {
                 CacheData(reader);
@@ -71,7 +72,7 @@ namespace Equilibrium {
                 shouldDispose = true;
             }
 
-            DataStream = new MemoryStream(Container.OpenFile(new UnityBundleBlock(0, Container.BlockInfos.Select(x => x.Size).Sum(), 0, ""), reader).ToArray());
+            DataStream = new MemoryStream(Container.OpenFile(new UnityBundleBlock(0, Container.BlockInfos.Select(x => x.Size).Sum(), 0, ""), reader)) { Position = 0 };
 
             if (shouldDispose) {
                 reader.Dispose();
@@ -98,10 +99,10 @@ namespace Equilibrium {
         public object Tag { get; set; }
         public IFileHandler Handler { get; set; }
 
-        public Span<byte> OpenFile(string path) {
+        public byte[] OpenFile(string path) {
             var block = Container.Blocks.FirstOrDefault(x => x.Path.Equals(path, StringComparison.InvariantCultureIgnoreCase));
             if (block == null) {
-                return Span<byte>.Empty;
+                return Array.Empty<byte>();
             }
 
             BiEndianBinaryReader? reader = null;

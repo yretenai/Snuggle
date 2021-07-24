@@ -25,7 +25,7 @@ namespace Equilibrium.Models.Serialization {
 
             Memory<byte> buffer = reader.ReadBytes(bufferSize);
 
-            var staticBuffer = UnityTypeTreeNode.StaticBuffer;
+            var staticBuffer = UnityTypeTreeNode.StaticBuffer.Span;
             for (var i = 0; i < nodeCount; ++i) {
                 var node = nodes[i];
                 nodes[i] = node with {

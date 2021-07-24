@@ -16,7 +16,7 @@ namespace Equilibrium.IO {
                 _ => throw new NotImplementedException(),
             };
 
-            return new MemoryStream(BundleFile.OpenFile(path).ToArray()) { Position = 0 };
+            return new MemoryStream(BundleFile.OpenFile(path)) { Position = 0 };
         }
 
         public object GetTag(object baseTag, object parent) {

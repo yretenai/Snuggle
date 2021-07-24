@@ -4,7 +4,6 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
-using Equilibrium.Models.IO;
 using JetBrains.Annotations;
 
 namespace Equilibrium.IO {
@@ -22,8 +21,8 @@ namespace Equilibrium.IO {
 
         protected bool ShouldInvertEndianness => BitConverter.IsLittleEndian ? IsBigEndian : !IsBigEndian;
 
-        public static BiEndianBinaryReader FromSpan(Span<byte> span, bool isBigEndian = false) {
-            var ms = new MemoryStream(span.ToArray()) { Position = 0 };
+        public static BiEndianBinaryReader FromArray(byte[] array, bool isBigEndian = false) {
+            var ms = new MemoryStream(array) { Position = 0 };
             return new BiEndianBinaryReader(ms, isBigEndian);
         }
 

@@ -16,7 +16,7 @@ namespace Equilibrium.Models.IO {
         public void Deserialize(BiEndianBinaryReader reader);
 
         public void Deserialize() {
-            using var reader = BiEndianBinaryReader.FromSpan(SerializedFile.OpenFile(PathId), SerializedFile.Header.IsBigEndian);
+            using var reader = BiEndianBinaryReader.FromArray(SerializedFile.OpenFile(PathId), SerializedFile.Header.IsBigEndian);
             Deserialize(reader);
         }
     }

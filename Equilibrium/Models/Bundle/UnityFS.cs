@@ -17,9 +17,9 @@ namespace Equilibrium.Models.Bundle {
         public ImmutableArray<UnityBundleBlock> Blocks { get; set; } = ImmutableArray<UnityBundleBlock>.Empty;
         public long Length => Size;
 
-        public Span<byte> OpenFile(UnityBundleBlock? block, BiEndianBinaryReader? reader = null, Stream? stream = null) {
+        public byte[] OpenFile(UnityBundleBlock? block, BiEndianBinaryReader? reader = null, Stream? stream = null) {
             if (block == null) {
-                return Span<byte>.Empty;
+                return Array.Empty<byte>();
             }
 
             if (stream == null) {
@@ -36,7 +36,7 @@ namespace Equilibrium.Models.Bundle {
                         continue;
                     }
 
-                    if (streamOffset + size > block.Size + block.Offset) {
+                    if (streamOffset + size > block.Size + block.Offset && cur > -1) {
                         break;
                     }
 
@@ -44,7 +44,7 @@ namespace Equilibrium.Models.Bundle {
                         cur = block.Offset - streamOffset;
                     }
 
-                    Span<byte> buffer = reader.ReadBytes(compressedSize);
+                    var buffer = reader.ReadBytes(compressedSize);
 
                     var compressionType = (UnityCompressionType) (unityBundleBlockFlags & UnityBundleBlockFlags.CompressionMask);
                     switch (compressionType) {
@@ -70,7 +70,7 @@ namespace Equilibrium.Models.Bundle {
                 stream.Seek(block.Offset, SeekOrigin.Begin);
             }
 
-            Span<byte> data = new byte[block.Size];
+            var data = new byte[block.Size];
             stream.Read(data);
             return data;
         }
@@ -85,7 +85,7 @@ namespace Equilibrium.Models.Bundle {
             }
 
             var fs = new UnityFS(size, compressedBlockSize, blockSize, flags);
-            Span<byte> blocksBuffer = new byte[fs.CompressedBlockInfoSize];
+            var blocksBuffer = new byte[fs.CompressedBlockInfoSize];
             if (fs.Flags.HasFlag(UnityFSFlags.BlocksInfoAtEnd)) {
                 var tmp = reader.BaseStream.Position;
                 reader.BaseStream.Seek(fs.CompressedBlockInfoSize, SeekOrigin.End);
@@ -97,10 +97,10 @@ namespace Equilibrium.Models.Bundle {
 
             var compressionType = (UnityCompressionType) (fs.Flags & UnityFSFlags.CompressionRange);
             using var blocksReader = compressionType switch {
-                UnityCompressionType.None => BiEndianBinaryReader.FromSpan(blocksBuffer, true),
+                UnityCompressionType.None => BiEndianBinaryReader.FromArray(blocksBuffer, true),
                 UnityCompressionType.LZMA => new BiEndianBinaryReader(Utils.DecodeLZMA(blocksBuffer, fs.CompressedBlockInfoSize, fs.BlockInfoSize), true),
-                UnityCompressionType.LZ4 => BiEndianBinaryReader.FromSpan(CompressionEncryption.DecompressLZ4(blocksBuffer, fs.BlockInfoSize), true),
-                UnityCompressionType.LZ4HC => BiEndianBinaryReader.FromSpan(CompressionEncryption.DecompressLZ4(blocksBuffer, fs.BlockInfoSize), true),
+                UnityCompressionType.LZ4 => BiEndianBinaryReader.FromArray(CompressionEncryption.DecompressLZ4(blocksBuffer, fs.BlockInfoSize).ToArray(), true),
+                UnityCompressionType.LZ4HC => BiEndianBinaryReader.FromArray(CompressionEncryption.DecompressLZ4(blocksBuffer, fs.BlockInfoSize).ToArray(), true),
                 _ => throw new NotImplementedException(),
             };
             fs.Hash = blocksReader.ReadBytes(16);
