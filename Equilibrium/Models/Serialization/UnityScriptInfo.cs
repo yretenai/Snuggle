@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using Equilibrium.IO;
+using JetBrains.Annotations;
 
 namespace Equilibrium.Models.Serialization {
+    [PublicAPI]
     public record UnityScriptInfo {
         public static UnityScriptInfo FromReader(BiEndianBinaryReader reader, UnitySerializedFile header) => new();
 

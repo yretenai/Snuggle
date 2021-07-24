@@ -12,7 +12,9 @@ namespace Equilibrium.Models.Serialization {
         bool IsBigEndian,
         ulong LargeAddressableFlags,
         string UnityVersion,
-        UnityPlatform Platform) {
+        UnityPlatform Platform,
+        bool TypeTreeEnabled) {
+        
         public static UnitySerializedFile FromReader(BiEndianBinaryReader reader) {
             var headerSize = reader.ReadInt32();
             long size = reader.ReadInt32();
@@ -45,8 +47,13 @@ namespace Equilibrium.Models.Serialization {
             if (version >= UnitySerializedFileVersion.TargetPlatform) {
                 targetPlatform = (UnityPlatform) reader.ReadInt32();
             }
+            
+            var typeTreeEnabled = true;
+            if (version >= UnitySerializedFileVersion.TypeTreeEnabledSwitch) {
+                typeTreeEnabled = reader.ReadBoolean();
+            }
 
-            return new UnitySerializedFile(headerSize, size, version, offset, isBigEndian, laf, unityVersion, targetPlatform);
+            return new UnitySerializedFile(headerSize, size, version, offset, isBigEndian, laf, unityVersion, targetPlatform, typeTreeEnabled);
         }
     }
 }

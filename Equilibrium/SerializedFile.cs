@@ -15,22 +15,22 @@ namespace Equilibrium {
 
             using var reader = new BiEndianBinaryReader(dataStream, true, leaveOpen);
             Header = UnitySerializedFile.FromReader(reader);
-            TypeTree = UnityTypeTree.FromReader(reader, Header);
+            Types = UnitySerializedType.ArrayFromReader(reader, Header).ToImmutableArray();
             ObjectInfos = UnityObjectInfo.ArrayFromReader(reader, Header).ToImmutableArray();
             ScriptInfos = UnityScriptInfo.ArrayFromReader(reader, Header).ToImmutableArray();
             ExternalInfos = UnityExternalInfo.ArrayFromReader(reader, Header).ToImmutableArray();
-            ReferenceInfos = UnityReferenceInfo.ArrayFromReader(reader, Header).ToImmutableArray();
+            ReferenceInfos = UnitySerializedType.ArrayFromReader(reader, Header, true).ToImmutableArray();
             if (Header.Version >= UnitySerializedFileVersion.UserInformation) {
                 UserInformation = reader.ReadNullString();
             }
         }
 
         public UnitySerializedFile Header { get; set; }
-        public UnityTypeTree TypeTree { get; set; }
+        public ImmutableArray<UnitySerializedType> Types { get; set; }
         public ImmutableArray<UnityObjectInfo> ObjectInfos { get; set; }
         public ImmutableArray<UnityScriptInfo> ScriptInfos { get; set; }
         public ImmutableArray<UnityExternalInfo> ExternalInfos { get; set; }
-        public ImmutableArray<UnityReferenceInfo> ReferenceInfos { get; set; }
+        public ImmutableArray<UnitySerializedType> ReferenceInfos { get; set; }
         public string UserInformation { get; set; } = string.Empty;
 
         public object Tag { get; set; }
