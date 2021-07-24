@@ -1,26 +1,26 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
 using Equilibrium.IO;
+using JetBrains.Annotations;
 
 namespace Equilibrium.Models.Serialization {
+    [PublicAPI]
     public record UnityTypeTree(
-        ImmutableArray<UnityTypeTreeNode> Nodes,
+        UnityTypeTreeNode[] Nodes,
         Memory<byte> StringBuffer) {
         public static UnityTypeTree FromReader(BiEndianBinaryReader reader, UnitySerializedFile header, bool isRef) {
             return header.Version is >= UnitySerializedFileVersion.TypeTreeBlob or UnitySerializedFileVersion.TypeTreeBlobBeta ? FromReaderBlob(reader, header) : FromReaderLegacy(reader, header);
         }
 
         private static UnityTypeTree FromReaderLegacy(BiEndianBinaryReader reader, UnitySerializedFile header) {
-            return new(UnityTypeTreeNode.ArrayFromReaderLegacy(reader, header, 1, 0).ToImmutableArray(), Memory<byte>.Empty);
+            return new(UnityTypeTreeNode.ArrayFromReaderLegacy(reader, header, 1, 0), Memory<byte>.Empty);
         }
 
         private static UnityTypeTree FromReaderBlob(BiEndianBinaryReader reader, UnitySerializedFile header) {
             var nodeCount = reader.ReadInt32();
             var bufferSize = reader.ReadInt32();
-            var nodes = new List<UnityTypeTreeNode>(nodeCount);
+            var nodes = new UnityTypeTreeNode[nodeCount];
             for (var i = 0; i < nodeCount; ++i) {
-                nodes.Add(UnityTypeTreeNode.FromReader(reader, header));
+                nodes[i] = UnityTypeTreeNode.FromReader(reader, header);
             }
 
             Memory<byte> buffer = reader.ReadBytes(bufferSize);
@@ -34,7 +34,7 @@ namespace Equilibrium.Models.Serialization {
                 };
             }
 
-            return new UnityTypeTree(nodes.ToImmutableArray(), buffer);
+            return new UnityTypeTree(nodes, buffer);
         }
     }
 }

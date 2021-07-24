@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using Equilibrium.IO;
@@ -36,7 +35,7 @@ namespace Equilibrium {
             }
         }
 
-        public static ImmutableArray<Bundle> OpenBundleSequence(Stream dataStream, string path, int align = 1, bool leaveOpen = false, bool cacheData = false) {
+        public static Bundle[] OpenBundleSequence(Stream dataStream, string path, int align = 1, bool leaveOpen = false, bool cacheData = false) {
             var bundles = new List<Bundle>();
             while (dataStream.Position < dataStream.Length) {
                 var start = dataStream.Position;
@@ -58,7 +57,7 @@ namespace Equilibrium {
                 dataStream.Close();
             }
 
-            return bundles.ToImmutableArray();
+            return bundles.ToArray();
         }
 
         public void CacheData(BiEndianBinaryReader? reader = null) {

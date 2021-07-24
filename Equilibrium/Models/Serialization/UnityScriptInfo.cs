@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
+﻿using System;
 using Equilibrium.IO;
 using JetBrains.Annotations;
 
@@ -18,15 +17,15 @@ namespace Equilibrium.Models.Serialization {
             return new UnityScriptInfo(index, identifier);
         }
 
-        public static ICollection<UnityScriptInfo> ArrayFromReader(BiEndianBinaryReader reader, UnitySerializedFile header) {
+        public static UnityScriptInfo[] ArrayFromReader(BiEndianBinaryReader reader, UnitySerializedFile header) {
             if (header.Version <= UnitySerializedFileVersion.ScriptTypeIndex) {
-                return ImmutableList<UnityScriptInfo>.Empty;
+                return Array.Empty<UnityScriptInfo>();
             }
 
             var count = reader.ReadInt32();
-            var array = new List<UnityScriptInfo>(count);
+            var array = new UnityScriptInfo[count];
             for (var i = 0; i < count; ++i) {
-                array.Add(FromReader(reader, header));
+                array[i] = FromReader(reader, header);
             }
 
             return array;

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Immutable;
 using System.IO;
 using DragonLib;
 using Equilibrium.IO;
@@ -13,8 +12,8 @@ namespace Equilibrium.Models.Bundle {
         int BlockInfoSize,
         UnityFSFlags Flags) : IUnityContainer {
         public byte[] Hash { get; set; } = Array.Empty<byte>();
-        public ImmutableArray<UnityBundleBlockInfo> BlockInfos { get; set; } = ImmutableArray<UnityBundleBlockInfo>.Empty;
-        public ImmutableArray<UnityBundleBlock> Blocks { get; set; } = ImmutableArray<UnityBundleBlock>.Empty;
+        public UnityBundleBlockInfo[] BlockInfos { get; set; } = Array.Empty<UnityBundleBlockInfo>(); 
+        public UnityBundleBlock[] Blocks { get; set; } = Array.Empty<UnityBundleBlock>();
         public long Length => Size;
 
         public byte[] OpenFile(UnityBundleBlock? block, BiEndianBinaryReader? reader = null, Stream? stream = null) {
@@ -105,9 +104,9 @@ namespace Equilibrium.Models.Bundle {
             };
             fs.Hash = blocksReader.ReadBytes(16);
             var infoCount = blocksReader.ReadInt32();
-            fs.BlockInfos = UnityBundleBlockInfo.ArrayFromReader(blocksReader, header, infoCount).ToImmutableArray();
+            fs.BlockInfos = UnityBundleBlockInfo.ArrayFromReader(blocksReader, header, infoCount);
             var blockCount = blocksReader.ReadInt32();
-            fs.Blocks = UnityBundleBlock.ArrayFromReader(blocksReader, header, blockCount).ToImmutableArray();
+            fs.Blocks = UnityBundleBlock.ArrayFromReader(blocksReader, header, blockCount);
 
             return fs;
         }

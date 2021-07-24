@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Equilibrium.IO;
 using JetBrains.Annotations;
 
@@ -18,14 +17,14 @@ namespace Equilibrium.Models.Bundle {
                 reader.ReadNullString()
             );
 
-        public static ICollection<UnityBundleBlock> ArrayFromReader(BiEndianBinaryReader reader,
+        public static UnityBundleBlock[] ArrayFromReader(BiEndianBinaryReader reader,
             UnityBundle header,
             int count) {
             switch (header.Format) {
                 case UnityFormat.FS: {
-                    var container = new List<UnityBundleBlock>(count);
+                    var container = new UnityBundleBlock[count];
                     for (var i = 0; i < count; ++i) {
-                        container.Add(FromReader(reader));
+                        container[i] = FromReader(reader);
                     }
 
                     return container;

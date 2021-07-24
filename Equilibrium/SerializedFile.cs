@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Immutable;
 using System.IO;
 using Equilibrium.IO;
 using Equilibrium.Models.IO;
@@ -15,11 +14,11 @@ namespace Equilibrium {
 
             using var reader = new BiEndianBinaryReader(dataStream, true, leaveOpen);
             var header = UnitySerializedFile.FromReader(reader);
-            Types = UnitySerializedType.ArrayFromReader(reader, header).ToImmutableArray();
-            ObjectInfos = UnityObjectInfo.ArrayFromReader(reader, ref header, Types).ToImmutableArray();
-            ScriptInfos = UnityScriptInfo.ArrayFromReader(reader, header).ToImmutableArray();
-            ExternalInfos = UnityExternalInfo.ArrayFromReader(reader, header).ToImmutableArray();
-            ReferenceTypes = UnitySerializedType.ArrayFromReader(reader, header, true).ToImmutableArray();
+            Types = UnitySerializedType.ArrayFromReader(reader, header);
+            ObjectInfos = UnityObjectInfo.ArrayFromReader(reader, ref header, Types);
+            ScriptInfos = UnityScriptInfo.ArrayFromReader(reader, header);
+            ExternalInfos = UnityExternalInfo.ArrayFromReader(reader, header);
+            ReferenceTypes = UnitySerializedType.ArrayFromReader(reader, header, true);
             if (header.Version >= UnitySerializedFileVersion.UserInformation) {
                 UserInformation = reader.ReadNullString();
             }
@@ -28,11 +27,11 @@ namespace Equilibrium {
         }
 
         public UnitySerializedFile Header { get; set; }
-        public ImmutableArray<UnitySerializedType> Types { get; set; }
-        public ImmutableArray<UnityObjectInfo> ObjectInfos { get; set; }
-        public ImmutableArray<UnityScriptInfo> ScriptInfos { get; set; }
-        public ImmutableArray<UnityExternalInfo> ExternalInfos { get; set; }
-        public ImmutableArray<UnitySerializedType> ReferenceTypes { get; set; }
+        public UnitySerializedType[] Types { get; set; }
+        public UnityObjectInfo[] ObjectInfos { get; set; }
+        public UnityScriptInfo[] ScriptInfos { get; set; }
+        public UnityExternalInfo[] ExternalInfos { get; set; }
+        public UnitySerializedType[] ReferenceTypes { get; set; }
         public string UserInformation { get; set; } = string.Empty;
 
         public object Tag { get; set; }

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
 using Equilibrium.IO;
 using JetBrains.Annotations;
 
@@ -14,7 +12,7 @@ namespace Equilibrium.Models.Serialization {
         string ClassName,
         string NameSpace,
         string AssemblyName,
-        ImmutableArray<int> Dependencies) {
+        int[] Dependencies) {
         public byte[] Hash { get; init; } = Array.Empty<byte>();
         public byte[] ScriptId { get; init; } = Array.Empty<byte>();
 
@@ -51,7 +49,7 @@ namespace Equilibrium.Models.Serialization {
             var className = string.Empty;
             var nameSpace = string.Empty;
             var assemblyName = string.Empty;
-            var dependencies = ArraySegment<int>.Empty;
+            var dependencies = Array.Empty<int>();
             if (header.TypeTreeEnabled) {
                 typeTree = UnityTypeTree.FromReader(reader, header, isRef);
 
@@ -66,14 +64,14 @@ namespace Equilibrium.Models.Serialization {
                 }
             }
 
-            return new UnitySerializedType(classId, isStrippedType, typeIndex, typeTree, className, nameSpace, assemblyName, dependencies.ToImmutableArray()) { Hash = hash, ScriptId = scriptId };
+            return new UnitySerializedType(classId, isStrippedType, typeIndex, typeTree, className, nameSpace, assemblyName, dependencies) { Hash = hash, ScriptId = scriptId };
         }
 
-        public static ICollection<UnitySerializedType> ArrayFromReader(BiEndianBinaryReader reader, UnitySerializedFile header, bool isRef = false) {
+        public static UnitySerializedType[] ArrayFromReader(BiEndianBinaryReader reader, UnitySerializedFile header, bool isRef = false) {
             var count = reader.ReadInt32();
-            var entries = new List<UnitySerializedType>(count);
+            var entries = new UnitySerializedType[count];
             for (var i = 0; i < count; ++i) {
-                entries.Add(FromReader(reader, header, isRef));
+                entries[i] = FromReader(reader, header, isRef);
             }
 
             return entries;

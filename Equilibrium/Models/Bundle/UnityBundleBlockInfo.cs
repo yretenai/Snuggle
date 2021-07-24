@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Equilibrium.IO;
 using JetBrains.Annotations;
@@ -9,12 +8,12 @@ namespace Equilibrium.Models.Bundle {
     public record UnityBundleBlockInfo(int Size, int CompressedSize, UnityBundleBlockFlags Flags) {
         public static UnityBundleBlockInfo FromReader(BiEndianBinaryReader reader) => new(reader.ReadInt32(), reader.ReadInt32(), (UnityBundleBlockFlags) reader.ReadInt16());
 
-        public static ICollection<UnityBundleBlockInfo> ArrayFromReader(BiEndianBinaryReader reader, UnityBundle header, int count) {
-            var container = new List<UnityBundleBlockInfo>(count);
+        public static UnityBundleBlockInfo[] ArrayFromReader(BiEndianBinaryReader reader, UnityBundle header, int count) {
+            var container = new UnityBundleBlockInfo[count];
             switch (header.Format) {
                 case UnityFormat.FS: {
                     for (var i = 0; i < count; ++i) {
-                        container.Add(FromReader(reader));
+                        container[i] = FromReader(reader);
                     }
                 }
                     break;

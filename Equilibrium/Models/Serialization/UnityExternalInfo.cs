@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Equilibrium.IO;
 using JetBrains.Annotations;
 
@@ -33,11 +32,11 @@ namespace Equilibrium.Models.Serialization {
             return new UnityExternalInfo(path, guid, type, assetPath);
         }
 
-        public static ICollection<UnityExternalInfo> ArrayFromReader(BiEndianBinaryReader reader, UnitySerializedFile header) {
+        public static UnityExternalInfo[] ArrayFromReader(BiEndianBinaryReader reader, UnitySerializedFile header) {
             var count = reader.ReadInt32();
-            var array = new List<UnityExternalInfo>(count);
+            var array = new UnityExternalInfo[count];
             for (var i = 0; i < count; ++i) {
-                array.Add(FromReader(reader, header));
+                array[i] = FromReader(reader, header);
             }
 
             return array;

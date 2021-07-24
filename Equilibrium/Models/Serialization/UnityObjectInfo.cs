@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Linq;
 using Equilibrium.IO;
 using JetBrains.Annotations;
@@ -17,7 +15,7 @@ namespace Equilibrium.Models.Serialization {
         bool IsDestroyed, // probably a flag. 
         short ScriptTypeIndex,
         bool IsStripped) {
-        public static UnityObjectInfo FromReader(BiEndianBinaryReader reader, UnitySerializedFile header, ImmutableArray<UnitySerializedType> types) {
+        public static UnityObjectInfo FromReader(BiEndianBinaryReader reader, UnitySerializedFile header, UnitySerializedType[] types) {
             if (header.Version >= UnitySerializedFileVersion.BigIdAlwaysEnabled) {
                 reader.Align();
             }
@@ -32,7 +30,7 @@ namespace Equilibrium.Models.Serialization {
                 classId = (ClassId) reader.ReadUInt16();
                 typeIndex = types.Select((x, i) => (i, x)).First(x => x.x.ClassId == classId).i;
             } else {
-                classId = types[typeId].ClassId;
+                classId = types.ElementAt(typeId).ClassId;
             }
 
             var isDestroyed = 0;
@@ -41,7 +39,7 @@ namespace Equilibrium.Models.Serialization {
                 Debug.Assert(isDestroyed is 0 or 1, "isDestroyed is 0 or 1");
             }
 
-            var scriptTypeIndex = header.Version is >= UnitySerializedFileVersion.ScriptTypeIndex and < UnitySerializedFileVersion.NewTypeData ? reader.ReadInt16() : types[typeIndex].ScriptTypeIndex;
+            var scriptTypeIndex = header.Version is >= UnitySerializedFileVersion.ScriptTypeIndex and < UnitySerializedFileVersion.NewTypeData ? reader.ReadInt16() : types.ElementAt(typeId).ScriptTypeIndex;
 
             var stripped = false;
             if (header.Version is UnitySerializedFileVersion.StrippedObject or UnitySerializedFileVersion.NewClassId) {
@@ -51,7 +49,7 @@ namespace Equilibrium.Models.Serialization {
             return new UnityObjectInfo(pathId, offset, size, typeId, classId, typeIndex, isDestroyed == 1, scriptTypeIndex, stripped);
         }
 
-        public static ICollection<UnityObjectInfo> ArrayFromReader(BiEndianBinaryReader reader, ref UnitySerializedFile header, ImmutableArray<UnitySerializedType> types) {
+        public static UnityObjectInfo[] ArrayFromReader(BiEndianBinaryReader reader, ref UnitySerializedFile header, UnitySerializedType[] types) {
             if (header.Version is >= UnitySerializedFileVersion.BigId and < UnitySerializedFileVersion.BigIdAlwaysEnabled) {
                 var value = reader.ReadInt32();
                 Debug.Assert(value is 0 or 1, "value is 0 or 1"); // i'm not sure if this is a flag or not. booleans are not aligned, so why is this one?
@@ -61,9 +59,9 @@ namespace Equilibrium.Models.Serialization {
             }
 
             var count = reader.ReadInt32();
-            var entries = new List<UnityObjectInfo>(count);
+            var entries = new UnityObjectInfo[count];
             for (var i = 0; i < count; ++i) {
-                entries.Add(FromReader(reader, header, types));
+                entries[i] = FromReader(reader, header, types);
             }
 
             return entries;

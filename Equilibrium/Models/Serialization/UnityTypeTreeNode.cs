@@ -62,7 +62,7 @@ namespace Equilibrium.Models.Serialization {
         }
 
         // ReSharper disable once FunctionRecursiveOnAllPaths
-        public static ICollection<UnityTypeTreeNode> ArrayFromReaderLegacy(BiEndianBinaryReader reader, UnitySerializedFile header, int count, int level) {
+        public static UnityTypeTreeNode[] ArrayFromReaderLegacy(BiEndianBinaryReader reader, UnitySerializedFile header, int count, int level) {
             var list = new List<UnityTypeTreeNode>();
             for (var i = 0; i < count; ++i) {
                 list.Add(FromReaderLegacy(reader, header) with { Level = level });
@@ -70,7 +70,7 @@ namespace Equilibrium.Models.Serialization {
 
             var childCount = reader.ReadInt32();
             list.AddRange(ArrayFromReaderLegacy(reader, header, childCount, level + 1));
-            return list;
+            return list.ToArray();
         }
 
         internal static Memory<byte> StaticBuffer { get; } = new(StaticStringBuffer.ToSpan().ToArray());
