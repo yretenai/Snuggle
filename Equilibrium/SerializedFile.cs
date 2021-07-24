@@ -14,15 +14,16 @@ namespace Equilibrium {
             Handler = handler;
 
             using var reader = new BiEndianBinaryReader(dataStream, true, leaveOpen);
-            Header = UnitySerializedFile.FromReader(reader);
-            Types = UnitySerializedType.ArrayFromReader(reader, Header).ToImmutableArray();
-            ObjectInfos = UnityObjectInfo.ArrayFromReader(reader, Header).ToImmutableArray();
-            ScriptInfos = UnityScriptInfo.ArrayFromReader(reader, Header).ToImmutableArray();
-            ExternalInfos = UnityExternalInfo.ArrayFromReader(reader, Header).ToImmutableArray();
-            ReferenceInfos = UnitySerializedType.ArrayFromReader(reader, Header, true).ToImmutableArray();
-            if (Header.Version >= UnitySerializedFileVersion.UserInformation) {
+            var header = UnitySerializedFile.FromReader(reader);
+            Types = UnitySerializedType.ArrayFromReader(reader, header).ToImmutableArray();
+            ObjectInfos = UnityObjectInfo.ArrayFromReader(reader, ref header, Types).ToImmutableArray();
+            ScriptInfos = UnityScriptInfo.ArrayFromReader(reader, header).ToImmutableArray();
+            ExternalInfos = UnityExternalInfo.ArrayFromReader(reader, header).ToImmutableArray();
+            ReferenceTypes = UnitySerializedType.ArrayFromReader(reader, header, true).ToImmutableArray();
+            if (header.Version >= UnitySerializedFileVersion.UserInformation) {
                 UserInformation = reader.ReadNullString();
             }
+            Header = header;
         }
 
         public UnitySerializedFile Header { get; set; }
@@ -30,7 +31,7 @@ namespace Equilibrium {
         public ImmutableArray<UnityObjectInfo> ObjectInfos { get; set; }
         public ImmutableArray<UnityScriptInfo> ScriptInfos { get; set; }
         public ImmutableArray<UnityExternalInfo> ExternalInfos { get; set; }
-        public ImmutableArray<UnitySerializedType> ReferenceInfos { get; set; }
+        public ImmutableArray<UnitySerializedType> ReferenceTypes { get; set; }
         public string UserInformation { get; set; } = string.Empty;
 
         public object Tag { get; set; }
