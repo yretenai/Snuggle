@@ -170,12 +170,7 @@ namespace Equilibrium.IO {
             Read(span);
             var value = MemoryMarshal.Cast<byte, T>(span);
             if (ShouldInvertEndianness) {
-                for (var i = 0; i < count; ++i) {
-                    if (value[i] is IReversibleStruct reversibleStruct) {
-                        reversibleStruct.ReverseEndianness();
-                        value[i] = (T) reversibleStruct;
-                    }
-                }
+                throw new NotSupportedException();
             }
 
             return value;
@@ -185,9 +180,8 @@ namespace Equilibrium.IO {
             Span<byte> span = new byte[Unsafe.SizeOf<T>()];
             Read(span);
             var value = MemoryMarshal.Read<T>(span);
-            if (ShouldInvertEndianness && value is IReversibleStruct reversibleStruct) {
-                reversibleStruct.ReverseEndianness();
-                return (T) reversibleStruct;
+            if (ShouldInvertEndianness) {
+                throw new NotSupportedException();
             }
 
             return value;
