@@ -13,8 +13,9 @@ namespace Equilibrium.Models.Bundle {
         int BlockInfoSize,
         UnityFSFlags Flags) : IUnityContainer {
         public byte[] Hash { get; set; } = Array.Empty<byte>();
-        public ImmutableArray<UnityBundleBlockInfo>? BlockInfos { get; set; }
-        public ImmutableArray<UnityBundleBlock>? Blocks { get; set; }
+        public ImmutableArray<UnityBundleBlockInfo> BlockInfos { get; set; } = ImmutableArray<UnityBundleBlockInfo>.Empty;
+        public ImmutableArray<UnityBundleBlock> Blocks { get; set; } = ImmutableArray<UnityBundleBlock>.Empty;
+        public long Length => Size;
 
         public Span<byte> OpenFile(UnityBundleBlock? block, BiEndianBinaryReader? reader = null, Stream? stream = null) {
             if (block == null) {
@@ -29,7 +30,7 @@ namespace Equilibrium.Models.Bundle {
                 var streamOffset = 0L;
                 var cur = -1L;
                 stream = new MemoryStream();
-                foreach (var (size, compressedSize, unityBundleBlockFlags) in BlockInfos ?? ImmutableArray<UnityBundleBlockInfo>.Empty) {
+                foreach (var (size, compressedSize, unityBundleBlockFlags) in BlockInfos) {
                     if (streamOffset + size < block.Offset) {
                         reader.BaseStream.Seek(compressedSize, SeekOrigin.Current);
                         continue;

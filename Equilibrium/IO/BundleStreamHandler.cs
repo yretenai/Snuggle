@@ -19,6 +19,10 @@ namespace Equilibrium.IO {
             return new MemoryStream(BundleFile.OpenFile(path).ToArray()) { Position = 0 };
         }
 
+        public object GetTag(object baseTag, object parent) {
+            return baseTag;
+        }
+
         public void Dispose() {
             BundleFile.Dispose();
             GC.SuppressFinalize(this);

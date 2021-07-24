@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
@@ -27,16 +28,40 @@ namespace Equilibrium {
 
             DataStart = dataStream.Position;
             Handler = fileHandler;
-            Tag = tag;
+            Tag = fileHandler.GetTag(tag, this);
 
             if (ShouldCacheData) {
                 CacheData(reader);
             }
         }
 
+        public static ImmutableArray<Bundle> OpenBundleSequence(Stream dataStream, string path, int align = 1, bool leaveOpen = false, bool cacheData = false) {
+            var bundles = new List<Bundle>();
+            while (dataStream.Position < dataStream.Length) {
+                var start = dataStream.Position;
+                var bundle = new Bundle(dataStream, new MultiMetaInfo(path, start, 0), MultiStreamHandler.Instance.Value, true, cacheData);
+                bundles.Add(bundle);
+                dataStream.Seek(start + bundle.Container.Length, SeekOrigin.Begin);
+
+                if (align > 1) {
+                    if (dataStream.Position % align == 0) {
+                        continue;
+                    }
+
+                    var delta = (int) (align - dataStream.Position % align);
+                    dataStream.Seek(delta, SeekOrigin.Current);
+                }
+            }
+
+            if (!leaveOpen) {
+                dataStream.Close();
+            }
+
+            return bundles.ToImmutableArray();
+        }
+
         public void CacheData(BiEndianBinaryReader? reader = null) {
-            if (DataStream != null ||
-                Container == null) {
+            if (DataStream != null) {
                 return;
             }
 
@@ -46,7 +71,7 @@ namespace Equilibrium {
                 shouldDispose = true;
             }
 
-            DataStream = new MemoryStream(Container.OpenFile(new UnityBundleBlock(0, (Container.BlockInfos ?? ImmutableArray<UnityBundleBlockInfo>.Empty).Select(x => x.Size).Sum(), 0, ""), reader).ToArray());
+            DataStream = new MemoryStream(Container.OpenFile(new UnityBundleBlock(0, Container.BlockInfos.Select(x => x.Size).Sum(), 0, ""), reader).ToArray());
 
             if (shouldDispose) {
                 reader.Dispose();
@@ -59,7 +84,7 @@ namespace Equilibrium {
         }
 
         public UnityBundle Header { get; init; }
-        public IUnityContainer? Container { get; init; }
+        public IUnityContainer Container { get; init; }
         public long DataStart { get; set; }
         public bool ShouldCacheData { get; private set; }
         private Stream? DataStream { get; set; }
@@ -74,11 +99,7 @@ namespace Equilibrium {
         public IFileHandler Handler { get; set; }
 
         public Span<byte> OpenFile(string path) {
-            if (Container == null) {
-                return Span<byte>.Empty;
-            }
-
-            var block = Container.Blocks?.FirstOrDefault(x => x.Path.Equals(path, StringComparison.InvariantCultureIgnoreCase));
+            var block = Container.Blocks.FirstOrDefault(x => x.Path.Equals(path, StringComparison.InvariantCultureIgnoreCase));
             if (block == null) {
                 return Span<byte>.Empty;
             }

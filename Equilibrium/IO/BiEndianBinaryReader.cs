@@ -34,12 +34,7 @@ namespace Equilibrium.IO {
             }
 
             var delta = (int) (4 - BaseStream.Position % 4);
-            if (BaseStream.CanSeek) {
-                BaseStream.Seek(delta, SeekOrigin.Current);
-            } else {
-                Span<byte> buffer = stackalloc byte[delta];
-                BaseStream.Read(buffer);
-            }
+            BaseStream.Seek(delta, SeekOrigin.Current);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

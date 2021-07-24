@@ -10,7 +10,7 @@ namespace Equilibrium.Models.Serialization {
         TypeTreeIndex = 4,
         ExternalGuid = 5,
         UserInformation = 5,
-        ExtendedExternalString = 6,
+        ExternalExtraPath = 6,
         UnityVersion = 7,
         BigId = 7,
         TargetPlatform = 8,
