@@ -31,5 +31,6 @@ namespace Equilibrium.Models.Serialization {
         RefObject = 20,
         TypeDependencies = 21,
         LargeFiles = 22,
+        Latest = LargeFiles,
     }
 }

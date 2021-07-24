@@ -23,6 +23,7 @@ namespace Equilibrium {
             if (header.Version >= UnitySerializedFileVersion.UserInformation) {
                 UserInformation = reader.ReadNullString();
             }
+
             Header = header;
         }
 
@@ -41,6 +42,37 @@ namespace Equilibrium {
             using var reader = Handler.OpenFile(Tag);
             // TODO
             return Span<byte>.Empty;
+        }
+
+        public static bool IsSerializedFile(BiEndianBinaryReader reader) {
+            var isBigEndian = reader.IsBigEndian;
+            var pos = reader.BaseStream.Position;
+            try {
+                reader.IsBigEndian = true;
+                var headerSize = reader.ReadInt32();
+                if (headerSize < 0) {
+                    return false;
+                }
+
+                var totalSize = reader.ReadInt32();
+                if (headerSize > totalSize) {
+                    return false;
+                }
+
+                if (totalSize > reader.BaseStream.Length) {
+                    return false;
+                }
+
+                var version = (UnitySerializedFileVersion) reader.ReadUInt32();
+                if (version > UnitySerializedFileVersion.Latest) {
+                    return false;
+                }
+                
+                return totalSize >= reader.ReadInt32();
+            } finally {
+                reader.IsBigEndian = isBigEndian;
+                reader.BaseStream.Seek(pos, SeekOrigin.Begin);
+            }
         }
     }
 }
