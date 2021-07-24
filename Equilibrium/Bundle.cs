@@ -40,7 +40,7 @@ namespace Equilibrium {
             var bundles = new List<Bundle>();
             while (dataStream.Position < dataStream.Length) {
                 var start = dataStream.Position;
-                var bundle = new Bundle(dataStream, new MultiMetaInfo(path, start, 0), MultiStreamHandler.Instance.Value, true, cacheData);
+                var bundle = new Bundle(new OffsetStream(dataStream), new MultiMetaInfo(path, start, 0), MultiStreamHandler.Instance.Value, true, cacheData);
                 bundles.Add(bundle);
                 dataStream.Seek(start + bundle.Container.Length, SeekOrigin.Begin);
 

@@ -13,7 +13,7 @@ namespace Equilibrium.IO {
         public OffsetStream(Stream stream, long? offset = null, long? length = null) {
             BaseStream = stream;
             Start = offset ?? stream.Position;
-            End = Start + length ?? stream.Length;
+            End = Start + (length ?? stream.Length - Start);
         }
 
         public override void Close() {
