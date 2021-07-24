@@ -30,15 +30,39 @@ namespace Equilibrium {
             Tag = tag;
 
             if (ShouldCacheData) {
-                DataStream = new MemoryStream(Container.OpenFile(new UnityBundleBlock(0, (Container.BlockInfos ?? ImmutableArray<UnityBundleBlockInfo>.Empty).Select(x => x.Size).Sum(), 0, ""), reader).ToArray());
+                CacheData(reader);
             }
+        }
+
+        public void CacheData(BiEndianBinaryReader? reader = null) {
+            if (DataStream != null ||
+                Container == null) {
+                return;
+            }
+
+            var shouldDispose = false;
+            if (reader == null) {
+                reader = new BiEndianBinaryReader(Handler.OpenFile(Tag));
+                shouldDispose = true;
+            }
+
+            DataStream = new MemoryStream(Container.OpenFile(new UnityBundleBlock(0, (Container.BlockInfos ?? ImmutableArray<UnityBundleBlockInfo>.Empty).Select(x => x.Size).Sum(), 0, ""), reader).ToArray());
+
+            if (shouldDispose) {
+                reader.Dispose();
+            }
+        }
+
+        public void ClearCache() {
+            DataStream?.Dispose();
+            DataStream = null;
         }
 
         public UnityBundle Header { get; init; }
         public IUnityContainer? Container { get; init; }
         public long DataStart { get; set; }
         public bool ShouldCacheData { get; private set; }
-        private Stream? DataStream { get; }
+        private Stream? DataStream { get; set; }
 
         public void Dispose() {
             DataStream?.Dispose();
