@@ -29,14 +29,13 @@ namespace Equilibrium {
                 if (block.Flags.HasFlag(UnityBundleBlockFlags.SerializedFile)) {
                     LoadSerializedFile(new MemoryStream(bundle.OpenFile(block)) { Position = 0 }, block, handler);
                 } else {
-                    var ext = Path.GetExtension(block.Path).ToLower();
-                    var stripped = block.Path[..block.Path.LastIndexOf('.')] ?? block.Path;
+                    var ext = Path.GetExtension(block.Path)[1..].ToLower();
                     switch (ext) {
                         case "ress":
-                            ResourceStreams[stripped] = (block, handler);
+                            ResourceStreams[block.Path] = (block, handler);
                             break;
                         case "resource":
-                            Resources[stripped] = (block, handler);
+                            Resources[block.Path] = (block, handler);
                             break;
                         default:
                             throw new NotImplementedException(ext);
@@ -95,14 +94,13 @@ namespace Equilibrium {
                 }
 
                 path = Path.GetFileName(path);
-                var ext = Path.GetExtension(path).ToLower();
-                var stripped = Path.GetFileNameWithoutExtension(path);
+                var ext = Path.GetExtension(path)[1..].ToLower();
                 switch (ext) {
                     case "ress":
-                        ResourceStreams[stripped] = (tag, handler);
+                        ResourceStreams[path] = (tag, handler);
                         break;
                     case "resource":
-                        Resources[stripped] = (tag, handler);
+                        Resources[path] = (tag, handler);
                         break;
                     default:
                         throw new NotImplementedException(ext);

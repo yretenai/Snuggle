@@ -17,7 +17,7 @@ namespace Equilibrium.Models.Serialization {
         public byte[] ScriptId { get; init; } = Array.Empty<byte>();
 
         public static UnitySerializedType FromReader(BiEndianBinaryReader reader, UnitySerializedFile header, bool isRef = false) {
-            var classId = (ClassId) reader.ReadInt32();
+            var classId = (ClassId) reader.ReadUInt32();
             var isStrippedType = false;
             if (header.Version >= UnitySerializedFileVersion.StrippedType) {
                 isStrippedType = reader.ReadBoolean();

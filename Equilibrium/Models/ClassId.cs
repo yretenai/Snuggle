@@ -2,7 +2,7 @@
 
 namespace Equilibrium.Models {
     [PublicAPI]
-    public enum ClassId {
+    public enum ClassId : uint {
         Object = 0,
         GameObject = 1,
         Component = 2,

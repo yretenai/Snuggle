@@ -21,7 +21,9 @@ namespace Equilibrium {
             ObjectInfos = UnityObjectInfo.ArrayFromReader(reader, ref header, Types);
             ScriptInfos = UnityScriptInfo.ArrayFromReader(reader, header);
             ExternalInfos = UnityExternalInfo.ArrayFromReader(reader, header);
-            ReferenceTypes = UnitySerializedType.ArrayFromReader(reader, header, true);
+            if (header.Version < UnitySerializedFileVersion.RefObject) {
+                ReferenceTypes = UnitySerializedType.ArrayFromReader(reader, header, true);
+            }
             if (header.Version >= UnitySerializedFileVersion.UserInformation) {
                 UserInformation = reader.ReadNullString();
             }
@@ -38,7 +40,7 @@ namespace Equilibrium {
         public UnityObjectInfo[] ObjectInfos { get; init; }
         public UnityScriptInfo[] ScriptInfos { get; init; }
         public UnityExternalInfo[] ExternalInfos { get; init; }
-        public UnitySerializedType[] ReferenceTypes { get; init; }
+        public UnitySerializedType[] ReferenceTypes { get; init; } = Array.Empty<UnitySerializedType>();
         public string UserInformation { get; init; } = string.Empty;
         public UnityVersion Version { get; set; }
         public AssetCollection? Assets { get; set; }
