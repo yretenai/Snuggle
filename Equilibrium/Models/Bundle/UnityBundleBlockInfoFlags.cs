@@ -3,7 +3,7 @@ using JetBrains.Annotations;
 
 namespace Equilibrium.Models.Bundle {
     [PublicAPI, Flags]
-    public enum UnityBundleBlockFlags {
-        SerializedFile = 4,
+    public enum UnityBundleBlockInfoFlags : ushort {
+        CompressionMask = 0x3F,
     }
 }

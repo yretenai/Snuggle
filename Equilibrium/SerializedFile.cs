@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using Equilibrium.Implementations;
 using Equilibrium.IO;
+using Equilibrium.Meta;
 using Equilibrium.Models.IO;
 using Equilibrium.Models.Serialization;
 using JetBrains.Annotations;
@@ -8,7 +11,7 @@ using JetBrains.Annotations;
 namespace Equilibrium {
     [PublicAPI]
     public class SerializedFile : IRenewable {
-        public SerializedFile(Stream dataStream, string tag, IFileHandler handler, bool leaveOpen = false) {
+        public SerializedFile(Stream dataStream, object tag, IFileHandler handler, bool leaveOpen = false) {
             Tag = tag;
             Handler = handler;
 
@@ -24,23 +27,36 @@ namespace Equilibrium {
             }
 
             Header = header;
+            
+            Version = UnityVersion.Parse(header.UnityVersion);
+            
+            Objects = new Dictionary<ulong, SerializedObject>(ObjectInfos.Length);
         }
 
-        public UnitySerializedFile Header { get; set; }
-        public UnitySerializedType[] Types { get; set; }
-        public UnityObjectInfo[] ObjectInfos { get; set; }
-        public UnityScriptInfo[] ScriptInfos { get; set; }
-        public UnityExternalInfo[] ExternalInfos { get; set; }
-        public UnitySerializedType[] ReferenceTypes { get; set; }
-        public string UserInformation { get; set; } = string.Empty;
+        public UnitySerializedFile Header { get; init; }
+        public UnitySerializedType[] Types { get; init; }
+        public UnityObjectInfo[] ObjectInfos { get; init; }
+        public UnityScriptInfo[] ScriptInfos { get; init; }
+        public UnityExternalInfo[] ExternalInfos { get; init; }
+        public UnitySerializedType[] ReferenceTypes { get; init; }
+        public string UserInformation { get; init; } = string.Empty;
+        public UnityVersion Version { get; set; }
+        public AssetCollection? Assets { get; set; }
+        
+        public Dictionary<ulong, SerializedObject> Objects { get; init; }
 
         public object Tag { get; set; }
         public IFileHandler Handler { get; set; }
 
-        public byte[] OpenFile(long pathId) {
+        public byte[] OpenFile(ulong pathId) {
             using var reader = Handler.OpenFile(Tag);
             // TODO
             return Array.Empty<byte>();
+        }
+
+        public static bool IsSerializedFile(Stream stream) {
+            using var reader = new BiEndianBinaryReader(stream, true, true);
+            return IsSerializedFile(reader);
         }
 
         public static bool IsSerializedFile(BiEndianBinaryReader reader) {

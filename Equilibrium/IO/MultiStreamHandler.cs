@@ -6,24 +6,28 @@ using JetBrains.Annotations;
 namespace Equilibrium.IO {
     [PublicAPI]
     public class MultiStreamHandler : IFileHandler {
-        public static Lazy<MultiStreamHandler> Instance { get; } = new();
+        public static Lazy<MultiStreamHandler> FileInstance { get; } = new(() => new MultiStreamHandler(new FileStreamHandler()));
+
+        public IFileHandler UnderlyingHandler { get; }
+
+        public MultiStreamHandler(IFileHandler handler) {
+            UnderlyingHandler = handler;
+        }
 
         public void Dispose() {
             GC.SuppressFinalize(this);
         }
 
         public Stream OpenFile(object tag) {
-            if (tag is string path) {
-                tag = new FileInfo(path);
-            }
-
-            var (filePath, offset, size) = tag switch {
+            var (subTag, offset, size) = tag switch {
                 MultiMetaInfo meta => meta,
-                FileInfo fi => new MultiMetaInfo(fi.FullName, 0, fi.Length),
+                string str => new MultiMetaInfo(str, 0, new FileInfo(str).Length),
                 _ => throw new FileNotFoundException(),
             };
 
-            return new OffsetStream(File.OpenRead(filePath), offset, size);
+            var stream = UnderlyingHandler.OpenFile(subTag);
+
+            return new OffsetStream(stream, offset, size);
         }
 
         public object GetTag(object baseTag, object parent) {

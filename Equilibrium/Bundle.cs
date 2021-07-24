@@ -35,11 +35,11 @@ namespace Equilibrium {
             }
         }
 
-        public static Bundle[] OpenBundleSequence(Stream dataStream, string path, int align = 1, bool leaveOpen = false, bool cacheData = false) {
+        public static Bundle[] OpenBundleSequence(Stream dataStream, object tag, IFileHandler handler, int align = 1, bool leaveOpen = false, bool cacheData = false) {
             var bundles = new List<Bundle>();
             while (dataStream.Position < dataStream.Length) {
                 var start = dataStream.Position;
-                var bundle = new Bundle(new OffsetStream(dataStream), new MultiMetaInfo(path, start, 0), MultiStreamHandler.Instance.Value, true, cacheData);
+                var bundle = new Bundle(new OffsetStream(dataStream), new MultiMetaInfo(tag, start, 0), handler, true, cacheData);
                 bundles.Add(bundle);
                 dataStream.Seek(start + bundle.Container.Length, SeekOrigin.Begin);
 
@@ -100,10 +100,10 @@ namespace Equilibrium {
 
         public byte[] OpenFile(string path) {
             var block = Container.Blocks.FirstOrDefault(x => x.Path.Equals(path, StringComparison.InvariantCultureIgnoreCase));
-            if (block == null) {
-                return Array.Empty<byte>();
-            }
+            return block == null ? Array.Empty<byte>() : OpenFile(block);
+        }
 
+        public byte[] OpenFile(UnityBundleBlock block) {
             BiEndianBinaryReader? reader = null;
             if (!ShouldCacheData ||
                 DataStream == null) {
@@ -114,6 +114,20 @@ namespace Equilibrium {
             var data = Container.OpenFile(block, reader, DataStream);
             reader?.Dispose();
             return data;
+        }
+
+        public static bool IsBundleFile(Stream stream) {
+            using var reader = new BiEndianBinaryReader(stream, true, true);
+            return IsBundleFile(reader);
+        }
+
+        private static bool IsBundleFile(BiEndianBinaryReader reader) {
+            var pos = reader.BaseStream.Position;
+            try {
+                return reader.ReadNullString() is "UnityFS" or "UnityWeb" or "UnityRaw" or "UnityArchive";
+            } finally {
+                reader.BaseStream.Seek(pos, SeekOrigin.Begin);
+            }
         }
     }
 }

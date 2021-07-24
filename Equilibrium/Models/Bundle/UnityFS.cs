@@ -45,7 +45,7 @@ namespace Equilibrium.Models.Bundle {
 
                     var buffer = reader.ReadBytes(compressedSize);
 
-                    var compressionType = (UnityCompressionType) (unityBundleBlockFlags & UnityBundleBlockFlags.CompressionMask);
+                    var compressionType = (UnityCompressionType) (unityBundleBlockFlags & UnityBundleBlockInfoFlags.CompressionMask);
                     switch (compressionType) {
                         case UnityCompressionType.None:
                             stream.Write(buffer);

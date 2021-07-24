@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
+using Equilibrium.Models.Bundle;
 using Equilibrium.Models.IO;
 using JetBrains.Annotations;
 
@@ -11,8 +13,9 @@ namespace Equilibrium.IO {
         public Bundle BundleFile { get; }
 
         public Stream OpenFile(object tag) {
-            string path = tag switch {
-                string str => str,
+            var path = tag switch {
+                string str => BundleFile.Container.Blocks.First(x => x.Path.Equals(str, StringComparison.InvariantCultureIgnoreCase)),
+                UnityBundleBlock block => block,
                 _ => throw new NotImplementedException(),
             };
 

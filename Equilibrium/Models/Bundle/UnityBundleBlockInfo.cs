@@ -5,8 +5,11 @@ using JetBrains.Annotations;
 
 namespace Equilibrium.Models.Bundle {
     [PublicAPI, StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public record UnityBundleBlockInfo(int Size, int CompressedSize, UnityBundleBlockFlags Flags) {
-        public static UnityBundleBlockInfo FromReader(BiEndianBinaryReader reader) => new(reader.ReadInt32(), reader.ReadInt32(), (UnityBundleBlockFlags) reader.ReadInt16());
+    public record UnityBundleBlockInfo(
+        int Size,
+        int CompressedSize,
+        UnityBundleBlockInfoFlags Flags) {
+        public static UnityBundleBlockInfo FromReader(BiEndianBinaryReader reader) => new(reader.ReadInt32(), reader.ReadInt32(), (UnityBundleBlockInfoFlags) reader.ReadInt16());
 
         public static UnityBundleBlockInfo[] ArrayFromReader(BiEndianBinaryReader reader, UnityBundle header, int count) {
             var container = new UnityBundleBlockInfo[count];

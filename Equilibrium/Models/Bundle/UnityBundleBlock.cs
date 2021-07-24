@@ -7,13 +7,13 @@ namespace Equilibrium.Models.Bundle {
     public record UnityBundleBlock(
         long Offset,
         long Size,
-        uint Flags,
+        UnityBundleBlockFlags Flags,
         string Path) {
         public static UnityBundleBlock FromReader(BiEndianBinaryReader reader) =>
             new(
                 reader.ReadInt64(),
                 reader.ReadInt64(),
-                reader.ReadUInt32(),
+                (UnityBundleBlockFlags) reader.ReadUInt32(),
                 reader.ReadNullString()
             );
 
