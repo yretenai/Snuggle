@@ -15,7 +15,6 @@ namespace Equilibrium.Models.Serialization {
         UnityPlatform Platform,
         bool TypeTreeEnabled,
         bool BigIdEnabled) {
-
         public static UnitySerializedFile FromReader(BiEndianBinaryReader reader) {
             var headerSize = reader.ReadInt32();
             long size = reader.ReadInt32();

@@ -27,9 +27,9 @@ namespace Equilibrium {
             }
 
             Header = header;
-            
+
             Version = UnityVersion.Parse(header.UnityVersion);
-            
+
             Objects = new Dictionary<ulong, SerializedObject>(ObjectInfos.Length);
         }
 
@@ -42,7 +42,7 @@ namespace Equilibrium {
         public string UserInformation { get; init; } = string.Empty;
         public UnityVersion Version { get; set; }
         public AssetCollection? Assets { get; set; }
-        
+
         public Dictionary<ulong, SerializedObject> Objects { get; init; }
 
         public object Tag { get; set; }
@@ -82,7 +82,7 @@ namespace Equilibrium {
                 if (version > UnitySerializedFileVersion.Latest) {
                     return false;
                 }
-                
+
                 return totalSize >= reader.ReadInt32();
             } finally {
                 reader.IsBigEndian = isBigEndian;

@@ -22,9 +22,7 @@ namespace Equilibrium.IO {
             return new MemoryStream(BundleFile.OpenFile(path)) { Position = 0 };
         }
 
-        public object GetTag(object baseTag, object parent) {
-            return baseTag;
-        }
+        public object GetTag(object baseTag, object parent) => baseTag;
 
         public void Dispose() {
             BundleFile.Dispose();

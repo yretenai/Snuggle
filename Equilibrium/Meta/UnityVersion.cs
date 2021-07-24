@@ -7,9 +7,6 @@ using JetBrains.Annotations;
 namespace Equilibrium.Meta {
     [PublicAPI]
     public class UnityVersion : ICloneable, IComparable, IComparable<UnityVersion?>, IEquatable<UnityVersion?>, IComparable<Version?>, IEquatable<Version?>, ISpanFormattable {
-        public static UnityVersion MaxValue { get; } = new(int.MaxValue, int.MaxValue, int.MaxValue, int.MaxValue);
-        public static UnityVersion MinValue { get; } = new(0);
-        
         public UnityVersion(int major, int minor = 0, int build = 0, int revision = 0, UnityBuildType type = UnityBuildType.None, int extraVersion = 0) {
             Major = major;
             Minor = minor;
@@ -18,6 +15,9 @@ namespace Equilibrium.Meta {
             Revision = revision;
             ExtraVersion = extraVersion;
         }
+
+        public static UnityVersion MaxValue { get; } = new(int.MaxValue, int.MaxValue, int.MaxValue, int.MaxValue);
+        public static UnityVersion MinValue { get; } = new(0);
 
         public int Major { get; }
         public int Minor { get; }

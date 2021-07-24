@@ -35,6 +35,21 @@ namespace Equilibrium {
             }
         }
 
+        public UnityBundle Header { get; init; }
+        public IUnityContainer Container { get; init; }
+        public long DataStart { get; set; }
+        public bool ShouldCacheData { get; private set; }
+        private Stream? DataStream { get; set; }
+
+        public void Dispose() {
+            DataStream?.Dispose();
+            Handler.Dispose();
+            GC.SuppressFinalize(this);
+        }
+
+        public object Tag { get; set; }
+        public IFileHandler Handler { get; set; }
+
         public static Bundle[] OpenBundleSequence(Stream dataStream, object tag, IFileHandler handler, int align = 1, bool leaveOpen = false, bool cacheData = false) {
             var bundles = new List<Bundle>();
             while (dataStream.Position < dataStream.Length) {
@@ -82,21 +97,6 @@ namespace Equilibrium {
             DataStream?.Dispose();
             DataStream = null;
         }
-
-        public UnityBundle Header { get; init; }
-        public IUnityContainer Container { get; init; }
-        public long DataStart { get; set; }
-        public bool ShouldCacheData { get; private set; }
-        private Stream? DataStream { get; set; }
-
-        public void Dispose() {
-            DataStream?.Dispose();
-            Handler.Dispose();
-            GC.SuppressFinalize(this);
-        }
-
-        public object Tag { get; set; }
-        public IFileHandler Handler { get; set; }
 
         public byte[] OpenFile(string path) {
             var block = Container.Blocks.FirstOrDefault(x => x.Path.Equals(path, StringComparison.InvariantCultureIgnoreCase));

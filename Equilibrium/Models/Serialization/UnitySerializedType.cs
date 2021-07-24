@@ -34,13 +34,14 @@ namespace Equilibrium.Models.Serialization {
             if (header.Version >= UnitySerializedFileVersion.TypeTreeHash) {
                 if (isRef && typeIndex >= 0) {
                     scriptId = reader.ReadBytes(16);
-                } else
+                } else {
                     switch (header.Version) {
                         case < UnitySerializedFileVersion.NewClassId when classId < ClassId.Object:
                         case >= UnitySerializedFileVersion.NewClassId when classId == ClassId.MonoBehaviour:
                             scriptId = reader.ReadBytes(16);
                             break;
                     }
+                }
 
                 hash = reader.ReadBytes(16);
             }

@@ -6,13 +6,11 @@ using JetBrains.Annotations;
 namespace Equilibrium.IO {
     [PublicAPI]
     public class MultiStreamHandler : IFileHandler {
+        public MultiStreamHandler(IFileHandler handler) => UnderlyingHandler = handler;
+
         public static Lazy<MultiStreamHandler> FileInstance { get; } = new(() => new MultiStreamHandler(new FileStreamHandler()));
 
         public IFileHandler UnderlyingHandler { get; }
-
-        public MultiStreamHandler(IFileHandler handler) {
-            UnderlyingHandler = handler;
-        }
 
         public void Dispose() {
             GC.SuppressFinalize(this);

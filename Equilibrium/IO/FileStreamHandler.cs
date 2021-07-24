@@ -18,9 +18,7 @@ namespace Equilibrium.IO {
             return File.OpenRead(path);
         }
 
-        public object GetTag(object baseTag, object parent) {
-            return baseTag;
-        }
+        public object GetTag(object baseTag, object parent) => baseTag;
 
         public void Dispose() {
             GC.SuppressFinalize(this);

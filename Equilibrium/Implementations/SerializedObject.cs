@@ -14,19 +14,14 @@ namespace Equilibrium.Implementations {
             ClassId = info.ClassId;
         }
 
-        public override string ToString() => ClassId.ToString("G");
+        public ulong PathId { get; init; }
+        public ClassId ClassId { get; init; }
 
-        public override bool Equals(object? obj) {
-            if (ReferenceEquals(null, obj)) {
-                return false;
-            }
+        [JsonIgnore]
+        public SerializedFile SerializedFile { get; init; }
 
-            if (ReferenceEquals(this, obj)) {
-                return true;
-            }
-
-            return obj is SerializedObject unityObject && Equals(unityObject);
-        }
+        [JsonIgnore]
+        public virtual bool ShouldDeserialize { get; set; }
 
         public bool Equals(SerializedObject? other) {
             if (ReferenceEquals(null, other)) {
@@ -40,14 +35,19 @@ namespace Equilibrium.Implementations {
             return PathId == other.PathId && ClassId == other.ClassId;
         }
 
-        public ulong PathId { get; init; }
-        public ClassId ClassId { get; init; }
+        public override string ToString() => ClassId.ToString("G");
 
-        [JsonIgnore]
-        public SerializedFile SerializedFile { get; init; }
+        public override bool Equals(object? obj) {
+            if (ReferenceEquals(null, obj)) {
+                return false;
+            }
 
-        [JsonIgnore]
-        public virtual bool ShouldDeserialize { get; set; }
+            if (ReferenceEquals(this, obj)) {
+                return true;
+            }
+
+            return obj is SerializedObject unityObject && Equals(unityObject);
+        }
 
         public virtual void Deserialize(BiEndianBinaryReader reader) {
             ShouldDeserialize = false;

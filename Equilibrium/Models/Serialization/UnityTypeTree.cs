@@ -7,13 +7,9 @@ namespace Equilibrium.Models.Serialization {
     public record UnityTypeTree(
         UnityTypeTreeNode[] Nodes,
         Memory<byte> StringBuffer) {
-        public static UnityTypeTree FromReader(BiEndianBinaryReader reader, UnitySerializedFile header, bool isRef) {
-            return header.Version is >= UnitySerializedFileVersion.TypeTreeBlob or UnitySerializedFileVersion.TypeTreeBlobBeta ? FromReaderBlob(reader, header) : FromReaderLegacy(reader, header);
-        }
+        public static UnityTypeTree FromReader(BiEndianBinaryReader reader, UnitySerializedFile header, bool isRef) => header.Version is >= UnitySerializedFileVersion.TypeTreeBlob or UnitySerializedFileVersion.TypeTreeBlobBeta ? FromReaderBlob(reader, header) : FromReaderLegacy(reader, header);
 
-        private static UnityTypeTree FromReaderLegacy(BiEndianBinaryReader reader, UnitySerializedFile header) {
-            return new(UnityTypeTreeNode.ArrayFromReaderLegacy(reader, header, 1, 0), Memory<byte>.Empty);
-        }
+        private static UnityTypeTree FromReaderLegacy(BiEndianBinaryReader reader, UnitySerializedFile header) => new(UnityTypeTreeNode.ArrayFromReaderLegacy(reader, header, 1, 0), Memory<byte>.Empty);
 
         private static UnityTypeTree FromReaderBlob(BiEndianBinaryReader reader, UnitySerializedFile header) {
             var nodeCount = reader.ReadInt32();

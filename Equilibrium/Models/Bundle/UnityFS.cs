@@ -12,7 +12,7 @@ namespace Equilibrium.Models.Bundle {
         int BlockInfoSize,
         UnityFSFlags Flags) : IUnityContainer {
         public byte[] Hash { get; set; } = Array.Empty<byte>();
-        public UnityBundleBlockInfo[] BlockInfos { get; set; } = Array.Empty<UnityBundleBlockInfo>(); 
+        public UnityBundleBlockInfo[] BlockInfos { get; set; } = Array.Empty<UnityBundleBlockInfo>();
         public UnityBundleBlock[] Blocks { get; set; } = Array.Empty<UnityBundleBlock>();
         public long Length => Size;
 
@@ -35,7 +35,8 @@ namespace Equilibrium.Models.Bundle {
                         continue;
                     }
 
-                    if (streamOffset + size > block.Size + block.Offset && cur > -1) {
+                    if (streamOffset + size > block.Size + block.Offset &&
+                        cur > -1) {
                         break;
                     }
 

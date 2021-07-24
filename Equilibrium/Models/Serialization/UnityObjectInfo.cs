@@ -19,7 +19,7 @@ namespace Equilibrium.Models.Serialization {
             if (header.Version >= UnitySerializedFileVersion.BigIdAlwaysEnabled) {
                 reader.Align();
             }
-            
+
             var pathId = header.BigIdEnabled ? reader.ReadUInt64() : reader.ReadUInt32();
             var offset = header.Version >= UnitySerializedFileVersion.LargeFiles ? reader.ReadInt64() : reader.ReadUInt32();
             var size = reader.ReadUInt32();

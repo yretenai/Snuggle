@@ -11,7 +11,7 @@ namespace Equilibrium.Models.Serialization {
         string AssetPath) {
         public string Name { get; } = System.IO.Path.GetFileName(AssetPath);
         public bool IsArchiveReference { get; } = AssetPath.StartsWith("archive:/", StringComparison.InvariantCultureIgnoreCase);
-        
+
         public static UnityExternalInfo FromReader(BiEndianBinaryReader reader, UnitySerializedFile header) {
             var path = string.Empty;
             if (header.Version >= UnitySerializedFileVersion.ExternalExtraPath) {

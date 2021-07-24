@@ -11,10 +11,6 @@ namespace Equilibrium.Models {
 
         public SerializedFile? Host { get; set; }
 
-        public static PPtr<T> FromReader(BiEndianBinaryReader reader, SerializedFile host) {
-            return new(reader.ReadInt32(), host.Header.BigIdEnabled ? reader.ReadUInt64() : reader.ReadUInt32()) { Host = host };
-        }
-
         public bool IsNull { get; } = FileId < 0 || PathId == 0;
 
         public T? Value {
@@ -53,8 +49,8 @@ namespace Equilibrium.Models {
 
         public PPtrState State { get; set; } = PPtrState.Unloaded;
 
-        public static implicit operator T?(PPtr<T> ptr) {
-            return ptr.Value;
-        }
+        public static PPtr<T> FromReader(BiEndianBinaryReader reader, SerializedFile host) => new(reader.ReadInt32(), host.Header.BigIdEnabled ? reader.ReadUInt64() : reader.ReadUInt32()) { Host = host };
+
+        public static implicit operator T?(PPtr<T> ptr) => ptr.Value;
     }
 }

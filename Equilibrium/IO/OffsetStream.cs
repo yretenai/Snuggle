@@ -6,14 +6,27 @@ using JetBrains.Annotations;
 namespace Equilibrium.IO {
     [PublicAPI]
     public class OffsetStream : Stream {
-        private Stream BaseStream { get; }
-        public long Start { get; }
-        public long End { get; }
-
         public OffsetStream(Stream stream, long? offset = null, long? length = null) {
             BaseStream = stream;
             Start = offset ?? stream.Position;
             End = Start + (length ?? stream.Length - Start);
+        }
+
+        private Stream BaseStream { get; }
+        public long Start { get; }
+        public long End { get; }
+
+        public override bool CanRead => BaseStream.CanRead;
+
+        public override bool CanSeek => BaseStream.CanSeek;
+
+        public override bool CanWrite => false;
+
+        public override long Length => End - Start;
+
+        public override long Position {
+            get => BaseStream.Position - Start;
+            set => Seek(value, SeekOrigin.Begin);
         }
 
         public override void Close() {
@@ -33,7 +46,7 @@ namespace Equilibrium.IO {
             if (Position < 0) { // stream is reused oh no.
                 Seek(0, SeekOrigin.Begin);
             }
-            
+
             if (BaseStream.Position + count > End) {
                 throw new IOException();
             }
@@ -71,19 +84,6 @@ namespace Equilibrium.IO {
 
         public override void Write(byte[] buffer, int offset, int count) {
             throw new IOException();
-        }
-
-        public override bool CanRead => BaseStream.CanRead;
-
-        public override bool CanSeek => BaseStream.CanSeek;
-
-        public override bool CanWrite => false;
-
-        public override long Length => End - Start;
-
-        public override long Position {
-            get => BaseStream.Position - Start;
-            set => Seek(value, SeekOrigin.Begin);
         }
     }
 }

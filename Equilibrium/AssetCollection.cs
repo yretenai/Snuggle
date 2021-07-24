@@ -14,6 +14,15 @@ namespace Equilibrium {
         public Dictionary<string, (object Tag, IFileHandler Handler)> ResourceStreams { get; } = new(StringComparer.InvariantCultureIgnoreCase);
         public Dictionary<string, (object Tag, IFileHandler Handler)> Resources { get; } = new(StringComparer.InvariantCultureIgnoreCase);
 
+        public void Dispose() {
+            foreach (var bundle in Bundles) {
+                bundle.Dispose();
+            }
+
+            Bundles.Clear();
+            GC.SuppressFinalize(this);
+        }
+
         public void LoadBundle(Bundle bundle) {
             var handler = new BundleStreamHandler(bundle);
             foreach (var block in bundle.Container.Blocks) {
@@ -99,15 +108,6 @@ namespace Equilibrium {
                         throw new NotImplementedException(ext);
                 }
             }
-        }
-
-        public void Dispose() {
-            foreach (var bundle in Bundles) {
-                bundle.Dispose();
-            }
-
-            Bundles.Clear();
-            GC.SuppressFinalize(this);
         }
     }
 }
