@@ -42,6 +42,7 @@ namespace Equilibrium {
         public string UserInformation { get; init; } = string.Empty;
         public UnityVersion Version { get; set; }
         public AssetCollection? Assets { get; set; }
+        public string Name { get; set; } = string.Empty;
 
         public Dictionary<ulong, SerializedObject> Objects { get; init; }
 

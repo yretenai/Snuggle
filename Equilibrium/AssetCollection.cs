@@ -75,7 +75,7 @@ namespace Equilibrium {
                 return;
             }
 
-            var file = new SerializedFile(dataStream, tag, handler, leaveOpen) { Assets = this };
+            var file = new SerializedFile(dataStream, tag, handler, leaveOpen) { Assets = this, Name = path };
             // TODO process objects
             Files[path] = file;
         }
