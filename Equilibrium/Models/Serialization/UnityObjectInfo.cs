@@ -28,7 +28,7 @@ namespace Equilibrium.Models.Serialization {
             var typeIndex = typeId;
             if (header.Version < UnitySerializedFileVersion.NewClassId) {
                 classId = (ClassId) reader.ReadUInt16();
-                typeIndex = types.Select((x, i) => (i, x)).First(x => x.x.ClassId == classId).i;
+                typeIndex = types.Select((x, i) => (i, x)).First(x => x.x.ClassId == (ClassId) typeId).i;
             } else {
                 classId = types.ElementAt(typeId).ClassId;
             }

@@ -70,10 +70,10 @@ namespace Equilibrium.IO {
             }
 
             if (BaseStream.Position + count > End) {
-                throw new IOException();
+                count = (int) (End - BaseStream.Position);
             }
 
-            return BaseStream.Read(buffer, offset, count);
+            return count <= 0 ? 0 : BaseStream.Read(buffer, offset, count);
         }
 
         public override long Seek(long offset, SeekOrigin origin) {
