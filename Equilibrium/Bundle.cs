@@ -86,7 +86,7 @@ namespace Equilibrium {
                 shouldDispose = true;
             }
 
-            DataStream = new MemoryStream(Container.OpenFile(new UnityBundleBlock(0, Container.BlockInfos.Select(x => x.Size).Sum(), 0, ""), reader)) { Position = 0 };
+            DataStream = Container.OpenFile(new UnityBundleBlock(0, Container.BlockInfos.Select(x => x.Size).Sum(), 0, ""), reader);
 
             if (shouldDispose) {
                 reader.Dispose();
@@ -98,12 +98,12 @@ namespace Equilibrium {
             DataStream = null;
         }
 
-        public byte[] OpenFile(string path) {
+        public Stream OpenFile(string path) {
             var block = Container.Blocks.FirstOrDefault(x => x.Path.Equals(path, StringComparison.InvariantCultureIgnoreCase));
-            return block == null ? Array.Empty<byte>() : OpenFile(block);
+            return block == null ? Stream.Null : OpenFile(block);
         }
 
-        public byte[] OpenFile(UnityBundleBlock block) {
+        public Stream OpenFile(UnityBundleBlock block) {
             BiEndianBinaryReader? reader = null;
             if (!ShouldCacheData ||
                 DataStream == null) {
@@ -113,6 +113,7 @@ namespace Equilibrium {
 
             var data = Container.OpenFile(block, reader, DataStream);
             reader?.Dispose();
+            data.Position = 0;
             return data;
         }
 

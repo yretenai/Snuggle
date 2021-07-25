@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Equilibrium.Implementations;
 using Equilibrium.IO;
 using Equilibrium.Meta;
@@ -52,11 +53,11 @@ namespace Equilibrium {
         public object Tag { get; set; }
         public IFileHandler Handler { get; set; }
 
-        public byte[] OpenFile(ulong pathId) {
-            using var reader = Handler.OpenFile(Tag);
-            // TODO
-            return Array.Empty<byte>();
-        }
+        public Stream OpenFile(ulong pathId) => OpenFile(ObjectInfos.First(x => x.PathId == pathId));
+
+        public Stream OpenFile(UnityObjectInfo info) => OpenFile(info, Handler.OpenFile(Tag));
+
+        public Stream OpenFile(UnityObjectInfo info, Stream stream, bool leaveOpen = false) => new OffsetStream(stream, info.Offset + Header.Offset, info.Size, leaveOpen);
 
         public static bool IsSerializedFile(Stream stream) {
             using var reader = new BiEndianBinaryReader(stream, true, true);

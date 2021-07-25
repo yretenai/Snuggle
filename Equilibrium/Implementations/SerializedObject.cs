@@ -55,7 +55,7 @@ namespace Equilibrium.Implementations {
         }
 
         public void Deserialize() {
-            using var reader = BiEndianBinaryReader.FromArray(SerializedFile.OpenFile(PathId), SerializedFile.Header.IsBigEndian);
+            using var reader = new BiEndianBinaryReader(SerializedFile.OpenFile(PathId), SerializedFile.Header.IsBigEndian);
             Deserialize(reader);
         }
 

@@ -16,63 +16,60 @@ namespace Equilibrium.Models.Bundle {
         public UnityBundleBlock[] Blocks { get; set; } = Array.Empty<UnityBundleBlock>();
         public long Length => Size;
 
-        public byte[] OpenFile(UnityBundleBlock? block, BiEndianBinaryReader? reader = null, Stream? stream = null) {
+        public Stream OpenFile(UnityBundleBlock? block, BiEndianBinaryReader? reader = null, Stream? stream = null) {
             if (block == null) {
-                return Array.Empty<byte>();
+                return Stream.Null;
             }
 
-            if (stream == null) {
-                if (reader == null) {
-                    throw new NotSupportedException();
+            if (stream != null) {
+                return new OffsetStream(stream, block.Offset, block.Size, true);
+            }
+
+            if (reader == null) {
+                throw new NotSupportedException();
+            }
+
+            var streamOffset = 0L;
+            var cur = -1L;
+            stream = new MemoryStream();
+            foreach (var (size, compressedSize, unityBundleBlockFlags) in BlockInfos) {
+                if (streamOffset + size < block.Offset) {
+                    reader.BaseStream.Seek(compressedSize, SeekOrigin.Current);
+                    continue;
                 }
 
-                var streamOffset = 0L;
-                var cur = -1L;
-                stream = new MemoryStream();
-                foreach (var (size, compressedSize, unityBundleBlockFlags) in BlockInfos) {
-                    if (streamOffset + size < block.Offset) {
-                        reader.BaseStream.Seek(compressedSize, SeekOrigin.Current);
-                        continue;
-                    }
+                if (streamOffset + size > block.Size + block.Offset &&
+                    cur > -1) {
+                    break;
+                }
 
-                    if (streamOffset + size > block.Size + block.Offset &&
-                        cur > -1) {
+                if (cur == -1) {
+                    cur = block.Offset - streamOffset;
+                }
+
+                var buffer = reader.ReadBytes(compressedSize);
+
+                var compressionType = (UnityCompressionType) (unityBundleBlockFlags & UnityBundleBlockInfoFlags.CompressionMask);
+                switch (compressionType) {
+                    case UnityCompressionType.None:
+                        stream.Write(buffer);
                         break;
-                    }
-
-                    if (cur == -1) {
-                        cur = block.Offset - streamOffset;
-                    }
-
-                    var buffer = reader.ReadBytes(compressedSize);
-
-                    var compressionType = (UnityCompressionType) (unityBundleBlockFlags & UnityBundleBlockInfoFlags.CompressionMask);
-                    switch (compressionType) {
-                        case UnityCompressionType.None:
-                            stream.Write(buffer);
-                            break;
-                        case UnityCompressionType.LZMA:
-                            Utils.DecodeLZMA(buffer, compressedSize, size, stream);
-                            break;
-                        case UnityCompressionType.LZ4:
-                        case UnityCompressionType.LZ4HC:
-                            stream.Write(CompressionEncryption.DecompressLZ4(buffer, size));
-                            break;
-                        default:
-                            throw new InvalidOperationException();
-                    }
-
-                    streamOffset += size;
+                    case UnityCompressionType.LZMA:
+                        Utils.DecodeLZMA(buffer, compressedSize, size, stream);
+                        break;
+                    case UnityCompressionType.LZ4:
+                    case UnityCompressionType.LZ4HC:
+                        stream.Write(CompressionEncryption.DecompressLZ4(buffer, size));
+                        break;
+                    default:
+                        throw new InvalidOperationException();
                 }
 
-                stream.Seek((int) cur, SeekOrigin.Begin);
-            } else {
-                stream.Seek(block.Offset, SeekOrigin.Begin);
+                streamOffset += size;
             }
 
-            var data = new byte[block.Size];
-            stream.Read(data);
-            return data;
+            stream.Seek((int) cur, SeekOrigin.Begin);
+            return new OffsetStream(stream, cur, block.Size);
         }
 
         public static UnityFS FromReader(BiEndianBinaryReader reader, UnityBundle header) {

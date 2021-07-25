@@ -19,7 +19,7 @@ namespace Equilibrium.IO {
                 _ => throw new InvalidOperationException(),
             };
 
-            return new MemoryStream(BundleFile.OpenFile(path)) { Position = 0 };
+            return BundleFile.OpenFile(path);
         }
 
         public object GetTag(object baseTag, object parent) => baseTag;

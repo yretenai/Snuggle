@@ -6,16 +6,18 @@ using JetBrains.Annotations;
 namespace Equilibrium.IO {
     [PublicAPI]
     public class OffsetStream : Stream {
-        public OffsetStream(Stream stream, long? offset = null, long? length = null) {
+        public OffsetStream(Stream stream, long? offset = null, long? length = null, bool leaveOpen = false) {
             BaseStream = stream;
             Start = offset ?? stream.Position;
             End = Start + (length ?? stream.Length - Start);
             BaseStream.Position = Start;
+            LeaveOpen = leaveOpen;
         }
 
         private Stream BaseStream { get; }
         public long Start { get; }
         public long End { get; }
+        public bool LeaveOpen { get; }
 
         public override bool CanRead => BaseStream.CanRead;
 
@@ -31,6 +33,10 @@ namespace Equilibrium.IO {
         }
 
         public override void Close() {
+            if (LeaveOpen) {
+                return;
+            }
+
             BaseStream.Close();
         }
 

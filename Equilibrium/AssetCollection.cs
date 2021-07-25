@@ -30,7 +30,7 @@ namespace Equilibrium {
             var handler = new BundleStreamHandler(bundle);
             foreach (var block in bundle.Container.Blocks) {
                 if (block.Flags.HasFlag(UnityBundleBlockFlags.SerializedFile)) {
-                    LoadSerializedFile(new MemoryStream(bundle.OpenFile(block)) { Position = 0 }, block, handler, false, bundle.Header.Version);
+                    LoadSerializedFile(bundle.OpenFile(block), block, handler, false, bundle.Header.Version);
                 } else {
                     var ext = Path.GetExtension(block.Path)[1..].ToLower();
                     switch (ext) {
