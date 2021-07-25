@@ -89,6 +89,8 @@ namespace Equilibrium {
                 }
 
                 return totalSize >= reader.ReadInt32();
+            } catch {
+                return false;
             } finally {
                 reader.IsBigEndian = isBigEndian;
                 reader.BaseStream.Seek(pos, SeekOrigin.Begin);

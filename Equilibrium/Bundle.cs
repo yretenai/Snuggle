@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Equilibrium.IO;
+using Equilibrium.Meta;
 using Equilibrium.Models.Bundle;
 using Equilibrium.Models.IO;
 using JetBrains.Annotations;
@@ -10,11 +11,13 @@ using JetBrains.Annotations;
 namespace Equilibrium {
     [PublicAPI]
     public class Bundle : IDisposable, IRenewable {
-        public Bundle(string path, bool cacheData = false) :
-            this(File.OpenRead(path), path, FileStreamHandler.Instance.Value, false, cacheData) { }
+        public Bundle(string path, EquilibriumOptions? options = null) :
+            this(File.OpenRead(path), path, FileStreamHandler.Instance.Value, options) { }
 
-        public Bundle(Stream dataStream, object tag, IFileHandler fileHandler, bool leaveOpen = false, bool cacheData = false) {
+        public Bundle(Stream dataStream, object tag, IFileHandler fileHandler, EquilibriumOptions? options = null, bool leaveOpen = false) {
             using var reader = new BiEndianBinaryReader(dataStream, true, leaveOpen);
+
+            Options = options ?? EquilibriumOptions.Default;
 
             Header = UnityBundle.FromReader(reader);
             Container = Header.Format switch {
@@ -28,9 +31,8 @@ namespace Equilibrium {
             DataStart = dataStream.Position;
             Handler = fileHandler;
             Tag = fileHandler.GetTag(tag, this);
-            ShouldCacheData = cacheData;
 
-            if (ShouldCacheData) {
+            if (Options.CacheData) {
                 CacheData(reader);
             }
         }
@@ -38,7 +40,7 @@ namespace Equilibrium {
         public UnityBundle Header { get; init; }
         public IUnityContainer Container { get; init; }
         public long DataStart { get; set; }
-        public bool ShouldCacheData { get; private set; }
+        public EquilibriumOptions Options { get; init; }
         private Stream? DataStream { get; set; }
 
         public void Dispose() {
@@ -50,11 +52,11 @@ namespace Equilibrium {
         public object Tag { get; set; }
         public IFileHandler Handler { get; set; }
 
-        public static Bundle[] OpenBundleSequence(Stream dataStream, object tag, IFileHandler handler, int align = 1, bool leaveOpen = false, bool cacheData = false) {
+        public static Bundle[] OpenBundleSequence(Stream dataStream, object tag, IFileHandler handler, int align = 1, EquilibriumOptions? options = null, bool leaveOpen = false) {
             var bundles = new List<Bundle>();
             while (dataStream.Position < dataStream.Length) {
                 var start = dataStream.Position;
-                var bundle = new Bundle(new OffsetStream(dataStream), new MultiMetaInfo(tag, start, 0), handler, true, cacheData);
+                var bundle = new Bundle(new OffsetStream(dataStream), new MultiMetaInfo(tag, start, 0), handler, options, true);
                 bundles.Add(bundle);
                 dataStream.Seek(start + bundle.Container.Length, SeekOrigin.Begin);
 
@@ -105,7 +107,7 @@ namespace Equilibrium {
 
         public Stream OpenFile(UnityBundleBlock block) {
             BiEndianBinaryReader? reader = null;
-            if (!ShouldCacheData ||
+            if (!Options.CacheData ||
                 DataStream == null) {
                 reader = new BiEndianBinaryReader(Handler.OpenFile(Tag), true);
                 reader.BaseStream.Seek(DataStart, SeekOrigin.Begin);
@@ -125,7 +127,13 @@ namespace Equilibrium {
         private static bool IsBundleFile(BiEndianBinaryReader reader) {
             var pos = reader.BaseStream.Position;
             try {
-                return reader.ReadNullString() is "UnityFS" or "UnityWeb" or "UnityRaw" or "UnityArchive";
+                if (reader.PeekChar() != 'U') {
+                    return false;
+                }
+
+                return reader.ReadNullString(0x10) is "UnityFS" or "UnityWeb" or "UnityRaw" or "UnityArchive";
+            } catch {
+                return false;
             } finally {
                 reader.BaseStream.Seek(pos, SeekOrigin.Begin);
             }

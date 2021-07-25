@@ -1,0 +1,35 @@
+﻿<Window x:Class="Entropy.Windows.Main"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="13"
+        TextOptions.TextFormattingMode="Ideal"
+        TextOptions.TextRenderingMode="Auto"
+        Background="{DynamicResource MaterialDesignPaper}"
+        FontFamily="{DynamicResource MaterialDesignFont}"
+        xmlns:entropy="clr-namespace:Entropy.Components"
+        xmlns:viewModels="clr-namespace:Entropy.ViewModels"
+        DataContext="{x:Static Member=viewModels:EntropyCore.Instance}"
+        Title="Equilibrium Entropy" Height="450" Width="800">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition MinWidth="300" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <entropy:Navigation Grid.ColumnSpan="3" DataContext="{Binding}" />
+        <Grid Grid.Column="0" Grid.Row="1" />
+        <GridSplitter Grid.Column="1" Grid.Row="1" />
+        <entropy:View Grid.Column="2" Grid.Row="1" />
+        <entropy:Status Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="2" DataContext="{Binding }" />
+    </Grid>
+</Window>

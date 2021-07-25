@@ -153,11 +153,16 @@ namespace Equilibrium.IO {
             return Encoding.GetString(span);
         }
 
-        public string ReadNullString() {
+        public string ReadNullString(int maxLength = 0) {
             var sb = new StringBuilder();
             byte b;
             while ((b = ReadByte()) != 0) {
                 sb.Append((char) b);
+
+                if (maxLength > 0 &&
+                    sb.Length >= maxLength) {
+                    break;
+                }
             }
 
             return sb.ToString();

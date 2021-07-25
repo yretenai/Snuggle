@@ -59,6 +59,8 @@ namespace Equilibrium.Implementations {
             Deserialize(reader);
         }
 
+        public virtual void Free() { }
+
         public override int GetHashCode() => HashCode.Combine(ClassId, PathId);
     }
 }
