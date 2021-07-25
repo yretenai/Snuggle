@@ -23,6 +23,9 @@ namespace Equilibrium {
             }
 
             Bundles.Clear();
+            Files.Clear();
+            ResourceStreams.Clear();
+            Resources.Clear();
             GC.SuppressFinalize(this);
         }
 

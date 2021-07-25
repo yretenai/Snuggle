@@ -18,6 +18,7 @@ namespace Equilibrium.IO {
         public long Start { get; }
         public long End { get; }
         public bool LeaveOpen { get; }
+        public bool Disposed { get; private set; }
 
         public override bool CanRead => BaseStream.CanRead;
 
@@ -33,6 +34,8 @@ namespace Equilibrium.IO {
         }
 
         public override void Close() {
+            Disposed = true;
+            
             if (LeaveOpen) {
                 return;
             }
@@ -41,15 +44,27 @@ namespace Equilibrium.IO {
         }
 
         public override async ValueTask DisposeAsync() {
-            await BaseStream.DisposeAsync();
+            Disposed = true;
+            
+            if (!LeaveOpen) {
+                await BaseStream.DisposeAsync();
+            }
+            
             GC.SuppressFinalize(this);
         }
 
         public override void Flush() {
+            if (Disposed) {
+                throw new ObjectDisposedException(nameof(OffsetStream));
+            }
             BaseStream.Flush();
         }
 
         public override int Read(byte[] buffer, int offset, int count) {
+            if (Disposed) {
+                throw new ObjectDisposedException(nameof(OffsetStream));
+            }
+            
             if (Position < 0) { // stream is reused oh no.
                 Seek(0, SeekOrigin.Begin);
             }
@@ -62,6 +77,10 @@ namespace Equilibrium.IO {
         }
 
         public override long Seek(long offset, SeekOrigin origin) {
+            if (Disposed) {
+                throw new ObjectDisposedException(nameof(OffsetStream));
+            }
+            
             var absolutePosition = origin switch {
                 SeekOrigin.Begin => Start + offset,
                 SeekOrigin.Current => BaseStream.Position + offset,
