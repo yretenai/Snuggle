@@ -17,6 +17,13 @@ namespace Equilibrium.Models.Bundle {
                 reader.ReadNullString()
             );
 
+        public static UnityBundleBlock FromReaderRaw(BiEndianBinaryReader reader) {
+            var path = reader.ReadNullString();
+            var offset = reader.ReadUInt32();
+            var size = reader.ReadUInt32();
+            return new UnityBundleBlock(offset, size, UnityBundleBlockFlags.SerializedFile, path);
+        }
+
         public static UnityBundleBlock[] ArrayFromReader(BiEndianBinaryReader reader,
             UnityBundle header,
             int count) {
@@ -30,7 +37,14 @@ namespace Equilibrium.Models.Bundle {
                     return container;
                 }
                 case UnityFormat.Raw:
-                case UnityFormat.Web:
+                case UnityFormat.Web: {
+                    var container = new UnityBundleBlock[count];
+                    for (var i = 0; i < count; ++i) {
+                        container[i] = FromReaderRaw(reader);
+                    }
+
+                    return container;
+                }
                 case UnityFormat.Archive:
                     throw new NotImplementedException();
                 default:

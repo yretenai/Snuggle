@@ -36,13 +36,22 @@ namespace Equilibrium.Implementations {
             IsStreamedSceneAssetBundle = reader.ReadBoolean();
             reader.Align();
 
-            ExplicitDataLayout = reader.ReadInt32();
-            PathFlags = reader.ReadInt32();
+            if (serializedFile.Version > new UnityVersion(2017, 3)) {
+                ExplicitDataLayout = reader.ReadInt32();
+            }
 
-            var sceneHashCount = reader.ReadInt32();
-            SceneHashes = new Dictionary<string, string>(sceneHashCount);
-            for (var i = 0; i < sceneHashCount; ++i) {
-                SceneHashes[reader.ReadString32()] = reader.ReadString32();
+            if (serializedFile.Version > new UnityVersion(2017, 1)) {
+                PathFlags = reader.ReadInt32();
+            }
+
+            if (serializedFile.Version > new UnityVersion(2017, 3)) {
+                var sceneHashCount = reader.ReadInt32();
+                SceneHashes = new Dictionary<string, string>(sceneHashCount);
+                for (var i = 0; i < sceneHashCount; ++i) {
+                    SceneHashes[reader.ReadString32()] = reader.ReadString32();
+                }
+            } else {
+                SceneHashes = new Dictionary<string, string>(0);
             }
         }
 

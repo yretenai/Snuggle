@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 
 namespace Equilibrium.Meta {
     [PublicAPI]
-    public class UnityVersion : ICloneable, IComparable, IComparable<UnityVersion?>, IEquatable<UnityVersion?>, IComparable<Version?>, IEquatable<Version?>, ISpanFormattable {
+    public struct UnityVersion : ICloneable, IComparable, IComparable<UnityVersion>, IEquatable<UnityVersion>, IComparable<Version?>, IEquatable<Version?>, ISpanFormattable {
         public UnityVersion(int major, int minor = 0, int build = 0, int revision = 0, UnityBuildType type = UnityBuildType.None, int extraVersion = 0) {
             Major = major;
             Minor = minor;
@@ -38,27 +38,17 @@ namespace Equilibrium.Meta {
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int CompareTo(UnityVersion? value) {
-            if (value is null) {
-                return 1;
-            }
-
-            if (ReferenceEquals(value, this)) {
-                return 0;
-            }
-
-            return
-                Major != value.Major ? Major > value.Major ? 1 : -1 :
-                Minor != value.Minor ? Minor > value.Minor ? 1 : -1 :
-                Build != value.Build ? Build > value.Build ? 1 : -1 :
-                Revision != value.Revision ? Revision > value.Revision ? 1 : -1 :
-                0;
-        }
+        public int CompareTo(UnityVersion value) =>
+            Major != value.Major ? Major > value.Major ? 1 : -1 :
+            Minor != value.Minor ? Minor > value.Minor ? 1 : -1 :
+            Build != value.Build ? Build > value.Build ? 1 : -1 :
+            Revision != value.Revision ? Revision > value.Revision ? 1 : -1 :
+            0;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int CompareTo(Version? value) => value is null ? 1 : ((Version) this).CompareTo(value);
 
-        public bool Equals(UnityVersion? other) {
+        public bool Equals(UnityVersion other) {
             if (other == null) {
                 return false;
             }
@@ -71,7 +61,7 @@ namespace Equilibrium.Meta {
                 return false;
             }
 
-            return other == (Version) this;
+            return other == this;
         }
 
         public string ToString(string? format, IFormatProvider? formatProvider) => ToString();
@@ -156,10 +146,6 @@ namespace Equilibrium.Meta {
         }
 
         public override bool Equals(object? obj) {
-            if (ReferenceEquals(this, obj)) {
-                return true;
-            }
-
             return obj switch {
                 Version version => Equals(version),
                 UnityVersion unityVersion => Equals(unityVersion),
@@ -174,12 +160,11 @@ namespace Equilibrium.Meta {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator ==(UnityVersion? v1, UnityVersion? v2) {
             if (v2 is null) {
-                // ReSharper disable once RedundantTernaryExpression
-                return v1 is null ? true : false;
+                return v1 is null;
             }
 
             // ReSharper disable once SimplifyConditionalTernaryExpression
-            return ReferenceEquals(v2, v1) ? true : v2.Equals(v1);
+            return v2.Equals(v1);
         }
 
         public static bool operator !=(UnityVersion? v1, UnityVersion? v2) => !(v1 == v2);
@@ -189,7 +174,11 @@ namespace Equilibrium.Meta {
                 return v2 is not null;
             }
 
-            return v1.CompareTo(v2) < 0;
+            if (v2 is null) {
+                return false;
+            }
+
+            return v1.Value.CompareTo(v2.Value) < 0;
         }
 
         public static bool operator <=(UnityVersion? v1, UnityVersion? v2) {
@@ -197,7 +186,11 @@ namespace Equilibrium.Meta {
                 return true;
             }
 
-            return v1.CompareTo(v2) <= 0;
+            if (v2 is null) {
+                return false;
+            }
+
+            return v1.Value.CompareTo(v2.Value) <= 0;
         }
 
         public static bool operator >(UnityVersion? v1, UnityVersion? v2) => v2 < v1;

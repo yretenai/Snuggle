@@ -85,7 +85,7 @@ namespace Equilibrium {
             if (file.Version == UnityVersion.MinValue &&
                 fallbackVersion != null &&
                 fallbackVersion != UnityVersion.MinValue) {
-                file.Version = fallbackVersion;
+                file.Version = fallbackVersion.Value;
             }
 
             foreach (var objectInfo in file.ObjectInfos) {

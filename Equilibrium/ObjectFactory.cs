@@ -22,7 +22,7 @@ namespace Equilibrium {
         public static Dictionary<ClassId, Type> Implementations { get; set; } = new();
 
         public static void LoadImplementationTypes(Assembly assembly) {
-            foreach (var (type, attribute) in assembly.GetTypes()
+            foreach (var (type, attribute) in assembly.GetExportedTypes()
                 .Where(x => x.IsAssignableTo(BaseType))
                 .Select(x => (Type: x, Attribute: x.GetCustomAttribute<ObjectImplementationAttribute>()))
                 .Where(x => x.Attribute != null)) {

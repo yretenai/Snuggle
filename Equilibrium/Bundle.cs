@@ -20,8 +20,8 @@ namespace Equilibrium {
             Container = Header.Format switch {
                 UnityFormat.FS => UnityFS.FromReader(reader, Header),
                 UnityFormat.Archive => throw new NotImplementedException(),
-                UnityFormat.Web => throw new NotImplementedException(),
-                UnityFormat.Raw => throw new NotImplementedException(),
+                UnityFormat.Web => UnityRaw.FromReader(reader, Header),
+                UnityFormat.Raw => UnityRaw.FromReader(reader, Header),
                 _ => throw new InvalidOperationException(),
             };
 
