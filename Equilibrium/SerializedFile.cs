@@ -34,7 +34,7 @@ namespace Equilibrium {
 
             Version = UnityVersion.Parse(header.UnityVersion);
 
-            Objects = new Dictionary<ulong, SerializedObject>(ObjectInfos.Length);
+            Objects = new Dictionary<long, SerializedObject>(ObjectInfos.Length);
         }
 
         public UnitySerializedFile Header { get; init; }
@@ -48,12 +48,12 @@ namespace Equilibrium {
         public AssetCollection? Assets { get; set; }
         public string Name { get; set; } = string.Empty;
 
-        public Dictionary<ulong, SerializedObject> Objects { get; init; }
+        public Dictionary<long, SerializedObject> Objects { get; init; }
 
         public object Tag { get; set; }
         public IFileHandler Handler { get; set; }
 
-        public Stream OpenFile(ulong pathId) => OpenFile(ObjectInfos.First(x => x.PathId == pathId));
+        public Stream OpenFile(long pathId) => OpenFile(ObjectInfos.First(x => x.PathId == pathId));
 
         public Stream OpenFile(UnityObjectInfo info) => OpenFile(info, Handler.OpenFile(Tag));
 

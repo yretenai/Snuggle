@@ -6,7 +6,7 @@ namespace Equilibrium.Models {
     [PublicAPI]
     public record PPtr<T>(
         int FileId,
-        ulong PathId) where T : SerializedObject {
+        long PathId) where T : SerializedObject {
         private T? UnderlyingValue { get; set; }
 
         public SerializedFile? File { get; set; }
@@ -49,7 +49,7 @@ namespace Equilibrium.Models {
 
         public PPtrState State { get; set; } = PPtrState.Unloaded;
 
-        public static PPtr<T> FromReader(BiEndianBinaryReader reader, SerializedFile file) => new(reader.ReadInt32(), file.Header.BigIdEnabled ? reader.ReadUInt64() : reader.ReadUInt32()) { File = file };
+        public static PPtr<T> FromReader(BiEndianBinaryReader reader, SerializedFile file) => new(reader.ReadInt32(), file.Header.BigIdEnabled ? reader.ReadInt64() : reader.ReadInt32()) { File = file };
 
         public static implicit operator T?(PPtr<T> ptr) => ptr.Value;
     }

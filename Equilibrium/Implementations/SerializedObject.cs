@@ -15,7 +15,7 @@ namespace Equilibrium.Implementations {
             ClassId = info.ClassId;
         }
 
-        public ulong PathId { get; init; }
+        public long PathId { get; init; }
         public ClassId ClassId { get; init; }
 
         [JsonIgnore]

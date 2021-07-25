@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 namespace Equilibrium.Models.Serialization {
     [PublicAPI]
     public record UnityObjectInfo(
-        ulong PathId,
+        long PathId,
         long Offset,
         long Size,
         int TypeId,
@@ -20,8 +20,8 @@ namespace Equilibrium.Models.Serialization {
                 reader.Align();
             }
 
-            var pathId = header.BigIdEnabled ? reader.ReadUInt64() : reader.ReadUInt32();
-            var offset = header.Version >= UnitySerializedFileVersion.LargeFiles ? reader.ReadInt64() : reader.ReadUInt32();
+            var pathId = header.BigIdEnabled ? reader.ReadInt64() : reader.ReadInt32();
+            var offset = header.Version >= UnitySerializedFileVersion.LargeFiles ? reader.ReadInt64() : reader.ReadInt32();
             var size = reader.ReadUInt32();
             var typeId = reader.ReadInt32();
             ClassId classId;

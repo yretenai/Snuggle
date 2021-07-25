@@ -6,14 +6,14 @@ namespace Equilibrium.Models.Serialization {
     [PublicAPI]
     public record UnityScriptInfo(
         int Index,
-        ulong PathId) {
+        long PathId) {
         public static UnityScriptInfo FromReader(BiEndianBinaryReader reader, UnitySerializedFile header) {
             if (header.Version >= UnitySerializedFileVersion.BigIdAlwaysEnabled) {
                 reader.Align();
             }
 
             var index = reader.ReadInt32();
-            var identifier = header.BigIdEnabled ? reader.ReadUInt64() : reader.ReadUInt32();
+            var identifier = header.BigIdEnabled ? reader.ReadInt64() : reader.ReadInt32();
             return new UnityScriptInfo(index, identifier);
         }
 
