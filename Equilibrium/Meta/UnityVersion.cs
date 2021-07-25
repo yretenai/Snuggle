@@ -48,20 +48,14 @@ namespace Equilibrium.Meta {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int CompareTo(Version? value) => value is null ? 1 : ((Version) this).CompareTo(value);
 
-        public bool Equals(UnityVersion other) {
-            if (other == null) {
-                return false;
-            }
-
-            return other.Major == Major && other.Minor == Minor && other.Build == Build && other.Type == Type && other.Revision == Revision && other.ExtraVersion == ExtraVersion;
-        }
+        public bool Equals(UnityVersion other) => other.Major == Major && other.Minor == Minor && other.Build == Build && other.Type == Type && other.Revision == Revision && other.ExtraVersion == ExtraVersion;
 
         public bool Equals(Version? other) {
             if (other == null) {
                 return false;
             }
 
-            return other == this;
+            return other == (Version) this;
         }
 
         public string ToString(string? format, IFormatProvider? formatProvider) => ToString();
@@ -158,44 +152,17 @@ namespace Equilibrium.Meta {
         public static implicit operator UnityVersion(Version version) => new(version.Major, version.Minor, version.Build, version.Revision);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator ==(UnityVersion? v1, UnityVersion? v2) {
-            if (v2 is null) {
-                return v1 is null;
-            }
+        public static bool operator ==(UnityVersion v1, UnityVersion v2) => v2.Equals(v1);
 
-            // ReSharper disable once SimplifyConditionalTernaryExpression
-            return v2.Equals(v1);
-        }
+        public static bool operator !=(UnityVersion v1, UnityVersion v2) => !(v1 == v2);
 
-        public static bool operator !=(UnityVersion? v1, UnityVersion? v2) => !(v1 == v2);
+        public static bool operator <(UnityVersion v1, UnityVersion v2) => v1.CompareTo(v2) < 0;
 
-        public static bool operator <(UnityVersion? v1, UnityVersion? v2) {
-            if (v1 is null) {
-                return v2 is not null;
-            }
+        public static bool operator <=(UnityVersion v1, UnityVersion v2) => v1.CompareTo(v2) <= 0;
 
-            if (v2 is null) {
-                return false;
-            }
+        public static bool operator >(UnityVersion v1, UnityVersion v2) => v2 < v1;
 
-            return v1.Value.CompareTo(v2.Value) < 0;
-        }
-
-        public static bool operator <=(UnityVersion? v1, UnityVersion? v2) {
-            if (v1 is null) {
-                return true;
-            }
-
-            if (v2 is null) {
-                return false;
-            }
-
-            return v1.Value.CompareTo(v2.Value) <= 0;
-        }
-
-        public static bool operator >(UnityVersion? v1, UnityVersion? v2) => v2 < v1;
-
-        public static bool operator >=(UnityVersion? v1, UnityVersion? v2) => v2 <= v1;
+        public static bool operator >=(UnityVersion v1, UnityVersion v2) => v2 <= v1;
 
         public static UnityVersion Parse(string? input) {
             if (string.IsNullOrEmpty(input)) {

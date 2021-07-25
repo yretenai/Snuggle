@@ -369,5 +369,6 @@ namespace Equilibrium.Models {
         VisualEffect = 2083052967,
         LocalizationAsset = 2083778819,
         ScriptedImporter = 2089858483,
+        Unknown = 2147483647,
     }
 }

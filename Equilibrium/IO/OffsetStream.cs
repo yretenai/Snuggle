@@ -35,7 +35,7 @@ namespace Equilibrium.IO {
 
         public override void Close() {
             Disposed = true;
-            
+
             if (LeaveOpen) {
                 return;
             }
@@ -45,11 +45,11 @@ namespace Equilibrium.IO {
 
         public override async ValueTask DisposeAsync() {
             Disposed = true;
-            
+
             if (!LeaveOpen) {
                 await BaseStream.DisposeAsync();
             }
-            
+
             GC.SuppressFinalize(this);
         }
 
@@ -57,6 +57,7 @@ namespace Equilibrium.IO {
             if (Disposed) {
                 throw new ObjectDisposedException(nameof(OffsetStream));
             }
+
             BaseStream.Flush();
         }
 
@@ -64,7 +65,7 @@ namespace Equilibrium.IO {
             if (Disposed) {
                 throw new ObjectDisposedException(nameof(OffsetStream));
             }
-            
+
             if (Position < 0) { // stream is reused oh no.
                 Seek(0, SeekOrigin.Begin);
             }
@@ -80,7 +81,7 @@ namespace Equilibrium.IO {
             if (Disposed) {
                 throw new ObjectDisposedException(nameof(OffsetStream));
             }
-            
+
             var absolutePosition = origin switch {
                 SeekOrigin.Begin => Start + offset,
                 SeekOrigin.Current => BaseStream.Position + offset,

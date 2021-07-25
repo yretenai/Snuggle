@@ -20,6 +20,7 @@ namespace Equilibrium.IO {
         public Encoding Encoding { get; private init; }
 
         protected bool ShouldInvertEndianness => BitConverter.IsLittleEndian ? IsBigEndian : !IsBigEndian;
+        public long Unconsumed => BaseStream.Length - BaseStream.Position;
 
         public static BiEndianBinaryReader FromArray(byte[] array, bool isBigEndian = false) {
             var ms = new MemoryStream(array) { Position = 0 };
@@ -33,6 +34,10 @@ namespace Equilibrium.IO {
             }
 
             var delta = (int) (4 - BaseStream.Position % 4);
+            if (BaseStream.Position + delta > BaseStream.Length) {
+                return;
+            }
+
             BaseStream.Seek(delta, SeekOrigin.Current);
         }
 

@@ -23,6 +23,17 @@ namespace Equilibrium.Implementations {
                 Container[reader.ReadString32()] = AssetInfo.FromReader(reader, serializedFile);
             }
 
+            if (serializedFile.Version >= new UnityVersion(5, 4) &&
+                serializedFile.Version < new UnityVersion(5, 5)) {
+                var classInfoCount = reader.ReadInt32();
+                ClassInfos = new Dictionary<int, uint>();
+                for (var i = 0; i < classInfoCount; ++i) {
+                    ClassInfos[reader.ReadInt32()] = reader.ReadUInt32();
+                }
+            } else {
+                ClassInfos = new Dictionary<int, uint>(0);
+            }
+
             MainAsset = AssetInfo.FromReader(reader, serializedFile);
             RuntimeCompatibility = reader.ReadUInt32();
             AssetBundleName = reader.ReadString32();
@@ -57,6 +68,7 @@ namespace Equilibrium.Implementations {
 
         public PPtr<SerializedObject>[] PreloadTable { get; init; }
         public Dictionary<string, AssetInfo> Container { get; init; }
+        public Dictionary<int, uint> ClassInfos { get; set; }
         public AssetInfo MainAsset { get; init; }
         public uint RuntimeCompatibility { get; init; }
         public string AssetBundleName { get; init; }
