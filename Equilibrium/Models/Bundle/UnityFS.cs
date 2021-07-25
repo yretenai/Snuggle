@@ -2,6 +2,7 @@
 using System.IO;
 using DragonLib;
 using Equilibrium.IO;
+using Equilibrium.Meta;
 using JetBrains.Annotations;
 
 namespace Equilibrium.Models.Bundle {

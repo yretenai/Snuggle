@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using DragonLib;
 using Equilibrium.IO;
+using Equilibrium.Meta;
 using JetBrains.Annotations;
 
 namespace Equilibrium.Models.Bundle {

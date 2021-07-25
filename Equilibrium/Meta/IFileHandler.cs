@@ -2,7 +2,7 @@
 using System.IO;
 using JetBrains.Annotations;
 
-namespace Equilibrium.Models.IO {
+namespace Equilibrium.Meta {
     [PublicAPI]
     public interface IFileHandler : IDisposable {
         public Stream OpenFile(object tag);

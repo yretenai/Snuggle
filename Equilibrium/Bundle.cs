@@ -5,7 +5,6 @@ using System.Linq;
 using Equilibrium.IO;
 using Equilibrium.Meta;
 using Equilibrium.Models.Bundle;
-using Equilibrium.Models.IO;
 using JetBrains.Annotations;
 
 namespace Equilibrium {

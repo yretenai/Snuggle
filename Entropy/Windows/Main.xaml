@@ -29,7 +29,7 @@
         <entropy:Navigation Grid.ColumnSpan="3" DataContext="{Binding}" />
         <Grid Grid.Column="0" Grid.Row="1" />
         <GridSplitter Grid.Column="1" Grid.Row="1" />
-        <entropy:View Grid.Column="2" Grid.Row="1" />
-        <entropy:Status Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="2" DataContext="{Binding }" />
+        <entropy:View Grid.Column="2" Grid.Row="1" DataContext="{Binding}" />
+        <entropy:Status Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="2" DataContext="{Binding}" />
     </Grid>
 </Window>

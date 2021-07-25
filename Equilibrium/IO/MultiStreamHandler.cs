@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using Equilibrium.Models.IO;
+using Equilibrium.Meta;
 using JetBrains.Annotations;
 
 namespace Equilibrium.IO {
