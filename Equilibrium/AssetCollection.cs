@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using Equilibrium.IO;
+using Equilibrium.Meta;
+using Equilibrium.Models;
 using Equilibrium.Models.Bundle;
 using Equilibrium.Models.IO;
 using JetBrains.Annotations;
@@ -27,7 +30,7 @@ namespace Equilibrium {
             var handler = new BundleStreamHandler(bundle);
             foreach (var block in bundle.Container.Blocks) {
                 if (block.Flags.HasFlag(UnityBundleBlockFlags.SerializedFile)) {
-                    LoadSerializedFile(new MemoryStream(bundle.OpenFile(block)) { Position = 0 }, block, handler);
+                    LoadSerializedFile(new MemoryStream(bundle.OpenFile(block)) { Position = 0 }, block, handler, false, bundle.Header.Version);
                 } else {
                     var ext = Path.GetExtension(block.Path)[1..].ToLower();
                     switch (ext) {
@@ -38,7 +41,8 @@ namespace Equilibrium {
                             Resources[block.Path] = (block, handler);
                             break;
                         default:
-                            throw new NotImplementedException(ext);
+                            // ??
+                            continue;
                     }
                 }
             }
@@ -59,24 +63,43 @@ namespace Equilibrium {
 
         public void LoadBundleSequence(string path, int align = 1, bool cacheData = false) => LoadBundleSequence(File.OpenRead(path), path, MultiStreamHandler.FileInstance.Value, align, cacheData);
 
-        public void LoadSerializedFile(Stream dataStream, object tag, IFileHandler handler, bool leaveOpen = false) {
+        public void LoadSerializedFile(Stream dataStream, object tag, IFileHandler handler, bool leaveOpen = false, UnityVersion? fallbackVersion = null) {
             var path = tag switch {
                 UnityBundleBlock block => block.Path,
                 string str => Path.GetFileName(str),
-                _ => throw new NotImplementedException(),
+                _ => throw new InvalidOperationException(),
             };
 
             if (Files.ContainsKey(path)) {
                 if (!leaveOpen) {
-                    dataStream.Close();
+                    dataStream.Dispose();
                 }
 
                 return;
             }
 
-            var file = new SerializedFile(dataStream, tag, handler, leaveOpen) { Assets = this, Name = path };
-            // TODO process objects
+            var file = new SerializedFile(dataStream, tag, handler, true) { Assets = this, Name = path };
+            if (file.Version == UnityVersion.MinValue &&
+                fallbackVersion != null &&
+                fallbackVersion != UnityVersion.MinValue) {
+                file.Version = fallbackVersion;
+            }
+
+            foreach (var objectInfo in file.ObjectInfos) {
+                try {
+                    file.Objects[objectInfo.PathId] = ObjectFactory.GetInstance(dataStream, objectInfo, file);
+                } catch (Exception e) {
+                    Debug.WriteLine($"Failed to decode {objectInfo.PathId} (type {objectInfo.ClassId}) on file {file.Name}.");
+                    Debug.WriteLine(e);
+                    file.Objects[objectInfo.PathId] = ObjectFactory.GetInstance(dataStream, objectInfo, file, ClassId.Object);
+                }
+            }
+
             Files[path] = file;
+
+            if (!leaveOpen) {
+                dataStream.Dispose();
+            }
         }
 
         public void LoadSerializedFile(string path) => LoadSerializedFile(File.OpenRead(path), path, FileStreamHandler.Instance.Value);
@@ -90,7 +113,7 @@ namespace Equilibrium {
                 LoadBundleSequence(dataStream, tag, handler, align, leaveOpen);
             } else {
                 if (tag is not string path) {
-                    throw new NotImplementedException();
+                    throw new InvalidOperationException();
                 }
 
                 path = Path.GetFileName(path);
@@ -103,7 +126,7 @@ namespace Equilibrium {
                         Resources[path] = (tag, handler);
                         break;
                     default:
-                        throw new NotImplementedException(ext);
+                        return;
                 }
             }
         }

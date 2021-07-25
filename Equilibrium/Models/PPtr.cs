@@ -9,22 +9,22 @@ namespace Equilibrium.Models {
         ulong PathId) where T : SerializedObject {
         private T? UnderlyingValue { get; set; }
 
-        public SerializedFile? Host { get; set; }
+        public SerializedFile? File { get; set; }
 
         public bool IsNull { get; } = FileId < 0 || PathId == 0;
 
         public T? Value {
             get {
                 if (IsNull ||
-                    Host == null ||
-                    FileId >= Host.ExternalInfos.Length ||
-                    Host.Assets == null ||
+                    File == null ||
+                    FileId >= File.ExternalInfos.Length ||
+                    File.Assets == null ||
                     State == PPtrState.Failed) {
                     return null;
                 }
 
                 if (State == PPtrState.Unloaded) {
-                    if (!Host.Assets.Files.TryGetValue(Host.ExternalInfos[FileId].Name, out var referencedFile)) {
+                    if (!File.Assets.Files.TryGetValue(File.ExternalInfos[FileId].Name, out var referencedFile)) {
                         State = PPtrState.Failed;
                         return null;
                     }
@@ -49,7 +49,7 @@ namespace Equilibrium.Models {
 
         public PPtrState State { get; set; } = PPtrState.Unloaded;
 
-        public static PPtr<T> FromReader(BiEndianBinaryReader reader, SerializedFile host) => new(reader.ReadInt32(), host.Header.BigIdEnabled ? reader.ReadUInt64() : reader.ReadUInt32()) { Host = host };
+        public static PPtr<T> FromReader(BiEndianBinaryReader reader, SerializedFile file) => new(reader.ReadInt32(), file.Header.BigIdEnabled ? reader.ReadUInt64() : reader.ReadUInt32()) { File = file };
 
         public static implicit operator T?(PPtr<T> ptr) => ptr.Value;
     }

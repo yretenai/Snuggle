@@ -1,12 +1,13 @@
 ﻿using System;
 using Equilibrium.IO;
+using Equilibrium.Meta;
 using Equilibrium.Models;
 using Equilibrium.Models.Serialization;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 
 namespace Equilibrium.Implementations {
-    [PublicAPI]
+    [PublicAPI, UsedImplicitly, ObjectImplementation(ClassId.Object)]
     public class SerializedObject : IEquatable<SerializedObject> {
         public SerializedObject(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) {
             SerializedFile = serializedFile;
@@ -58,6 +59,6 @@ namespace Equilibrium.Implementations {
             Deserialize(reader);
         }
 
-        public override int GetHashCode() => PathId.GetHashCode();
+        public override int GetHashCode() => HashCode.Combine(ClassId, PathId);
     }
 }

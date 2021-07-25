@@ -10,6 +10,7 @@ namespace Equilibrium.IO {
             BaseStream = stream;
             Start = offset ?? stream.Position;
             End = Start + (length ?? stream.Length - Start);
+            BaseStream.Position = Start;
         }
 
         private Stream BaseStream { get; }
@@ -55,10 +56,6 @@ namespace Equilibrium.IO {
         }
 
         public override long Seek(long offset, SeekOrigin origin) {
-            if (offset == 0) {
-                return Position;
-            }
-
             var absolutePosition = origin switch {
                 SeekOrigin.Begin => Start + offset,
                 SeekOrigin.Current => BaseStream.Position + offset,

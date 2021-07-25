@@ -22,7 +22,7 @@ namespace Equilibrium {
                 UnityFormat.Archive => throw new NotImplementedException(),
                 UnityFormat.Web => throw new NotImplementedException(),
                 UnityFormat.Raw => throw new NotImplementedException(),
-                _ => throw new NotImplementedException(),
+                _ => throw new InvalidOperationException(),
             };
 
             DataStart = dataStream.Position;
@@ -69,7 +69,7 @@ namespace Equilibrium {
             }
 
             if (!leaveOpen) {
-                dataStream.Close();
+                dataStream.Dispose();
             }
 
             return bundles.ToArray();

@@ -59,7 +59,7 @@ namespace Equilibrium.Models.Bundle {
                             stream.Write(CompressionEncryption.DecompressLZ4(buffer, size));
                             break;
                         default:
-                            throw new NotImplementedException();
+                            throw new InvalidOperationException();
                     }
 
                     streamOffset += size;
@@ -101,7 +101,7 @@ namespace Equilibrium.Models.Bundle {
                 UnityCompressionType.LZMA => new BiEndianBinaryReader(Utils.DecodeLZMA(blocksBuffer, fs.CompressedBlockInfoSize, fs.BlockInfoSize), true),
                 UnityCompressionType.LZ4 => BiEndianBinaryReader.FromArray(CompressionEncryption.DecompressLZ4(blocksBuffer, fs.BlockInfoSize).ToArray(), true),
                 UnityCompressionType.LZ4HC => BiEndianBinaryReader.FromArray(CompressionEncryption.DecompressLZ4(blocksBuffer, fs.BlockInfoSize).ToArray(), true),
-                _ => throw new NotImplementedException(),
+                _ => throw new InvalidOperationException(),
             };
             fs.Hash = blocksReader.ReadBytes(16);
             var infoCount = blocksReader.ReadInt32();

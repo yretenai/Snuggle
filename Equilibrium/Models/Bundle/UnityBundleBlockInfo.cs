@@ -25,7 +25,7 @@ namespace Equilibrium.Models.Bundle {
                 case UnityFormat.Archive:
                     throw new NotImplementedException();
                 default:
-                    throw new NotImplementedException();
+                    throw new InvalidOperationException();
             }
 
             return container;

@@ -24,6 +24,7 @@ namespace Equilibrium {
             if (header.Version < UnitySerializedFileVersion.RefObject) {
                 ReferenceTypes = UnitySerializedType.ArrayFromReader(reader, header, true);
             }
+
             if (header.Version >= UnitySerializedFileVersion.UserInformation) {
                 UserInformation = reader.ReadNullString();
             }

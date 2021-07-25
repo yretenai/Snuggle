@@ -12,7 +12,7 @@ namespace Equilibrium.IO {
             string path = tag switch {
                 FileInfo fi => fi.FullName,
                 string str => str,
-                _ => throw new NotImplementedException(),
+                _ => throw new InvalidOperationException(),
             };
 
             return File.OpenRead(path);

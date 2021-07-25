@@ -16,7 +16,7 @@ namespace Equilibrium.IO {
             var path = tag switch {
                 string str => BundleFile.Container.Blocks.First(x => x.Path.Equals(str, StringComparison.InvariantCultureIgnoreCase)),
                 UnityBundleBlock block => block,
-                _ => throw new NotImplementedException(),
+                _ => throw new InvalidOperationException(),
             };
 
             return new MemoryStream(BundleFile.OpenFile(path)) { Position = 0 };

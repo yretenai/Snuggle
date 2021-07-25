@@ -142,10 +142,14 @@ namespace Equilibrium.IO {
             return ShouldInvertEndianness ? BinaryPrimitives.ReverseEndianness(value) : value;
         }
 
-        public string ReadString32() {
+        public string ReadString32(int align = 4) {
             var length = ReadInt32();
             Span<byte> span = new byte[length];
             Read(span);
+            if (align > 1) {
+                Align(align);
+            }
+
             return Encoding.GetString(span);
         }
 
