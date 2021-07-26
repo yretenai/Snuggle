@@ -13,7 +13,16 @@ namespace Equilibrium.Implementations {
             reader.Align();
         }
 
-        public bool Enabled { get; init; }
+        public Behaviour(UnityObjectInfo info, SerializedFile serializedFile) : base(info, serializedFile) { }
+
+        public bool Enabled { get; set; }
+
+        public override void Serialize(BiEndianBinaryWriter writer) {
+            base.Serialize(writer);
+            writer.Write(Enabled);
+            writer.Align();
+        }
+
         public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Enabled);
     }
 }

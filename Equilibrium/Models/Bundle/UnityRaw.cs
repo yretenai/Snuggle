@@ -79,6 +79,10 @@ namespace Equilibrium.Models.Bundle {
             return new OffsetStream(stream, cur, block.Size);
         }
 
+        public void ToWriter(BiEndianBinaryWriter writer, UnityBundleBlock[] blocks, Stream blockStream) {
+            throw new NotImplementedException();
+        }
+
         public static UnityRaw FromReader(BiEndianBinaryReader reader, UnityBundle header) {
             var hash = Array.Empty<byte>();
             var checksum = 0u;

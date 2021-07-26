@@ -58,6 +58,8 @@ namespace Equilibrium {
 
         public Stream OpenFile(UnityObjectInfo info, Stream stream, bool leaveOpen = false) => new OffsetStream(stream, info.Offset + Header.Offset, info.Size, leaveOpen);
 
+        public Stream ToStream() => throw new NotImplementedException();
+
         public static bool IsSerializedFile(Stream stream) {
             using var reader = new BiEndianBinaryReader(stream, true, true);
             return IsSerializedFile(reader);

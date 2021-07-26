@@ -73,6 +73,10 @@ namespace Equilibrium.Models.Bundle {
             return new OffsetStream(stream, cur, block.Size);
         }
 
+        public void ToWriter(BiEndianBinaryWriter writer, UnityBundleBlock[] blocks, Stream blockStream) {
+            throw new NotImplementedException();
+        }
+
         public static UnityFS FromReader(BiEndianBinaryReader reader, UnityBundle header) {
             var size = reader.ReadInt64();
             var compressedBlockSize = reader.ReadInt32();

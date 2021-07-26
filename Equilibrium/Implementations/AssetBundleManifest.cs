@@ -11,23 +11,47 @@ namespace Equilibrium.Implementations {
     public class AssetBundleManifest : NamedObject {
         public AssetBundleManifest(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) {
             var assetBundleNameCount = reader.ReadInt32();
-            AssetBundleNames = new Dictionary<int, string>(assetBundleNameCount);
+            AssetBundleNames = new Dictionary<int, string>();
             for (var i = 0; i < assetBundleNameCount; ++i) {
                 AssetBundleNames[reader.ReadInt32()] = reader.ReadString32();
             }
 
             var assetBundlesWithVariantCount = reader.ReadInt32();
-            AssetBundlesWithVariant = reader.ReadArray<int>(assetBundlesWithVariantCount).ToArray();
+            AssetBundlesWithVariant = new List<int>(reader.ReadArray<int>(assetBundlesWithVariantCount).ToArray());
 
             var assetBundleInfoCount = reader.ReadInt32();
-            AssetBundleInfos = new Dictionary<int, AssetBundleInfo>(assetBundleInfoCount);
+            AssetBundleInfos = new Dictionary<int, AssetBundleInfo>();
             for (var i = 0; i < assetBundleInfoCount; ++i) {
                 AssetBundleInfos[reader.ReadInt32()] = AssetBundleInfo.FromReader(reader, serializedFile);
             }
         }
 
-        public Dictionary<int, string> AssetBundleNames { get; init; }
-        public int[] AssetBundlesWithVariant { get; init; }
-        public Dictionary<int, AssetBundleInfo> AssetBundleInfos { get; init; }
+        public AssetBundleManifest(UnityObjectInfo info, SerializedFile serializedFile) : base(info, serializedFile) {
+            AssetBundleNames = new Dictionary<int, string>();
+            AssetBundlesWithVariant = new List<int>();
+            AssetBundleInfos = new Dictionary<int, AssetBundleInfo>();
+        }
+
+        public Dictionary<int, string> AssetBundleNames { get; set; }
+        public List<int> AssetBundlesWithVariant { get; set; }
+        public Dictionary<int, AssetBundleInfo> AssetBundleInfos { get; set; }
+
+        public override void Serialize(BiEndianBinaryWriter writer) {
+            base.Serialize(writer);
+            writer.Write(AssetBundleNames.Count);
+            foreach (var (id, name) in AssetBundleNames) {
+                writer.Write(id);
+                writer.Write(name);
+            }
+
+            writer.Write(AssetBundlesWithVariant.Count);
+            writer.WriteArray(AssetBundlesWithVariant.ToArray());
+
+            writer.Write(AssetBundleInfos.Count);
+            foreach (var (id, assetBundleInfo) in AssetBundleInfos) {
+                writer.Write(id);
+                assetBundleInfo.ToWriter(writer, SerializedFile);
+            }
+        }
     }
 }

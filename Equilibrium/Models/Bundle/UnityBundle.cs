@@ -14,11 +14,14 @@ namespace Equilibrium.Models.Bundle {
         public UnityVersion? Version { get; } = UnityVersion.ParseSafe(EngineVersion);
         public UnityVersion? Revision { get; } = UnityVersion.ParseSafe(EngineRevision);
 
-        public static UnityBundle FromReader(BiEndianBinaryReader reader) =>
-            new(
-                reader.ReadNullString(),
-                reader.ReadInt32(),
-                reader.ReadNullString(),
-                reader.ReadNullString());
+        public void ToWriter(BiEndianBinaryWriter writer) {
+            writer.IsBigEndian = true;
+            writer.WriteNullString(Signature);
+            writer.Write(FormatVersion);
+            writer.WriteNullString(EngineVersion);
+            writer.WriteNullString(EngineRevision);
+        }
+
+        public static UnityBundle FromReader(BiEndianBinaryReader reader) => new(reader.ReadNullString(), reader.ReadInt32(), reader.ReadNullString(), reader.ReadNullString());
     }
 }

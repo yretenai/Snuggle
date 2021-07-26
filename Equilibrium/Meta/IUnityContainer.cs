@@ -15,5 +15,7 @@ namespace Equilibrium.Meta {
         public Stream OpenFile(string path, BiEndianBinaryReader? reader = null, Stream? stream = null) => OpenFile(Blocks.FirstOrDefault(x => x.Path.Equals(path, StringComparison.InvariantCultureIgnoreCase)), reader, stream);
 
         public Stream OpenFile(UnityBundleBlock? block, BiEndianBinaryReader? reader = null, Stream? stream = null);
+
+        public void ToWriter(BiEndianBinaryWriter writer, UnityBundleBlock[] blocks, Stream blockStream);
     }
 }

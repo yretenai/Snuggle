@@ -118,6 +118,8 @@ namespace Equilibrium {
             return data;
         }
 
+        public Stream ToStream() => throw new NotImplementedException();
+
         public static bool IsBundleFile(Stream stream) {
             using var reader = new BiEndianBinaryReader(stream, true, true);
             return IsBundleFile(reader);

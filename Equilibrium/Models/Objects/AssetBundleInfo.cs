@@ -12,5 +12,11 @@ namespace Equilibrium.Models.Objects {
             var dependencies = reader.ReadArray<int>(count).ToArray();
             return new AssetBundleInfo(hash, dependencies);
         }
+
+        public void ToWriter(BiEndianBinaryWriter writer, SerializedFile serializedFile) {
+            writer.Write(Hash);
+            writer.Write(Dependencies.Length);
+            writer.WriteArray(Dependencies);
+        }
     }
 }

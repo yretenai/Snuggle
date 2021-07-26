@@ -1,18 +1,21 @@
 ﻿using System;
+using System.Text.Json.Serialization;
 using Equilibrium.IO;
 using Equilibrium.Meta;
 using Equilibrium.Models;
 using Equilibrium.Models.Serialization;
 using JetBrains.Annotations;
-using Newtonsoft.Json;
 
 namespace Equilibrium.Implementations {
     [PublicAPI, UsedImplicitly, ObjectImplementation(ClassId.Object)]
     public class SerializedObject : IEquatable<SerializedObject> {
-        public SerializedObject(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) {
+        public SerializedObject(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : this(info, serializedFile) => IsMutated = false;
+
+        public SerializedObject(UnityObjectInfo info, SerializedFile serializedFile) {
             SerializedFile = serializedFile;
             PathId = info.PathId;
             ClassId = info.ClassId;
+            IsMutated = true;
         }
 
         public long PathId { get; init; }
@@ -22,7 +25,10 @@ namespace Equilibrium.Implementations {
         public SerializedFile SerializedFile { get; init; }
 
         [JsonIgnore]
-        public virtual bool ShouldDeserialize { get; set; }
+        public bool ShouldDeserialize { get; set; }
+
+        [JsonIgnore]
+        public bool IsMutated { get; set; }
 
         public bool Equals(SerializedObject? other) {
             if (ReferenceEquals(null, other)) {
@@ -58,6 +64,8 @@ namespace Equilibrium.Implementations {
             using var reader = new BiEndianBinaryReader(SerializedFile.OpenFile(PathId), SerializedFile.Header.IsBigEndian);
             Deserialize(reader);
         }
+
+        public virtual void Serialize(BiEndianBinaryWriter writer) { }
 
         public virtual void Free() { }
 

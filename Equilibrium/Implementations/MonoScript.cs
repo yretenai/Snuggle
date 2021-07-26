@@ -20,12 +20,32 @@ namespace Equilibrium.Implementations {
             }
         }
 
-        public int ExecutionOrder { get; init; }
-        public byte[] Hash { get; init; }
-        public string ClassName { get; init; }
-        public string Namespace { get; init; }
-        public string AssemblyName { get; init; }
-        public bool IsEditor { get; init; }
+        public MonoScript(UnityObjectInfo info, SerializedFile serializedFile) : base(info, serializedFile) {
+            Hash = new byte[16];
+            ClassName = string.Empty;
+            Namespace = string.Empty;
+            AssemblyName = string.Empty;
+        }
+
+        public int ExecutionOrder { get; set; }
+        public byte[] Hash { get; set; }
+        public string ClassName { get; set; }
+        public string Namespace { get; set; }
+        public string AssemblyName { get; set; }
+        public bool IsEditor { get; set; }
+
+        public override void Serialize(BiEndianBinaryWriter writer) {
+            base.Serialize(writer);
+            writer.Write(ExecutionOrder);
+            writer.Write(Hash);
+            writer.WriteString32(ClassName);
+            writer.WriteString32(Namespace);
+            writer.WriteString32(AssemblyName);
+
+            if (SerializedFile.Version < new UnityVersion(2018, 2)) {
+                writer.Write(IsEditor);
+            }
+        }
 
         public override string ToString() => $"{Namespace}.{ClassName}";
         public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), ClassName, Name, AssemblyName, ExecutionOrder);

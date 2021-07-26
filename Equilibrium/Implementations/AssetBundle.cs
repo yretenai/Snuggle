@@ -12,13 +12,13 @@ namespace Equilibrium.Implementations {
     public class AssetBundle : NamedObject {
         public AssetBundle(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) {
             var preloadCount = reader.ReadInt32();
-            PreloadTable = new PPtr<SerializedObject>[preloadCount];
+            PreloadTable = new List<PPtr<SerializedObject>>();
             for (var i = 0; i < preloadCount; ++i) {
-                PreloadTable[i] = PPtr<SerializedObject>.FromReader(reader, serializedFile);
+                PreloadTable.Add(PPtr<SerializedObject>.FromReader(reader, serializedFile));
             }
 
             var containerCount = reader.ReadInt32();
-            Container = new Dictionary<string, AssetInfo>(containerCount);
+            Container = new Dictionary<string, AssetInfo>();
             for (var i = 0; i < containerCount; ++i) {
                 Container[reader.ReadString32()] = AssetInfo.FromReader(reader, serializedFile);
             }
@@ -39,9 +39,9 @@ namespace Equilibrium.Implementations {
             AssetBundleName = reader.ReadString32();
 
             var dependencyCount = reader.ReadInt32();
-            Dependencies = new string[dependencyCount];
+            Dependencies = new List<string>();
             for (var i = 0; i < dependencyCount; ++i) {
-                Dependencies[i] = reader.ReadString32();
+                Dependencies.Add(reader.ReadString32());
             }
 
             IsStreamedSceneAssetBundle = reader.ReadBoolean();
@@ -57,7 +57,7 @@ namespace Equilibrium.Implementations {
 
             if (serializedFile.Version > new UnityVersion(2017, 3)) {
                 var sceneHashCount = reader.ReadInt32();
-                SceneHashes = new Dictionary<string, string>(sceneHashCount);
+                SceneHashes = new Dictionary<string, string>();
                 for (var i = 0; i < sceneHashCount; ++i) {
                     SceneHashes[reader.ReadString32()] = reader.ReadString32();
                 }
@@ -66,17 +66,81 @@ namespace Equilibrium.Implementations {
             }
         }
 
-        public PPtr<SerializedObject>[] PreloadTable { get; init; }
-        public Dictionary<string, AssetInfo> Container { get; init; }
+        public AssetBundle(UnityObjectInfo info, SerializedFile serializedFile) : base(info, serializedFile) {
+            PreloadTable = new List<PPtr<SerializedObject>>();
+            Container = new Dictionary<string, AssetInfo>();
+            ClassInfos = new Dictionary<int, uint>();
+            AssetBundleName = string.Empty;
+            MainAsset = new AssetInfo(0, 0, PPtr<SerializedObject>.Null);
+            Dependencies = new List<string>();
+            SceneHashes = new Dictionary<string, string>();
+        }
+
+        public List<PPtr<SerializedObject>> PreloadTable { get; set; }
+        public Dictionary<string, AssetInfo> Container { get; set; }
         public Dictionary<int, uint> ClassInfos { get; set; }
-        public AssetInfo MainAsset { get; init; }
-        public uint RuntimeCompatibility { get; init; }
-        public string AssetBundleName { get; init; }
-        public string[] Dependencies { get; init; }
-        public bool IsStreamedSceneAssetBundle { get; init; }
-        public int ExplicitDataLayout { get; init; }
-        public int PathFlags { get; init; }
-        public Dictionary<string, string> SceneHashes { get; init; }
+        public AssetInfo MainAsset { get; set; }
+        public uint RuntimeCompatibility { get; set; }
+        public string AssetBundleName { get; set; }
+        public List<string> Dependencies { get; set; }
+        public bool IsStreamedSceneAssetBundle { get; set; }
+        public int ExplicitDataLayout { get; set; }
+        public int PathFlags { get; set; }
+        public Dictionary<string, string> SceneHashes { get; set; }
+
+        public override void Serialize(BiEndianBinaryWriter writer) {
+            base.Serialize(writer);
+
+            writer.Write(PreloadTable.Count);
+            foreach (var ptr in PreloadTable) {
+                ptr.ToWriter(writer, SerializedFile);
+            }
+
+            writer.Write(Container.Count);
+            foreach (var (name, info) in Container) {
+                writer.WriteString32(name);
+                info.ToWriter(writer, SerializedFile);
+            }
+
+            if (SerializedFile.Version >= new UnityVersion(5, 4) &&
+                SerializedFile.Version < new UnityVersion(5, 5)) {
+                writer.Write(ClassInfos.Count);
+                foreach (var (id, flags) in ClassInfos) {
+                    writer.Write(id);
+                    writer.Write(flags);
+                }
+            } else {
+                ClassInfos = new Dictionary<int, uint>(0);
+            }
+
+            MainAsset.ToWriter(writer, SerializedFile);
+            writer.Write(RuntimeCompatibility);
+            writer.WriteString32(AssetBundleName);
+
+            writer.Write(Dependencies.Count);
+            foreach (var dependency in Dependencies) {
+                writer.WriteString32(dependency);
+            }
+
+            writer.Write(IsStreamedSceneAssetBundle);
+            writer.Align();
+
+            if (SerializedFile.Version > new UnityVersion(2017, 3)) {
+                writer.Write(ExplicitDataLayout);
+            }
+
+            if (SerializedFile.Version > new UnityVersion(2017, 1)) {
+                writer.Write(PathFlags);
+            }
+
+            if (SerializedFile.Version > new UnityVersion(2017, 3)) {
+                writer.Write(SceneHashes.Count);
+                foreach (var (scene, hash) in SceneHashes) {
+                    writer.WriteString32(scene);
+                    writer.WriteString32(hash);
+                }
+            }
+        }
 
         public override string ToString() => string.IsNullOrWhiteSpace(AssetBundleName) ? base.ToString() : AssetBundleName;
         public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), AssetBundleName, MainAsset);
