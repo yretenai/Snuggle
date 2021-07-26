@@ -10,20 +10,20 @@ using JetBrains.Annotations;
 namespace Equilibrium {
     [PublicAPI]
     public class Bundle : IDisposable, IRenewable {
-        public Bundle(string path, EquilibriumOptions? options = null) :
+        public Bundle(string path, EquilibriumOptions options) :
             this(File.OpenRead(path), path, FileStreamHandler.Instance.Value, options) { }
 
-        public Bundle(Stream dataStream, object tag, IFileHandler fileHandler, EquilibriumOptions? options = null, bool leaveOpen = false) {
+        public Bundle(Stream dataStream, object tag, IFileHandler fileHandler, EquilibriumOptions options, bool leaveOpen = false) {
             using var reader = new BiEndianBinaryReader(dataStream, true, leaveOpen);
 
-            Options = options ?? EquilibriumOptions.Default;
+            Options = options;
 
-            Header = UnityBundle.FromReader(reader);
+            Header = UnityBundle.FromReader(reader, options);
             Container = Header.Format switch {
-                UnityFormat.FS => UnityFS.FromReader(reader, Header),
+                UnityFormat.FS => UnityFS.FromReader(reader, Header, options),
                 UnityFormat.Archive => throw new NotImplementedException(),
-                UnityFormat.Web => UnityRaw.FromReader(reader, Header),
-                UnityFormat.Raw => UnityRaw.FromReader(reader, Header),
+                UnityFormat.Web => UnityRaw.FromReader(reader, Header, options),
+                UnityFormat.Raw => UnityRaw.FromReader(reader, Header, options),
                 _ => throw new InvalidOperationException(),
             };
 
@@ -87,7 +87,7 @@ namespace Equilibrium {
                 shouldDispose = true;
             }
 
-            DataStream = Container.OpenFile(new UnityBundleBlock(0, Container.BlockInfos.Select(x => x.Size).Sum(), 0, ""), reader);
+            DataStream = Container.OpenFile(new UnityBundleBlock(0, Container.BlockInfos.Select(x => x.Size).Sum(), 0, ""), Options, reader);
 
             if (shouldDispose) {
                 reader.Dispose();
@@ -112,7 +112,7 @@ namespace Equilibrium {
                 reader.BaseStream.Seek(DataStart, SeekOrigin.Begin);
             }
 
-            var data = Container.OpenFile(block, reader, DataStream);
+            var data = Container.OpenFile(block, Options, reader, DataStream);
             reader?.Dispose();
             data.Position = 0;
             return data;

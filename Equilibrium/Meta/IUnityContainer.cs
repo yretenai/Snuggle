@@ -12,10 +12,10 @@ namespace Equilibrium.Meta {
         public UnityBundleBlock[] Blocks { get; set; }
         public long Length { get; }
 
-        public Stream OpenFile(string path, BiEndianBinaryReader? reader = null, Stream? stream = null) => OpenFile(Blocks.FirstOrDefault(x => x.Path.Equals(path, StringComparison.InvariantCultureIgnoreCase)), reader, stream);
+        public Stream OpenFile(string path, EquilibriumOptions options, BiEndianBinaryReader? reader = null, Stream? stream = null) => OpenFile(Blocks.FirstOrDefault(x => x.Path.Equals(path, StringComparison.InvariantCultureIgnoreCase)), options, reader, stream);
 
-        public Stream OpenFile(UnityBundleBlock? block, BiEndianBinaryReader? reader = null, Stream? stream = null);
+        public Stream OpenFile(UnityBundleBlock? block, EquilibriumOptions options, BiEndianBinaryReader? reader = null, Stream? stream = null);
 
-        public void ToWriter(BiEndianBinaryWriter writer, UnityBundleBlock[] blocks, Stream blockStream);
+        public void ToWriter(BiEndianBinaryWriter writer, EquilibriumOptions options, UnityBundleBlock[] blocks, Stream blockStream);
     }
 }

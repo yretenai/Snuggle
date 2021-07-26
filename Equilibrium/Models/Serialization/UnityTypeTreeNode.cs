@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using DragonLib;
 using Equilibrium.IO;
+using Equilibrium.Meta;
 using JetBrains.Annotations;
 
 namespace Equilibrium.Models.Serialization {
@@ -24,7 +25,7 @@ namespace Equilibrium.Models.Serialization {
 
         internal static Memory<byte> StaticBuffer { get; } = new(StaticStringBuffer.ToSpan().ToArray());
 
-        public static UnityTypeTreeNode FromReader(BiEndianBinaryReader reader, UnitySerializedFile header) {
+        public static UnityTypeTreeNode FromReader(BiEndianBinaryReader reader, UnitySerializedFile header, EquilibriumOptions options) {
             var version = reader.ReadInt16();
             var level = reader.ReadByte();
             var flags = (UnityTypeTreeFlags) reader.ReadByte();
@@ -41,7 +42,7 @@ namespace Equilibrium.Models.Serialization {
             return new UnityTypeTreeNode(version, level, flags, typeOffset, nameOffset, size, index, metaFlags, 0, typeHash, string.Empty, string.Empty);
         }
 
-        public static UnityTypeTreeNode FromReaderLegacy(BiEndianBinaryReader reader, UnitySerializedFile header) {
+        public static UnityTypeTreeNode FromReaderLegacy(BiEndianBinaryReader reader, UnitySerializedFile header, EquilibriumOptions options) {
             var type = reader.ReadNullString();
             var name = reader.ReadNullString();
             var size = reader.ReadInt32();
@@ -66,14 +67,14 @@ namespace Equilibrium.Models.Serialization {
         }
 
         // ReSharper disable once FunctionRecursiveOnAllPaths
-        public static UnityTypeTreeNode[] ArrayFromReaderLegacy(BiEndianBinaryReader reader, UnitySerializedFile header, int count, int level) {
+        public static UnityTypeTreeNode[] ArrayFromReaderLegacy(BiEndianBinaryReader reader, UnitySerializedFile header, EquilibriumOptions options, int count, int level) {
             var list = new List<UnityTypeTreeNode>();
             for (var i = 0; i < count; ++i) {
-                list.Add(FromReaderLegacy(reader, header) with { Level = level });
+                list.Add(FromReaderLegacy(reader, header, options) with { Level = level });
             }
 
             var childCount = reader.ReadInt32();
-            list.AddRange(ArrayFromReaderLegacy(reader, header, childCount, level + 1));
+            list.AddRange(ArrayFromReaderLegacy(reader, header, options, childCount, level + 1));
             return list.ToArray();
         }
 

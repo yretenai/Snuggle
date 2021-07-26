@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using Equilibrium.IO;
+using Equilibrium.Meta;
 using JetBrains.Annotations;
 
 namespace Equilibrium.Models.Bundle {
@@ -9,7 +10,7 @@ namespace Equilibrium.Models.Bundle {
         int Size,
         int CompressedSize,
         UnityBundleBlockInfoFlags Flags) {
-        public static UnityBundleBlockInfo FromReader(BiEndianBinaryReader reader, UnityBundle header) {
+        public static UnityBundleBlockInfo FromReader(BiEndianBinaryReader reader, UnityBundle header, EquilibriumOptions options) {
             var size = reader.ReadInt32();
             var compressedSize = reader.ReadInt32();
             var flags = header.Format switch {
@@ -21,14 +22,14 @@ namespace Equilibrium.Models.Bundle {
             return new UnityBundleBlockInfo(size, compressedSize, flags);
         }
 
-        public static UnityBundleBlockInfo[] ArrayFromReader(BiEndianBinaryReader reader, UnityBundle header, int count) {
+        public static UnityBundleBlockInfo[] ArrayFromReader(BiEndianBinaryReader reader, UnityBundle header, int count, EquilibriumOptions options) {
             var container = new UnityBundleBlockInfo[count];
             switch (header.Format) {
                 case UnityFormat.FS:
                 case UnityFormat.Raw:
                 case UnityFormat.Web: {
                     for (var i = 0; i < count; ++i) {
-                        container[i] = FromReader(reader, header);
+                        container[i] = FromReader(reader, header, options);
                     }
                 }
                     break;

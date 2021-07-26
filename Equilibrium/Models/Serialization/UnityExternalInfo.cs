@@ -1,5 +1,6 @@
 ﻿using System;
 using Equilibrium.IO;
+using Equilibrium.Meta;
 using JetBrains.Annotations;
 
 namespace Equilibrium.Models.Serialization {
@@ -12,7 +13,7 @@ namespace Equilibrium.Models.Serialization {
         public string Name { get; } = System.IO.Path.GetFileName(AssetPath);
         public bool IsArchiveReference { get; } = AssetPath.StartsWith("archive:/", StringComparison.InvariantCultureIgnoreCase);
 
-        public static UnityExternalInfo FromReader(BiEndianBinaryReader reader, UnitySerializedFile header) {
+        public static UnityExternalInfo FromReader(BiEndianBinaryReader reader, UnitySerializedFile header, EquilibriumOptions options) {
             var path = string.Empty;
             if (header.Version >= UnitySerializedFileVersion.ExternalExtraPath) {
                 path = reader.ReadNullString();
@@ -35,11 +36,11 @@ namespace Equilibrium.Models.Serialization {
             return new UnityExternalInfo(path, guid, type, assetPath);
         }
 
-        public static UnityExternalInfo[] ArrayFromReader(BiEndianBinaryReader reader, UnitySerializedFile header) {
+        public static UnityExternalInfo[] ArrayFromReader(BiEndianBinaryReader reader, UnitySerializedFile header, EquilibriumOptions options) {
             var count = reader.ReadInt32();
             var array = new UnityExternalInfo[count];
             for (var i = 0; i < count; ++i) {
-                array[i] = FromReader(reader, header);
+                array[i] = FromReader(reader, header, options);
             }
 
             return array;

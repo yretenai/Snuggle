@@ -22,7 +22,7 @@ namespace Equilibrium.Models.Bundle {
         public UnityBundleBlock[] Blocks { get; set; } = Array.Empty<UnityBundleBlock>();
         public long Length => TotalSize;
 
-        public Stream OpenFile(UnityBundleBlock? block, BiEndianBinaryReader? reader = null, Stream? stream = null) {
+        public Stream OpenFile(UnityBundleBlock? block, EquilibriumOptions options, BiEndianBinaryReader? reader = null, Stream? stream = null) {
             if (block == null) {
                 return Stream.Null;
             }
@@ -79,11 +79,11 @@ namespace Equilibrium.Models.Bundle {
             return new OffsetStream(stream, cur, block.Size);
         }
 
-        public void ToWriter(BiEndianBinaryWriter writer, UnityBundleBlock[] blocks, Stream blockStream) {
+        public void ToWriter(BiEndianBinaryWriter writer, EquilibriumOptions options, UnityBundleBlock[] blocks, Stream blockStream) {
             throw new NotImplementedException();
         }
 
-        public static UnityRaw FromReader(BiEndianBinaryReader reader, UnityBundle header) {
+        public static UnityRaw FromReader(BiEndianBinaryReader reader, UnityBundle header, EquilibriumOptions options) {
             var hash = Array.Empty<byte>();
             var checksum = 0u;
             if (header.FormatVersion >= 4) {
@@ -95,7 +95,7 @@ namespace Equilibrium.Models.Bundle {
             var size = reader.ReadUInt32();
             var minimumBlockInfos = reader.ReadInt32();
             var blockInfoCount = reader.ReadInt32();
-            var blockInfos = UnityBundleBlockInfo.ArrayFromReader(reader, header, blockInfoCount);
+            var blockInfos = UnityBundleBlockInfo.ArrayFromReader(reader, header, blockInfoCount, options);
             Debug.Assert(blockInfoCount == 1, "blockInfoCount == 1"); // I haven't seen files that have more than 1.
             var totalSize = header.FormatVersion >= 2 ? reader.ReadUInt32() : size + blockInfos.Sum(x => x.Size);
 
@@ -106,9 +106,9 @@ namespace Equilibrium.Models.Bundle {
 
             var unityRaw = new UnityRaw(checksum, minimumBytes, size, minimumBlockInfos, totalSize, blockSize) { Hash = hash, BlockInfos = blockInfos };
             var testBlock = new UnityBundleBlock(0, header.FormatVersion >= 3 ? blockSize : blockInfos[0].Size, 0, string.Empty);
-            using var blockReader = new BiEndianBinaryReader(unityRaw.OpenFile(testBlock, reader), true);
+            using var blockReader = new BiEndianBinaryReader(unityRaw.OpenFile(testBlock, options, reader), true);
             var blockCount = blockReader.ReadInt32();
-            unityRaw.Blocks = UnityBundleBlock.ArrayFromReader(blockReader, header, blockCount);
+            unityRaw.Blocks = UnityBundleBlock.ArrayFromReader(blockReader, header, blockCount, options);
             return unityRaw;
         }
     }

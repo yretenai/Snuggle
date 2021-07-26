@@ -1,5 +1,6 @@
 ﻿using System;
 using Equilibrium.IO;
+using Equilibrium.Meta;
 using JetBrains.Annotations;
 
 namespace Equilibrium.Models.Serialization {
@@ -7,7 +8,7 @@ namespace Equilibrium.Models.Serialization {
     public record UnityScriptInfo(
         int Index,
         long PathId) {
-        public static UnityScriptInfo FromReader(BiEndianBinaryReader reader, UnitySerializedFile header) {
+        public static UnityScriptInfo FromReader(BiEndianBinaryReader reader, UnitySerializedFile header, EquilibriumOptions options) {
             if (header.Version >= UnitySerializedFileVersion.BigIdAlwaysEnabled) {
                 reader.Align();
             }
@@ -17,7 +18,7 @@ namespace Equilibrium.Models.Serialization {
             return new UnityScriptInfo(index, identifier);
         }
 
-        public static UnityScriptInfo[] ArrayFromReader(BiEndianBinaryReader reader, UnitySerializedFile header) {
+        public static UnityScriptInfo[] ArrayFromReader(BiEndianBinaryReader reader, UnitySerializedFile header, EquilibriumOptions options) {
             if (header.Version <= UnitySerializedFileVersion.ScriptTypeIndex) {
                 return Array.Empty<UnityScriptInfo>();
             }
@@ -25,7 +26,7 @@ namespace Equilibrium.Models.Serialization {
             var count = reader.ReadInt32();
             var array = new UnityScriptInfo[count];
             for (var i = 0; i < count; ++i) {
-                array[i] = FromReader(reader, header);
+                array[i] = FromReader(reader, header, options);
             }
 
             return array;

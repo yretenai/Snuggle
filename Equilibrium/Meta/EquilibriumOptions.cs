@@ -5,11 +5,12 @@ using JetBrains.Annotations;
 namespace Equilibrium.Meta {
     [PublicAPI]
     public record EquilibriumOptions(
-        bool CacheData) {
+        bool CacheData,
+        UnityGame Game) {
         [JsonIgnore]
         public IStatusReporter? Reporter { get; set; }
 
-        public static EquilibriumOptions Default { get; } = new(false);
+        public static EquilibriumOptions Default { get; } = new(false, UnityGame.Default);
 
         public static EquilibriumOptions FromJson(string json) {
             try {

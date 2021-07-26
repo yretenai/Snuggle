@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using Equilibrium.IO;
+using Equilibrium.Meta;
 using JetBrains.Annotations;
 
 namespace Equilibrium.Models.Serialization {
@@ -15,7 +16,7 @@ namespace Equilibrium.Models.Serialization {
         UnityPlatform Platform,
         bool TypeTreeEnabled,
         bool BigIdEnabled) {
-        public static UnitySerializedFile FromReader(BiEndianBinaryReader reader) {
+        public static UnitySerializedFile FromReader(BiEndianBinaryReader reader, EquilibriumOptions options) {
             var headerSize = reader.ReadInt32();
             long size = reader.ReadInt32();
             var version = (UnitySerializedFileVersion) reader.ReadUInt32();

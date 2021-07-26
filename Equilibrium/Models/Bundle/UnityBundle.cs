@@ -14,7 +14,7 @@ namespace Equilibrium.Models.Bundle {
         public UnityVersion? Version { get; } = UnityVersion.ParseSafe(EngineVersion);
         public UnityVersion? Revision { get; } = UnityVersion.ParseSafe(EngineRevision);
 
-        public void ToWriter(BiEndianBinaryWriter writer) {
+        public void ToWriter(BiEndianBinaryWriter writer, EquilibriumOptions options) {
             writer.IsBigEndian = true;
             writer.WriteNullString(Signature);
             writer.Write(FormatVersion);
@@ -22,6 +22,6 @@ namespace Equilibrium.Models.Bundle {
             writer.WriteNullString(EngineRevision);
         }
 
-        public static UnityBundle FromReader(BiEndianBinaryReader reader) => new(reader.ReadNullString(), reader.ReadInt32(), reader.ReadNullString(), reader.ReadNullString());
+        public static UnityBundle FromReader(BiEndianBinaryReader reader, EquilibriumOptions options) => new(reader.ReadNullString(), reader.ReadInt32(), reader.ReadNullString(), reader.ReadNullString());
     }
 }

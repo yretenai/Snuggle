@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Linq;
 using Equilibrium.IO;
+using Equilibrium.Meta;
 using JetBrains.Annotations;
 
 namespace Equilibrium.Models.Serialization {
@@ -15,7 +16,7 @@ namespace Equilibrium.Models.Serialization {
         bool IsDestroyed, // probably a flag. 
         short ScriptTypeIndex,
         bool IsStripped) {
-        public static UnityObjectInfo FromReader(BiEndianBinaryReader reader, UnitySerializedFile header, UnitySerializedType[] types) {
+        public static UnityObjectInfo FromReader(BiEndianBinaryReader reader, UnitySerializedFile header, UnitySerializedType[] types, EquilibriumOptions options) {
             if (header.Version >= UnitySerializedFileVersion.BigIdAlwaysEnabled) {
                 reader.Align();
             }
@@ -49,7 +50,7 @@ namespace Equilibrium.Models.Serialization {
             return new UnityObjectInfo(pathId, offset, size, typeId, classId, typeIndex, isDestroyed == 1, scriptTypeIndex, stripped);
         }
 
-        public static UnityObjectInfo[] ArrayFromReader(BiEndianBinaryReader reader, ref UnitySerializedFile header, UnitySerializedType[] types) {
+        public static UnityObjectInfo[] ArrayFromReader(BiEndianBinaryReader reader, ref UnitySerializedFile header, UnitySerializedType[] types, EquilibriumOptions options) {
             if (header.Version is >= UnitySerializedFileVersion.BigId and < UnitySerializedFileVersion.BigIdAlwaysEnabled) {
                 var value = reader.ReadInt32();
                 Debug.Assert(value is 0 or 1, "value is 0 or 1"); // i'm not sure if this is a flag or not. booleans are not aligned, so why is this one?
@@ -61,7 +62,7 @@ namespace Equilibrium.Models.Serialization {
             var count = reader.ReadInt32();
             var entries = new UnityObjectInfo[count];
             for (var i = 0; i < count; ++i) {
-                entries[i] = FromReader(reader, header, types);
+                entries[i] = FromReader(reader, header, types, options);
             }
 
             return entries;

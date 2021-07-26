@@ -1,5 +1,6 @@
 ﻿using System;
 using Equilibrium.IO;
+using Equilibrium.Meta;
 using JetBrains.Annotations;
 
 namespace Equilibrium.Models.Serialization {
@@ -7,16 +8,16 @@ namespace Equilibrium.Models.Serialization {
     public record UnityTypeTree(
         UnityTypeTreeNode[] Nodes,
         Memory<byte> StringBuffer) {
-        public static UnityTypeTree FromReader(BiEndianBinaryReader reader, UnitySerializedFile header, bool isRef) => header.Version is >= UnitySerializedFileVersion.TypeTreeBlob or UnitySerializedFileVersion.TypeTreeBlobBeta ? FromReaderBlob(reader, header) : FromReaderLegacy(reader, header);
+        public static UnityTypeTree FromReader(BiEndianBinaryReader reader, UnitySerializedFile header, EquilibriumOptions options) => header.Version is >= UnitySerializedFileVersion.TypeTreeBlob or UnitySerializedFileVersion.TypeTreeBlobBeta ? FromReaderBlob(reader, header, options) : FromReaderLegacy(reader, header, options);
 
-        private static UnityTypeTree FromReaderLegacy(BiEndianBinaryReader reader, UnitySerializedFile header) => new(UnityTypeTreeNode.ArrayFromReaderLegacy(reader, header, 1, 0), Memory<byte>.Empty);
+        private static UnityTypeTree FromReaderLegacy(BiEndianBinaryReader reader, UnitySerializedFile header, EquilibriumOptions options) => new(UnityTypeTreeNode.ArrayFromReaderLegacy(reader, header, options, 1, 0), Memory<byte>.Empty);
 
-        private static UnityTypeTree FromReaderBlob(BiEndianBinaryReader reader, UnitySerializedFile header) {
+        private static UnityTypeTree FromReaderBlob(BiEndianBinaryReader reader, UnitySerializedFile header, EquilibriumOptions options) {
             var nodeCount = reader.ReadInt32();
             var bufferSize = reader.ReadInt32();
             var nodes = new UnityTypeTreeNode[nodeCount];
             for (var i = 0; i < nodeCount; ++i) {
-                nodes[i] = UnityTypeTreeNode.FromReader(reader, header);
+                nodes[i] = UnityTypeTreeNode.FromReader(reader, header, options);
             }
 
             Memory<byte> buffer = reader.ReadBytes(bufferSize);

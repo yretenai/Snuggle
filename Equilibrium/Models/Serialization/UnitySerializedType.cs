@@ -1,5 +1,6 @@
 ﻿using System;
 using Equilibrium.IO;
+using Equilibrium.Meta;
 using JetBrains.Annotations;
 
 namespace Equilibrium.Models.Serialization {
@@ -16,7 +17,7 @@ namespace Equilibrium.Models.Serialization {
         public byte[] Hash { get; init; } = Array.Empty<byte>();
         public byte[] ScriptId { get; init; } = Array.Empty<byte>();
 
-        public static UnitySerializedType FromReader(BiEndianBinaryReader reader, UnitySerializedFile header, bool isRef = false) {
+        public static UnitySerializedType FromReader(BiEndianBinaryReader reader, UnitySerializedFile header, EquilibriumOptions options, bool isRef = false) {
             var classId = (ClassId) reader.ReadInt32();
             var isStrippedType = false;
             if (header.Version >= UnitySerializedFileVersion.StrippedType) {
@@ -52,7 +53,7 @@ namespace Equilibrium.Models.Serialization {
             var assemblyName = string.Empty;
             var dependencies = Array.Empty<int>();
             if (header.TypeTreeEnabled) {
-                typeTree = UnityTypeTree.FromReader(reader, header, isRef);
+                typeTree = UnityTypeTree.FromReader(reader, header, options);
 
                 if (header.Version >= UnitySerializedFileVersion.TypeDependencies) {
                     if (isRef) {
@@ -68,11 +69,11 @@ namespace Equilibrium.Models.Serialization {
             return new UnitySerializedType(classId, isStrippedType, typeIndex, typeTree, className, nameSpace, assemblyName, dependencies) { Hash = hash, ScriptId = scriptId };
         }
 
-        public static UnitySerializedType[] ArrayFromReader(BiEndianBinaryReader reader, UnitySerializedFile header, bool isRef = false) {
+        public static UnitySerializedType[] ArrayFromReader(BiEndianBinaryReader reader, UnitySerializedFile header, EquilibriumOptions options, bool isRef = false) {
             var count = reader.ReadInt32();
             var entries = new UnitySerializedType[count];
             for (var i = 0; i < count; ++i) {
-                entries[i] = FromReader(reader, header, isRef);
+                entries[i] = FromReader(reader, header, options, isRef);
             }
 
             return entries;

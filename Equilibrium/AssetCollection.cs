@@ -58,7 +58,7 @@ namespace Equilibrium {
             Bundles.Add(bundle);
         }
 
-        public void LoadBundle(Stream dataStream, object tag, IFileHandler handler, EquilibriumOptions? options, bool leaveOpen = false) => LoadBundle(new Bundle(dataStream, tag, handler, options, leaveOpen));
+        public void LoadBundle(Stream dataStream, object tag, IFileHandler handler, EquilibriumOptions? options, bool leaveOpen = false) => LoadBundle(new Bundle(dataStream, tag, handler, options ?? EquilibriumOptions.Default, leaveOpen));
 
         public void LoadBundle(string path, EquilibriumOptions? options, bool leaveOpen = false) => LoadBundle(File.OpenRead(path), path, FileStreamHandler.Instance.Value, options, leaveOpen);
 
@@ -86,7 +86,7 @@ namespace Equilibrium {
                 return;
             }
 
-            var file = new SerializedFile(dataStream, tag, handler, true) { Assets = this, Name = path };
+            var file = new SerializedFile(dataStream, tag, handler, options ?? EquilibriumOptions.Default, true) { Assets = this, Name = path };
             if (file.Version == UnityVersion.MinValue &&
                 fallbackVersion != null &&
                 fallbackVersion != UnityVersion.MinValue) {

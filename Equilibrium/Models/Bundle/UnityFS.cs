@@ -17,7 +17,7 @@ namespace Equilibrium.Models.Bundle {
         public UnityBundleBlock[] Blocks { get; set; } = Array.Empty<UnityBundleBlock>();
         public long Length => Size;
 
-        public Stream OpenFile(UnityBundleBlock? block, BiEndianBinaryReader? reader = null, Stream? stream = null) {
+        public Stream OpenFile(UnityBundleBlock? block, EquilibriumOptions options, BiEndianBinaryReader? reader = null, Stream? stream = null) {
             if (block == null) {
                 return Stream.Null;
             }
@@ -73,11 +73,11 @@ namespace Equilibrium.Models.Bundle {
             return new OffsetStream(stream, cur, block.Size);
         }
 
-        public void ToWriter(BiEndianBinaryWriter writer, UnityBundleBlock[] blocks, Stream blockStream) {
+        public void ToWriter(BiEndianBinaryWriter writer, EquilibriumOptions options, UnityBundleBlock[] blocks, Stream blockStream) {
             throw new NotImplementedException();
         }
 
-        public static UnityFS FromReader(BiEndianBinaryReader reader, UnityBundle header) {
+        public static UnityFS FromReader(BiEndianBinaryReader reader, UnityBundle header, EquilibriumOptions options) {
             var size = reader.ReadInt64();
             var compressedBlockSize = reader.ReadInt32();
             var blockSize = reader.ReadInt32();
@@ -107,9 +107,9 @@ namespace Equilibrium.Models.Bundle {
             };
             fs.Hash = blocksReader.ReadBytes(16);
             var infoCount = blocksReader.ReadInt32();
-            fs.BlockInfos = UnityBundleBlockInfo.ArrayFromReader(blocksReader, header, infoCount);
+            fs.BlockInfos = UnityBundleBlockInfo.ArrayFromReader(blocksReader, header, infoCount, options);
             var blockCount = blocksReader.ReadInt32();
-            fs.Blocks = UnityBundleBlock.ArrayFromReader(blocksReader, header, blockCount);
+            fs.Blocks = UnityBundleBlock.ArrayFromReader(blocksReader, header, blockCount, options);
 
             return fs;
         }
