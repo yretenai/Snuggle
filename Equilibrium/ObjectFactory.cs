@@ -60,6 +60,13 @@ namespace Equilibrium {
                     throw new InvalidOperationException();
                 }
 
+                if (reader.Unconsumed > 0 &&
+                    serializedObject.ShouldDeserialize) {
+                    var msg = $"{reader.Unconsumed} bytes left unconsumed in buffer and object is not marked for deserialization! Check implementation.";
+                    Debug.WriteLine(msg);
+                    serializedFile.Options.Reporter?.Log(msg);
+                }
+
                 return serializedObject;
             }
         }

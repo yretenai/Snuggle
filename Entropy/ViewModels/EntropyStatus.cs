@@ -30,6 +30,8 @@ namespace Entropy.ViewModels {
             OnPropertyChanged(nameof(Percent));
         }
 
+        public void Log(string message) { }
+
         public void Reset() {
             Message = string.Empty;
             Max = 0;
