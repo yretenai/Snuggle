@@ -1,6 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -25,9 +26,9 @@ namespace Entropy.ViewModels {
         public AssetCollection Collection { get; } = new();
         public EntropyStatus Status { get; } = new();
         public EquilibriumOptions Options { get; private set; }
-        public Thread WorkerThread { get; }
-        public CancellationTokenSource? TokenSource { get; set; } = new();
-        private Queue<Action> Tasks { get; } = new();
+        public Thread WorkerThread { get; private set; }
+        public CancellationTokenSource TokenSource { get; private set; } = new();
+        private BlockingCollection<Action<CancellationToken>> Tasks { get; set; } = new();
 
         private string SettingsFile { get; }
 
@@ -43,58 +44,57 @@ namespace Entropy.ViewModels {
         }
 
         protected void Dispose(bool disposing) {
-            Reset();
+            Reset(false);
 
             if (disposing) {
                 Collection.Dispose();
-                TokenSource!.Dispose();
             }
 
-            TokenSource = null;
-            WorkerThread.Join();
             Environment.Exit(0);
         }
 
         private void WorkLoop() {
-            while (TokenSource != null) {
-                var token = TokenSource?.Token;
-                if (token == null) {
-                    break;
+            try {
+                var tasks = Tasks;
+                foreach (var task in tasks.GetConsumingEnumerable(TokenSource.Token)) {
+                    try {
+                        task(TokenSource.Token);
+                    } catch (Exception e) {
+                        Debug.WriteLine(e);
+                        // TODO show an alert.
+                    }
                 }
-
-                if (Tasks.Count > 0) {
-                    var task = Tasks.Dequeue();
-
-                    task();
-                }
-
-                Thread.Sleep(TimeSpan.FromSeconds(1));
+            } catch (TaskCanceledException) { } catch (Exception e) {
+                Debug.WriteLine(e);
             }
         }
 
-        public void Reset() {
+        public void Reset(bool respawn = true) {
+            Tasks.CompleteAdding();
+            Tasks = new BlockingCollection<Action<CancellationToken>>();
+            TokenSource.Cancel();
+            TokenSource.Dispose();
+            WorkerThread.Join();
             Collection.Reset();
             Status.Reset();
-            Tasks.Clear();
-            if (TokenSource != null) {
-                TokenSource.Cancel();
-                TokenSource.Dispose();
+            if (respawn) {
+                TokenSource = new CancellationTokenSource();
+                WorkerThread = new Thread(WorkLoop);
+                WorkerThread.Start();
             }
-
-            TokenSource = new CancellationTokenSource();
         }
 
-        public void WorkerAction(Action action) {
-            Tasks.Enqueue(action);
+        public void WorkerAction(Action<CancellationToken> action) {
+            Tasks.Add(action);
         }
 
-        public Task<T> WorkerAction<T>(Func<T> task) {
+        public Task<T> WorkerAction<T>(Func<CancellationToken, T> task) {
             var tcs = new TaskCompletionSource<T>();
-            Tasks.Enqueue(() => {
+            Tasks.Add(token => {
                 try {
-                    tcs.SetResult(task());
+                    tcs.SetResult(task(token));
                 } catch (TaskCanceledException) {
-                    tcs.SetCanceled();
+                    tcs.SetCanceled(token);
                 } catch (Exception e) {
                     tcs.SetException(e);
                 }

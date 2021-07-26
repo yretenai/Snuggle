@@ -77,11 +77,14 @@ namespace Entropy.Components {
 
             var directories = selection.FileNames.ToArray();
             var instance = EntropyCore.Instance;
-            instance.WorkerAction(() => {
+            instance.WorkerAction(token => {
                 // TODO: Split files.
                 var files = directories.SelectMany(x => Directory.EnumerateFiles(x, "*", SearchOption.AllDirectories)).ToArray();
                 instance.Status.SetProgressMax(files.Length);
                 foreach (var file in files) {
+                    if (token.IsCancellationRequested) {
+                        return;
+                    }
                     instance.Status.SetStatus($"Loading {file}");
                     instance.Status.SetProgress(instance.Status.Value + 1);
                     instance.Collection.LoadFile(file, instance.Options);
@@ -107,10 +110,13 @@ namespace Entropy.Components {
 
             var files = selection.FileNames.ToArray();
             var instance = EntropyCore.Instance;
-            instance.WorkerAction(() => {
+            instance.WorkerAction(token => {
                 // TODO: Split files.
                 instance.Status.SetProgressMax(files.Length);
                 foreach (var file in files) {
+                    if (token.IsCancellationRequested) {
+                        return;
+                    }
                     instance.Status.SetStatus($"Loading {file}");
                     instance.Status.SetProgress(instance.Status.Value + 1);
                     instance.Collection.LoadFile(file, instance.Options);
@@ -131,7 +137,7 @@ namespace Entropy.Components {
 
         private void FreeMemory(object sender, RoutedEventArgs e) {
             var instance = EntropyCore.Instance;
-            instance.WorkerAction(() => {
+            instance.WorkerAction(_ => {
                 foreach (var bundle in instance.Collection.Bundles) {
                     bundle.ClearCache();
                 }
