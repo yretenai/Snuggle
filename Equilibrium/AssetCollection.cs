@@ -13,7 +13,6 @@ namespace Equilibrium {
     public class AssetCollection : IDisposable {
         public List<Bundle> Bundles { get; } = new();
         public Dictionary<string, SerializedFile> Files { get; } = new(StringComparer.InvariantCultureIgnoreCase);
-        public Dictionary<string, (object Tag, IFileHandler Handler)> ResourceStreams { get; } = new(StringComparer.InvariantCultureIgnoreCase);
         public Dictionary<string, (object Tag, IFileHandler Handler)> Resources { get; } = new(StringComparer.InvariantCultureIgnoreCase);
 
         public void Dispose() {
@@ -28,7 +27,6 @@ namespace Equilibrium {
 
             Bundles.Clear();
             Files.Clear();
-            ResourceStreams.Clear();
             Resources.Clear();
 
             GC.Collect();
@@ -43,8 +41,6 @@ namespace Equilibrium {
                     var ext = Path.GetExtension(block.Path)[1..].ToLower();
                     switch (ext) {
                         case "ress":
-                            ResourceStreams[block.Path] = (block, handler);
-                            break;
                         case "resource":
                             Resources[block.Path] = (block, handler);
                             break;
@@ -129,8 +125,6 @@ namespace Equilibrium {
                 var ext = Path.GetExtension(path)[1..].ToLower();
                 switch (ext) {
                     case "ress":
-                        ResourceStreams[path] = (tag, handler);
-                        break;
                     case "resource":
                         Resources[path] = (tag, handler);
                         break;

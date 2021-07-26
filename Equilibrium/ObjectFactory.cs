@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -19,29 +20,48 @@ namespace Equilibrium {
 
         public static Type BaseType { get; } = typeof(SerializedObject);
 
-        public static Dictionary<ClassId, Type> Implementations { get; set; } = new();
+        public static Dictionary<UnityGame, Dictionary<ClassId, Type>> Implementations { get; set; } = new() {
+            { UnityGame.Default, new Dictionary<ClassId, Type>() },
+        };
 
         public static void LoadImplementationTypes(Assembly assembly) {
             foreach (var (type, attribute) in assembly.GetExportedTypes()
                 .Where(x => x.IsAssignableTo(BaseType))
                 .Select(x => (Type: x, Attribute: x.GetCustomAttribute<ObjectImplementationAttribute>()))
                 .Where(x => x.Attribute != null)) {
-                Implementations[attribute!.ClassId] = type;
+                if (!Implementations.TryGetValue(attribute!.Game, out var gameImplementations)) {
+                    gameImplementations = new Dictionary<ClassId, Type>();
+                    Implementations[attribute.Game] = gameImplementations;
+                }
+
+                gameImplementations[attribute.ClassId] = type;
             }
         }
 
-        public static SerializedObject GetInstance(Stream stream, UnityObjectInfo info, SerializedFile serializedFile, ClassId? overrideType = null) {
-            if (!Implementations.TryGetValue(overrideType ?? info.ClassId, out var type)) {
-                type = BaseType;
-            }
+        public static SerializedObject GetInstance(Stream stream, UnityObjectInfo info, SerializedFile serializedFile, ClassId? overrideType = null, UnityGame? overrideGame = null) {
+            while (true) {
+                if (!Implementations.TryGetValue(overrideGame ?? serializedFile.Options.Game, out var gameImplementations)) {
+                    overrideGame = UnityGame.Default;
+                    gameImplementations = Implementations[UnityGame.Default];
+                }
 
-            using var reader = new BiEndianBinaryReader(serializedFile.OpenFile(info, stream), serializedFile.Header.IsBigEndian, true);
-            var instance = Activator.CreateInstance(type, reader, info, serializedFile);
-            if (instance is not SerializedObject serializedObject) {
-                throw new InvalidOperationException();
-            }
+                if (!gameImplementations.TryGetValue(overrideType ?? info.ClassId, out var type)) {
+                    if (overrideGame != UnityGame.Default) {
+                        overrideGame = UnityGame.Default;
+                        continue;
+                    }
 
-            return serializedObject;
+                    type = BaseType;
+                }
+
+                using var reader = new BiEndianBinaryReader(serializedFile.OpenFile(info, stream), serializedFile.Header.IsBigEndian, true);
+                var instance = Activator.CreateInstance(type, reader, info, serializedFile);
+                if (instance is not SerializedObject serializedObject) {
+                    throw new InvalidOperationException();
+                }
+
+                return serializedObject;
+            }
         }
     }
 }
