@@ -1,15 +1,55 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 using Entropy.ViewModels;
+using Equilibrium.Meta;
 using Microsoft.WindowsAPICodePack.Dialogs;
 
 namespace Entropy.Components {
     public partial class Navigation {
+        private readonly Dictionary<UnityGame, MenuItem> UnityGameItems = new();
+
         public Navigation() {
             InitializeComponent();
-            CacheData.IsChecked = EntropyCore.Instance.Options.CacheData;
+            var instance = EntropyCore.Instance;
+            CacheData.IsChecked = instance.Options.CacheData;
+            foreach (var game in Enum.GetValues<UnityGame>()) {
+                var item = new MenuItem { Tag = game, Header = game.ToString("G"), IsChecked = instance.Options.Game == game, IsCheckable = true };
+                item.Checked += UpdateGame;
+                item.Unchecked += CancelEvent;
+                UnityGameList.Items.Add(item);
+                UnityGameItems[game] = item;
+            }
+        }
+
+        private static void CancelEvent(object sender, RoutedEventArgs e) {
+            if (sender is not MenuItem menuItem) {
+                return;
+            }
+
+            if ((UnityGame) menuItem.Tag == EntropyCore.Instance.Options.Game) {
+                menuItem.IsChecked = true;
+            }
+
+            e.Handled = true;
+        }
+
+        private void UpdateGame(object sender, RoutedEventArgs e) {
+            if (sender is not MenuItem menuItem) {
+                return;
+            }
+
+            var game = EntropyCore.Instance.Options.Game;
+            if ((UnityGame) menuItem.Tag == game) {
+                return;
+            }
+
+            EntropyCore.Instance.SetOptions(EntropyCore.Instance.Options with { Game = (UnityGame) menuItem.Tag });
+            UnityGameItems[game].IsChecked = false;
+            e.Handled = true;
         }
 
         private void CacheDataChecked(object sender, RoutedEventArgs e) {

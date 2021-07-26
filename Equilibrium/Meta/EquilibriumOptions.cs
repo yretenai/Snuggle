@@ -12,14 +12,26 @@ namespace Equilibrium.Meta {
 
         public static EquilibriumOptions Default { get; } = new(false, UnityGame.Default);
 
+        private static JsonSerializerOptions SerializerOptions { get; } = new() {
+            WriteIndented = true,
+            DefaultIgnoreCondition = JsonIgnoreCondition.Never,
+            AllowTrailingCommas = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+            NumberHandling = JsonNumberHandling.AllowReadingFromString,
+            Converters = {
+                new JsonStringEnumConverter(JsonNamingPolicy.CamelCase),
+            },
+        };
+
         public static EquilibriumOptions FromJson(string json) {
             try {
-                return JsonSerializer.Deserialize<EquilibriumOptions>(json) ?? Default;
+                return JsonSerializer.Deserialize<EquilibriumOptions>(json, SerializerOptions) ?? Default;
             } catch {
                 return Default;
             }
         }
 
-        public string ToJson() => JsonSerializer.Serialize(this);
+        public string ToJson() => JsonSerializer.Serialize(this, SerializerOptions);
     }
 }

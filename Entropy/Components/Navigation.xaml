@@ -25,9 +25,10 @@
             <MenuItem Header="_Exit" Click="ExitTrampoline" />
         </MenuItem>
         <MenuItem Header="_Options">
-            <MenuItem Header="_Keep Decompressed Data in Memory"
+            <MenuItem Header="_Cache Memory"
                       ToolTip="This can significantly increase performance at a heavy memory cost" IsCheckable="True"
                       Checked="CacheDataChecked" Unchecked="CacheDataUnchecked" x:Name="CacheData" />
+            <MenuItem Header="_Game" x:Name="UnityGameList" />
         </MenuItem>
     </Menu>
 </UserControl>
