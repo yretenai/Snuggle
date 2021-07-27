@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using DragonLib;
 using Equilibrium.IO;
 using Equilibrium.Meta;
@@ -12,7 +14,7 @@ namespace Equilibrium.Models.Bundle {
         int CompressedBlockInfoSize,
         int BlockInfoSize,
         UnityFSFlags Flags) : IUnityContainer {
-        public byte[] Hash { get; set; } = Array.Empty<byte>();
+        public byte[] Hash { get; set; } = new byte[16];
         public UnityBundleBlockInfo[] BlockInfos { get; set; } = Array.Empty<UnityBundleBlockInfo>();
         public UnityBundleBlock[] Blocks { get; set; } = Array.Empty<UnityBundleBlock>();
         public long Length => Size;
@@ -73,8 +75,49 @@ namespace Equilibrium.Models.Bundle {
             return new OffsetStream(stream, cur, block.Size);
         }
 
-        public void ToWriter(BiEndianBinaryWriter writer, EquilibriumOptions options, UnityBundleBlock[] blocks, Stream blockStream) {
-            throw new NotImplementedException();
+        public void ToWriter(BiEndianBinaryWriter writer, UnityBundle header, EquilibriumOptions options, UnityBundleBlock[] blocks, Stream blockStream, EquilibriumSerializationOptions serializationOptions) {
+            var start = writer.BaseStream.Position;
+            writer.Write(0L);
+            writer.Write(0);
+            writer.Write(0);
+            writer.Write((int) (UnityFSFlags.CombinedData | (UnityFSFlags) serializationOptions.CompressionType));
+            if (header.FormatVersion >= 7) {
+                writer.Align(16);
+            }
+
+            using var blockInfoStream = new MemoryStream();
+            using var blockDataStream = new MemoryStream();
+            using var blockInfoWriter = new BiEndianBinaryWriter(blockInfoStream, true);
+            blockInfoWriter.Write(Hash);
+            var (blockSize, unityCompressionType) = serializationOptions;
+            var blockLength = blocks.Sum(x => x.Size);
+            var blockInfoCount = (int) Math.Ceiling((double) blockLength / blockSize);
+            var blockInfoStart = blockInfoStream.Position;
+            var blockStart = blockInfoStart + 4 + blockInfoCount * 10;
+            blockInfoStream.Seek(blockStart, SeekOrigin.Begin);
+            UnityBundleBlock.ArrayToWriter(blockInfoWriter, blocks, header, options, serializationOptions);
+            blockInfoStream.Seek(blockInfoStart, SeekOrigin.Begin);
+            blockInfoWriter.Write(blockInfoCount);
+            for(var i = 0; i < blockInfoCount; ++i) {
+                UnityBundleBlockInfo.ToWriter(blockInfoWriter, header, options, serializationOptions, blockDataStream, blockStream);
+            }
+
+            var blockInfoSize = (int) blockInfoStream.Length;
+            int compressedBlockInfoSize;
+            if (unityCompressionType == UnityCompressionType.None) {
+                compressedBlockInfoSize = blockInfoSize;
+                blockInfoStream.Seek(0, SeekOrigin.Begin);
+                blockInfoStream.CopyTo(writer.BaseStream);
+            } else {
+                throw new NotImplementedException();
+            }
+            blockDataStream.Seek(0, SeekOrigin.Begin);
+            blockDataStream.CopyTo(writer.BaseStream);
+
+            writer.BaseStream.Seek(start, SeekOrigin.Begin);
+            writer.Write(writer.BaseStream.Length - start);
+            writer.Write(blockInfoSize);
+            writer.Write(compressedBlockInfoSize);
         }
 
         public static UnityFS FromReader(BiEndianBinaryReader reader, UnityBundle header, EquilibriumOptions options) {

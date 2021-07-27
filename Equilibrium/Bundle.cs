@@ -40,7 +40,7 @@ namespace Equilibrium {
         public IUnityContainer Container { get; init; }
         public long DataStart { get; set; }
         public EquilibriumOptions Options { get; init; }
-        private Stream? DataStream { get; set; }
+        public Stream? DataStream { get; private set; }
 
         public void Dispose() {
             DataStream?.Dispose();
@@ -55,6 +55,9 @@ namespace Equilibrium {
             var bundles = new List<Bundle>();
             while (dataStream.Position < dataStream.Length) {
                 var start = dataStream.Position;
+                if (!IsBundleFile(dataStream)) {
+                    break;
+                }
                 var bundle = new Bundle(new OffsetStream(dataStream), new MultiMetaInfo(tag, start, 0), handler, options ?? EquilibriumOptions.Default, true);
                 bundles.Add(bundle);
                 dataStream.Seek(start + bundle.Container.Length, SeekOrigin.Begin);
@@ -87,6 +90,8 @@ namespace Equilibrium {
                 shouldDispose = true;
             }
 
+            reader.BaseStream.Seek(DataStart, SeekOrigin.Begin);
+
             DataStream = Container.OpenFile(new UnityBundleBlock(0, Container.BlockInfos.Select(x => x.Size).Sum(), 0, ""), Options, reader);
 
             if (shouldDispose) {
@@ -106,19 +111,27 @@ namespace Equilibrium {
 
         public Stream OpenFile(UnityBundleBlock block) {
             BiEndianBinaryReader? reader = null;
-            if (!Options.CacheData ||
-                DataStream == null) {
+            if (DataStream == null) {
                 reader = new BiEndianBinaryReader(Handler.OpenFile(Tag), true);
                 reader.BaseStream.Seek(DataStart, SeekOrigin.Begin);
             }
 
             var data = Container.OpenFile(block, Options, reader, DataStream);
             reader?.Dispose();
-            data.Position = 0;
+            data.Seek(0, SeekOrigin.Begin);
             return data;
         }
 
-        public Stream ToStream() => throw new NotImplementedException();
+        private const long BlockSize = 0x20000;
+
+        public Stream ToStream(UnityBundleBlock[] blocks, Stream dataStream, EquilibriumSerializationOptions? serializationOptions) {
+            var stream = new MemoryStream();
+            using var writer = new BiEndianBinaryWriter(stream, true, true);
+            Header.ToWriter(writer, Options);
+            Container.ToWriter(writer, Header, Options, blocks, dataStream, serializationOptions ?? EquilibriumSerializationOptions.Default);
+            stream.Seek(0, SeekOrigin.Begin);
+            return stream;
+        }
 
         public static bool IsBundleFile(Stream stream) {
             using var reader = new BiEndianBinaryReader(stream, true, true);

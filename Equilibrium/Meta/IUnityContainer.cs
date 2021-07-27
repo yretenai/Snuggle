@@ -16,6 +16,6 @@ namespace Equilibrium.Meta {
 
         public Stream OpenFile(UnityBundleBlock? block, EquilibriumOptions options, BiEndianBinaryReader? reader = null, Stream? stream = null);
 
-        public void ToWriter(BiEndianBinaryWriter writer, EquilibriumOptions options, UnityBundleBlock[] blocks, Stream blockStream);
+        public void ToWriter(BiEndianBinaryWriter writer, UnityBundle header, EquilibriumOptions options, UnityBundleBlock[] blocks, Stream blockStream, EquilibriumSerializationOptions equilibriumSerializationOptions);
     }
 }

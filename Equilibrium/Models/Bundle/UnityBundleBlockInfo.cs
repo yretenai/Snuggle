@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Buffers;
+using System.IO;
 using System.Runtime.InteropServices;
 using Equilibrium.IO;
 using Equilibrium.Meta;
 using JetBrains.Annotations;
+using K4os.Compression.LZ4;
 
 namespace Equilibrium.Models.Bundle {
     [PublicAPI, StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -40,6 +43,57 @@ namespace Equilibrium.Models.Bundle {
             }
 
             return container;
+        }
+
+        public static void ToWriter(BiEndianBinaryWriter writer, UnityBundle header, EquilibriumOptions options, EquilibriumSerializationOptions serializationOptions, Stream blockDataStream, Stream blockStream) {
+            var (blockSize, unityCompressionType) = serializationOptions;
+            var actualBlockSize = (int) Math.Min(blockStream.Length - blockStream.Position, blockSize);
+            writer.Write(actualBlockSize);
+            using var chunk = new MemoryStream(actualBlockSize);
+            switch (unityCompressionType) {
+                case UnityCompressionType.None: {
+                    var pooled = ArrayPool<byte>.Shared.Rent(0x14000);
+                    try {
+                        while (actualBlockSize > 0) {
+                            var amount = blockStream.Read(pooled.AsSpan());
+                            actualBlockSize -= amount;
+                            chunk.Write(pooled.AsSpan()[..amount]);
+                        }
+                    } finally {
+                        ArrayPool<byte>.Shared.Return(pooled);
+                    }
+
+                    break;
+                }
+                case UnityCompressionType.LZMA: {
+                    Utils.EncodeLZMA(chunk, blockStream, actualBlockSize);
+                    break;
+                }
+                case UnityCompressionType.LZ4:
+                case UnityCompressionType.LZ4HC: {
+                    var inPool = ArrayPool<byte>.Shared.Rent(0x7000);
+                    var outPool = ArrayPool<byte>.Shared.Rent(0x7000);
+                    try {
+                        while (actualBlockSize > 0) {
+                            actualBlockSize -= blockStream.Read(inPool);
+                            LZ4Codec.Encode(inPool, outPool, unityCompressionType == UnityCompressionType.LZ4HC ? LZ4Level.L09_HC : LZ4Level.L00_FAST);
+                            chunk.Write(outPool);
+                        }
+                    } finally {
+                        ArrayPool<byte>.Shared.Return(inPool);
+                        ArrayPool<byte>.Shared.Return(outPool);
+                    }
+
+                    break;
+                }
+                default:
+                    throw new NotSupportedException();
+            }
+
+            writer.Write((uint) chunk.Length);
+            writer.Write((ushort) serializationOptions.CompressionType);
+            chunk.Seek(0, SeekOrigin.Begin);
+            chunk.CopyTo(blockDataStream);
         }
     }
 }

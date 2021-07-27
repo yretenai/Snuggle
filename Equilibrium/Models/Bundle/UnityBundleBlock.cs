@@ -53,5 +53,28 @@ namespace Equilibrium.Models.Bundle {
                     throw new InvalidOperationException();
             }
         }
+
+        public static void ArrayToWriter(BiEndianBinaryWriter writer, UnityBundleBlock[] blocks, UnityBundle header, EquilibriumOptions options, EquilibriumSerializationOptions serializationOptions) {
+            writer.Write(blocks.Length);
+
+            var offset = 0L;
+            foreach (var block in blocks) {
+                block.ToWriter(writer, header, options, serializationOptions, offset);
+                offset += block.Size; // Alignment? ModCheck
+            }
+        }
+
+        private void ToWriter(BiEndianBinaryWriter writer, UnityBundle header, EquilibriumOptions options, EquilibriumSerializationOptions serializationOptions, long offset) {
+            if (header.Format == UnityFormat.FS) {
+                writer.Write(offset);
+                writer.Write(Size);
+                writer.Write((uint) Flags);
+                writer.WriteNullString(Path);
+            } else {
+                writer.WriteNullString(Path);
+                writer.Write(offset);
+                writer.Write(Size);
+            }
+        }
     }
 }
