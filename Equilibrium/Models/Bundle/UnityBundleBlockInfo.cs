@@ -46,16 +46,16 @@ namespace Equilibrium.Models.Bundle {
         }
 
         public static void ToWriter(BiEndianBinaryWriter writer, UnityBundle header, EquilibriumOptions options, EquilibriumSerializationOptions serializationOptions, Stream blockDataStream, Stream blockStream) {
-            var (blockSize, unityCompressionType) = serializationOptions;
+            var (blockSize, _, blockCompressionType) = serializationOptions;
             var actualBlockSize = (int) Math.Min(blockStream.Length - blockStream.Position, blockSize);
             writer.Write(actualBlockSize);
-            using var chunk = new MemoryStream(actualBlockSize);
-            switch (unityCompressionType) {
+            using var chunk = new MemoryStream();
+            switch (blockCompressionType) {
                 case UnityCompressionType.None: {
-                    var pooled = ArrayPool<byte>.Shared.Rent(0x14000);
+                    var pooled = ArrayPool<byte>.Shared.Rent(0x8000000);
                     try {
                         while (actualBlockSize > 0) {
-                            var amount = blockStream.Read(pooled.AsSpan());
+                            var amount = blockStream.Read(pooled);
                             actualBlockSize -= amount;
                             chunk.Write(pooled.AsSpan()[..amount]);
                         }
@@ -71,19 +71,7 @@ namespace Equilibrium.Models.Bundle {
                 }
                 case UnityCompressionType.LZ4:
                 case UnityCompressionType.LZ4HC: {
-                    var inPool = ArrayPool<byte>.Shared.Rent(0x7000);
-                    var outPool = ArrayPool<byte>.Shared.Rent(0x7000);
-                    try {
-                        while (actualBlockSize > 0) {
-                            actualBlockSize -= blockStream.Read(inPool);
-                            LZ4Codec.Encode(inPool, outPool, unityCompressionType == UnityCompressionType.LZ4HC ? LZ4Level.L09_HC : LZ4Level.L00_FAST);
-                            chunk.Write(outPool);
-                        }
-                    } finally {
-                        ArrayPool<byte>.Shared.Return(inPool);
-                        ArrayPool<byte>.Shared.Return(outPool);
-                    }
-
+                    Utils.CompressLz4(blockStream, chunk, blockCompressionType == UnityCompressionType.LZ4HC ? LZ4Level.L12_MAX : LZ4Level.L00_FAST, actualBlockSize);
                     break;
                 }
                 default:
@@ -91,7 +79,7 @@ namespace Equilibrium.Models.Bundle {
             }
 
             writer.Write((uint) chunk.Length);
-            writer.Write((ushort) serializationOptions.CompressionType);
+            writer.Write((ushort) serializationOptions.BlockCompressionType);
             chunk.Seek(0, SeekOrigin.Begin);
             chunk.CopyTo(blockDataStream);
         }

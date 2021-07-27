@@ -1,11 +1,10 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using DragonLib;
 using Equilibrium.IO;
 using Equilibrium.Meta;
 using JetBrains.Annotations;
+using K4os.Compression.LZ4;
 
 namespace Equilibrium.Models.Bundle {
     [PublicAPI]
@@ -34,7 +33,7 @@ namespace Equilibrium.Models.Bundle {
 
             var streamOffset = 0L;
             var cur = -1L;
-            stream = new MemoryStream();
+            stream = new MemoryStream((int) block.Size) { Position = 0 };
             foreach (var (size, compressedSize, unityBundleBlockFlags) in BlockInfos) {
                 if (streamOffset + size < block.Offset) {
                     reader.BaseStream.Seek(compressedSize, SeekOrigin.Current);
@@ -50,19 +49,17 @@ namespace Equilibrium.Models.Bundle {
                     cur = block.Offset - streamOffset;
                 }
 
-                var buffer = reader.ReadBytes(compressedSize);
-
                 var compressionType = (UnityCompressionType) (unityBundleBlockFlags & UnityBundleBlockInfoFlags.CompressionMask);
                 switch (compressionType) {
                     case UnityCompressionType.None:
-                        stream.Write(buffer);
+                        stream.Write(reader.ReadBytes(compressedSize));
                         break;
                     case UnityCompressionType.LZMA:
-                        Utils.DecodeLZMA(buffer, compressedSize, size, stream);
+                        Utils.DecodeLZMA(reader.BaseStream, compressedSize, size, stream);
                         break;
                     case UnityCompressionType.LZ4:
                     case UnityCompressionType.LZ4HC:
-                        stream.Write(CompressionEncryption.DecompressLZ4(buffer, size));
+                        Utils.DecompressLZ4(reader.BaseStream, compressedSize, size, stream);
                         break;
                     default:
                         throw new InvalidOperationException();
@@ -89,7 +86,7 @@ namespace Equilibrium.Models.Bundle {
             using var blockDataStream = new MemoryStream();
             using var blockInfoWriter = new BiEndianBinaryWriter(blockInfoStream, true);
             blockInfoWriter.Write(Hash);
-            var (blockSize, unityCompressionType) = serializationOptions;
+            var (blockSize, unityCompressionType, _) = serializationOptions;
             var blockLength = blocks.Sum(x => x.Size);
             var blockInfoCount = (int) Math.Ceiling((double) blockLength / blockSize);
             var blockInfoStart = blockInfoStream.Position;
@@ -98,26 +95,40 @@ namespace Equilibrium.Models.Bundle {
             UnityBundleBlock.ArrayToWriter(blockInfoWriter, blocks, header, options, serializationOptions);
             blockInfoStream.Seek(blockInfoStart, SeekOrigin.Begin);
             blockInfoWriter.Write(blockInfoCount);
-            for(var i = 0; i < blockInfoCount; ++i) {
+            for (var i = 0; i < blockInfoCount; ++i) {
                 UnityBundleBlockInfo.ToWriter(blockInfoWriter, header, options, serializationOptions, blockDataStream, blockStream);
             }
 
             var blockInfoSize = (int) blockInfoStream.Length;
-            int compressedBlockInfoSize;
-            if (unityCompressionType == UnityCompressionType.None) {
-                compressedBlockInfoSize = blockInfoSize;
-                blockInfoStream.Seek(0, SeekOrigin.Begin);
-                blockInfoStream.CopyTo(writer.BaseStream);
-            } else {
-                throw new NotImplementedException();
+            blockInfoStream.Seek(0, SeekOrigin.Begin);
+            using var compressedStream = new MemoryStream();
+            switch (unityCompressionType) {
+                case UnityCompressionType.None: {
+                    blockInfoStream.CopyTo(compressedStream);
+                    break;
+                }
+                case UnityCompressionType.LZMA: {
+                    Utils.EncodeLZMA(compressedStream, blockInfoStream, (int) blockInfoStream.Length);
+                    break;
+                }
+                case UnityCompressionType.LZ4:
+                case UnityCompressionType.LZ4HC: {
+                    Utils.CompressLz4(blockInfoStream, compressedStream, unityCompressionType == UnityCompressionType.LZ4HC ? LZ4Level.L12_MAX : LZ4Level.L00_FAST, (int) blockInfoStream.Length);
+                    break;
+                }
+                default:
+                    throw new NotSupportedException();
             }
+
+            compressedStream.Seek(0, SeekOrigin.Begin);
+            compressedStream.CopyTo(writer.BaseStream);
             blockDataStream.Seek(0, SeekOrigin.Begin);
             blockDataStream.CopyTo(writer.BaseStream);
 
             writer.BaseStream.Seek(start, SeekOrigin.Begin);
             writer.Write(writer.BaseStream.Length - start);
+            writer.Write((int) compressedStream.Length);
             writer.Write(blockInfoSize);
-            writer.Write(compressedBlockInfoSize);
         }
 
         public static UnityFS FromReader(BiEndianBinaryReader reader, UnityBundle header, EquilibriumOptions options) {
@@ -130,30 +141,26 @@ namespace Equilibrium.Models.Bundle {
             }
 
             var fs = new UnityFS(size, compressedBlockSize, blockSize, flags);
-            var blocksBuffer = new byte[fs.CompressedBlockInfoSize];
             if (fs.Flags.HasFlag(UnityFSFlags.BlocksInfoAtEnd)) {
-                var tmp = reader.BaseStream.Position;
                 reader.BaseStream.Seek(fs.CompressedBlockInfoSize, SeekOrigin.End);
-                reader.Read(blocksBuffer);
-                reader.BaseStream.Seek(tmp, SeekOrigin.Begin);
-            } else {
-                reader.Read(blocksBuffer);
             }
 
             var compressionType = (UnityCompressionType) (fs.Flags & UnityFSFlags.CompressionRange);
-            using var blocksReader = compressionType switch {
-                UnityCompressionType.None => BiEndianBinaryReader.FromArray(blocksBuffer, true),
-                UnityCompressionType.LZMA => new BiEndianBinaryReader(Utils.DecodeLZMA(blocksBuffer, fs.CompressedBlockInfoSize, fs.BlockInfoSize), true),
-                UnityCompressionType.LZ4 => BiEndianBinaryReader.FromArray(CompressionEncryption.DecompressLZ4(blocksBuffer, fs.BlockInfoSize).ToArray(), true),
-                UnityCompressionType.LZ4HC => BiEndianBinaryReader.FromArray(CompressionEncryption.DecompressLZ4(blocksBuffer, fs.BlockInfoSize).ToArray(), true),
-                _ => throw new InvalidOperationException(),
-            };
+            using var blocksReader = new BiEndianBinaryReader(compressionType switch {
+                    UnityCompressionType.None => new OffsetStream(reader.BaseStream, length: fs.BlockInfoSize),
+                    UnityCompressionType.LZMA => Utils.DecodeLZMA(reader.BaseStream, fs.CompressedBlockInfoSize, fs.BlockInfoSize),
+                    UnityCompressionType.LZ4 => Utils.DecompressLZ4(reader.BaseStream, fs.CompressedBlockInfoSize, fs.BlockInfoSize),
+                    UnityCompressionType.LZ4HC => Utils.DecompressLZ4(reader.BaseStream, fs.CompressedBlockInfoSize, fs.BlockInfoSize),
+                    _ => throw new InvalidOperationException(),
+                },
+                true,
+                compressionType == UnityCompressionType.None);
+            blocksReader.BaseStream.Seek(0, SeekOrigin.Begin);
             fs.Hash = blocksReader.ReadBytes(16);
             var infoCount = blocksReader.ReadInt32();
             fs.BlockInfos = UnityBundleBlockInfo.ArrayFromReader(blocksReader, header, infoCount, options);
             var blockCount = blocksReader.ReadInt32();
             fs.Blocks = UnityBundleBlock.ArrayFromReader(blocksReader, header, blockCount, options);
-
             return fs;
         }
     }

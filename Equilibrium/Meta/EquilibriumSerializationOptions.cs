@@ -3,7 +3,8 @@
 namespace Equilibrium.Meta {
     public record EquilibriumSerializationOptions(
         int BlockSize,
-        UnityCompressionType CompressionType) {
-        public static EquilibriumSerializationOptions Default { get; } = new(0x20000, UnityCompressionType.None);
+        UnityCompressionType CompressionType,
+        UnityCompressionType BlockCompressionType) {
+        public static EquilibriumSerializationOptions Default { get; } = new(int.MaxValue, UnityCompressionType.None, UnityCompressionType.LZMA);
     }
 }

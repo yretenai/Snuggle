@@ -58,6 +58,7 @@ namespace Equilibrium {
                 if (!IsBundleFile(dataStream)) {
                     break;
                 }
+
                 var bundle = new Bundle(new OffsetStream(dataStream), new MultiMetaInfo(tag, start, 0), handler, options ?? EquilibriumOptions.Default, true);
                 bundles.Add(bundle);
                 dataStream.Seek(start + bundle.Container.Length, SeekOrigin.Begin);
@@ -121,8 +122,6 @@ namespace Equilibrium {
             data.Seek(0, SeekOrigin.Begin);
             return data;
         }
-
-        private const long BlockSize = 0x20000;
 
         public Stream ToStream(UnityBundleBlock[] blocks, Stream dataStream, EquilibriumSerializationOptions? serializationOptions) {
             var stream = new MemoryStream();

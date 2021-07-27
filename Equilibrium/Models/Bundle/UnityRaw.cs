@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using DragonLib;
 using Equilibrium.IO;
 using Equilibrium.Meta;
 using JetBrains.Annotations;
@@ -54,19 +53,17 @@ namespace Equilibrium.Models.Bundle {
                     cur = block.Offset - streamOffset;
                 }
 
-                var buffer = reader.ReadBytes(compressedSize);
-
                 var compressionType = (UnityCompressionType) (unityBundleBlockFlags & UnityBundleBlockInfoFlags.CompressionMask);
                 switch (compressionType) {
                     case UnityCompressionType.None:
-                        stream.Write(buffer);
+                        stream.Write(reader.ReadBytes(compressedSize));
                         break;
                     case UnityCompressionType.LZMA:
-                        Utils.DecodeLZMA(buffer, compressedSize, size, stream);
+                        Utils.DecodeLZMA(reader.BaseStream, compressedSize, size, stream);
                         break;
                     case UnityCompressionType.LZ4:
                     case UnityCompressionType.LZ4HC:
-                        stream.Write(CompressionEncryption.DecompressLZ4(buffer, size));
+                        Utils.DecompressLZ4(reader.BaseStream, compressedSize, size, stream);
                         break;
                     default:
                         throw new InvalidOperationException();
