@@ -1,5 +1,6 @@
 ﻿using System;
 using Equilibrium.IO;
+using Equilibrium.Meta;
 using Equilibrium.Models.Serialization;
 using JetBrains.Annotations;
 
@@ -12,8 +13,8 @@ namespace Equilibrium.Implementations {
         public string Name { get; set; }
         public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Name);
 
-        public override void Serialize(BiEndianBinaryWriter writer) {
-            base.Serialize(writer);
+        public override void Serialize(BiEndianBinaryWriter writer, UnityVersion? targetVersion) {
+            base.Serialize(writer, targetVersion);
             writer.WriteString32(Name);
         }
 

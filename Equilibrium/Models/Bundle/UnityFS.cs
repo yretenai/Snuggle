@@ -113,7 +113,7 @@ namespace Equilibrium.Models.Bundle {
                 }
                 case UnityCompressionType.LZ4:
                 case UnityCompressionType.LZ4HC: {
-                    Utils.CompressLz4(blockInfoStream, compressedStream, unityCompressionType == UnityCompressionType.LZ4HC ? LZ4Level.L12_MAX : LZ4Level.L00_FAST, (int) blockInfoStream.Length);
+                    Utils.CompressLZ4(blockInfoStream, compressedStream, unityCompressionType == UnityCompressionType.LZ4HC ? LZ4Level.L12_MAX : LZ4Level.L00_FAST, (int) blockInfoStream.Length);
                     break;
                 }
                 default:

@@ -8,7 +8,7 @@ using JetBrains.Annotations;
 
 namespace Equilibrium.Implementations {
     [PublicAPI, UsedImplicitly, ObjectImplementation(ClassId.Object)]
-    public class SerializedObject : IEquatable<SerializedObject> {
+    public class SerializedObject : IEquatable<SerializedObject>, ISerialized {
         public SerializedObject(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : this(info, serializedFile) => IsMutated = false;
 
         public SerializedObject(UnityObjectInfo info, SerializedFile serializedFile) {
@@ -42,6 +42,19 @@ namespace Equilibrium.Implementations {
             return PathId == other.PathId && ClassId == other.ClassId;
         }
 
+        public virtual void Deserialize(BiEndianBinaryReader reader) {
+            ShouldDeserialize = false;
+        }
+
+        public void Deserialize() {
+            using var reader = new BiEndianBinaryReader(SerializedFile.OpenFile(PathId), SerializedFile.Header.IsBigEndian);
+            Deserialize(reader);
+        }
+
+        public virtual void Serialize(BiEndianBinaryWriter writer, UnityVersion? targetVersion) { }
+
+        public virtual void Free() { }
+
         public override string ToString() => ClassId.ToString("G");
 
         public override bool Equals(object? obj) {
@@ -55,19 +68,6 @@ namespace Equilibrium.Implementations {
 
             return obj is SerializedObject unityObject && Equals(unityObject);
         }
-
-        public virtual void Deserialize(BiEndianBinaryReader reader) {
-            ShouldDeserialize = false;
-        }
-
-        public void Deserialize() {
-            using var reader = new BiEndianBinaryReader(SerializedFile.OpenFile(PathId), SerializedFile.Header.IsBigEndian);
-            Deserialize(reader);
-        }
-
-        public virtual void Serialize(BiEndianBinaryWriter writer) { }
-
-        public virtual void Free() { }
 
         public override int GetHashCode() => HashCode.Combine(ClassId, PathId);
     }

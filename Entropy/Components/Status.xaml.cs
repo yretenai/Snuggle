@@ -1,7 +1,5 @@
-﻿using System.Windows.Controls;
-
-namespace Entropy.Components {
-    public partial class Status : UserControl {
+﻿namespace Entropy.Components {
+    public partial class Status {
         public Status() {
             InitializeComponent();
         }

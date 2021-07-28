@@ -85,6 +85,7 @@ namespace Entropy.Components {
                     if (token.IsCancellationRequested) {
                         return;
                     }
+
                     instance.Status.SetStatus($"Loading {file}");
                     instance.Status.SetProgress(instance.Status.Value + 1);
                     instance.Collection.LoadFile(file, instance.Options);
@@ -117,6 +118,7 @@ namespace Entropy.Components {
                     if (token.IsCancellationRequested) {
                         return;
                     }
+
                     instance.Status.SetStatus($"Loading {file}");
                     instance.Status.SetProgress(instance.Status.Value + 1);
                     instance.Collection.LoadFile(file, instance.Options);

@@ -39,12 +39,11 @@ namespace Equilibrium {
             return outStream;
         }
 
-        public static Stream EncodeLZMA(Stream outStream, Stream inStream, int size, CoderPropID[]? propIds = null, object[]? properties = null) {
+        public static void EncodeLZMA(Stream outStream, Stream inStream, int size, CoderPropID[]? propIds = null, object[]? properties = null) {
             var coder = new Encoder();
             coder.SetCoderProperties(propIds ?? PropIDs, properties ?? Properties);
             coder.WriteCoderProperties(outStream);
             coder.Code(inStream, outStream, size, -1, null);
-            return outStream;
         }
 
         public static Stream DecompressLZ4(Stream inStream, int compressedSize, int size, Stream? outStream = null) {
@@ -66,7 +65,7 @@ namespace Equilibrium {
             return outStream;
         }
 
-        public static Stream CompressLz4(Stream inStream, Stream outStream, LZ4Level level, int size) {
+        public static void CompressLZ4(Stream inStream, Stream outStream, LZ4Level level, int size) {
             var inPool = ArrayPool<byte>.Shared.Rent(size);
             try {
                 var outPool = ArrayPool<byte>.Shared.Rent(size);
@@ -80,8 +79,6 @@ namespace Equilibrium {
             } finally {
                 ArrayPool<byte>.Shared.Return(inPool);
             }
-
-            return outStream;
         }
     }
 }

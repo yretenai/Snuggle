@@ -1,5 +1,6 @@
 ﻿using Equilibrium.Implementations;
 using Equilibrium.IO;
+using Equilibrium.Meta;
 using JetBrains.Annotations;
 
 namespace Equilibrium.Models.Objects {
@@ -10,10 +11,10 @@ namespace Equilibrium.Models.Objects {
         PPtr<SerializedObject> Asset) {
         public static AssetInfo FromReader(BiEndianBinaryReader reader, SerializedFile file) => new(reader.ReadInt32(), reader.ReadInt32(), PPtr<SerializedObject>.FromReader(reader, file));
 
-        public void ToWriter(BiEndianBinaryWriter writer, SerializedFile serializedFile) {
+        public void ToWriter(BiEndianBinaryWriter writer, SerializedFile serializedFile, UnityVersion? targetVersion) {
             writer.Write(PreloadIndex);
             writer.Write(PreloadSize);
-            Asset.ToWriter(writer, serializedFile);
+            Asset.ToWriter(writer, serializedFile, targetVersion);
         }
     }
 }

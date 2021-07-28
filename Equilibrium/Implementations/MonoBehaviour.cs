@@ -29,12 +29,14 @@ namespace Equilibrium.Implementations {
             throw new NotImplementedException();
         }
 
-        public override void Serialize(BiEndianBinaryWriter writer) {
+        public override void Serialize(BiEndianBinaryWriter writer, UnityVersion? targetVersion) {
             if (ShouldDeserialize) {
                 throw new InvalidOperationException();
             }
 
-            Script.ToWriter(writer, SerializedFile);
+            base.Serialize(writer, targetVersion);
+
+            Script.ToWriter(writer, SerializedFile, targetVersion);
             writer.WriteString32(Name);
             throw new NotImplementedException();
         }

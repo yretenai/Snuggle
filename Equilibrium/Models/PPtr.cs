@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Linq;
 using Equilibrium.Implementations;
 using Equilibrium.IO;
+using Equilibrium.Meta;
+using Equilibrium.Models.Serialization;
 using JetBrains.Annotations;
 
 namespace Equilibrium.Models {
@@ -10,51 +13,71 @@ namespace Equilibrium.Models {
         long PathId) where T : SerializedObject {
         public static PPtr<T> Null => new(0, 0);
         private T? UnderlyingValue { get; set; }
+        private UnityObjectInfo? UnderlyingInfo { get; set; }
 
         public SerializedFile? File { get; set; }
 
         public bool IsNull { get; } = FileId < 0 || PathId == 0;
+
+        public UnityObjectInfo? Info {
+            get {
+                if (IsNull ||
+                    File == null ||
+                    FileId >= File.ExternalInfos.Length ||
+                    File.Assets == null) {
+                    return null;
+                }
+
+                if (UnderlyingInfo != null) {
+                    return UnderlyingInfo;
+                }
+
+                SerializedFile? referencedFile;
+                if (FileId == 0) {
+                    referencedFile = File;
+                } else if (!File.Assets.Files.TryGetValue(File.ExternalInfos[FileId - 1].Name, out referencedFile)) {
+                    return null;
+                }
+
+                UnderlyingInfo = referencedFile.ObjectInfos.FirstOrDefault(x => x.PathId == PathId);
+                return UnderlyingInfo;
+            }
+        }
 
         public T? Value {
             get {
                 if (IsNull ||
                     File == null ||
                     FileId >= File.ExternalInfos.Length ||
-                    File.Assets == null ||
-                    State == PPtrState.Failed) {
+                    File.Assets == null) {
                     return null;
                 }
 
-                if (State == PPtrState.Unloaded) {
-                    SerializedFile? referencedFile;
-                    if (FileId == 0) {
-                        referencedFile = File;
-                    } else if (!File.Assets.Files.TryGetValue(File.ExternalInfos[FileId - 1].Name, out referencedFile)) {
-                        State = PPtrState.Failed;
-                        return null;
-                    }
-
-                    if (!referencedFile.Objects.TryGetValue(PathId, out var referencedObject)) {
-                        State = PPtrState.Failed;
-                        return null;
-                    }
-
-                    if (referencedObject is not T referencedType) {
-                        State = PPtrState.Failed;
-                        return null;
-                    }
-
-                    UnderlyingValue = referencedType;
-                    State = PPtrState.Loaded;
+                if (UnderlyingValue != null) {
+                    return UnderlyingValue;
                 }
 
+                SerializedFile? referencedFile;
+                if (FileId == 0) {
+                    referencedFile = File;
+                } else if (!File.Assets.Files.TryGetValue(File.ExternalInfos[FileId - 1].Name, out referencedFile)) {
+                    return null;
+                }
+
+                if (!referencedFile.Objects.TryGetValue(PathId, out var referencedObject)) {
+                    return null;
+                }
+
+                if (referencedObject is not T referencedType) {
+                    return null;
+                }
+
+                UnderlyingValue = referencedType;
                 return UnderlyingValue;
             }
         }
 
-        public PPtrState State { get; set; } = PPtrState.Unloaded;
-
-        public void ToWriter(BiEndianBinaryWriter writer, SerializedFile file) {
+        public void ToWriter(BiEndianBinaryWriter writer, SerializedFile file, UnityVersion? targetVersion) {
             writer.Write(FileId);
             if (File == null ||
                 file.Header.BigIdEnabled) {

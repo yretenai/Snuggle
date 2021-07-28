@@ -88,22 +88,22 @@ namespace Equilibrium.Implementations {
         public int PathFlags { get; set; }
         public Dictionary<string, string> SceneHashes { get; set; }
 
-        public override void Serialize(BiEndianBinaryWriter writer) {
-            base.Serialize(writer);
+        public override void Serialize(BiEndianBinaryWriter writer, UnityVersion? targetVersion) {
+            base.Serialize(writer, targetVersion);
 
             writer.Write(PreloadTable.Count);
             foreach (var ptr in PreloadTable) {
-                ptr.ToWriter(writer, SerializedFile);
+                ptr.ToWriter(writer, SerializedFile, targetVersion);
             }
 
             writer.Write(Container.Count);
             foreach (var (name, info) in Container) {
                 writer.WriteString32(name);
-                info.ToWriter(writer, SerializedFile);
+                info.ToWriter(writer, SerializedFile, targetVersion);
             }
 
-            if (SerializedFile.Version >= new UnityVersion(5, 4) &&
-                SerializedFile.Version < new UnityVersion(5, 5)) {
+            if (targetVersion >= new UnityVersion(5, 4) &&
+                targetVersion < new UnityVersion(5, 5)) {
                 writer.Write(ClassInfos.Count);
                 foreach (var (id, flags) in ClassInfos) {
                     writer.Write(id);
@@ -113,7 +113,7 @@ namespace Equilibrium.Implementations {
                 ClassInfos = new Dictionary<int, uint>(0);
             }
 
-            MainAsset.ToWriter(writer, SerializedFile);
+            MainAsset.ToWriter(writer, SerializedFile, targetVersion);
             writer.Write(RuntimeCompatibility);
             writer.WriteString32(AssetBundleName);
 
@@ -125,15 +125,15 @@ namespace Equilibrium.Implementations {
             writer.Write(IsStreamedSceneAssetBundle);
             writer.Align();
 
-            if (SerializedFile.Version > new UnityVersion(2017, 3)) {
+            if (targetVersion > new UnityVersion(2017, 3)) {
                 writer.Write(ExplicitDataLayout);
             }
 
-            if (SerializedFile.Version > new UnityVersion(2017, 1)) {
+            if (targetVersion > new UnityVersion(2017, 1)) {
                 writer.Write(PathFlags);
             }
 
-            if (SerializedFile.Version > new UnityVersion(2017, 3)) {
+            if (targetVersion > new UnityVersion(2017, 3)) {
                 writer.Write(SceneHashes.Count);
                 foreach (var (scene, hash) in SceneHashes) {
                     writer.WriteString32(scene);
