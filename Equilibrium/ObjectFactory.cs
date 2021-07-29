@@ -55,6 +55,10 @@ namespace Equilibrium {
                     type = BaseType;
                 }
 
+                if (type == null) {
+                    throw new NullReferenceException();
+                }
+
                 using var reader = new BiEndianBinaryReader(serializedFile.OpenFile(info, stream), serializedFile.Header.IsBigEndian, true);
                 var instance = Activator.CreateInstance(type, reader, info, serializedFile);
                 if (instance is not SerializedObject serializedObject) {

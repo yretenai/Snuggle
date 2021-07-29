@@ -9,25 +9,33 @@ using Equilibrium.Meta.Options;
 using Equilibrium.Models;
 using Equilibrium.Models.Bundle;
 using JetBrains.Annotations;
+using Mono.Cecil;
 
 namespace Equilibrium {
     [PublicAPI]
     public class AssetCollection : IDisposable {
         public List<Bundle> Bundles { get; } = new();
+        public AssemblyResolver Assemblies { get; set; } = new();
         public Dictionary<string, SerializedFile> Files { get; } = new(StringComparer.InvariantCultureIgnoreCase);
         public Dictionary<string, (object Tag, IFileHandler Handler)> Resources { get; } = new(StringComparer.InvariantCultureIgnoreCase);
 
         public void Dispose() {
             Reset();
+            Assemblies.Dispose();
             GC.SuppressFinalize(this);
         }
 
         public void Reset() {
             foreach (var bundle in Bundles) {
-                bundle.Dispose();
+                try {
+                    bundle.Dispose();
+                } catch {
+                    // ignored 
+                }
             }
 
             Bundles.Clear();
+            Assemblies.Clear();
             Files.Clear();
             Resources.Clear();
 
@@ -118,6 +126,9 @@ namespace Equilibrium {
                 LoadSerializedFile(dataStream, tag, handler, leaveOpen, null, options);
             } else if (Bundle.IsBundleFile(dataStream)) {
                 LoadBundleSequence(dataStream, tag, handler, options, align, leaveOpen);
+            } else if (dataStream is FileStream fs &&
+                       IsAssembly(dataStream)) {
+                LoadAssembly(dataStream, Path.GetDirectoryName(fs.Name) ?? "./", options, leaveOpen);
             } else {
                 if (tag is not string path) {
                     throw new InvalidOperationException();
@@ -133,6 +144,31 @@ namespace Equilibrium {
                     default:
                         return;
                 }
+            }
+        }
+
+        public void LoadAssembly(Stream dataStream, string assemblyLocation, EquilibriumOptions? options, bool leaveOpen = false) {
+            try {
+                Assemblies.RemoveSearchDirectory(assemblyLocation);
+                Assemblies.AddSearchDirectory(assemblyLocation);
+                Assemblies.RegisterAssembly(AssemblyDefinition.ReadAssembly(new OffsetStream(dataStream, null, null, leaveOpen), new ReaderParameters(ReadingMode.Immediate) { InMemory = true, AssemblyResolver = Assemblies }));
+                if (!leaveOpen) {
+                    dataStream.Dispose();
+                }
+            } catch {
+                // LOG THIS
+            }
+        }
+
+        public static bool IsAssembly(Stream stream) {
+            var pos = stream.Position;
+            try {
+                using var module = ModuleDefinition.ReadModule(new OffsetStream(stream, leaveOpen: true), new ReaderParameters(ReadingMode.Deferred) { InMemory = true });
+                return module.Kind == ModuleKind.Dll && module.HasTypes;
+            } catch {
+                return false;
+            } finally {
+                stream.Seek(pos, SeekOrigin.Begin);
             }
         }
     }
