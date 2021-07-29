@@ -2,10 +2,11 @@
 using System.IO;
 using System.Linq;
 using Equilibrium.IO;
+using Equilibrium.Meta.Options;
 using Equilibrium.Models.Bundle;
 using JetBrains.Annotations;
 
-namespace Equilibrium.Meta {
+namespace Equilibrium.Meta.Interfaces {
     [PublicAPI]
     public interface IUnityContainer {
         public UnityBundleBlockInfo[] BlockInfos { get; set; }
@@ -16,6 +17,6 @@ namespace Equilibrium.Meta {
 
         public Stream OpenFile(UnityBundleBlock? block, EquilibriumOptions options, BiEndianBinaryReader? reader = null, Stream? stream = null);
 
-        public void ToWriter(BiEndianBinaryWriter writer, UnityBundle header, EquilibriumOptions options, UnityBundleBlock[] blocks, Stream blockStream, EquilibriumSerializationOptions equilibriumSerializationOptions);
+        public void ToWriter(BiEndianBinaryWriter writer, UnityBundle header, EquilibriumOptions options, UnityBundleBlock[] blocks, Stream blockStream, BundleSerializationOptions bundleSerializationOptions);
     }
 }

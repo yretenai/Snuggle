@@ -1,5 +1,5 @@
 ﻿using Equilibrium;
-using Equilibrium.Meta;
+using Equilibrium.Meta.Options;
 
 namespace Negentropy {
     internal static class Program {

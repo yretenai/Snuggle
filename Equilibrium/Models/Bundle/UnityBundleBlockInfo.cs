@@ -3,7 +3,7 @@ using System.Buffers;
 using System.IO;
 using System.Runtime.InteropServices;
 using Equilibrium.IO;
-using Equilibrium.Meta;
+using Equilibrium.Meta.Options;
 using JetBrains.Annotations;
 using K4os.Compression.LZ4;
 
@@ -45,7 +45,7 @@ namespace Equilibrium.Models.Bundle {
             return container;
         }
 
-        public static void ToWriter(BiEndianBinaryWriter writer, UnityBundle header, EquilibriumOptions options, EquilibriumSerializationOptions serializationOptions, Stream blockDataStream, Stream blockStream) {
+        public static void ToWriter(BiEndianBinaryWriter writer, UnityBundle header, EquilibriumOptions options, BundleSerializationOptions serializationOptions, Stream blockDataStream, Stream blockStream) {
             var (blockSize, _, blockCompressionType) = serializationOptions;
             var actualBlockSize = (int) Math.Min(blockStream.Length - blockStream.Position, blockSize);
             writer.Write(actualBlockSize);

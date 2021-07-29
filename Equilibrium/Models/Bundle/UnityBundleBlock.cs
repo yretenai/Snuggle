@@ -1,6 +1,6 @@
 ﻿using System;
 using Equilibrium.IO;
-using Equilibrium.Meta;
+using Equilibrium.Meta.Options;
 using JetBrains.Annotations;
 
 namespace Equilibrium.Models.Bundle {
@@ -54,7 +54,7 @@ namespace Equilibrium.Models.Bundle {
             }
         }
 
-        public static void ArrayToWriter(BiEndianBinaryWriter writer, UnityBundleBlock[] blocks, UnityBundle header, EquilibriumOptions options, EquilibriumSerializationOptions serializationOptions) {
+        public static void ArrayToWriter(BiEndianBinaryWriter writer, UnityBundleBlock[] blocks, UnityBundle header, EquilibriumOptions options, BundleSerializationOptions serializationOptions) {
             writer.Write(blocks.Length);
 
             var offset = 0L;
@@ -64,7 +64,7 @@ namespace Equilibrium.Models.Bundle {
             }
         }
 
-        private void ToWriter(BiEndianBinaryWriter writer, UnityBundle header, EquilibriumOptions options, EquilibriumSerializationOptions serializationOptions, long offset) {
+        private void ToWriter(BiEndianBinaryWriter writer, UnityBundle header, EquilibriumOptions options, BundleSerializationOptions serializationOptions, long offset) {
             if (header.Format == UnityFormat.FS) {
                 writer.Write(offset);
                 writer.Write(Size);

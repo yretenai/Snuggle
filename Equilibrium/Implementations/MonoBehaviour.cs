@@ -1,6 +1,7 @@
 ﻿using System;
 using Equilibrium.IO;
 using Equilibrium.Meta;
+using Equilibrium.Meta.Options;
 using Equilibrium.Models;
 using Equilibrium.Models.Serialization;
 using JetBrains.Annotations;
@@ -29,12 +30,12 @@ namespace Equilibrium.Implementations {
             throw new NotImplementedException();
         }
 
-        public override void Serialize(BiEndianBinaryWriter writer, UnityVersion? targetVersion) {
+        public override void Serialize(BiEndianBinaryWriter writer, UnityVersion? targetVersion, FileSerializationOptions options) {
             if (ShouldDeserialize) {
                 throw new InvalidOperationException();
             }
 
-            base.Serialize(writer, targetVersion);
+            base.Serialize(writer, targetVersion, options);
 
             Script.ToWriter(writer, SerializedFile, targetVersion);
             writer.WriteString32(Name);

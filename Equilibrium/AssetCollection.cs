@@ -4,6 +4,8 @@ using System.Diagnostics;
 using System.IO;
 using Equilibrium.IO;
 using Equilibrium.Meta;
+using Equilibrium.Meta.Interfaces;
+using Equilibrium.Meta.Options;
 using Equilibrium.Models;
 using Equilibrium.Models.Bundle;
 using JetBrains.Annotations;

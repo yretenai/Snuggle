@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Equilibrium.IO;
 using Equilibrium.Meta;
+using Equilibrium.Meta.Options;
 using Equilibrium.Models;
 using Equilibrium.Models.Objects;
 using Equilibrium.Models.Serialization;
@@ -36,8 +37,8 @@ namespace Equilibrium.Implementations {
         public List<int> AssetBundlesWithVariant { get; set; }
         public Dictionary<int, AssetBundleInfo> AssetBundleInfos { get; set; }
 
-        public override void Serialize(BiEndianBinaryWriter writer, UnityVersion? targetVersion) {
-            base.Serialize(writer, targetVersion);
+        public override void Serialize(BiEndianBinaryWriter writer, UnityVersion? targetVersion, FileSerializationOptions options) {
+            base.Serialize(writer, targetVersion, options);
             writer.Write(AssetBundleNames.Count);
             foreach (var (id, name) in AssetBundleNames) {
                 writer.Write(id);

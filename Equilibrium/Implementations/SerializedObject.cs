@@ -2,6 +2,8 @@
 using System.Text.Json.Serialization;
 using Equilibrium.IO;
 using Equilibrium.Meta;
+using Equilibrium.Meta.Interfaces;
+using Equilibrium.Meta.Options;
 using Equilibrium.Models;
 using Equilibrium.Models.Serialization;
 using JetBrains.Annotations;
@@ -51,7 +53,7 @@ namespace Equilibrium.Implementations {
             Deserialize(reader);
         }
 
-        public virtual void Serialize(BiEndianBinaryWriter writer, UnityVersion? targetVersion) { }
+        public virtual void Serialize(BiEndianBinaryWriter writer, UnityVersion? targetVersion, FileSerializationOptions options) { }
 
         public virtual void Free() { }
 

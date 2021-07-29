@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Equilibrium.IO;
 using Equilibrium.Meta;
+using Equilibrium.Meta.Options;
 using Equilibrium.Models;
 using Equilibrium.Models.Objects;
 using Equilibrium.Models.Serialization;
@@ -88,8 +89,8 @@ namespace Equilibrium.Implementations {
         public int PathFlags { get; set; }
         public Dictionary<string, string> SceneHashes { get; set; }
 
-        public override void Serialize(BiEndianBinaryWriter writer, UnityVersion? targetVersion) {
-            base.Serialize(writer, targetVersion);
+        public override void Serialize(BiEndianBinaryWriter writer, UnityVersion? targetVersion, FileSerializationOptions options) {
+            base.Serialize(writer, targetVersion, options);
 
             writer.Write(PreloadTable.Count);
             foreach (var ptr in PreloadTable) {

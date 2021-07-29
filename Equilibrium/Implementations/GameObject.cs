@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Equilibrium.IO;
 using Equilibrium.Meta;
+using Equilibrium.Meta.Options;
 using Equilibrium.Models;
 using Equilibrium.Models.Objects;
 using Equilibrium.Models.Serialization;
@@ -51,8 +52,8 @@ namespace Equilibrium.Implementations {
             Components = components;
         }
 
-        public override void Serialize(BiEndianBinaryWriter writer, UnityVersion? targetVersion) {
-            base.Serialize(writer, targetVersion);
+        public override void Serialize(BiEndianBinaryWriter writer, UnityVersion? targetVersion, FileSerializationOptions options) {
+            base.Serialize(writer, targetVersion, options);
             writer.Write(Components.Count);
             if (targetVersion < new UnityVersion(5, 5)) {
                 foreach (var (classId, ptr) in Components) {

@@ -4,6 +4,8 @@ using System.IO;
 using System.Linq;
 using Equilibrium.IO;
 using Equilibrium.Meta;
+using Equilibrium.Meta.Interfaces;
+using Equilibrium.Meta.Options;
 using Equilibrium.Models.Bundle;
 using JetBrains.Annotations;
 
@@ -123,11 +125,11 @@ namespace Equilibrium {
             return data;
         }
 
-        public Stream ToStream(UnityBundleBlock[] blocks, Stream dataStream, EquilibriumSerializationOptions? serializationOptions) {
+        public Stream ToStream(UnityBundleBlock[] blocks, Stream dataStream, BundleSerializationOptions? serializationOptions) {
             var stream = new MemoryStream();
             using var writer = new BiEndianBinaryWriter(stream, true, true);
             Header.ToWriter(writer, Options);
-            Container.ToWriter(writer, Header, Options, blocks, dataStream, serializationOptions ?? EquilibriumSerializationOptions.Default);
+            Container.ToWriter(writer, Header, Options, blocks, dataStream, serializationOptions ?? BundleSerializationOptions.Default);
             stream.Seek(0, SeekOrigin.Begin);
             return stream;
         }

@@ -1,6 +1,7 @@
 ﻿using System;
 using Equilibrium.IO;
 using Equilibrium.Meta;
+using Equilibrium.Meta.Options;
 using Equilibrium.Models;
 using Equilibrium.Models.Serialization;
 using JetBrains.Annotations;
@@ -13,8 +14,8 @@ namespace Equilibrium.Implementations {
 
         public PPtr<GameObject> GameObject { get; set; }
 
-        public override void Serialize(BiEndianBinaryWriter writer, UnityVersion? targetVersion) {
-            base.Serialize(writer, targetVersion);
+        public override void Serialize(BiEndianBinaryWriter writer, UnityVersion? targetVersion, FileSerializationOptions options) {
+            base.Serialize(writer, targetVersion, options);
             GameObject.ToWriter(writer, SerializedFile, targetVersion);
         }
 

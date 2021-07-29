@@ -1,5 +1,6 @@
 ﻿using Equilibrium.IO;
 using Equilibrium.Meta;
+using Equilibrium.Meta.Options;
 using JetBrains.Annotations;
 
 namespace Equilibrium.Models.Bundle {

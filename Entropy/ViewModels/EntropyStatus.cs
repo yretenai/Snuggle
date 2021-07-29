@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using Equilibrium.Meta;
+using Equilibrium.Meta.Interfaces;
 using JetBrains.Annotations;
 
 namespace Entropy.ViewModels {

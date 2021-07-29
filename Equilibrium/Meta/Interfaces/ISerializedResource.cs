@@ -2,7 +2,7 @@
 using Equilibrium.IO;
 using JetBrains.Annotations;
 
-namespace Equilibrium.Meta {
+namespace Equilibrium.Meta.Interfaces {
     [PublicAPI]
     public interface ISerializedResource {
         public Stream GetStream { get; set; }

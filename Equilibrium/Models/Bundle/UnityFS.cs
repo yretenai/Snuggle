@@ -2,7 +2,8 @@
 using System.IO;
 using System.Linq;
 using Equilibrium.IO;
-using Equilibrium.Meta;
+using Equilibrium.Meta.Interfaces;
+using Equilibrium.Meta.Options;
 using JetBrains.Annotations;
 using K4os.Compression.LZ4;
 
@@ -72,7 +73,7 @@ namespace Equilibrium.Models.Bundle {
             return new OffsetStream(stream, cur, block.Size);
         }
 
-        public void ToWriter(BiEndianBinaryWriter writer, UnityBundle header, EquilibriumOptions options, UnityBundleBlock[] blocks, Stream blockStream, EquilibriumSerializationOptions serializationOptions) {
+        public void ToWriter(BiEndianBinaryWriter writer, UnityBundle header, EquilibriumOptions options, UnityBundleBlock[] blocks, Stream blockStream, BundleSerializationOptions serializationOptions) {
             var start = writer.BaseStream.Position;
             writer.Write(0L);
             writer.Write(0);

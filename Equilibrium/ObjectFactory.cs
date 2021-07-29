@@ -45,7 +45,8 @@ namespace Equilibrium {
                     gameImplementations = Implementations[UnityGame.Default];
                 }
 
-                if (!gameImplementations.TryGetValue(overrideType ?? info.ClassId, out var type)) {
+                var hasImplementation = gameImplementations.TryGetValue(overrideType ?? info.ClassId, out var type);
+                if (!hasImplementation) {
                     if (overrideGame != UnityGame.Default) {
                         overrideGame = UnityGame.Default;
                         continue;
@@ -60,7 +61,8 @@ namespace Equilibrium {
                     throw new InvalidOperationException();
                 }
 
-                if (reader.Unconsumed > 0 &&
+                if (hasImplementation &&
+                    reader.Unconsumed > 0 &&
                     !serializedObject.ShouldDeserialize) {
                     var msg = $"{reader.Unconsumed} bytes left unconsumed in buffer and {serializedObject.ClassId:G} ({serializedObject.PathId}) object is not marked for deserialization! Check implementation.";
                     Debug.WriteLine(msg);

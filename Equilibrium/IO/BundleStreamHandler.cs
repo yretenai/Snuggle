@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using Equilibrium.Meta;
+using Equilibrium.Meta.Interfaces;
 using Equilibrium.Models.Bundle;
 using JetBrains.Annotations;
 

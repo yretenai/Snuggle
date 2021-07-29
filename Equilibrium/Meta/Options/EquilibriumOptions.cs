@@ -1,8 +1,9 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
+using Equilibrium.Meta.Interfaces;
 using JetBrains.Annotations;
 
-namespace Equilibrium.Meta {
+namespace Equilibrium.Meta.Options {
     [PublicAPI]
     public record EquilibriumOptions(
         bool CacheData,
@@ -12,7 +13,7 @@ namespace Equilibrium.Meta {
 
         public static EquilibriumOptions Default { get; } = new(false, UnityGame.Default);
 
-        private static JsonSerializerOptions SerializerOptions { get; } = new() {
+        internal static JsonSerializerOptions JsonOptions { get; } = new() {
             WriteIndented = true,
             DefaultIgnoreCondition = JsonIgnoreCondition.Never,
             AllowTrailingCommas = true,
@@ -26,12 +27,12 @@ namespace Equilibrium.Meta {
 
         public static EquilibriumOptions FromJson(string json) {
             try {
-                return JsonSerializer.Deserialize<EquilibriumOptions>(json, SerializerOptions) ?? Default;
+                return JsonSerializer.Deserialize<EquilibriumOptions>(json, JsonOptions) ?? Default;
             } catch {
                 return Default;
             }
         }
 
-        public string ToJson() => JsonSerializer.Serialize(this, SerializerOptions);
+        public string ToJson() => JsonSerializer.Serialize(this, JsonOptions);
     }
 }

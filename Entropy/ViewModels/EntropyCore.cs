@@ -9,7 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DragonLib;
 using Equilibrium;
-using Equilibrium.Meta;
+using Equilibrium.Meta.Options;
 using JetBrains.Annotations;
 
 namespace Entropy.ViewModels {
