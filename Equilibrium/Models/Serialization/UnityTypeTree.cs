@@ -42,11 +42,19 @@ namespace Equilibrium.Models.Serialization {
             throw new NotImplementedException();
         }
 
-        public string PrintLayout() {
+        public string PrintLayout(bool fullInfo, bool skipIgnored) {
             var sb = new StringBuilder();
             foreach (var node in Nodes) {
+                if (skipIgnored && node.Flags.HasFlag(UnityTypeTreeFlags.Ignored)) {
+                    continue;
+                }
+                
                 sb.Append(' ', node.Level * 2);
-                sb.AppendLine($"{node.Type} {node.Name} {node.Size} {node.Flags:F} {node.MetaFlags:F}");
+                sb.Append($"{node.Type} {node.Name}");
+                if (fullInfo) {
+                    sb.Append($"; Size: {node.Size}; Array Type: {node.Flags:G}; Flags: {node.Flags.ToFlagString()}");
+                }
+                sb.AppendLine();
             }
 
             return sb.ToString();

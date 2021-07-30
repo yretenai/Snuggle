@@ -10,12 +10,12 @@ namespace Equilibrium.Models.Serialization {
     public record UnityTypeTreeNode(
         int Version,
         int Level,
-        UnityTypeTreeFlags Flags,
+        UnityTypeArrayKind ArrayKind,
         uint TypeOffset,
         uint NameOffset,
         int Size,
         int Index,
-        UnityTypeTreeMetaFlags MetaFlags,
+        UnityTypeTreeFlags Flags,
         int VariableCount,
         ulong TypeHash,
         string Type,
@@ -27,18 +27,18 @@ namespace Equilibrium.Models.Serialization {
         public static UnityTypeTreeNode FromReader(BiEndianBinaryReader reader, UnitySerializedFile header, EquilibriumOptions options) {
             var version = reader.ReadInt16();
             var level = reader.ReadByte();
-            var flags = (UnityTypeTreeFlags) reader.ReadByte();
+            var arrayKind = (UnityTypeArrayKind) reader.ReadByte();
             var typeOffset = reader.ReadUInt32();
             var nameOffset = reader.ReadUInt32();
             var size = reader.ReadInt32();
             var index = reader.ReadInt32();
-            var metaFlags = (UnityTypeTreeMetaFlags) reader.ReadUInt32();
+            var flags = (UnityTypeTreeFlags) reader.ReadUInt32();
             var typeHash = 0ul;
             if (header.Version >= UnitySerializedFileVersion.RefObject) {
                 typeHash = reader.ReadUInt64();
             }
 
-            return new UnityTypeTreeNode(version, level, flags, typeOffset, nameOffset, size, index, metaFlags, 0, typeHash, string.Empty, string.Empty);
+            return new UnityTypeTreeNode(version, level, arrayKind, typeOffset, nameOffset, size, index, flags, 0, typeHash, string.Empty, string.Empty);
         }
 
         public static UnityTypeTreeNode FromReaderLegacy(BiEndianBinaryReader reader, UnitySerializedFile header, EquilibriumOptions options) {
@@ -55,11 +55,11 @@ namespace Equilibrium.Models.Serialization {
                 index = reader.ReadInt32();
             }
 
-            var flags = (UnityTypeTreeFlags) reader.ReadInt32();
+            var flags = (UnityTypeArrayKind) reader.ReadInt32();
             var version = reader.ReadInt32();
-            var metaFlags = (UnityTypeTreeMetaFlags) 0;
+            var metaFlags = (UnityTypeTreeFlags) 0;
             if (header.Version >= UnitySerializedFileVersion.TypeTreeMeta) {
-                metaFlags = (UnityTypeTreeMetaFlags) reader.ReadInt32();
+                metaFlags = (UnityTypeTreeFlags) reader.ReadInt32();
             }
 
             return new UnityTypeTreeNode(version, 0, flags, 0, 0, size, index, metaFlags, variableCount, 0, type, name);
