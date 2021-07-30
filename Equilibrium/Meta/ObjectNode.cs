@@ -18,10 +18,7 @@ namespace Equilibrium.Meta {
         public static ObjectNode Empty { get; } = new(string.Empty, string.Empty, null, 0, false);
         public List<ObjectNode> Properties { get; set; } = new();
 
-
-        public static ObjectNode FromUnityTypeTree(UnityTypeTree tree) {
-            return tree.Nodes.Length == 0 ? Empty : FromUnityTypeTreeNode(tree.Nodes[0], tree.Nodes.Skip(1).ToArray());
-        }
+        public static ObjectNode FromUnityTypeTree(UnityTypeTree tree) => tree.Nodes.Length == 0 ? Empty : FromUnityTypeTreeNode(tree.Nodes[0], tree.Nodes.Skip(1).ToArray());
 
         public static ObjectNode FromUnityTypeTreeNode(UnityTypeTreeNode node, UnityTypeTreeNode[] nodes) {
             var type = DetermineTypeFromUnityType(node);
@@ -40,10 +37,8 @@ namespace Equilibrium.Meta {
             return objectNode;
         }
 
-        public static ObjectNode FromCecil(TypeDefinition type) {
-            throw new NotImplementedException();
-        }
-        
+        public static ObjectNode FromCecil(TypeDefinition type) => throw new NotImplementedException();
+
         private static Type? DetermineTypeFromUnityType(UnityTypeTreeNode node) {
             var typeName = node.Type.ToLower();
             Type? type;

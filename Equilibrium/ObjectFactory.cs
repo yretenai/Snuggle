@@ -27,9 +27,7 @@ namespace Equilibrium {
 
         public static Dictionary<UnityGame, Type> ClassIdExtensions { get; set; } = new();
 
-        public static Type GetClassIdForGame(UnityGame game) {
-            return ClassIdExtensions.TryGetValue(game, out var t) ? t : BaseClassIdType;
-        }
+        public static Type GetClassIdForGame(UnityGame game) => ClassIdExtensions.TryGetValue(game, out var t) ? t : BaseClassIdType;
 
         public static object GetClassIdForGame(UnityGame game, int classId) {
             if (!ClassIdExtensions.TryGetValue(game, out var t)) {

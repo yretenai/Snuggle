@@ -11,7 +11,7 @@ namespace Equilibrium.Models.Serialization {
         UnityTypeTreeNode[] Nodes,
         Memory<byte> StringBuffer) {
         public static UnityTypeTree Empty { get; } = new(Array.Empty<UnityTypeTreeNode>(), Memory<byte>.Empty);
-        
+
         public static UnityTypeTree FromReader(BiEndianBinaryReader reader, UnitySerializedFile header, EquilibriumOptions options) => header.Version is >= UnitySerializedFileVersion.TypeTreeBlob or UnitySerializedFileVersion.TypeTreeBlobBeta ? FromReaderBlob(reader, header, options) : FromReaderLegacy(reader, header, options);
 
         private static UnityTypeTree FromReaderLegacy(BiEndianBinaryReader reader, UnitySerializedFile header, EquilibriumOptions options) => new(UnityTypeTreeNode.ArrayFromReaderLegacy(reader, header, options, 1, 0), Memory<byte>.Empty);
@@ -38,22 +38,19 @@ namespace Equilibrium.Models.Serialization {
             return new UnityTypeTree(nodes, buffer);
         }
 
-        public Dictionary<string, object> Deserialize(BiEndianBinaryReader reader, int skipKeys = 0) {
-            throw new NotImplementedException();
-        }
-
         public string PrintLayout(bool fullInfo, bool skipIgnored) {
             var sb = new StringBuilder();
             foreach (var node in Nodes) {
                 if (skipIgnored && node.Flags.HasFlag(UnityTypeTreeFlags.Ignored)) {
                     continue;
                 }
-                
+
                 sb.Append(' ', node.Level * 2);
                 sb.Append($"{node.Type} {node.Name}");
                 if (fullInfo) {
                     sb.Append($"; Size: {node.Size}; Array Type: {node.Flags:G}; Flags: {node.Flags.ToFlagString()}");
                 }
+
                 sb.AppendLine();
             }
 

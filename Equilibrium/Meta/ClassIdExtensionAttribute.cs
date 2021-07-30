@@ -4,11 +4,9 @@ using JetBrains.Annotations;
 namespace Equilibrium.Meta {
     [PublicAPI, AttributeUsage(AttributeTargets.Enum)]
     public class ClassIdExtensionAttribute : Attribute {
-        public UnityGame Game { get; }
+        public ClassIdExtensionAttribute(UnityGame game) => Game = game;
 
-        public ClassIdExtensionAttribute(UnityGame game) {
-            Game = game;
-        }
+        public UnityGame Game { get; }
 
         public override object TypeId => Game;
         public override bool IsDefaultAttribute() => Game == UnityGame.Default;

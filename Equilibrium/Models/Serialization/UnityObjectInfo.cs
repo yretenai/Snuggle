@@ -33,6 +33,7 @@ namespace Equilibrium.Models.Serialization {
             } else {
                 classId = (int) types.ElementAt(typeId).ClassId;
             }
+
             var classIdEx = ObjectFactory.GetClassIdForGame(options.Game, classId);
 
             var isDestroyed = 0;
