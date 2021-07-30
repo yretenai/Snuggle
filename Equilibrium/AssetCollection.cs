@@ -8,7 +8,6 @@ using Equilibrium.Meta.Interfaces;
 using Equilibrium.Meta.Options;
 using Equilibrium.Models;
 using Equilibrium.Models.Bundle;
-using Equilibrium.Models.Serialization;
 using JetBrains.Annotations;
 using Mono.Cecil;
 
@@ -172,25 +171,6 @@ namespace Equilibrium {
             } finally {
                 stream.Seek(pos, SeekOrigin.Begin);
             }
-        }
-
-        public ObjectNode? FindObjectNode(string name, UnityTypeTree? typeTree) {
-            if (Types.TryGetValue(name, out var cachedType)) {
-                return cachedType;
-            }
-
-            if (typeTree != null) {
-                var type = ObjectNode.FromUnityTypeTree(typeTree);
-                if (type.Properties.Count > 0 &&
-                    !string.IsNullOrEmpty(type.TypeName)) {
-                    Types[name] = type;
-                    return type;
-                }
-            }
-
-            // TODO: Find in Cecil or GlobalMetadata.
-
-            return null;
         }
     }
 }

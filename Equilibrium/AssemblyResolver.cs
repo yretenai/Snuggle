@@ -33,6 +33,9 @@ namespace Equilibrium {
             return assembly;
         }
 
+        public bool HasAssembly(string name) => Cache.ContainsKey(name);
+        public bool HasAssembly(AssemblyNameReference name) => Cache.ContainsKey(name.Name);
+
         public void RegisterAssembly(AssemblyDefinition assembly) {
             var name = assembly.Name.Name!;
             if (Cache.ContainsKey(name)) {

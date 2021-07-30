@@ -4,6 +4,7 @@ using Equilibrium.Meta.Interfaces;
 using JetBrains.Annotations;
 
 namespace Entropy.ViewModels {
+    [PublicAPI]
     public class EntropyStatus : IStatusReporter, INotifyPropertyChanged {
         public string Message { get; private set; } = string.Empty;
         public double Percent => InvalidValue ? 0 : (double) Value / Max * 100d;

@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 using JetBrains.Annotations;
 
 namespace Equilibrium.Meta.Options {
-    public delegate string RequestAssemblyPath(string assemblyName);
+    public delegate (string Path, EquilibriumOptions Options) RequestAssemblyPath(string assemblyName);
 
     [PublicAPI]
     public record ObjectDeserializationOptions {

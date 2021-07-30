@@ -44,15 +44,11 @@ namespace Equilibrium.Implementations {
                 if (info.TypeIndex > 0 &&
                     info.TypeIndex < SerializedFile.Types.Length &&
                     SerializedFile.Types[info.TypeIndex].TypeTree != null) {
-                    ObjectData = SerializedFile.Assets.FindObjectNode(name, SerializedFile.Types[info.TypeIndex].TypeTree);
-                } else {
-                    var assemblyPath = options.RequestAssemblyCallback?.Invoke(script.AssemblyName);
-                    if (string.IsNullOrWhiteSpace(assemblyPath)) {
-                        return;
-                    }
+                    ObjectData = ObjectFactory.FindObjectNode(name, SerializedFile.Types[info.TypeIndex].TypeTree, SerializedFile.Assets);
+                }
 
-                    SerializedFile.Assets.LoadFile(assemblyPath);
-                    ObjectData = SerializedFile.Assets.FindObjectNode(name, null);
+                if (ObjectData == null) {
+                    ObjectData = ObjectFactory.FindObjectNode(name, script, SerializedFile.Assets, options.RequestAssemblyCallback);
                 }
 
                 if (ObjectData == null) {
