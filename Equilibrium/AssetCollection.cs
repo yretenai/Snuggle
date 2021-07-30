@@ -8,7 +8,6 @@ using Equilibrium.Meta.Interfaces;
 using Equilibrium.Meta.Options;
 using Equilibrium.Models;
 using Equilibrium.Models.Bundle;
-using Equilibrium.Models.Serialization;
 using JetBrains.Annotations;
 using Mono.Cecil;
 
@@ -17,7 +16,7 @@ namespace Equilibrium {
     public class AssetCollection : IDisposable {
         public List<Bundle> Bundles { get; } = new();
         public AssemblyResolver Assemblies { get; set; } = new();
-        public Dictionary<string, UnityTypeTree> Types { get; } = new();
+        public Dictionary<string, ObjectNode> Types { get; } = new();
         public Dictionary<string, SerializedFile> Files { get; } = new(StringComparer.InvariantCultureIgnoreCase);
         public Dictionary<string, (object Tag, IFileHandler Handler)> Resources { get; } = new(StringComparer.InvariantCultureIgnoreCase);
 
