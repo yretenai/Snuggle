@@ -8,6 +8,7 @@ using Equilibrium.Meta.Interfaces;
 using Equilibrium.Meta.Options;
 using Equilibrium.Models;
 using Equilibrium.Models.Bundle;
+using Equilibrium.Models.Serialization;
 using JetBrains.Annotations;
 using Mono.Cecil;
 
@@ -100,14 +101,14 @@ namespace Equilibrium {
                 file.Version = fallbackVersion.Value;
             }
 
-            foreach (var objectInfo in file.ObjectInfos) {
+            foreach (var (pathId, objectInfo) in file.ObjectInfos) {
                 try {
-                    options?.Reporter?.SetStatus($"Processing {objectInfo.PathId} ({objectInfo.ClassId:G})");
-                    file.Objects[objectInfo.PathId] = ObjectFactory.GetInstance(dataStream, objectInfo, file);
+                    options?.Reporter?.SetStatus($"Processing {pathId} ({objectInfo.ClassId:G})");
+                    file.Objects[pathId] = ObjectFactory.GetInstance(dataStream, objectInfo, file);
                 } catch (Exception e) {
-                    Debug.WriteLine($"Failed to decode {objectInfo.PathId} (type {objectInfo.ClassId}) on file {file.Name}.");
+                    Debug.WriteLine($"Failed to decode {pathId} (type {objectInfo.ClassId}) on file {file.Name}.");
                     Debug.WriteLine(e);
-                    file.Objects[objectInfo.PathId] = ObjectFactory.GetInstance(dataStream, objectInfo, file, UnityClassId.Object);
+                    file.Objects[pathId] = ObjectFactory.GetInstance(dataStream, objectInfo, file, UnityClassId.Object);
                 }
             }
 
@@ -171,6 +172,25 @@ namespace Equilibrium {
             } finally {
                 stream.Seek(pos, SeekOrigin.Begin);
             }
+        }
+
+        public ObjectNode? FindObjectNode(string name, UnityTypeTree? typeTree) {
+            if (Types.TryGetValue(name, out var cachedType)) {
+                return cachedType;
+            }
+
+            if (typeTree != null) {
+                var type = ObjectNode.FromUnityTypeTree(typeTree);
+                if (type.Properties.Count > 0 &&
+                    !string.IsNullOrEmpty(type.TypeName)) {
+                    Types[name] = type;
+                    return type;
+                }
+            }
+
+            // TODO: Find in Cecil or GlobalMetadata.
+
+            return null;
         }
     }
 }

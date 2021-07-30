@@ -9,6 +9,5 @@ namespace Equilibrium.Models.Serialization {
         Boolean = 0x100, // one bit value.
         AlignValue = 0x4000, // on primitives 
         AlignStructure = 0x8000, // on structures containing aligned primitives
-        Align = AlignValue & AlignStructure,
     }
 }

@@ -105,5 +105,191 @@ namespace Equilibrium {
                 return serializedObject;
             }
         }
+
+        public static object? CreateObject(BiEndianBinaryReader reader, ObjectNode node, SerializedFile file, string? skipUntil = null) {
+            var start = reader.BaseStream.Position;
+            object? value = null;
+            try {
+                if (node.TypeName.StartsWith("PPtr<") ||
+                    node.TypeName == "PPtr`1") {
+                    value = PPtr<SerializedObject>.FromReader(reader, file);
+                } else {
+                    switch (node.TypeName.ToLowerInvariant()) {
+                        case "char":
+                        case "byte":
+                        case "bool":
+                        case "boolean":
+                        case "uint8": {
+                            var tmp = reader.ReadByte();
+                            value = node.IsBoolean ? tmp == 1 : tmp;
+                            break;
+                        }
+                        case "unsigned short":
+                        case "ushort":
+                        case "uint16": {
+                            var tmp = reader.ReadUInt16();
+                            value = node.IsBoolean ? tmp == 1 : tmp;
+                            break;
+                        }
+                        case "unsigned int":
+                        case "uint":
+                        case "uint32": {
+                            var tmp = reader.ReadUInt32();
+                            value = node.IsBoolean ? tmp == 1 : tmp;
+                            break;
+                        }
+                        case "unsigned long long":
+                        case "ulonglong":
+                        case "uint64": {
+                            var tmp = reader.ReadUInt64();
+                            value = node.IsBoolean ? tmp == 1 : tmp;
+                            break;
+                        }
+                        case "short":
+                        case "sint16":
+                        case "int16": {
+                            var tmp = reader.ReadInt16();
+                            value = node.IsBoolean ? tmp == 1 : tmp;
+                            break;
+                        }
+                        case "type*":
+                        case "int":
+                        case "sint32":
+                        case "int32": {
+                            var tmp = reader.ReadInt32();
+                            value = node.IsBoolean ? tmp == 1 : tmp;
+                            break;
+                        }
+                        case "filesize":
+                        case "long long":
+                        case "longlong":
+                        case "sint64":
+                        case "int64": {
+                            var tmp = reader.ReadInt64();
+                            value = node.IsBoolean ? tmp == 1 : tmp;
+                            break;
+                        }
+                        case "float32":
+                        case "float":
+                        case "single": {
+                            value = reader.ReadSingle();
+                            break;
+                        }
+                        case "float64":
+                        case "double": {
+                            value = reader.ReadDouble();
+                            break;
+                        }
+                        case "float128":
+                        case "decimal":
+                        case "double double": {
+                            value = reader.ReadDecimal();
+                            break;
+                        }
+                        case "string": {
+                            value = reader.ReadString32();
+                            break;
+                        }
+                        case "hash128": {
+                            value = reader.ReadBytes(16);
+                            break;
+                        }
+                        case "typelessdata": {
+                            var size = reader.ReadInt32();
+                            value = reader.ReadBytes(size);
+                            break;
+                        }
+                        case "guid": {
+                            value = new Guid(reader.ReadBytes(16));
+                            break;
+                        }
+                        case "array": {
+                            var dataNode = node.Properties[1];
+                            var count = reader.ReadInt32();
+                            var list = new List<object?>();
+                            list.EnsureCapacity(count);
+                            for (var i = 0; i < count; ++i) {
+                                var subValue = CreateObject(reader, dataNode, file);
+                                list.Add(subValue);
+                                if (subValue == null) {
+                                    break;
+                                }
+                            }
+
+                            value = list;
+                            break;
+                        }
+                        case "vector": {
+                            if (node.Properties[0].TypeName != "Array") {
+                                throw new NotSupportedException();
+                            }
+
+                            return CreateObject(reader, node.Properties[0], file);
+                        }
+                        case "map": {
+                            if (node.Properties[0].TypeName != "Array") {
+                                throw new NotSupportedException();
+                            }
+
+                            if (node.Properties[0].Properties[1].TypeName != "pair") {
+                                throw new NotSupportedException();
+                            }
+
+                            var dataNode = node.Properties[0].Properties[1];
+                            var keyNode = dataNode.Properties[0];
+                            var valueNode = dataNode.Properties[1];
+                            var count = reader.ReadInt32();
+                            var dict = new Dictionary<object, object?>();
+                            dict.EnsureCapacity(count);
+                            for (var i = 0; i < count; ++i) {
+                                var keyValue = CreateObject(reader, keyNode, file);
+                                if (keyValue == null) {
+                                    break;
+                                }
+
+                                var valueValue = CreateObject(reader, valueNode, file);
+                                dict[keyValue] = valueValue;
+                                if (valueValue == null) {
+                                    break;
+                                }
+                            }
+
+                            value = dict;
+                            break;
+                        }
+                        default: {
+                            var dict = new Dictionary<string, object?>();
+                            IEnumerable<ObjectNode> properties = node.Properties;
+                            if (!string.IsNullOrEmpty(skipUntil)) {
+                                properties = properties.SkipWhile(x => x.Name != skipUntil).Skip(1);
+                            }
+
+                            foreach (var property in properties) {
+                                var subValue = CreateObject(reader, property, file);
+                                dict[property.Name] = subValue;
+                                if (subValue == null) {
+                                    break;
+                                }
+                            }
+
+                            value = dict;
+                            break;
+                        }
+                    }
+                }
+            } catch {
+                // ignored! Log this!
+            }
+
+            if (node.Size > 0) {
+                reader.BaseStream.Seek(start + node.Size, SeekOrigin.Begin);
+            }
+
+            if (node.IsAligned) {
+                reader.Align();
+            }
+
+            return value;
+        }
     }
 }

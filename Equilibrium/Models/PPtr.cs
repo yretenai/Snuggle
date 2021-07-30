@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Linq;
+using System.Text.Json.Serialization;
 using Equilibrium.Implementations;
 using Equilibrium.IO;
 using Equilibrium.Meta;
@@ -12,13 +12,20 @@ namespace Equilibrium.Models {
         int FileId,
         long PathId) where T : SerializedObject {
         public static PPtr<T> Null => new(0, 0);
+
+        [JsonIgnore]
         private T? UnderlyingValue { get; set; }
+
+        [JsonIgnore]
         private UnityObjectInfo? UnderlyingInfo { get; set; }
 
+        [JsonIgnore]
         public SerializedFile? File { get; set; }
 
+        [JsonIgnore]
         public bool IsNull { get; } = FileId < 0 || PathId == 0;
 
+        [JsonIgnore]
         public UnityObjectInfo? Info {
             get {
                 if (IsNull ||
@@ -39,11 +46,15 @@ namespace Equilibrium.Models {
                     return null;
                 }
 
-                UnderlyingInfo = referencedFile.ObjectInfos.FirstOrDefault(x => x.PathId == PathId);
+                if (referencedFile.ObjectInfos.TryGetValue(PathId, out var info)) {
+                    UnderlyingInfo = info;
+                }
+
                 return UnderlyingInfo;
             }
         }
 
+        [JsonIgnore]
         public T? Value {
             get {
                 if (IsNull ||

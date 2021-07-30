@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Text;
 using Equilibrium.IO;
 using Equilibrium.Meta.Options;
@@ -10,8 +9,6 @@ namespace Equilibrium.Models.Serialization {
     public record UnityTypeTree(
         UnityTypeTreeNode[] Nodes,
         Memory<byte> StringBuffer) {
-        public static UnityTypeTree Empty { get; } = new(Array.Empty<UnityTypeTreeNode>(), Memory<byte>.Empty);
-
         public static UnityTypeTree FromReader(BiEndianBinaryReader reader, UnitySerializedFile header, EquilibriumOptions options) => header.Version is >= UnitySerializedFileVersion.TypeTreeBlob or UnitySerializedFileVersion.TypeTreeBlobBeta ? FromReaderBlob(reader, header, options) : FromReaderLegacy(reader, header, options);
 
         private static UnityTypeTree FromReaderLegacy(BiEndianBinaryReader reader, UnitySerializedFile header, EquilibriumOptions options) => new(UnityTypeTreeNode.ArrayFromReaderLegacy(reader, header, options, 1, 0), Memory<byte>.Empty);

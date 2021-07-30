@@ -81,13 +81,13 @@ namespace Equilibrium {
                 ArrayPool<byte>.Shared.Return(inPool);
             }
         }
-        
+
         public static string ToFlagString(this Enum @enum) {
             var value = Convert.ToUInt64(@enum);
             if (value == 0) {
                 return "None";
             }
-            
+
             var enumType = @enum.GetType();
             var type = Enum.GetUnderlyingType(enumType);
             byte bits = type.Name switch {

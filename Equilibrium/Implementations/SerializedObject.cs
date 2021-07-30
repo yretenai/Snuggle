@@ -44,13 +44,13 @@ namespace Equilibrium.Implementations {
             return PathId == other.PathId && ClassId == other.ClassId;
         }
 
-        public virtual void Deserialize(BiEndianBinaryReader reader) {
+        public virtual void Deserialize(BiEndianBinaryReader reader, ObjectDeserializationOptions options) {
             ShouldDeserialize = false;
         }
 
-        public void Deserialize() {
+        public void Deserialize(ObjectDeserializationOptions options) {
             using var reader = new BiEndianBinaryReader(SerializedFile.OpenFile(PathId), SerializedFile.Header.IsBigEndian);
-            Deserialize(reader);
+            Deserialize(reader, options);
         }
 
         public virtual void Serialize(BiEndianBinaryWriter writer, UnityVersion? targetVersion, FileSerializationOptions options) { }

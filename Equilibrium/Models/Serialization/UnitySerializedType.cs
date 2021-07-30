@@ -9,7 +9,7 @@ namespace Equilibrium.Models.Serialization {
         object ClassId,
         bool IsStrippedType,
         short ScriptTypeIndex,
-        UnityTypeTree TypeTree,
+        UnityTypeTree? TypeTree,
         string ClassName,
         string NameSpace,
         string AssemblyName,
@@ -48,7 +48,7 @@ namespace Equilibrium.Models.Serialization {
                 hash = reader.ReadBytes(16);
             }
 
-            var typeTree = UnityTypeTree.Empty;
+            var typeTree = default(UnityTypeTree);
             var className = string.Empty;
             var nameSpace = string.Empty;
             var assemblyName = string.Empty;

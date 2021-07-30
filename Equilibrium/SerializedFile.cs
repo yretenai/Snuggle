@@ -21,7 +21,7 @@ namespace Equilibrium {
             using var reader = new BiEndianBinaryReader(dataStream, true, leaveOpen);
             var header = UnitySerializedFile.FromReader(reader, Options);
             Types = UnitySerializedType.ArrayFromReader(reader, header, Options);
-            ObjectInfos = UnityObjectInfo.ArrayFromReader(reader, ref header, Types, Options);
+            ObjectInfos = UnityObjectInfo.ArrayFromReader(reader, ref header, Types, Options).ToDictionary(x => x.PathId);
             ScriptInfos = UnityScriptInfo.ArrayFromReader(reader, header, Options);
             ExternalInfos = UnityExternalInfo.ArrayFromReader(reader, header, Options);
             if (header.Version < UnitySerializedFileVersion.RefObject) {
@@ -36,13 +36,14 @@ namespace Equilibrium {
 
             Version = UnityVersion.Parse(header.UnityVersion);
 
-            Objects = new Dictionary<long, SerializedObject>(ObjectInfos.Length);
+            Objects = new Dictionary<long, SerializedObject>();
+            Objects.EnsureCapacity(ObjectInfos.Count);
         }
 
         public EquilibriumOptions Options { get; init; }
         public UnitySerializedFile Header { get; init; }
         public UnitySerializedType[] Types { get; init; }
-        public UnityObjectInfo[] ObjectInfos { get; init; }
+        public Dictionary<long, UnityObjectInfo> ObjectInfos { get; init; }
         public UnityScriptInfo[] ScriptInfos { get; init; }
         public UnityExternalInfo[] ExternalInfos { get; init; }
         public UnitySerializedType[] ReferenceTypes { get; init; } = Array.Empty<UnitySerializedType>();
@@ -56,7 +57,7 @@ namespace Equilibrium {
         public object Tag { get; set; }
         public IFileHandler Handler { get; set; }
 
-        public Stream OpenFile(long pathId) => OpenFile(ObjectInfos.First(x => x.PathId == pathId));
+        public Stream OpenFile(long pathId) => OpenFile(ObjectInfos[pathId]);
 
         public Stream OpenFile(UnityObjectInfo info) => OpenFile(info, Handler.OpenFile(Tag));
 
