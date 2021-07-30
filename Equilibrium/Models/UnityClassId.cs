@@ -1,8 +1,9 @@
-﻿using JetBrains.Annotations;
+﻿using Equilibrium.Meta;
+using JetBrains.Annotations;
 
 namespace Equilibrium.Models {
-    [PublicAPI]
-    public enum ClassId {
+    [PublicAPI, ClassIdExtension(UnityGame.Default)]
+    public enum UnityClassId {
         Object = 0,
         GameObject = 1,
         Component = 2,

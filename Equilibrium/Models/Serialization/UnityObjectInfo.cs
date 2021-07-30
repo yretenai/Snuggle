@@ -11,7 +11,7 @@ namespace Equilibrium.Models.Serialization {
         long Offset,
         long Size,
         int TypeId,
-        ClassId ClassId,
+        object ClassId,
         int TypeIndex,
         bool IsDestroyed, // probably a flag. 
         short ScriptTypeIndex,
@@ -25,14 +25,15 @@ namespace Equilibrium.Models.Serialization {
             var offset = header.Version >= UnitySerializedFileVersion.LargeFiles ? reader.ReadInt64() : reader.ReadInt32();
             var size = reader.ReadUInt32();
             var typeId = reader.ReadInt32();
-            ClassId classId;
+            int classId;
             var typeIndex = typeId;
             if (header.Version < UnitySerializedFileVersion.NewClassId) {
-                classId = (ClassId) reader.ReadUInt16();
-                typeIndex = types.Select((x, i) => (i, x)).First(x => x.x.ClassId == (ClassId) typeId).i;
+                classId = reader.ReadUInt16();
+                typeIndex = types.Select((x, i) => (i, x)).First(x => (int) x.x.ClassId == typeId).i;
             } else {
-                classId = types.ElementAt(typeId).ClassId;
+                classId = (int) types.ElementAt(typeId).ClassId;
             }
+            var classIdEx = ObjectFactory.GetClassIdForGame(options.Game, classId);
 
             var isDestroyed = 0;
             if (header.Version < UnitySerializedFileVersion.ObjectDestroyedRemoved) {
@@ -47,7 +48,7 @@ namespace Equilibrium.Models.Serialization {
                 stripped = reader.ReadBoolean();
             }
 
-            return new UnityObjectInfo(pathId, offset, size, typeId, classId, typeIndex, isDestroyed == 1, scriptTypeIndex, stripped);
+            return new UnityObjectInfo(pathId, offset, size, typeId, classIdEx, typeIndex, isDestroyed == 1, scriptTypeIndex, stripped);
         }
 
         public static UnityObjectInfo[] ArrayFromReader(BiEndianBinaryReader reader, ref UnitySerializedFile header, UnitySerializedType[] types, EquilibriumOptions options) {

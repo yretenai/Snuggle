@@ -5,17 +5,17 @@ using JetBrains.Annotations;
 
 namespace Equilibrium.Models.Objects {
     [PublicAPI]
-    public record ComponentPtr(
-        ClassId ClassId,
+    public record ComponentPair(
+        object ClassId,
         PPtr<Component> Ptr) {
-        public static ComponentPtr FromReader(BiEndianBinaryReader reader, SerializedFile file) {
-            var classId = ClassId.Unknown;
+        public static ComponentPair FromReader(BiEndianBinaryReader reader, SerializedFile file) {
+            object classId = default(UnityClassId);
             if (file.Version < new UnityVersion(5, 5)) {
-                classId = (ClassId) reader.ReadInt32();
+                classId = ObjectFactory.GetClassIdForGame(file.Options.Game, reader.ReadInt32());
             }
 
             var ptr = PPtr<Component>.FromReader(reader, file);
-            return new ComponentPtr(classId, ptr);
+            return new ComponentPair(classId, ptr);
         }
 
         public void ToWriter(BiEndianBinaryWriter writer, SerializedFile serializedFile, UnityVersion? targetVersion) {

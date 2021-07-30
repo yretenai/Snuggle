@@ -29,11 +29,11 @@ namespace Equilibrium.IO {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Align(int alignment = 4) {
-            if (BaseStream.Position % 4 == 0) {
+            if (BaseStream.Position % alignment == 0) {
                 return;
             }
 
-            var delta = (int) (4 - BaseStream.Position % 4);
+            var delta = (int) (alignment - BaseStream.Position % alignment);
             if (BaseStream.Position + delta > BaseStream.Length) {
                 return;
             }

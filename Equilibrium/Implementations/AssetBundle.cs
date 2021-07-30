@@ -9,7 +9,7 @@ using Equilibrium.Models.Serialization;
 using JetBrains.Annotations;
 
 namespace Equilibrium.Implementations {
-    [PublicAPI, UsedImplicitly, ObjectImplementation(ClassId.AssetBundle)]
+    [PublicAPI, UsedImplicitly, ObjectImplementation(UnityClassId.AssetBundle)]
     public class AssetBundle : NamedObject {
         public AssetBundle(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) {
             var preloadCount = reader.ReadInt32();

@@ -7,7 +7,7 @@ using Equilibrium.Models.Serialization;
 using JetBrains.Annotations;
 
 namespace Equilibrium.Implementations {
-    [PublicAPI, UsedImplicitly, ObjectImplementation(ClassId.MonoScript)]
+    [PublicAPI, UsedImplicitly, ObjectImplementation(UnityClassId.MonoScript)]
     public class MonoScript : NamedObject {
         public MonoScript(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) {
             ExecutionOrder = reader.ReadInt32();
@@ -48,7 +48,7 @@ namespace Equilibrium.Implementations {
             }
         }
 
-        public override string ToString() => $"{Namespace}.{ClassName}";
+        public override string ToString() => string.IsNullOrEmpty(ClassName) ? base.ToString() : string.IsNullOrEmpty(Namespace) ? ClassName : $"{Namespace}.{ClassName}";
         public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), ClassName, Name, AssemblyName, ExecutionOrder);
     }
 }

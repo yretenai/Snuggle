@@ -53,7 +53,7 @@ namespace Equilibrium {
                 var outPool = ArrayPool<byte>.Shared.Rent(size);
                 try {
                     inStream.Read(inPool.AsSpan()[..compressedSize]);
-                    var amount = LZ4Codec.Decode(inPool.AsSpan()[..compressedSize], outPool.AsSpan()[..size]);
+                    var amount = LZ4Codec.Decode(inPool.AsSpan()[..compressedSize], outPool);
                     outStream.Write(outPool.AsSpan()[..amount]);
                 } finally {
                     ArrayPool<byte>.Shared.Return(outPool);

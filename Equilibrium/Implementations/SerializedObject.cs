@@ -9,7 +9,7 @@ using Equilibrium.Models.Serialization;
 using JetBrains.Annotations;
 
 namespace Equilibrium.Implementations {
-    [PublicAPI, UsedImplicitly, ObjectImplementation(ClassId.Object)]
+    [PublicAPI, UsedImplicitly, ObjectImplementation(UnityClassId.Object)]
     public class SerializedObject : IEquatable<SerializedObject>, ISerialized {
         public SerializedObject(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : this(info, serializedFile) => IsMutated = false;
 
@@ -21,7 +21,7 @@ namespace Equilibrium.Implementations {
         }
 
         public long PathId { get; init; }
-        public ClassId ClassId { get; init; }
+        public object ClassId { get; init; }
 
         [JsonIgnore]
         public SerializedFile SerializedFile { get; init; }
@@ -57,7 +57,7 @@ namespace Equilibrium.Implementations {
 
         public virtual void Free() { }
 
-        public override string ToString() => ClassId.ToString("G");
+        public override string ToString() => Enum.Format(ClassId.GetType(), ClassId, "G");
 
         public override bool Equals(object? obj) {
             if (ReferenceEquals(null, obj)) {

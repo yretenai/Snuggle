@@ -137,13 +137,12 @@ namespace Equilibrium.Models.Bundle {
             var compressedBlockSize = reader.ReadInt32();
             var blockSize = reader.ReadInt32();
             var flags = (UnityFSFlags) reader.ReadUInt32();
-            if (header.FormatVersion >= 7) {
-                reader.Align(16);
-            }
 
             var fs = new UnityFS(size, compressedBlockSize, blockSize, flags);
             if (fs.Flags.HasFlag(UnityFSFlags.BlocksInfoAtEnd)) {
                 reader.BaseStream.Seek(fs.CompressedBlockInfoSize, SeekOrigin.End);
+            } else if (header.FormatVersion >= 7) {
+                reader.Align(16);
             }
 
             var compressionType = (UnityCompressionType) (fs.Flags & UnityFSFlags.CompressionRange);

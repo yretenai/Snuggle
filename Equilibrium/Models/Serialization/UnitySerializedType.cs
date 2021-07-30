@@ -6,10 +6,10 @@ using JetBrains.Annotations;
 namespace Equilibrium.Models.Serialization {
     [PublicAPI]
     public record UnitySerializedType(
-        ClassId ClassId,
+        object ClassId,
         bool IsStrippedType,
         short ScriptTypeIndex,
-        UnityTypeTree? TypeTree,
+        UnityTypeTree TypeTree,
         string ClassName,
         string NameSpace,
         string AssemblyName,
@@ -18,7 +18,8 @@ namespace Equilibrium.Models.Serialization {
         public byte[] ScriptId { get; init; } = Array.Empty<byte>();
 
         public static UnitySerializedType FromReader(BiEndianBinaryReader reader, UnitySerializedFile header, EquilibriumOptions options, bool isRef = false) {
-            var classId = (ClassId) reader.ReadInt32();
+            var classId = reader.ReadInt32();
+            var classIdEx = ObjectFactory.GetClassIdForGame(options.Game, classId);
             var isStrippedType = false;
             if (header.Version >= UnitySerializedFileVersion.StrippedType) {
                 isStrippedType = reader.ReadBoolean();
@@ -37,8 +38,8 @@ namespace Equilibrium.Models.Serialization {
                     scriptId = reader.ReadBytes(16);
                 } else {
                     switch (header.Version) {
-                        case < UnitySerializedFileVersion.NewClassId when classId < ClassId.Object:
-                        case >= UnitySerializedFileVersion.NewClassId when classId == ClassId.MonoBehaviour:
+                        case < UnitySerializedFileVersion.NewClassId when classId < (int) UnityClassId.Object:
+                        case >= UnitySerializedFileVersion.NewClassId when classId == (int) UnityClassId.MonoBehaviour:
                             scriptId = reader.ReadBytes(16);
                             break;
                     }
@@ -47,7 +48,7 @@ namespace Equilibrium.Models.Serialization {
                 hash = reader.ReadBytes(16);
             }
 
-            var typeTree = default(UnityTypeTree);
+            var typeTree = UnityTypeTree.Empty;
             var className = string.Empty;
             var nameSpace = string.Empty;
             var assemblyName = string.Empty;
@@ -66,7 +67,7 @@ namespace Equilibrium.Models.Serialization {
                 }
             }
 
-            return new UnitySerializedType(classId, isStrippedType, typeIndex, typeTree, className, nameSpace, assemblyName, dependencies) { Hash = hash, ScriptId = scriptId };
+            return new UnitySerializedType(classIdEx, isStrippedType, typeIndex, typeTree, className, nameSpace, assemblyName, dependencies) { Hash = hash, ScriptId = scriptId };
         }
 
         public static UnitySerializedType[] ArrayFromReader(BiEndianBinaryReader reader, UnitySerializedFile header, EquilibriumOptions options, bool isRef = false) {

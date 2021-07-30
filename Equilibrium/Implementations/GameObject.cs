@@ -9,13 +9,13 @@ using Equilibrium.Models.Serialization;
 using JetBrains.Annotations;
 
 namespace Equilibrium.Implementations {
-    [PublicAPI, UsedImplicitly, ObjectImplementation(ClassId.GameObject)]
+    [PublicAPI, UsedImplicitly, ObjectImplementation(UnityClassId.GameObject)]
     public class GameObject : SerializedObject {
         public GameObject(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) {
             var componentCount = reader.ReadInt32();
-            Components = new List<ComponentPtr>();
+            Components = new List<ComponentPair>();
             for (var i = 0; i < componentCount; ++i) {
-                Components.Add(ComponentPtr.FromReader(reader, serializedFile));
+                Components.Add(ComponentPair.FromReader(reader, serializedFile));
             }
 
             Layer = reader.ReadUInt32();
@@ -26,27 +26,27 @@ namespace Equilibrium.Implementations {
         }
 
         public GameObject(UnityObjectInfo info, SerializedFile serializedFile) : base(info, serializedFile) {
-            Components = new List<ComponentPtr>();
+            Components = new List<ComponentPair>();
             Name = string.Empty;
         }
 
-        public List<ComponentPtr> Components { get; set; }
+        public List<ComponentPair> Components { get; set; }
         public uint Layer { get; set; }
         public string Name { get; set; }
         public ushort Tag { get; set; }
         public bool Active { get; set; }
 
         public void CacheClassIds() {
-            var components = new List<ComponentPtr>();
+            var components = new List<ComponentPair>();
             foreach (var componentPtr in Components) {
-                if (componentPtr.ClassId == ClassId.Unknown) {
+                if (!componentPtr.ClassId.Equals(UnityClassId.Unknown)) {
                     components.Add(componentPtr);
                     continue;
                 }
 
                 var value = componentPtr.Ptr.Info?.ClassId ?? componentPtr.ClassId;
 
-                components.Add(new ComponentPtr(value, componentPtr.Ptr));
+                components.Add(new ComponentPair(value, componentPtr.Ptr));
             }
 
             Components = components;

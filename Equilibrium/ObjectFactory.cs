@@ -19,10 +19,34 @@ namespace Equilibrium {
         }
 
         public static Type BaseType { get; } = typeof(SerializedObject);
+        public static Type BaseClassIdType { get; } = typeof(UnityClassId);
 
-        public static Dictionary<UnityGame, Dictionary<ClassId, Type>> Implementations { get; set; } = new() {
-            { UnityGame.Default, new Dictionary<ClassId, Type>() },
+        public static Dictionary<UnityGame, Dictionary<object, Type>> Implementations { get; set; } = new() {
+            { UnityGame.Default, new Dictionary<object, Type>() },
         };
+
+        public static Dictionary<UnityGame, Type> ClassIdExtensions { get; set; } = new();
+
+        public static Type GetClassIdForGame(UnityGame game) {
+            return ClassIdExtensions.TryGetValue(game, out var t) ? t : BaseClassIdType;
+        }
+
+        public static object GetClassIdForGame(UnityGame game, int classId) {
+            if (!ClassIdExtensions.TryGetValue(game, out var t)) {
+                return (UnityClassId) classId;
+            }
+
+            var value = Enum.ToObject(t, classId);
+            if (!Enum.IsDefined(t, value)) {
+                return (UnityClassId) classId;
+            }
+
+            return value;
+        }
+
+        public static object GetClassIdForGame(UnityGame game, uint classId) => GetClassIdForGame(game, (int) classId);
+
+        public static object GetClassIdForGame(UnityGame game, UnityClassId classId) => GetClassIdForGame(game, (int) classId);
 
         public static void LoadImplementationTypes(Assembly assembly) {
             foreach (var (type, attribute) in assembly.GetExportedTypes()
@@ -30,15 +54,22 @@ namespace Equilibrium {
                 .Select(x => (Type: x, Attribute: x.GetCustomAttribute<ObjectImplementationAttribute>()))
                 .Where(x => x.Attribute != null)) {
                 if (!Implementations.TryGetValue(attribute!.Game, out var gameImplementations)) {
-                    gameImplementations = new Dictionary<ClassId, Type>();
+                    gameImplementations = new Dictionary<object, Type>();
                     Implementations[attribute.Game] = gameImplementations;
                 }
 
-                gameImplementations[attribute.ClassId] = type;
+                gameImplementations[attribute.UnderlyingClassId] = type;
+            }
+
+            foreach (var (type, attribute) in assembly.GetExportedTypes()
+                .Where(x => x.IsEnum)
+                .Select(x => (Type: x, Attribute: x.GetCustomAttribute<ClassIdExtensionAttribute>()))
+                .Where(x => x.Attribute != null)) {
+                ClassIdExtensions[attribute!.Game] = type;
             }
         }
 
-        public static SerializedObject GetInstance(Stream stream, UnityObjectInfo info, SerializedFile serializedFile, ClassId? overrideType = null, UnityGame? overrideGame = null) {
+        public static SerializedObject GetInstance(Stream stream, UnityObjectInfo info, SerializedFile serializedFile, object? overrideType = null, UnityGame? overrideGame = null) {
             while (true) {
                 if (!Implementations.TryGetValue(overrideGame ?? serializedFile.Options.Game, out var gameImplementations)) {
                     overrideGame = UnityGame.Default;
