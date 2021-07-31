@@ -77,6 +77,10 @@ namespace Equilibrium.Implementations {
         public override string ToString() => string.IsNullOrEmpty(Name) ? base.ToString() : Name;
 
         public override void Free() {
+            if (IsMutated) {
+                return;
+            }
+            
             base.Free();
             ObjectData = null;
             Data = null;

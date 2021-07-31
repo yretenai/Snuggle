@@ -183,6 +183,10 @@ namespace Equilibrium.Implementations {
         }
 
         public override void Free() {
+            if (IsMutated) {
+                return;
+            }
+            
             base.Free();
             TextureData = Memory<byte>.Empty;
         }
