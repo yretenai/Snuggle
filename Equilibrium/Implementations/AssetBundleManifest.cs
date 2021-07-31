@@ -51,7 +51,7 @@ namespace Equilibrium.Implementations {
             writer.Write(AssetBundleInfos.Count);
             foreach (var (id, assetBundleInfo) in AssetBundleInfos) {
                 writer.Write(id);
-                assetBundleInfo.ToWriter(writer, SerializedFile);
+                assetBundleInfo.ToWriter(writer, SerializedFile, targetVersion ?? SerializedFile.Version);
             }
         }
     }

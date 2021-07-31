@@ -58,11 +58,11 @@ namespace Equilibrium.Implementations {
             if (targetVersion < new UnityVersion(5, 5)) {
                 foreach (var (classId, ptr) in Components) {
                     writer.Write((int) classId);
-                    ptr.ToWriter(writer, SerializedFile, targetVersion);
+                    ptr.ToWriter(writer, SerializedFile, targetVersion ?? SerializedFile.Version);
                 }
             } else {
                 foreach (var (_, ptr) in Components) {
-                    ptr.ToWriter(writer, SerializedFile, targetVersion);
+                    ptr.ToWriter(writer, SerializedFile, targetVersion ?? SerializedFile.Version);
                 }
             }
 

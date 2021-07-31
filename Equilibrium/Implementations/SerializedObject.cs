@@ -27,7 +27,7 @@ namespace Equilibrium.Implementations {
         public SerializedFile SerializedFile { get; init; }
 
         [JsonIgnore]
-        public bool ShouldDeserialize { get; set; }
+        public virtual bool ShouldDeserialize { get; }
 
         [JsonIgnore]
         public bool IsMutated { get; set; }
@@ -44,9 +44,7 @@ namespace Equilibrium.Implementations {
             return PathId == other.PathId && ClassId == other.ClassId;
         }
 
-        public virtual void Deserialize(BiEndianBinaryReader reader, ObjectDeserializationOptions options) {
-            ShouldDeserialize = false;
-        }
+        public virtual void Deserialize(BiEndianBinaryReader reader, ObjectDeserializationOptions options) { }
 
         public void Deserialize(ObjectDeserializationOptions options) {
             using var reader = new BiEndianBinaryReader(SerializedFile.OpenFile(PathId), SerializedFile.Header.IsBigEndian);

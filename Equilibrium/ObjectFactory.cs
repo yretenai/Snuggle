@@ -355,7 +355,8 @@ namespace Equilibrium {
 
         private static List<ObjectNode> GetObjectType(AssemblyDefinition assembly, MonoScript script) => throw new NotImplementedException();
 
-        // There's a lot of fucky stuff with how Unity determines 
+        // There's a lot of fucky stuff with how Unity determines fields.
+
         private static List<ObjectNode> GetObjectType(TypeReference? reference, Dictionary<string, List<ObjectNode>> cache) {
             if (reference == null) {
                 return new List<ObjectNode>();

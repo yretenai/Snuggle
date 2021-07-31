@@ -11,7 +11,7 @@ namespace Equilibrium.Models.Objects {
         PPtr<SerializedObject> Asset) {
         public static AssetInfo FromReader(BiEndianBinaryReader reader, SerializedFile file) => new(reader.ReadInt32(), reader.ReadInt32(), PPtr<SerializedObject>.FromReader(reader, file));
 
-        public void ToWriter(BiEndianBinaryWriter writer, SerializedFile serializedFile, UnityVersion? targetVersion) {
+        public void ToWriter(BiEndianBinaryWriter writer, SerializedFile serializedFile, UnityVersion targetVersion) {
             writer.Write(PreloadIndex);
             writer.Write(PreloadSize);
             Asset.ToWriter(writer, serializedFile, targetVersion);

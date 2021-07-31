@@ -16,7 +16,7 @@ namespace Equilibrium.Implementations {
 
         public override void Serialize(BiEndianBinaryWriter writer, UnityVersion? targetVersion, FileSerializationOptions options) {
             base.Serialize(writer, targetVersion, options);
-            GameObject.ToWriter(writer, SerializedFile, targetVersion);
+            GameObject.ToWriter(writer, SerializedFile, targetVersion ?? SerializedFile.Version);
         }
 
         public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), GameObject);

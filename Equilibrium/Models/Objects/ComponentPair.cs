@@ -18,7 +18,7 @@ namespace Equilibrium.Models.Objects {
             return new ComponentPair(classId, ptr);
         }
 
-        public void ToWriter(BiEndianBinaryWriter writer, SerializedFile serializedFile, UnityVersion? targetVersion) {
+        public void ToWriter(BiEndianBinaryWriter writer, SerializedFile serializedFile, UnityVersion targetVersion) {
             if (targetVersion < new UnityVersion(5, 5)) {
                 writer.Write((int) ClassId);
             }
@@ -27,5 +27,31 @@ namespace Equilibrium.Models.Objects {
         }
 
         public PPtr<T> ToPtr<T>() where T : Component => new(Ptr.FileId, Ptr.PathId) { File = Ptr.File };
+    }
+
+    [PublicAPI]
+    public record StreamingInfo(
+        long Offset,
+        long Size,
+        string Path) {
+        public static StreamingInfo Default { get; } = new(0, 0, string.Empty);
+
+        public static StreamingInfo FromReader(BiEndianBinaryReader reader, SerializedFile file) {
+            var offset = file.Version >= new UnityVersion(2020, 1) ? reader.ReadInt64() : reader.ReadUInt32();
+            var size = reader.ReadUInt32();
+            var path = reader.ReadString32();
+            return new StreamingInfo(offset, size, path);
+        }
+
+        public void ToWriter(BiEndianBinaryWriter writer, SerializedFile serializedFile, UnityVersion targetVersion) {
+            if (targetVersion >= new UnityVersion(2020, 1)) {
+                writer.Write(Offset);
+            } else {
+                writer.Write((uint) Offset);
+            }
+
+            writer.Write((uint) Size);
+            writer.WriteString32(Path);
+        }
     }
 }

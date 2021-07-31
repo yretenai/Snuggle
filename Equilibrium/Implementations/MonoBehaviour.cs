@@ -13,7 +13,6 @@ namespace Equilibrium.Implementations {
         public MonoBehaviour(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) {
             Script = PPtr<MonoScript>.FromReader(reader, serializedFile);
             Name = reader.ReadString32();
-            ShouldDeserialize = true;
             DataStart = reader.BaseStream.Position;
         }
 
@@ -27,6 +26,7 @@ namespace Equilibrium.Implementations {
         public object? Data { get; set; }
         public ObjectNode? ObjectData { get; set; }
         private long DataStart { get; set; }
+        public override bool ShouldDeserialize => base.ShouldDeserialize || Data == null && !Script.IsNull;
 
         public override void Deserialize(BiEndianBinaryReader reader, ObjectDeserializationOptions options) {
             base.Deserialize(reader, options);
@@ -57,7 +57,6 @@ namespace Equilibrium.Implementations {
 
                 reader.BaseStream.Seek(DataStart, SeekOrigin.Begin);
                 Data = ObjectFactory.CreateObject(reader, ObjectData, SerializedFile, "m_Name");
-                ShouldDeserialize = false;
             }
         }
 
@@ -68,7 +67,7 @@ namespace Equilibrium.Implementations {
 
             base.Serialize(writer, targetVersion, options);
 
-            Script.ToWriter(writer, SerializedFile, targetVersion);
+            Script.ToWriter(writer, SerializedFile, targetVersion ?? SerializedFile.Version);
             writer.WriteString32(Name);
             throw new NotImplementedException();
         }
@@ -76,5 +75,11 @@ namespace Equilibrium.Implementations {
         public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Script, Name);
 
         public override string ToString() => string.IsNullOrEmpty(Name) ? base.ToString() : Name;
+
+        public override void Free() {
+            base.Free();
+            ObjectData = null;
+            Data = null;
+        }
     }
 }

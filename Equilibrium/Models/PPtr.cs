@@ -88,7 +88,7 @@ namespace Equilibrium.Models {
             }
         }
 
-        public void ToWriter(BiEndianBinaryWriter writer, SerializedFile file, UnityVersion? targetVersion) {
+        public void ToWriter(BiEndianBinaryWriter writer, SerializedFile file, UnityVersion targetVersion) {
             writer.Write(FileId);
             if (File == null ||
                 file.Header.BigIdEnabled) {

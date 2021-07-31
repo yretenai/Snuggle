@@ -1,4 +1,5 @@
 ﻿using Equilibrium.IO;
+using Equilibrium.Meta;
 using JetBrains.Annotations;
 
 namespace Equilibrium.Models.Objects {
@@ -13,7 +14,7 @@ namespace Equilibrium.Models.Objects {
             return new AssetBundleInfo(hash, dependencies);
         }
 
-        public void ToWriter(BiEndianBinaryWriter writer, SerializedFile serializedFile) {
+        public void ToWriter(BiEndianBinaryWriter writer, SerializedFile serializedFile, UnityVersion targetVersion) {
             writer.Write(Hash);
             writer.Write(Dependencies.Length);
             writer.WriteArray(Dependencies);
