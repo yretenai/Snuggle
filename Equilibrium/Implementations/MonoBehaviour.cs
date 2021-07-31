@@ -80,7 +80,7 @@ namespace Equilibrium.Implementations {
             if (IsMutated) {
                 return;
             }
-            
+
             base.Free();
             ObjectData = null;
             Data = null;

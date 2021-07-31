@@ -6,9 +6,7 @@ using JetBrains.Annotations;
 namespace Equilibrium.Extensions {
     [PublicAPI]
     public static class TextureExtensions {
-        public static bool CanSupportDDS(this TextureFormat format) {
-            return format != TextureFormat.RGB24 && format is >= TextureFormat.RG16 and <= TextureFormat.R8 or < TextureFormat.PVRTC_RGB2;
-        }
+        public static bool CanSupportDDS(this TextureFormat format) => format != TextureFormat.RGB24 && format is >= TextureFormat.RG16 and <= TextureFormat.R8 or < TextureFormat.PVRTC_RGB2;
 
         public static TextureFormat ToTextureFormat(this DXGIPixelFormat format) {
             // ReSharper disable once SwitchExpressionHandlesSomeKnownEnumValuesWithExceptionInDefault

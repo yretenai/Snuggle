@@ -101,23 +101,6 @@ namespace Equilibrium.Implementations {
         public Memory<byte> TextureData { get; set; } = Memory<byte>.Empty;
         public override bool ShouldDeserialize => base.ShouldDeserialize || TextureData.IsEmpty;
 
-        public override void Deserialize(BiEndianBinaryReader reader, ObjectDeserializationOptions options) {
-            base.Deserialize(reader, options);
-            if (PlatformDataStart > 0) {
-                reader.BaseStream.Seek(PlatformDataStart, SeekOrigin.Begin);
-                PlatformData = reader.ReadMemory(reader.ReadInt32());
-            }
-
-            if (TextureDataStart > 0) {
-                if (StreamingInfo.Size == 0) {
-                    reader.BaseStream.Seek(TextureDataStart, SeekOrigin.Begin);
-                    TextureData = reader.ReadMemory(reader.ReadInt32());
-                } else {
-                    TextureData = StreamingInfo.GetData(SerializedFile.Assets, options);
-                }
-            }
-        }
-
         public void Serialize(BiEndianBinaryWriter writer, string fileName, BiEndianBinaryWriter resourceStream, string resourceName, UnityVersion targetVersion, FileSerializationOptions options) {
             base.Serialize(writer, fileName, targetVersion, options);
             writer.Write(Width);
@@ -180,11 +163,28 @@ namespace Equilibrium.Implementations {
             }
         }
 
+        public override void Deserialize(BiEndianBinaryReader reader, ObjectDeserializationOptions options) {
+            base.Deserialize(reader, options);
+            if (PlatformDataStart > 0) {
+                reader.BaseStream.Seek(PlatformDataStart, SeekOrigin.Begin);
+                PlatformData = reader.ReadMemory(reader.ReadInt32());
+            }
+
+            if (TextureDataStart > 0) {
+                if (StreamingInfo.Size == 0) {
+                    reader.BaseStream.Seek(TextureDataStart, SeekOrigin.Begin);
+                    TextureData = reader.ReadMemory(reader.ReadInt32());
+                } else {
+                    TextureData = StreamingInfo.GetData(SerializedFile.Assets, options);
+                }
+            }
+        }
+
         public override void Free() {
             if (IsMutated) {
                 return;
             }
-            
+
             base.Free();
             TextureData = Memory<byte>.Empty;
         }
@@ -208,11 +208,11 @@ namespace Equilibrium.Implementations {
             var header = reader.ReadStruct<DDSImageHeader>();
 
             IsMutated = true;
-            
+
             Width = header.Width;
             Height = header.Height;
             MipCount = header.MipmapCount;
-            
+
             switch (header.Format.FourCC) {
                 case 0x30315844: { // DX10
                     var dx10 = reader.ReadStruct<DXT10Header>();
@@ -239,7 +239,7 @@ namespace Equilibrium.Implementations {
 
             TextureData = reader.ReadMemory(reader.Unconsumed);
         }
-        
+
         public static Texture2D FromDDS(UnityObjectInfo info, SerializedFile file, Stream stream, bool leaveOpen = false) {
             var texture2D = new Texture2D(info, file) {
                 Name = "Texture2D",
@@ -249,8 +249,6 @@ namespace Equilibrium.Implementations {
             return texture2D;
         }
 
-        public Stream ToKTX2() {
-            throw new NotImplementedException();
-        }
+        public Stream ToKTX2() => throw new NotImplementedException();
     }
 }
