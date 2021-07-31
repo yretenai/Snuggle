@@ -149,6 +149,22 @@ namespace Equilibrium.IO {
             Write(MemoryMarshal.Cast<T, byte>(array));
         }
 
+        public void WriteArray<T>(Span<T> span) where T : struct {
+            if (ShouldInvertEndianness) {
+                throw new NotSupportedException();
+            }
+
+            Write(MemoryMarshal.Cast<T, byte>(span));
+        }
+
+        public void WriteMemory(Memory<byte> memory) {
+            if (ShouldInvertEndianness) {
+                throw new NotSupportedException();
+            }
+
+            Write(memory.Span);
+        }
+
         public void WriteStruct<T>(T value) where T : struct {
             if (ShouldInvertEndianness) {
                 throw new NotSupportedException();

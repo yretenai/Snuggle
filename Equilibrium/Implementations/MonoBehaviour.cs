@@ -60,12 +60,12 @@ namespace Equilibrium.Implementations {
             }
         }
 
-        public override void Serialize(BiEndianBinaryWriter writer, UnityVersion? targetVersion, FileSerializationOptions options) {
+        public override void Serialize(BiEndianBinaryWriter writer, string fileName, UnityVersion? targetVersion, FileSerializationOptions options) {
             if (ShouldDeserialize) {
                 throw new InvalidOperationException();
             }
 
-            base.Serialize(writer, targetVersion, options);
+            base.Serialize(writer, fileName, targetVersion, options);
 
             Script.ToWriter(writer, SerializedFile, targetVersion ?? SerializedFile.Version);
             writer.WriteString32(Name);

@@ -1,12 +1,10 @@
-﻿using System.IO;
-using Equilibrium.IO;
+﻿using Equilibrium.IO;
+using Equilibrium.Meta.Options;
 using JetBrains.Annotations;
 
 namespace Equilibrium.Meta.Interfaces {
     [PublicAPI]
     public interface ISerializedResource {
-        public Stream GetStream { get; set; }
-        public void Deserialize(BiEndianBinaryReader reader, BiEndianBinaryReader resourceStream);
-        public void Serialize(BiEndianBinaryWriter writer, BiEndianBinaryWriter resourceStream, UnityVersion? version);
+        public void Serialize(BiEndianBinaryWriter writer, string fileName, BiEndianBinaryWriter resourceStream, string resourceName, UnityVersion? targetVersion, FileSerializationOptions options);
     }
 }

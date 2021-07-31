@@ -1,6 +1,9 @@
-﻿using Equilibrium.Implementations;
+﻿using System;
+using System.IO;
+using Equilibrium.Implementations;
 using Equilibrium.IO;
 using Equilibrium.Meta;
+using Equilibrium.Meta.Options;
 using JetBrains.Annotations;
 
 namespace Equilibrium.Models.Objects {
@@ -52,6 +55,30 @@ namespace Equilibrium.Models.Objects {
 
             writer.Write((uint) Size);
             writer.WriteString32(Path);
+        }
+
+        public Memory<byte> GetData(AssetCollection? assets, ObjectDeserializationOptions options) {
+            if (assets == null) {
+                return Memory<byte>.Empty;
+            }
+
+            if (!assets.TryOpenResource(Path, out var resourceStream)) {
+                return Memory<byte>.Empty;
+            }
+
+            if (resourceStream.Length < Offset + Size) {
+                return Memory<byte>.Empty;
+            }
+
+            if (resourceStream.Length < Offset) {
+                return Memory<byte>.Empty;
+            }
+
+            resourceStream.Seek(Offset, SeekOrigin.Current);
+            Memory<byte> memory = new byte[Size];
+            resourceStream.Read(memory.Span);
+            resourceStream.Dispose();
+            return memory;
         }
     }
 }

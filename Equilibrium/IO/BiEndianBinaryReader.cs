@@ -184,6 +184,12 @@ namespace Equilibrium.IO {
             return value;
         }
 
+        public Memory<byte> ReadMemory(int count) {
+            Memory<byte> memory = new byte[count];
+            Read(memory.Span);
+            return memory;
+        }
+
         public T ReadStruct<T>() where T : struct {
             Span<byte> span = new byte[Unsafe.SizeOf<T>()];
             Read(span);

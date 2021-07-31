@@ -14,9 +14,8 @@ namespace Negentropy {
                 assets.LoadFile(arg, EquilibriumOptions.Default with { CacheData = true });
             }
 
-            foreach (var monoBehaviour in assets.Files.First().Value.Objects.Values.Where(x => x.ClassId.Equals(UnityClassId.MonoBehaviour)).Cast<MonoBehaviour>()) {
-                monoBehaviour.Deserialize(ObjectDeserializationOptions.Default);
-                Console.WriteLine(JsonSerializer.Serialize(monoBehaviour.Data, new JsonSerializerOptions { WriteIndented = true }));
+            foreach (var texture in assets.Files.First().Value.Objects.Values.Where(x => x.ClassId.Equals(UnityClassId.Texture2D)).Cast<Texture2D>()) {
+                texture.Deserialize(ObjectDeserializationOptions.Default);
             }
         }
     }

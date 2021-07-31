@@ -52,8 +52,8 @@ namespace Equilibrium.Implementations {
             Components = components;
         }
 
-        public override void Serialize(BiEndianBinaryWriter writer, UnityVersion? targetVersion, FileSerializationOptions options) {
-            base.Serialize(writer, targetVersion, options);
+        public override void Serialize(BiEndianBinaryWriter writer, string fileName, UnityVersion? targetVersion, FileSerializationOptions options) {
+            base.Serialize(writer, fileName, targetVersion, options);
             writer.Write(Components.Count);
             if (targetVersion < new UnityVersion(5, 5)) {
                 foreach (var (classId, ptr) in Components) {

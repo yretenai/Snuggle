@@ -14,8 +14,8 @@ namespace Equilibrium.Implementations {
 
         public PPtr<GameObject> GameObject { get; set; }
 
-        public override void Serialize(BiEndianBinaryWriter writer, UnityVersion? targetVersion, FileSerializationOptions options) {
-            base.Serialize(writer, targetVersion, options);
+        public override void Serialize(BiEndianBinaryWriter writer, string fileName, UnityVersion? targetVersion, FileSerializationOptions options) {
+            base.Serialize(writer, fileName, targetVersion, options);
             GameObject.ToWriter(writer, SerializedFile, targetVersion ?? SerializedFile.Version);
         }
 

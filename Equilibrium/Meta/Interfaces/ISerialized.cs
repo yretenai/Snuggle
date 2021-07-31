@@ -7,7 +7,7 @@ namespace Equilibrium.Meta.Interfaces {
     public interface ISerialized {
         public void Deserialize(BiEndianBinaryReader reader, ObjectDeserializationOptions options);
         public void Deserialize(ObjectDeserializationOptions options);
-        public void Serialize(BiEndianBinaryWriter writer, UnityVersion? targetVersion, FileSerializationOptions options);
+        public void Serialize(BiEndianBinaryWriter writer, string fileName, UnityVersion? targetVersion, FileSerializationOptions options);
         public void Free();
     }
 }

@@ -89,8 +89,8 @@ namespace Equilibrium.Implementations {
         public int PathFlags { get; set; }
         public Dictionary<string, string> SceneHashes { get; set; }
 
-        public override void Serialize(BiEndianBinaryWriter writer, UnityVersion? targetVersion, FileSerializationOptions options) {
-            base.Serialize(writer, targetVersion, options);
+        public override void Serialize(BiEndianBinaryWriter writer, string fileName, UnityVersion? targetVersion, FileSerializationOptions options) {
+            base.Serialize(writer, fileName, targetVersion, options);
 
             writer.Write(PreloadTable.Count);
             foreach (var ptr in PreloadTable) {

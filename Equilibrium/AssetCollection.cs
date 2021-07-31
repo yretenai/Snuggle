@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using Equilibrium.IO;
 using Equilibrium.Meta;
@@ -171,6 +172,20 @@ namespace Equilibrium {
             } finally {
                 stream.Seek(pos, SeekOrigin.Begin);
             }
+        }
+
+        public bool TryOpenResource(string path, [MaybeNullWhen(false)] out Stream stream) {
+            if (!Resources.TryGetValue(path, out var resourceLoader)) {
+                if (!Resources.TryGetValue(Path.GetFileName(path), out resourceLoader)) {
+                    stream = null;
+                    return false;
+                }
+            }
+
+            var (tag, handler) = resourceLoader;
+
+            stream = handler.OpenFile(tag);
+            return true;
         }
     }
 }

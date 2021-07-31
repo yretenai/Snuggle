@@ -4,8 +4,9 @@ using JetBrains.Annotations;
 namespace Equilibrium.Meta.Options {
     [PublicAPI]
     public record FileSerializationOptions(
-        int Alignment) {
-        public static FileSerializationOptions Default { get; } = new(8);
+        int Alignment,
+        long ResourceDataThreshold) {
+        public static FileSerializationOptions Default { get; } = new(8, 0);
 
         public static FileSerializationOptions FromJson(string json) {
             try {

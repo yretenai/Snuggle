@@ -37,8 +37,8 @@ namespace Equilibrium.Implementations {
         public List<int> AssetBundlesWithVariant { get; set; }
         public Dictionary<int, AssetBundleInfo> AssetBundleInfos { get; set; }
 
-        public override void Serialize(BiEndianBinaryWriter writer, UnityVersion? targetVersion, FileSerializationOptions options) {
-            base.Serialize(writer, targetVersion, options);
+        public override void Serialize(BiEndianBinaryWriter writer, string fileName, UnityVersion? targetVersion, FileSerializationOptions options) {
+            base.Serialize(writer, fileName, targetVersion, options);
             writer.Write(AssetBundleNames.Count);
             foreach (var (id, name) in AssetBundleNames) {
                 writer.Write(id);

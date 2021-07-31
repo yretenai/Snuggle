@@ -35,8 +35,8 @@ namespace Equilibrium.Implementations {
         public string AssemblyName { get; set; }
         public bool IsEditor { get; set; }
 
-        public override void Serialize(BiEndianBinaryWriter writer, UnityVersion? targetVersion, FileSerializationOptions options) {
-            base.Serialize(writer, targetVersion, options);
+        public override void Serialize(BiEndianBinaryWriter writer, string fileName, UnityVersion? targetVersion, FileSerializationOptions options) {
+            base.Serialize(writer, fileName, targetVersion, options);
             writer.Write(ExecutionOrder);
             writer.Write(Hash);
             writer.WriteString32(ClassName);

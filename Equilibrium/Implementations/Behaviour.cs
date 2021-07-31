@@ -18,8 +18,8 @@ namespace Equilibrium.Implementations {
 
         public bool Enabled { get; set; }
 
-        public override void Serialize(BiEndianBinaryWriter writer, UnityVersion? targetVersion, FileSerializationOptions options) {
-            base.Serialize(writer, targetVersion, options);
+        public override void Serialize(BiEndianBinaryWriter writer, string fileName, UnityVersion? targetVersion, FileSerializationOptions options) {
+            base.Serialize(writer, fileName, targetVersion, options);
             writer.Write(Enabled);
             writer.Align();
         }
