@@ -3,7 +3,7 @@ using System.IO;
 using Equilibrium.Implementations;
 using Equilibrium.IO;
 using Equilibrium.Meta;
-using Equilibrium.Meta.Options;
+using Equilibrium.Options;
 using JetBrains.Annotations;
 
 namespace Equilibrium.Models.Objects {

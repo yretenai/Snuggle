@@ -2,7 +2,7 @@
 using Equilibrium.Models.Bundle;
 using JetBrains.Annotations;
 
-namespace Equilibrium.Meta.Options {
+namespace Equilibrium.Options {
     [PublicAPI]
     public record BundleSerializationOptions(
         int BlockSize,

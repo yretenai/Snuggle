@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using DragonLib;
 using Equilibrium.IO;
-using Equilibrium.Meta.Options;
+using Equilibrium.Options;
 using JetBrains.Annotations;
 
 namespace Equilibrium.Models.Serialization {

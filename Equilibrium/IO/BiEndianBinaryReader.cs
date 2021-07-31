@@ -184,7 +184,7 @@ namespace Equilibrium.IO {
             return value;
         }
 
-        public Memory<byte> ReadMemory(int count) {
+        public Memory<byte> ReadMemory(long count) {
             Memory<byte> memory = new byte[count];
             Read(memory.Span);
             return memory;

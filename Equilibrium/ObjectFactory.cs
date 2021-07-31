@@ -4,12 +4,13 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Equilibrium.Extensions;
 using Equilibrium.Implementations;
 using Equilibrium.IO;
 using Equilibrium.Meta;
-using Equilibrium.Meta.Options;
 using Equilibrium.Models;
 using Equilibrium.Models.Serialization;
+using Equilibrium.Options;
 using JetBrains.Annotations;
 using Mono.Cecil;
 

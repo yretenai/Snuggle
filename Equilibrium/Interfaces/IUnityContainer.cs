@@ -2,11 +2,11 @@
 using System.IO;
 using System.Linq;
 using Equilibrium.IO;
-using Equilibrium.Meta.Options;
 using Equilibrium.Models.Bundle;
+using Equilibrium.Options;
 using JetBrains.Annotations;
 
-namespace Equilibrium.Meta.Interfaces {
+namespace Equilibrium.Interfaces {
     [PublicAPI]
     public interface IUnityContainer {
         public UnityBundleBlockInfo[] BlockInfos { get; set; }

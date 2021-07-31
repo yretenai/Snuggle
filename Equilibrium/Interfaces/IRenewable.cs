@@ -1,6 +1,6 @@
 ﻿using JetBrains.Annotations;
 
-namespace Equilibrium.Meta.Interfaces {
+namespace Equilibrium.Interfaces {
     [PublicAPI]
     public interface IRenewable {
         public object Tag { get; set; }

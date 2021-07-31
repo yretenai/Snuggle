@@ -1,9 +1,10 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
-using Equilibrium.Meta.Interfaces;
+using Equilibrium.Interfaces;
+using Equilibrium.Meta;
 using JetBrains.Annotations;
 
-namespace Equilibrium.Meta.Options {
+namespace Equilibrium.Options {
     [PublicAPI]
     public record EquilibriumOptions(
         bool CacheData,

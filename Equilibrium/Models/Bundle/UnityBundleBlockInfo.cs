@@ -3,7 +3,7 @@ using System.Buffers;
 using System.IO;
 using System.Runtime.InteropServices;
 using Equilibrium.IO;
-using Equilibrium.Meta.Options;
+using Equilibrium.Options;
 using JetBrains.Annotations;
 using K4os.Compression.LZ4;
 

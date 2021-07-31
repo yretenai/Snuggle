@@ -2,7 +2,7 @@
 using System.Text.Json.Serialization;
 using JetBrains.Annotations;
 
-namespace Equilibrium.Meta.Options {
+namespace Equilibrium.Options {
     public delegate (string Path, EquilibriumOptions Options) RequestAssemblyPath(string assemblyName);
 
     [PublicAPI]

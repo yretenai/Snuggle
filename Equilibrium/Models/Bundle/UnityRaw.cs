@@ -2,9 +2,9 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using Equilibrium.Interfaces;
 using Equilibrium.IO;
-using Equilibrium.Meta.Interfaces;
-using Equilibrium.Meta.Options;
+using Equilibrium.Options;
 using JetBrains.Annotations;
 
 namespace Equilibrium.Models.Bundle {

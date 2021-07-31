@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using Equilibrium.IO;
 using Equilibrium.Meta;
-using Equilibrium.Meta.Options;
 using Equilibrium.Models;
 using Equilibrium.Models.Objects;
 using Equilibrium.Models.Serialization;
+using Equilibrium.Options;
 using JetBrains.Annotations;
 
 namespace Equilibrium.Implementations {

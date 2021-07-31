@@ -1,7 +1,7 @@
 ﻿using JetBrains.Annotations;
 using Mono.Cecil;
 
-namespace Equilibrium.Meta {
+namespace Equilibrium.Extensions {
     [PublicAPI]
     public static class CecilExtensions {
         public static bool IsAssignableTo(this TypeDefinition definition, string name) => definition.FullName == name || definition.BaseType != null && definition.BaseType.Resolve().IsAssignableTo(name);

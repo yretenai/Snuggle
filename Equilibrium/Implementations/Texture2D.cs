@@ -1,13 +1,15 @@
 ﻿using System;
 using System.IO;
+using DragonLib.Imaging.DXGI;
+using Equilibrium.Extensions;
+using Equilibrium.Interfaces;
 using Equilibrium.IO;
 using Equilibrium.Meta;
-using Equilibrium.Meta.Interfaces;
-using Equilibrium.Meta.Options;
 using Equilibrium.Models;
 using Equilibrium.Models.Objects;
 using Equilibrium.Models.Objects.Graphics;
 using Equilibrium.Models.Serialization;
+using Equilibrium.Options;
 using JetBrains.Annotations;
 
 namespace Equilibrium.Implementations {
@@ -186,7 +188,63 @@ namespace Equilibrium.Implementations {
         }
 
         public Stream ToDDS() {
-            throw new NotImplementedException();
+            if (ShouldDeserialize) {
+                throw new InvalidDataException();
+            }
+
+            return new MemoryStream(DXGI.BuildDDS(TextureFormat.ToD3DPixelFormat(),
+                    MipCount,
+                    Width,
+                    Height,
+                    TextureCount,
+                    TextureData.Span)
+                .ToArray()) { Position = 0 };
+        }
+
+        public void ImportDDS(Stream stream, bool leaveOpen = false) {
+            using var reader = new BiEndianBinaryReader(stream, leaveOpen);
+            var header = reader.ReadStruct<DDSImageHeader>();
+
+            IsMutated = true;
+            
+            Width = header.Width;
+            Height = header.Height;
+            MipCount = header.MipmapCount;
+            
+            switch (header.Format.FourCC) {
+                case 0x30315844: { // DX10
+                    var dx10 = reader.ReadStruct<DXT10Header>();
+                    TextureFormat = ((DXGIPixelFormat) dx10.Format).ToTextureFormat();
+                    TextureCount = dx10.Size;
+                    break;
+                }
+                case 0x31545844: // DXT1
+                    TextureFormat = TextureFormat.DXT1;
+                    break;
+                case 0x34545844: // DXT4
+                case 0x35545844: // DXT5
+                    TextureFormat = TextureFormat.DXT5;
+                    break;
+                case 0x31495441: // ATI1
+                    TextureFormat = TextureFormat.BC4;
+                    break;
+                case 0x32495441: // ATI2
+                    TextureFormat = TextureFormat.BC5;
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+
+            TextureData = reader.ReadMemory(reader.Unconsumed);
+        }
+        
+        public static Texture2D FromDDS(UnityObjectInfo info, SerializedFile file, Stream stream, bool leaveOpen = false) {
+            var texture2D = new Texture2D(info, file) {
+                Name = "Texture2D",
+            };
+
+            texture2D.ImportDDS(stream, leaveOpen);
+            return texture2D;
         }
 
         public Stream ToKTX2() {

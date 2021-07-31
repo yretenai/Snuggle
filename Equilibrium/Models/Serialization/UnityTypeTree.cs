@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Text;
+using Equilibrium.Extensions;
 using Equilibrium.IO;
-using Equilibrium.Meta.Options;
+using Equilibrium.Options;
 using JetBrains.Annotations;
 
 namespace Equilibrium.Models.Serialization {

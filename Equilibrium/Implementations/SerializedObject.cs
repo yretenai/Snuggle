@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Text.Json.Serialization;
+using Equilibrium.Interfaces;
 using Equilibrium.IO;
 using Equilibrium.Meta;
-using Equilibrium.Meta.Interfaces;
-using Equilibrium.Meta.Options;
 using Equilibrium.Models;
 using Equilibrium.Models.Serialization;
+using Equilibrium.Options;
 using JetBrains.Annotations;
 
 namespace Equilibrium.Implementations {

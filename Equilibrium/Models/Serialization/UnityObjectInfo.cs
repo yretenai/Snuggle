@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Linq;
 using Equilibrium.IO;
-using Equilibrium.Meta.Options;
+using Equilibrium.Options;
 using JetBrains.Annotations;
 
 namespace Equilibrium.Models.Serialization {

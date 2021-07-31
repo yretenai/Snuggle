@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using Equilibrium.Interfaces;
 using Equilibrium.IO;
 using Equilibrium.Meta;
-using Equilibrium.Meta.Interfaces;
-using Equilibrium.Meta.Options;
 using Equilibrium.Models;
 using Equilibrium.Models.Bundle;
+using Equilibrium.Options;
 using JetBrains.Annotations;
 using Mono.Cecil;
 

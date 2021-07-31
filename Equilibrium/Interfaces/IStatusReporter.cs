@@ -1,6 +1,6 @@
 ﻿using JetBrains.Annotations;
 
-namespace Equilibrium.Meta.Interfaces {
+namespace Equilibrium.Interfaces {
     [PublicAPI]
     public interface IStatusReporter {
         public void SetStatus(string message);
