@@ -28,7 +28,7 @@ namespace Equilibrium.Implementations {
         public bool DownscaleFallback { get; set; }
         public bool AlphaOptional { get; set; }
 
-        public override void Serialize(BiEndianBinaryWriter writer, string fileName, UnityVersion? targetVersion, FileSerializationOptions options) {
+        public override void Serialize(BiEndianBinaryWriter writer, string fileName, UnityVersion targetVersion, FileSerializationOptions options) {
             base.Serialize(writer, fileName, targetVersion, options);
             if (targetVersion >= new UnityVersion(2017, 3)) {
                 writer.Write((int) FallbackFormat);

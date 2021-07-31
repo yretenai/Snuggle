@@ -14,7 +14,7 @@ namespace Equilibrium.Implementations {
         public string Name { get; set; }
         public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Name);
 
-        public override void Serialize(BiEndianBinaryWriter writer, string fileName, UnityVersion? targetVersion, FileSerializationOptions options) {
+        public override void Serialize(BiEndianBinaryWriter writer, string fileName, UnityVersion targetVersion, FileSerializationOptions options) {
             base.Serialize(writer, fileName, targetVersion, options);
             writer.WriteString32(Name);
         }

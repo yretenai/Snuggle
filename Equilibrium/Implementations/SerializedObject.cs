@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Text.Json.Serialization;
 using Equilibrium.Interfaces;
 using Equilibrium.IO;
@@ -51,7 +52,9 @@ namespace Equilibrium.Implementations {
             Deserialize(reader, options);
         }
 
-        public virtual void Serialize(BiEndianBinaryWriter writer, string fileName, UnityVersion? targetVersion, FileSerializationOptions options) { }
+        public virtual void Serialize(BiEndianBinaryWriter writer, string fileName, UnityVersion targetVersion, FileSerializationOptions options) {
+            IsMutated = false;
+        }
 
         public virtual void Free() { }
 

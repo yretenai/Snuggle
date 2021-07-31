@@ -118,66 +118,64 @@ namespace Equilibrium.Implementations {
             }
         }
 
-        public void Serialize(BiEndianBinaryWriter writer, string fileName, BiEndianBinaryWriter resourceStream, string resourceName, UnityVersion? targetVersion, FileSerializationOptions options) {
+        public void Serialize(BiEndianBinaryWriter writer, string fileName, BiEndianBinaryWriter resourceStream, string resourceName, UnityVersion targetVersion, FileSerializationOptions options) {
             base.Serialize(writer, fileName, targetVersion, options);
             writer.Write(Width);
             writer.Write(Height);
             writer.Write(TextureData.Length);
 
-            var version = targetVersion ?? SerializedFile.Version;
-
-            if (version >= new UnityVersion(2020, 1)) {
+            if (targetVersion >= new UnityVersion(2020, 1)) {
                 writer.Write(IsStrippedMips);
                 writer.Write(IsStrippedMips);
                 writer.Align();
             }
 
             writer.Write((int) TextureFormat);
-            if (version <= new UnityVersion(5, 2)) {
+            if (targetVersion <= new UnityVersion(5, 2)) {
                 writer.Write(MipCount > 1);
             } else {
                 writer.Write(MipCount);
             }
 
             writer.Write(IsReadable);
-            if (version >= new UnityVersion(2020, 1)) {
+            if (targetVersion >= new UnityVersion(2020, 1)) {
                 writer.Write(IsPreProcessed);
             }
 
-            if (version >= new UnityVersion(2019, 3)) {
+            if (targetVersion >= new UnityVersion(2019, 3)) {
                 writer.Write(IgnoreTextureLimit);
             }
 
-            if (version <= new UnityVersion(5, 4)) {
+            if (targetVersion <= new UnityVersion(5, 4)) {
                 writer.Write(IsReadAllowed);
             }
 
-            if (version >= new UnityVersion(2018, 2)) {
+            if (targetVersion >= new UnityVersion(2018, 2)) {
                 writer.Write(IsStreaming);
             }
 
             writer.Align();
 
-            if (version >= new UnityVersion(2018, 2)) {
+            if (targetVersion >= new UnityVersion(2018, 2)) {
                 writer.Write(StreamingPriority);
             }
 
             writer.Write(TextureCount);
             writer.Write((int) TextureDimension);
-            TextureSettings.ToWriter(writer, SerializedFile, version);
+            TextureSettings.ToWriter(writer, SerializedFile, targetVersion);
             writer.Write((int) LightmapFormat);
             writer.Write((int) ColorSpace);
-            if (version >= new UnityVersion(2020, 2)) {
+            if (targetVersion >= new UnityVersion(2020, 2)) {
                 writer.WriteMemory(PlatformData);
             }
 
             if (TextureData.Length > options.ResourceDataThreshold) {
                 writer.Write(0);
-                new StreamingInfo(resourceStream.BaseStream.Position, TextureData.Length, resourceName).ToWriter(writer, SerializedFile, version);
+                new StreamingInfo(resourceStream.BaseStream.Position, TextureData.Length, resourceName).ToWriter(writer, SerializedFile, targetVersion);
                 resourceStream.WriteMemory(TextureData);
                 resourceStream.Align(options.Alignment);
             } else {
-                new StreamingInfo(writer.BaseStream.Position, TextureData.Length, fileName).ToWriter(writer, SerializedFile, version);
+                new StreamingInfo(writer.BaseStream.Position, TextureData.Length, fileName).ToWriter(writer, SerializedFile, targetVersion);
                 writer.WriteMemory(TextureData);
             }
         }

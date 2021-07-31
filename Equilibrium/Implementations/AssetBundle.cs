@@ -89,18 +89,18 @@ namespace Equilibrium.Implementations {
         public int PathFlags { get; set; }
         public Dictionary<string, string> SceneHashes { get; set; }
 
-        public override void Serialize(BiEndianBinaryWriter writer, string fileName, UnityVersion? targetVersion, FileSerializationOptions options) {
+        public override void Serialize(BiEndianBinaryWriter writer, string fileName, UnityVersion targetVersion, FileSerializationOptions options) {
             base.Serialize(writer, fileName, targetVersion, options);
 
             writer.Write(PreloadTable.Count);
             foreach (var ptr in PreloadTable) {
-                ptr.ToWriter(writer, SerializedFile, targetVersion ?? SerializedFile.Version);
+                ptr.ToWriter(writer, SerializedFile, targetVersion);
             }
 
             writer.Write(Container.Count);
             foreach (var (name, info) in Container) {
                 writer.WriteString32(name);
-                info.ToWriter(writer, SerializedFile, targetVersion ?? SerializedFile.Version);
+                info.ToWriter(writer, SerializedFile, targetVersion);
             }
 
             if (targetVersion >= new UnityVersion(5, 4) &&
@@ -114,7 +114,7 @@ namespace Equilibrium.Implementations {
                 ClassInfos = new Dictionary<int, uint>(0);
             }
 
-            MainAsset.ToWriter(writer, SerializedFile, targetVersion ?? SerializedFile.Version);
+            MainAsset.ToWriter(writer, SerializedFile, targetVersion);
             writer.Write(RuntimeCompatibility);
             writer.WriteString32(AssetBundleName);
 
