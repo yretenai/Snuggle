@@ -10,11 +10,11 @@ namespace Equilibrium.Implementations {
     [PublicAPI, ObjectImplementation(UnityClassId.Texture)]
     public class Texture : NamedObject {
         public Texture(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) {
-            if (serializedFile.Version >= new UnityVersion(2017, 3)) {
+            if (serializedFile.Version >= UnityVersionRegister.Unity2017_3) {
                 FallbackFormat = (TextureFormat) reader.ReadInt32();
                 DownscaleFallback = reader.ReadBoolean();
 
-                if (serializedFile.Version >= new UnityVersion(2020, 2)) {
+                if (serializedFile.Version >= UnityVersionRegister.Unity2020_2) {
                     AlphaOptional = reader.ReadBoolean();
                 }
 
@@ -30,11 +30,11 @@ namespace Equilibrium.Implementations {
 
         public override void Serialize(BiEndianBinaryWriter writer, string fileName, UnityVersion targetVersion, FileSerializationOptions options) {
             base.Serialize(writer, fileName, targetVersion, options);
-            if (targetVersion >= new UnityVersion(2017, 3)) {
+            if (targetVersion >= UnityVersionRegister.Unity2017_3) {
                 writer.Write((int) FallbackFormat);
                 writer.Write(DownscaleFallback);
 
-                if (targetVersion >= new UnityVersion(2020, 2)) {
+                if (targetVersion >= UnityVersionRegister.Unity2020_2) {
                     writer.Write(AlphaOptional);
                 }
 

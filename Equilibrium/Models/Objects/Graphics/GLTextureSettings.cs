@@ -20,7 +20,7 @@ namespace Equilibrium.Models.Objects.Graphics {
             var wrapu = (TextureWrapMode) reader.ReadInt32();
             var wrapv = TextureWrapMode.Repeat;
             var wrapw = TextureWrapMode.Repeat;
-            if (file.Version > new UnityVersion(2017)) {
+            if (file.Version >= UnityVersionRegister.Unity2017_1) {
                 wrapv = (TextureWrapMode) reader.ReadInt32();
                 wrapw = (TextureWrapMode) reader.ReadInt32();
             }
@@ -34,7 +34,7 @@ namespace Equilibrium.Models.Objects.Graphics {
             writer.Write(Bias);
             writer.Write((int) WrapU);
 
-            if (targetVersion > new UnityVersion(2017)) {
+            if (targetVersion >= UnityVersionRegister.Unity2017_1) {
                 writer.Write((int) WrapV);
                 writer.Write((int) WrapW);
             }

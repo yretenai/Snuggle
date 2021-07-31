@@ -13,7 +13,7 @@ namespace Equilibrium.Models.Objects {
         PPtr<Component> Ptr) {
         public static ComponentPair FromReader(BiEndianBinaryReader reader, SerializedFile file) {
             object classId = default(UnityClassId);
-            if (file.Version < new UnityVersion(5, 5)) {
+            if (file.Version < UnityVersionRegister.Unity5_5) {
                 classId = ObjectFactory.GetClassIdForGame(file.Options.Game, reader.ReadInt32());
             }
 
@@ -22,7 +22,7 @@ namespace Equilibrium.Models.Objects {
         }
 
         public void ToWriter(BiEndianBinaryWriter writer, SerializedFile serializedFile, UnityVersion targetVersion) {
-            if (targetVersion < new UnityVersion(5, 5)) {
+            if (targetVersion < UnityVersionRegister.Unity5_5) {
                 writer.Write((int) ClassId);
             }
 
@@ -40,14 +40,14 @@ namespace Equilibrium.Models.Objects {
         public static StreamingInfo Default { get; } = new(0, 0, string.Empty);
 
         public static StreamingInfo FromReader(BiEndianBinaryReader reader, SerializedFile file) {
-            var offset = file.Version >= new UnityVersion(2020, 1) ? reader.ReadInt64() : reader.ReadUInt32();
+            var offset = file.Version >= UnityVersionRegister.Unity2020_1 ? reader.ReadInt64() : reader.ReadUInt32();
             var size = reader.ReadUInt32();
             var path = reader.ReadString32();
             return new StreamingInfo(offset, size, path);
         }
 
         public void ToWriter(BiEndianBinaryWriter writer, SerializedFile serializedFile, UnityVersion targetVersion) {
-            if (targetVersion >= new UnityVersion(2020, 1)) {
+            if (targetVersion >= UnityVersionRegister.Unity2020_1) {
                 writer.Write(Offset);
             } else {
                 writer.Write((uint) Offset);

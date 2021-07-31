@@ -24,8 +24,8 @@ namespace Equilibrium.Implementations {
                 Container[reader.ReadString32()] = AssetInfo.FromReader(reader, serializedFile);
             }
 
-            if (serializedFile.Version >= new UnityVersion(5, 4) &&
-                serializedFile.Version < new UnityVersion(5, 5)) {
+            if (serializedFile.Version >= UnityVersionRegister.Unity5_4 &&
+                serializedFile.Version < UnityVersionRegister.Unity5_5) {
                 var classInfoCount = reader.ReadInt32();
                 ClassInfos = new Dictionary<int, uint>();
                 for (var i = 0; i < classInfoCount; ++i) {
@@ -48,15 +48,15 @@ namespace Equilibrium.Implementations {
             IsStreamedSceneAssetBundle = reader.ReadBoolean();
             reader.Align();
 
-            if (serializedFile.Version > new UnityVersion(2017, 3)) {
+            if (serializedFile.Version > UnityVersionRegister.Unity2017_3) {
                 ExplicitDataLayout = reader.ReadInt32();
             }
 
-            if (serializedFile.Version > new UnityVersion(2017, 1)) {
+            if (serializedFile.Version > UnityVersionRegister.Unity2017_1) {
                 PathFlags = reader.ReadInt32();
             }
 
-            if (serializedFile.Version > new UnityVersion(2017, 3)) {
+            if (serializedFile.Version > UnityVersionRegister.Unity2017_3) {
                 var sceneHashCount = reader.ReadInt32();
                 SceneHashes = new Dictionary<string, string>();
                 for (var i = 0; i < sceneHashCount; ++i) {
@@ -103,8 +103,8 @@ namespace Equilibrium.Implementations {
                 info.ToWriter(writer, SerializedFile, targetVersion);
             }
 
-            if (targetVersion >= new UnityVersion(5, 4) &&
-                targetVersion < new UnityVersion(5, 5)) {
+            if (targetVersion >= UnityVersionRegister.Unity5_4 &&
+                targetVersion < UnityVersionRegister.Unity5_5) {
                 writer.Write(ClassInfos.Count);
                 foreach (var (id, flags) in ClassInfos) {
                     writer.Write(id);
@@ -126,15 +126,15 @@ namespace Equilibrium.Implementations {
             writer.Write(IsStreamedSceneAssetBundle);
             writer.Align();
 
-            if (targetVersion > new UnityVersion(2017, 3)) {
+            if (targetVersion > UnityVersionRegister.Unity2017_3) {
                 writer.Write(ExplicitDataLayout);
             }
 
-            if (targetVersion > new UnityVersion(2017, 1)) {
+            if (targetVersion > UnityVersionRegister.Unity2017_1) {
                 writer.Write(PathFlags);
             }
 
-            if (targetVersion > new UnityVersion(2017, 3)) {
+            if (targetVersion > UnityVersionRegister.Unity2017_3) {
                 writer.Write(SceneHashes.Count);
                 foreach (var (scene, hash) in SceneHashes) {
                     writer.WriteString32(scene);

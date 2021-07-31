@@ -16,7 +16,7 @@ namespace Equilibrium.Implementations {
             Namespace = reader.ReadString32();
             AssemblyName = reader.ReadString32();
 
-            if (serializedFile.Version < new UnityVersion(2018, 2)) {
+            if (serializedFile.Version < UnityVersionRegister.Unity2018_2) {
                 IsEditor = reader.ReadBoolean();
             }
         }
@@ -43,7 +43,7 @@ namespace Equilibrium.Implementations {
             writer.WriteString32(Namespace);
             writer.WriteString32(AssemblyName);
 
-            if (targetVersion < new UnityVersion(2018, 2)) {
+            if (targetVersion < UnityVersionRegister.Unity2018_2) {
                 writer.Write(IsEditor);
             }
         }

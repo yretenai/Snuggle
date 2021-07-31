@@ -1,5 +1,4 @@
-﻿using System.IO;
-using Equilibrium.IO;
+﻿using Equilibrium.IO;
 using Equilibrium.Meta;
 using Equilibrium.Options;
 using JetBrains.Annotations;

@@ -20,13 +20,13 @@ namespace Equilibrium.Implementations {
             Height = reader.ReadInt32();
             TextureDataSize = reader.ReadInt32();
 
-            if (serializedFile.Version >= new UnityVersion(2020, 1)) {
+            if (serializedFile.Version >= UnityVersionRegister.Unity2020_1) {
                 IsStrippedMips = reader.ReadBoolean();
                 reader.Align();
             }
 
             TextureFormat = (TextureFormat) reader.ReadInt32();
-            if (serializedFile.Version <= new UnityVersion(5, 2)) {
+            if (serializedFile.Version <= UnityVersionRegister.Unity5_2) {
                 if (reader.ReadBoolean()) {
                     MipCount = (int) (Math.Log(Math.Max(Width, Height)) / Math.Log(2));
                 }
@@ -35,25 +35,25 @@ namespace Equilibrium.Implementations {
             }
 
             IsReadable = reader.ReadBoolean();
-            if (serializedFile.Version >= new UnityVersion(2020, 1)) {
+            if (serializedFile.Version >= UnityVersionRegister.Unity2020_1) {
                 IsPreProcessed = reader.ReadBoolean();
             }
 
-            if (serializedFile.Version >= new UnityVersion(2019, 3)) {
+            if (serializedFile.Version >= UnityVersionRegister.Unity2019_3) {
                 IgnoreTextureLimit = reader.ReadBoolean();
             }
 
-            if (serializedFile.Version <= new UnityVersion(5, 4)) {
+            if (serializedFile.Version <= UnityVersionRegister.Unity5_4) {
                 IsReadAllowed = reader.ReadBoolean();
             }
 
-            if (serializedFile.Version >= new UnityVersion(2018, 2)) {
+            if (serializedFile.Version >= UnityVersionRegister.Unity2018_2) {
                 IsStreaming = reader.ReadBoolean();
             }
 
             reader.Align();
 
-            if (serializedFile.Version >= new UnityVersion(2018, 2)) {
+            if (serializedFile.Version >= UnityVersionRegister.Unity2018_2) {
                 StreamingPriority = reader.ReadInt32();
             }
 
@@ -62,7 +62,7 @@ namespace Equilibrium.Implementations {
             TextureSettings = GLTextureSettings.FromReader(reader, serializedFile);
             LightmapFormat = (LightmapFormat) reader.ReadInt32();
             ColorSpace = (ColorSpace) reader.ReadInt32();
-            if (serializedFile.Version >= new UnityVersion(2020, 2)) {
+            if (serializedFile.Version >= UnityVersionRegister.Unity2020_2) {
                 PlatformDataStart = reader.BaseStream.Position;
                 reader.BaseStream.Seek(reader.ReadInt32(), SeekOrigin.Current);
             }
@@ -124,39 +124,39 @@ namespace Equilibrium.Implementations {
             writer.Write(Height);
             writer.Write(TextureData.Length);
 
-            if (targetVersion >= new UnityVersion(2020, 1)) {
+            if (targetVersion >= UnityVersionRegister.Unity2020_1) {
                 writer.Write(IsStrippedMips);
                 writer.Write(IsStrippedMips);
                 writer.Align();
             }
 
             writer.Write((int) TextureFormat);
-            if (targetVersion <= new UnityVersion(5, 2)) {
+            if (targetVersion <= UnityVersionRegister.Unity5_2) {
                 writer.Write(MipCount > 1);
             } else {
                 writer.Write(MipCount);
             }
 
             writer.Write(IsReadable);
-            if (targetVersion >= new UnityVersion(2020, 1)) {
+            if (targetVersion >= UnityVersionRegister.Unity2020_1) {
                 writer.Write(IsPreProcessed);
             }
 
-            if (targetVersion >= new UnityVersion(2019, 3)) {
+            if (targetVersion >= UnityVersionRegister.Unity2019_3) {
                 writer.Write(IgnoreTextureLimit);
             }
 
-            if (targetVersion <= new UnityVersion(5, 4)) {
+            if (targetVersion <= UnityVersionRegister.Unity5_4) {
                 writer.Write(IsReadAllowed);
             }
 
-            if (targetVersion >= new UnityVersion(2018, 2)) {
+            if (targetVersion >= UnityVersionRegister.Unity2018_2) {
                 writer.Write(IsStreaming);
             }
 
             writer.Align();
 
-            if (targetVersion >= new UnityVersion(2018, 2)) {
+            if (targetVersion >= UnityVersionRegister.Unity2018_2) {
                 writer.Write(StreamingPriority);
             }
 
@@ -165,7 +165,7 @@ namespace Equilibrium.Implementations {
             TextureSettings.ToWriter(writer, SerializedFile, targetVersion);
             writer.Write((int) LightmapFormat);
             writer.Write((int) ColorSpace);
-            if (targetVersion >= new UnityVersion(2020, 2)) {
+            if (targetVersion >= UnityVersionRegister.Unity2020_2) {
                 writer.WriteMemory(PlatformData);
             }
 

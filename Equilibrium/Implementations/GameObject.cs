@@ -55,7 +55,7 @@ namespace Equilibrium.Implementations {
         public override void Serialize(BiEndianBinaryWriter writer, string fileName, UnityVersion targetVersion, FileSerializationOptions options) {
             base.Serialize(writer, fileName, targetVersion, options);
             writer.Write(Components.Count);
-            if (targetVersion < new UnityVersion(5, 5)) {
+            if (targetVersion < UnityVersionRegister.Unity5_5) {
                 foreach (var (classId, ptr) in Components) {
                     writer.Write((int) classId);
                     ptr.ToWriter(writer, SerializedFile, targetVersion);
