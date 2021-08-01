@@ -249,6 +249,8 @@ namespace Equilibrium.Implementations {
             return texture2D;
         }
 
+        public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Width, Height, TextureFormat, TextureData.Length, StreamingInfo);
+
         public Stream ToKTX2() => throw new NotImplementedException();
     }
 }

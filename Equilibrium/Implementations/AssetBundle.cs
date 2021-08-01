@@ -144,6 +144,6 @@ namespace Equilibrium.Implementations {
         }
 
         public override string ToString() => string.IsNullOrWhiteSpace(AssetBundleName) ? base.ToString() : AssetBundleName;
-        public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), AssetBundleName, MainAsset);
+        public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), AssetBundleName, MainAsset, PreloadTable.GetHashCode(), Container.GetHashCode());
     }
 }

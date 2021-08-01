@@ -11,16 +11,21 @@ using JetBrains.Annotations;
 namespace Equilibrium.Implementations {
     [PublicAPI, UsedImplicitly, ObjectImplementation(UnityClassId.Object)]
     public class SerializedObject : IEquatable<SerializedObject>, ISerialized {
-        public SerializedObject(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : this(info, serializedFile) => IsMutated = false;
+        public SerializedObject(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : this(info, serializedFile) {
+            IsMutated = false;
+            Size = info.Size;
+        }
 
         public SerializedObject(UnityObjectInfo info, SerializedFile serializedFile) {
             SerializedFile = serializedFile;
             PathId = info.PathId;
             ClassId = info.ClassId;
+            Size = info.Size;
             IsMutated = true;
         }
 
         public long PathId { get; init; }
+        public long Size { get; set; }
         public object ClassId { get; init; }
 
         [JsonIgnore]
@@ -31,6 +36,9 @@ namespace Equilibrium.Implementations {
 
         [JsonIgnore]
         public bool IsMutated { get; set; }
+
+        public string ObjectComparableName => ToString();
+        public string ObjectContainerPath { get; set; } = string.Empty;
 
         public bool Equals(SerializedObject? other) {
             if (ReferenceEquals(null, other)) {

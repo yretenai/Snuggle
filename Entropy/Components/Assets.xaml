@@ -1,0 +1,31 @@
+﻿<UserControl x:Class="Entropy.Components.Assets"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:viewModel="clr-namespace:Entropy.ViewModels"
+             mc:Ignorable="d"
+             TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+             TextElement.FontWeight="Regular"
+             TextElement.FontSize="13"
+             TextOptions.TextFormattingMode="Ideal"
+             TextOptions.TextRenderingMode="Auto"
+             Background="{DynamicResource MaterialDesignPaper}"
+             FontFamily="{DynamicResource MaterialDesignFont}"
+             d:DataContext="{viewModel:EntropyCore}"
+             d:DesignHeight="300" d:DesignWidth="300">
+    <Grid>
+        <ListView ItemsSource="{Binding Objects, Mode=OneWay}" GridViewColumnHeader.Click="SortColumn"
+                  x:Name="Entries">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="Id" DisplayMemberBinding="{Binding PathId}" />
+                    <GridViewColumn Header="Name" DisplayMemberBinding="{Binding ObjectComparableName}" />
+                    <GridViewColumn Header="Path" DisplayMemberBinding="{Binding ObjectContainerPath}" />
+                    <GridViewColumn Header="Type" DisplayMemberBinding="{Binding ClassId}" />
+                    <GridViewColumn Header="Size" DisplayMemberBinding="{Binding Size}" />
+                </GridView>
+            </ListView.View>
+        </ListView>
+    </Grid>
+</UserControl>

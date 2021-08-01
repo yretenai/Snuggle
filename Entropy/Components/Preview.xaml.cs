@@ -1,6 +1,6 @@
 ﻿namespace Entropy.Components {
-    public partial class View {
-        public View() {
+    public partial class Preview {
+        public Preview() {
             InitializeComponent();
         }
     }

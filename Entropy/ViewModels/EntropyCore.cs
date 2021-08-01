@@ -1,14 +1,17 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using DragonLib;
 using Equilibrium;
+using Equilibrium.Implementations;
 using Equilibrium.Options;
 using JetBrains.Annotations;
 
@@ -29,6 +32,9 @@ namespace Entropy.ViewModels {
         public Thread WorkerThread { get; private set; }
         public CancellationTokenSource TokenSource { get; private set; } = new();
         private BlockingCollection<Action<CancellationToken>> Tasks { get; set; } = new();
+        public IImmutableList<SerializedObject> Objects => Collection.Files.SelectMany(x => x.Value.Objects.Values).ToImmutableArray();
+        public SerializedObject? SelectedObject { get; set; }
+        public string? Search { get; set; }
 
         private string SettingsFile { get; }
 
@@ -75,12 +81,15 @@ namespace Entropy.ViewModels {
             TokenSource.Cancel();
             TokenSource.Dispose();
             WorkerThread.Join();
+            SelectedObject = null;
             Collection.Reset();
             Status.Reset();
             if (respawn) {
                 TokenSource = new CancellationTokenSource();
                 WorkerThread = new Thread(WorkLoop);
                 WorkerThread.Start();
+                OnPropertyChanged(nameof(Objects));
+                OnPropertyChanged(nameof(SelectedObject));
             }
         }
 
@@ -103,7 +112,7 @@ namespace Entropy.ViewModels {
         }
 
         [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null) {
+        public virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null) {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 

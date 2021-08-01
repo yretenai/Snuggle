@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using Entropy.ViewModels;
 using Equilibrium.Meta;
 using Microsoft.WindowsAPICodePack.Dialogs;
@@ -92,13 +93,16 @@ namespace Entropy.Components {
                 }
 
                 instance.Status.Reset();
+                instance.Status.SetStatus("Finding container paths...");
+                instance.Collection.FindAssetContainerNames();
                 instance.Status.SetStatus($"Loaded {instance.Collection.Files.Count} files");
+                instance.OnPropertyChanged(nameof(EntropyCore.Objects));
             });
         }
 
         private void LoadFiles(object sender, RoutedEventArgs e) {
             using var selection = new CommonOpenFileDialog {
-                IsFolderPicker = true,
+                IsFolderPicker = false,
                 Multiselect = true,
                 AllowNonFileSystemItems = false,
                 Title = "Select files to load",
@@ -125,7 +129,10 @@ namespace Entropy.Components {
                 }
 
                 instance.Status.Reset();
+                instance.Status.SetStatus("Finding container paths...");
+                instance.Collection.FindAssetContainerNames();
                 instance.Status.SetStatus($"Loaded  {instance.Collection.Files.Count} files");
+                instance.OnPropertyChanged(nameof(EntropyCore.Objects));
             });
         }
 
@@ -150,6 +157,16 @@ namespace Entropy.Components {
 
                 GC.Collect();
             });
+        }
+
+        private void Search(object sender, KeyEventArgs e) {
+            if (e.Key == Key.Return) {
+                e.Handled = true;
+
+                var value = ((TextBox) sender).Text;
+                EntropyCore.Instance.Search = value;
+                EntropyCore.Instance.OnPropertyChanged(nameof(EntropyCore.Search));
+            }
         }
     }
 }

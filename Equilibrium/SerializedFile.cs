@@ -102,5 +102,18 @@ namespace Equilibrium {
                 reader.BaseStream.Seek(pos, SeekOrigin.Begin);
             }
         }
+
+        public void FindAssetContainerNames(SerializedObject? resourceManager) {
+            if (Objects.Values.FirstOrDefault(x => x is AssetBundle) is AssetBundle assetBundle &&
+                assetBundle.Container.Count > 0) {
+                foreach (var (path, (_, _, pPtr)) in assetBundle.Container) {
+                    if (pPtr.Value != null) {
+                        pPtr.Value.ObjectContainerPath = path;
+                    }
+                }
+            }
+
+            // TODO: resource manager
+        }
     }
 }

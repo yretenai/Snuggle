@@ -72,7 +72,7 @@ namespace Equilibrium.Implementations {
             throw new NotImplementedException();
         }
 
-        public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Script, Name);
+        public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Script, Name, Data);
 
         public override string ToString() => string.IsNullOrEmpty(Name) ? base.ToString() : Name;
 

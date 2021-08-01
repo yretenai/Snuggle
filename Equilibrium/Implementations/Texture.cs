@@ -1,4 +1,5 @@
-﻿using Equilibrium.IO;
+﻿using System;
+using Equilibrium.IO;
 using Equilibrium.Meta;
 using Equilibrium.Models;
 using Equilibrium.Models.Objects.Graphics;
@@ -41,5 +42,7 @@ namespace Equilibrium.Implementations {
                 writer.Align();
             }
         }
+
+        public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), FallbackFormat);
     }
 }

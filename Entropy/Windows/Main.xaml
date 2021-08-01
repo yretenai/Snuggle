@@ -3,6 +3,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:entropy="clr-namespace:Entropy.Components"
+        xmlns:viewModels="clr-namespace:Entropy.ViewModels"
+        xmlns:dragablz="http://dragablz.net/winfx/xaml/dragablz"
         mc:Ignorable="d"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         TextElement.FontWeight="Regular"
@@ -11,14 +14,12 @@
         TextOptions.TextRenderingMode="Auto"
         Background="{DynamicResource MaterialDesignPaper}"
         FontFamily="{DynamicResource MaterialDesignFont}"
-        xmlns:entropy="clr-namespace:Entropy.Components"
-        xmlns:viewModels="clr-namespace:Entropy.ViewModels"
         DataContext="{x:Static Member=viewModels:EntropyCore.Instance}"
         Title="Equilibrium Entropy" Height="450" Width="800">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition MinWidth="300" />
-            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="5" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
@@ -27,9 +28,33 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <entropy:Navigation Grid.ColumnSpan="3" DataContext="{Binding}" />
-        <Grid Grid.Column="0" Grid.Row="1" />
-        <GridSplitter Grid.Column="1" Grid.Row="1" />
-        <entropy:View Grid.Column="2" Grid.Row="1" DataContext="{Binding}" />
+        <dragablz:TabablzControl Grid.Column="0" Grid.Row="1"
+                                 Style="{StaticResource MaterialDesignAlternateTabablzControlStyle}"
+                                 BorderBrush="Transparent">
+            <dragablz:TabablzControl.InterTabController>
+                <dragablz:InterTabController />
+            </dragablz:TabablzControl.InterTabController>
+            <TabItem Header="Scenes">
+                <!-- <entropy:Scenes></entropy:Scenes> -->
+            </TabItem>
+            <TabItem Header="Assets" IsSelected="True">
+                <entropy:Assets DataContext="{Binding}" />
+            </TabItem>
+        </dragablz:TabablzControl>
+        <GridSplitter Grid.Column="1" Grid.Row="1" HorizontalAlignment="Stretch" />
+        <dragablz:TabablzControl Grid.Column="2" Grid.Row="1"
+                                 Style="{StaticResource MaterialDesignAlternateTabablzControlStyle}"
+                                 BorderBrush="Transparent">
+            <dragablz:TabablzControl.InterTabController>
+                <dragablz:InterTabController />
+            </dragablz:TabablzControl.InterTabController>
+            <TabItem Header="Preview" IsSelected="True">
+                <entropy:Preview DataContext="{Binding}" />
+            </TabItem>
+            <TabItem Header="Dump">
+                <!-- <entropy:Dump></entropy:Dump> -->
+            </TabItem>
+        </dragablz:TabablzControl>
         <entropy:Status Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="2" DataContext="{Binding}" />
     </Grid>
 </Window>

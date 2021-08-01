@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Equilibrium.IO;
 using Equilibrium.Meta;
 using Equilibrium.Models;
@@ -54,5 +55,7 @@ namespace Equilibrium.Implementations {
                 assetBundleInfo.ToWriter(writer, SerializedFile, targetVersion);
             }
         }
+
+        public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), AssetBundleNames, AssetBundleInfos, AssetBundlesWithVariant);
     }
 }

@@ -187,5 +187,12 @@ namespace Equilibrium {
             stream = handler.OpenFile(tag);
             return true;
         }
+
+        public void FindAssetContainerNames() {
+            // TODO: ResourceManager
+            foreach (var file in Files.Values) {
+                file.FindAssetContainerNames(default);
+            }
+        }
     }
 }

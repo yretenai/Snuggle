@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:viewModel="clr-namespace:Entropy.ViewModels"
              mc:Ignorable="d"
              TextElement.Foreground="{DynamicResource MaterialDesignBody}"
@@ -29,6 +30,11 @@
                       ToolTip="This can significantly increase performance at a heavy memory cost" IsCheckable="True"
                       Checked="CacheDataChecked" Unchecked="CacheDataUnchecked" x:Name="CacheData" />
             <MenuItem Header="_Game" x:Name="UnityGameList" />
+        </MenuItem>
+        <MenuItem>
+            <MenuItem.Header>
+                <TextBox Grid.Column="1" KeyDown="Search" Width="300" materialDesign:HintAssist.Hint="Search" />
+            </MenuItem.Header>
         </MenuItem>
     </Menu>
 </UserControl>
