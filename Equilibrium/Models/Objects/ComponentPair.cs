@@ -66,19 +66,22 @@ namespace Equilibrium.Models.Objects {
                 return Memory<byte>.Empty;
             }
 
-            if (resourceStream.Length < Offset + Size) {
-                return Memory<byte>.Empty;
-            }
+            try {
+                if (resourceStream.Length < Offset + Size) {
+                    return Memory<byte>.Empty;
+                }
 
-            if (resourceStream.Length < Offset) {
-                return Memory<byte>.Empty;
-            }
+                if (resourceStream.Length < Offset) {
+                    return Memory<byte>.Empty;
+                }
 
-            resourceStream.Seek(Offset, SeekOrigin.Current);
-            Memory<byte> memory = new byte[Size];
-            resourceStream.Read(memory.Span);
-            resourceStream.Dispose();
-            return memory;
+                resourceStream.Seek(Offset, SeekOrigin.Current);
+                Memory<byte> memory = new byte[Size];
+                resourceStream.Read(memory.Span);
+                return memory;
+            } finally {
+                resourceStream.Dispose();
+            }
         }
     }
 }

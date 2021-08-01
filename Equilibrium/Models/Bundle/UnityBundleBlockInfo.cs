@@ -52,7 +52,7 @@ namespace Equilibrium.Models.Bundle {
             using var chunk = new MemoryStream();
             switch (blockCompressionType) {
                 case UnityCompressionType.None: {
-                    var pooled = ArrayPool<byte>.Shared.Rent(0x8000000);
+                    var pooled = Utils.BytePool.Rent(0x8000000);
                     try {
                         while (actualBlockSize > 0) {
                             var amount = blockStream.Read(pooled);
@@ -60,7 +60,7 @@ namespace Equilibrium.Models.Bundle {
                             chunk.Write(pooled.AsSpan()[..amount]);
                         }
                     } finally {
-                        ArrayPool<byte>.Shared.Return(pooled);
+                        Utils.BytePool.Return(pooled);
                     }
 
                     break;

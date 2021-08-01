@@ -41,6 +41,7 @@ namespace Equilibrium {
             Files.Clear();
             Resources.Clear();
 
+            Utils.ClearPool();
             GC.Collect();
         }
 
@@ -71,51 +72,55 @@ namespace Equilibrium {
         public void LoadBundle(string path, EquilibriumOptions? options, bool leaveOpen = false) => LoadBundle(File.OpenRead(path), path, FileStreamHandler.Instance.Value, options, leaveOpen);
 
         public void LoadBundleSequence(Stream dataStream, object tag, IFileHandler handler, EquilibriumOptions? options = null, int align = 1, bool leaveOpen = false) {
-            var bundles = Bundle.OpenBundleSequence(dataStream, tag, handler, align, options, leaveOpen);
-            foreach (var bundle in bundles) {
-                LoadBundle(bundle);
+            try {
+                var bundles = Bundle.OpenBundleSequence(dataStream, tag, handler, align, options, leaveOpen);
+                foreach (var bundle in bundles) {
+                    LoadBundle(bundle);
+                }
+            } finally {
+                if (!leaveOpen) {
+                    dataStream.Close();
+                }
             }
         }
 
         public void LoadBundleSequence(string path, EquilibriumOptions? options = null, int align = 1) => LoadBundleSequence(File.OpenRead(path), path, MultiStreamHandler.FileInstance.Value, options, align);
 
         public void LoadSerializedFile(Stream dataStream, object tag, IFileHandler handler, bool leaveOpen = false, UnityVersion? fallbackVersion = null, EquilibriumOptions? options = null) {
-            var path = tag switch {
-                UnityBundleBlock block => block.Path,
-                string str => Path.GetFileName(str),
-                _ => throw new InvalidOperationException(),
-            };
+            try {
+                var path = tag switch {
+                    UnityBundleBlock block => block.Path,
+                    string str => Path.GetFileName(str),
+                    _ => throw new InvalidOperationException(),
+                };
 
-            if (Files.ContainsKey(path)) {
+                if (Files.ContainsKey(path)) {
+                    return;
+                }
+
+                var file = new SerializedFile(dataStream, tag, handler, options ?? EquilibriumOptions.Default, true) { Assets = this, Name = path };
+                if (file.Version == UnityVersion.MinValue &&
+                    fallbackVersion != null &&
+                    fallbackVersion != UnityVersion.MinValue) {
+                    file.Version = fallbackVersion.Value;
+                }
+
+                foreach (var (pathId, objectInfo) in file.ObjectInfos) {
+                    try {
+                        options?.Reporter?.SetStatus($"Processing {pathId} ({objectInfo.ClassId:G})");
+                        file.Objects[pathId] = ObjectFactory.GetInstance(dataStream, objectInfo, file);
+                    } catch (Exception e) {
+                        Debug.WriteLine($"Failed to decode {pathId} (type {objectInfo.ClassId}) on file {file.Name}.");
+                        Debug.WriteLine(e);
+                        file.Objects[pathId] = ObjectFactory.GetInstance(dataStream, objectInfo, file, UnityClassId.Object);
+                    }
+                }
+
+                Files[path] = file;
+            } finally {
                 if (!leaveOpen) {
                     dataStream.Dispose();
                 }
-
-                return;
-            }
-
-            var file = new SerializedFile(dataStream, tag, handler, options ?? EquilibriumOptions.Default, true) { Assets = this, Name = path };
-            if (file.Version == UnityVersion.MinValue &&
-                fallbackVersion != null &&
-                fallbackVersion != UnityVersion.MinValue) {
-                file.Version = fallbackVersion.Value;
-            }
-
-            foreach (var (pathId, objectInfo) in file.ObjectInfos) {
-                try {
-                    options?.Reporter?.SetStatus($"Processing {pathId} ({objectInfo.ClassId:G})");
-                    file.Objects[pathId] = ObjectFactory.GetInstance(dataStream, objectInfo, file);
-                } catch (Exception e) {
-                    Debug.WriteLine($"Failed to decode {pathId} (type {objectInfo.ClassId}) on file {file.Name}.");
-                    Debug.WriteLine(e);
-                    file.Objects[pathId] = ObjectFactory.GetInstance(dataStream, objectInfo, file, UnityClassId.Object);
-                }
-            }
-
-            Files[path] = file;
-
-            if (!leaveOpen) {
-                dataStream.Dispose();
             }
         }
 
@@ -124,28 +129,37 @@ namespace Equilibrium {
         public void LoadFile(string path, EquilibriumOptions? options = null) => LoadFile(File.OpenRead(path), path, MultiStreamHandler.FileInstance.Value, options);
 
         private void LoadFile(Stream dataStream, object tag, IFileHandler handler, EquilibriumOptions? options = null, int align = 1, bool leaveOpen = false) {
-            if (SerializedFile.IsSerializedFile(dataStream)) {
-                LoadSerializedFile(dataStream, tag, handler, leaveOpen, null, options);
-            } else if (Bundle.IsBundleFile(dataStream)) {
-                LoadBundleSequence(dataStream, tag, handler, options, align, leaveOpen);
-            } else if (dataStream is FileStream fs &&
-                       IsAssembly(dataStream)) {
-                LoadAssembly(dataStream, Path.GetDirectoryName(fs.Name) ?? "./", options, leaveOpen);
-            } else {
-                if (tag is not string path) {
-                    throw new InvalidOperationException();
+            try {
+                if (SerializedFile.IsSerializedFile(dataStream)) {
+                    LoadSerializedFile(dataStream, tag, handler, leaveOpen, null, options);
+                } else if (Bundle.IsBundleFile(dataStream)) {
+                    LoadBundleSequence(dataStream, tag, handler, options, align, leaveOpen);
+                } else if (dataStream is FileStream fs &&
+                           IsAssembly(dataStream)) {
+                    LoadAssembly(dataStream, Path.GetDirectoryName(fs.Name) ?? "./", options, leaveOpen);
+                } else {
+                    if (tag is not string path) {
+                        throw new InvalidOperationException();
+                    }
+
+                    path = Path.GetFileName(path);
+                    var ext = Path.GetExtension(path)[1..].ToLower();
+                    switch (ext) {
+                        case "ress":
+                        case "resource":
+                            Resources[path] = (tag, handler);
+                            break;
+                        default:
+                            return;
+                    }
+                }
+            } finally {
+                if (!leaveOpen) {
+                    dataStream.Close();
                 }
 
-                path = Path.GetFileName(path);
-                var ext = Path.GetExtension(path)[1..].ToLower();
-                switch (ext) {
-                    case "ress":
-                    case "resource":
-                        Resources[path] = (tag, handler);
-                        break;
-                    default:
-                        return;
-                }
+                Utils.ClearPool();
+                GC.Collect();
             }
         }
 
@@ -157,8 +171,12 @@ namespace Equilibrium {
                 if (!leaveOpen) {
                     dataStream.Dispose();
                 }
-            } catch {
-                // LOG THIS
+            } catch (Exception e) {
+                Debug.WriteLine(e);
+            } finally {
+                if (!leaveOpen) {
+                    dataStream.Close();
+                }
             }
         }
 

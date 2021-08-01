@@ -16,25 +16,31 @@ namespace Equilibrium {
             this(File.OpenRead(path), path, FileStreamHandler.Instance.Value, options) { }
 
         public Bundle(Stream dataStream, object tag, IFileHandler fileHandler, EquilibriumOptions options, bool leaveOpen = false) {
-            using var reader = new BiEndianBinaryReader(dataStream, true, leaveOpen);
+            try {
+                using var reader = new BiEndianBinaryReader(dataStream, true, leaveOpen);
 
-            Options = options;
+                Options = options;
 
-            Header = UnityBundle.FromReader(reader, options);
-            Container = Header.Format switch {
-                UnityFormat.FS => UnityFS.FromReader(reader, Header, options),
-                UnityFormat.Archive => throw new NotImplementedException(),
-                UnityFormat.Web => UnityRaw.FromReader(reader, Header, options),
-                UnityFormat.Raw => UnityRaw.FromReader(reader, Header, options),
-                _ => throw new InvalidOperationException(),
-            };
+                Header = UnityBundle.FromReader(reader, options);
+                Container = Header.Format switch {
+                    UnityFormat.FS => UnityFS.FromReader(reader, Header, options),
+                    UnityFormat.Archive => throw new NotImplementedException(),
+                    UnityFormat.Web => UnityRaw.FromReader(reader, Header, options),
+                    UnityFormat.Raw => UnityRaw.FromReader(reader, Header, options),
+                    _ => throw new InvalidOperationException(),
+                };
 
-            DataStart = dataStream.Position;
-            Handler = fileHandler;
-            Tag = fileHandler.GetTag(tag, this);
+                DataStart = dataStream.Position;
+                Handler = fileHandler;
+                Tag = fileHandler.GetTag(tag, this);
 
-            if (Options.CacheData) {
-                CacheData(reader);
+                if (Options.CacheData) {
+                    CacheData(reader);
+                }
+            } finally {
+                if (!leaveOpen) {
+                    dataStream.Close();
+                }
             }
         }
 
@@ -93,12 +99,14 @@ namespace Equilibrium {
                 shouldDispose = true;
             }
 
-            reader.BaseStream.Seek(DataStart, SeekOrigin.Begin);
+            try {
+                reader.BaseStream.Seek(DataStart, SeekOrigin.Begin);
 
-            DataStream = Container.OpenFile(new UnityBundleBlock(0, Container.BlockInfos.Select(x => x.Size).Sum(), 0, ""), Options, reader);
-
-            if (shouldDispose) {
-                reader.Dispose();
+                DataStream = Container.OpenFile(new UnityBundleBlock(0, Container.BlockInfos.Select(x => x.Size).Sum(), 0, ""), Options, reader);
+            } finally {
+                if (shouldDispose) {
+                    reader.Dispose();
+                }
             }
         }
 

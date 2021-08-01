@@ -238,6 +238,10 @@ namespace Equilibrium.Implementations {
             }
 
             TextureData = reader.ReadMemory(reader.Unconsumed);
+
+            if (!leaveOpen) {
+                stream.Close();
+            }
         }
 
         public static Texture2D FromDDS(UnityObjectInfo info, SerializedFile file, Stream stream, bool leaveOpen = false) {
@@ -246,6 +250,10 @@ namespace Equilibrium.Implementations {
             };
 
             texture2D.ImportDDS(stream, leaveOpen);
+            if (!leaveOpen) {
+                stream.Close();
+            }
+
             return texture2D;
         }
 

@@ -14,30 +14,36 @@ namespace Equilibrium {
     [PublicAPI]
     public class SerializedFile : IRenewable {
         public SerializedFile(Stream dataStream, object tag, IFileHandler handler, EquilibriumOptions? options = null, bool leaveOpen = false) {
-            Tag = tag;
-            Handler = handler;
-            Options = options ?? EquilibriumOptions.Default;
+            try {
+                Tag = tag;
+                Handler = handler;
+                Options = options ?? EquilibriumOptions.Default;
 
-            using var reader = new BiEndianBinaryReader(dataStream, true, leaveOpen);
-            var header = UnitySerializedFile.FromReader(reader, Options);
-            Types = UnitySerializedType.ArrayFromReader(reader, header, Options);
-            ObjectInfos = UnityObjectInfo.ArrayFromReader(reader, ref header, Types, Options).ToDictionary(x => x.PathId);
-            ScriptInfos = UnityScriptInfo.ArrayFromReader(reader, header, Options);
-            ExternalInfos = UnityExternalInfo.ArrayFromReader(reader, header, Options);
-            if (header.Version < UnitySerializedFileVersion.RefObject) {
-                ReferenceTypes = UnitySerializedType.ArrayFromReader(reader, header, Options, true);
+                using var reader = new BiEndianBinaryReader(dataStream, true, leaveOpen);
+                var header = UnitySerializedFile.FromReader(reader, Options);
+                Types = UnitySerializedType.ArrayFromReader(reader, header, Options);
+                ObjectInfos = UnityObjectInfo.ArrayFromReader(reader, ref header, Types, Options).ToDictionary(x => x.PathId);
+                ScriptInfos = UnityScriptInfo.ArrayFromReader(reader, header, Options);
+                ExternalInfos = UnityExternalInfo.ArrayFromReader(reader, header, Options);
+                if (header.Version < UnitySerializedFileVersion.RefObject) {
+                    ReferenceTypes = UnitySerializedType.ArrayFromReader(reader, header, Options, true);
+                }
+
+                if (header.Version >= UnitySerializedFileVersion.UserInformation) {
+                    UserInformation = reader.ReadNullString();
+                }
+
+                Header = header;
+
+                Version = UnityVersion.Parse(header.UnityVersion);
+
+                Objects = new Dictionary<long, SerializedObject>();
+                Objects.EnsureCapacity(ObjectInfos.Count);
+            } finally {
+                if (!leaveOpen) {
+                    dataStream.Close();
+                }
             }
-
-            if (header.Version >= UnitySerializedFileVersion.UserInformation) {
-                UserInformation = reader.ReadNullString();
-            }
-
-            Header = header;
-
-            Version = UnityVersion.Parse(header.UnityVersion);
-
-            Objects = new Dictionary<long, SerializedObject>();
-            Objects.EnsureCapacity(ObjectInfos.Count);
         }
 
         public EquilibriumOptions Options { get; init; }

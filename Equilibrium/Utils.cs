@@ -29,6 +29,16 @@ namespace Equilibrium {
             false,
         };
 
+        static Utils() {
+            BytePool = ArrayPool<byte>.Create();
+        }
+
+        internal static void ClearPool() {
+            BytePool = ArrayPool<byte>.Create();
+        }
+
+        internal static ArrayPool<byte> BytePool { get; private set; }
+
         internal static Stream DecodeLZMA(Stream inStream, int compressedSize, int size, Stream? outStream = null) {
             outStream ??= new MemoryStream(size) { Position = 0 };
             var coder = new Decoder();
@@ -48,36 +58,36 @@ namespace Equilibrium {
 
         public static Stream DecompressLZ4(Stream inStream, int compressedSize, int size, Stream? outStream = null) {
             outStream ??= new MemoryStream(size) { Position = 0 };
-            var inPool = ArrayPool<byte>.Shared.Rent(compressedSize);
+            var inPool = Utils.BytePool.Rent(compressedSize);
             try {
-                var outPool = ArrayPool<byte>.Shared.Rent(size);
+                var outPool = Utils.BytePool.Rent(size);
                 try {
                     inStream.Read(inPool.AsSpan()[..compressedSize]);
                     var amount = LZ4Codec.Decode(inPool.AsSpan()[..compressedSize], outPool);
                     outStream.Write(outPool.AsSpan()[..amount]);
                 } finally {
-                    ArrayPool<byte>.Shared.Return(outPool);
+                    Utils.BytePool.Return(outPool);
                 }
             } finally {
-                ArrayPool<byte>.Shared.Return(inPool);
+                Utils.BytePool.Return(inPool);
             }
 
             return outStream;
         }
 
         public static void CompressLZ4(Stream inStream, Stream outStream, LZ4Level level, int size) {
-            var inPool = ArrayPool<byte>.Shared.Rent(size);
+            var inPool = Utils.BytePool.Rent(size);
             try {
-                var outPool = ArrayPool<byte>.Shared.Rent(size);
+                var outPool = Utils.BytePool.Rent(size);
                 try {
                     inStream.Read(inPool.AsSpan()[..size]);
                     var amount = LZ4Codec.Encode(inPool.AsSpan()[..size], outPool, level);
                     outStream.Write(outPool.AsSpan()[..amount]);
                 } finally {
-                    ArrayPool<byte>.Shared.Return(outPool);
+                    Utils.BytePool.Return(outPool);
                 }
             } finally {
-                ArrayPool<byte>.Shared.Return(inPool);
+                Utils.BytePool.Return(inPool);
             }
         }
     }

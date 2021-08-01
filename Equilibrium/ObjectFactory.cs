@@ -91,7 +91,7 @@ namespace Equilibrium {
                     throw new NullReferenceException();
                 }
 
-                using var reader = new BiEndianBinaryReader(serializedFile.OpenFile(info, stream), serializedFile.Header.IsBigEndian, true);
+                using var reader = new BiEndianBinaryReader(serializedFile.OpenFile(info, stream, true), serializedFile.Header.IsBigEndian);
                 var instance = Activator.CreateInstance(type, reader, info, serializedFile);
                 if (instance is not SerializedObject serializedObject) {
                     throw new InvalidOperationException();

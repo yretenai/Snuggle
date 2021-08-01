@@ -19,7 +19,7 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <Label Content="{Binding Status.Message, Mode=OneWay}" />
+        <TextBlock Text="{Binding Status.Message, Mode=OneWay}" />
         <ProgressBar Grid.Row="1" Value="{Binding Status.Percent, Mode=OneWay}"
                      IsIndeterminate="{Binding Status.InvalidValue, Mode=OneWay}" />
     </Grid>
