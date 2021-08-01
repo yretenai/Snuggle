@@ -35,15 +35,15 @@ namespace Equilibrium.Implementations {
         public string AssemblyName { get; set; }
         public bool IsEditor { get; set; }
 
-        public override void Serialize(BiEndianBinaryWriter writer, string fileName, UnityVersion targetVersion, FileSerializationOptions options) {
-            base.Serialize(writer, fileName, targetVersion, options);
+        public override void Serialize(BiEndianBinaryWriter writer, AssetSerializationOptions options) {
+            base.Serialize(writer, options);
             writer.Write(ExecutionOrder);
             writer.Write(Hash);
             writer.WriteString32(ClassName);
             writer.WriteString32(Namespace);
             writer.WriteString32(AssemblyName);
 
-            if (targetVersion < UnityVersionRegister.Unity2018_2) {
+            if (options.TargetVersion < UnityVersionRegister.Unity2018_2) {
                 writer.Write(IsEditor);
             }
         }

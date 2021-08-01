@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using Equilibrium.Implementations;
@@ -25,17 +26,17 @@ namespace Equilibrium {
                 ObjectInfos = UnityObjectInfo.ArrayFromReader(reader, ref header, Types, Options).ToDictionary(x => x.PathId);
                 ScriptInfos = UnityScriptInfo.ArrayFromReader(reader, header, Options);
                 ExternalInfos = UnityExternalInfo.ArrayFromReader(reader, header, Options);
-                if (header.Version < UnitySerializedFileVersion.RefObject) {
+                if (header.FileVersion < UnitySerializedFileVersion.RefObject) {
                     ReferenceTypes = UnitySerializedType.ArrayFromReader(reader, header, Options, true);
                 }
 
-                if (header.Version >= UnitySerializedFileVersion.UserInformation) {
+                if (header.FileVersion >= UnitySerializedFileVersion.UserInformation) {
                     UserInformation = reader.ReadNullString();
                 }
 
                 Header = header;
 
-                Version = UnityVersion.Parse(header.UnityVersion);
+                Version = UnityVersion.Parse(header.EngineVersion);
 
                 Objects = new Dictionary<long, SerializedObject>();
                 Objects.EnsureCapacity(ObjectInfos.Count);
@@ -69,7 +70,34 @@ namespace Equilibrium {
 
         public Stream OpenFile(UnityObjectInfo info, Stream stream, bool leaveOpen = false) => new OffsetStream(stream, info.Offset + Header.Offset, info.Size, leaveOpen);
 
-        public Stream ToStream(FileSerializationOptions options) => throw new NotImplementedException();
+        public bool ToStream(FileSerializationOptions serializationOptions, [MaybeNullWhen(false)] out Stream? bundleStream, [MaybeNullWhen(false)] out Stream? resourceStream) {
+            bundleStream = null;
+            resourceStream = null;
+
+            var (alignment, resourceDataThreshold, targetVersion, targetGame, targetFileVersion, isBundle, resourceSuffix) = serializationOptions;
+
+            if (targetVersion < UnityVersionRegister.Unity5) {
+                targetVersion = Header.Version ?? UnityVersionRegister.Unity5;
+            }
+
+            if (targetFileVersion < UnitySerializedFileVersion.InitialVersion) {
+                targetFileVersion = Header.FileVersion;
+            }
+
+            var prefix = isBundle ? $"archive:/{Name}/" : "";
+
+            var options = new AssetSerializationOptions(
+                alignment,
+                resourceDataThreshold,
+                targetVersion,
+                targetGame,
+                targetFileVersion,
+                prefix + Name,
+                prefix + Name + resourceSuffix);
+
+            // TODO.
+            return false;
+        }
 
         public static bool IsSerializedFile(Stream stream) {
             using var reader = new BiEndianBinaryReader(stream, true, true);

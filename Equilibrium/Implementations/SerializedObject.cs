@@ -65,7 +65,7 @@ namespace Equilibrium.Implementations {
             Deserialize(reader, options);
         }
 
-        public virtual void Serialize(BiEndianBinaryWriter writer, string fileName, UnityVersion targetVersion, FileSerializationOptions options) {
+        public virtual void Serialize(BiEndianBinaryWriter writer, AssetSerializationOptions options) {
             IsMutated = false;
         }
 

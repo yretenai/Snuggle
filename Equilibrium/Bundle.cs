@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using Equilibrium.Interfaces;
@@ -134,13 +135,22 @@ namespace Equilibrium {
             return data;
         }
 
-        public Stream ToStream(UnityBundleBlock[] blocks, Stream dataStream, BundleSerializationOptions? serializationOptions) {
-            var stream = new MemoryStream();
-            using var writer = new BiEndianBinaryWriter(stream, true, true);
-            Header.ToWriter(writer, Options);
-            Container.ToWriter(writer, Header, Options, blocks, dataStream, serializationOptions ?? BundleSerializationOptions.Default);
-            stream.Seek(0, SeekOrigin.Begin);
-            return stream;
+        public bool ToStream(UnityBundleBlock[] blocks, Stream dataStream, BundleSerializationOptions serializationOptions, [MaybeNullWhen(false)] out Stream? bundleStream) {
+            try {
+                bundleStream = new MemoryStream();
+                using var writer = new BiEndianBinaryWriter(bundleStream, true, true);
+                Header.ToWriter(writer, Options);
+                if (serializationOptions.TargetVersion < 0) {
+                    serializationOptions = serializationOptions with { TargetVersion = Header.FormatVersion };
+                }
+
+                Container.ToWriter(writer, Header, Options, blocks, dataStream, serializationOptions);
+                bundleStream.Seek(0, SeekOrigin.Begin);
+                return true;
+            } catch {
+                bundleStream = null;
+                return false;
+            }
         }
 
         public static bool IsBundleFile(Stream stream) {

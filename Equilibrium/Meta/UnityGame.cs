@@ -7,5 +7,6 @@ namespace Equilibrium.Meta {
     [PublicAPI]
     public enum UnityGame {
         Default,
+        PokemonUnite,
     }
 }

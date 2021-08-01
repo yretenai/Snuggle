@@ -15,13 +15,13 @@ namespace Equilibrium.Models.Serialization {
 
         public static UnityExternalInfo FromReader(BiEndianBinaryReader reader, UnitySerializedFile header, EquilibriumOptions options) {
             var path = string.Empty;
-            if (header.Version >= UnitySerializedFileVersion.ExternalExtraPath) {
+            if (header.FileVersion >= UnitySerializedFileVersion.ExternalExtraPath) {
                 path = reader.ReadNullString();
             }
 
             var guid = Guid.Empty;
             var type = 0;
-            if (header.Version >= UnitySerializedFileVersion.ExternalGuid) {
+            if (header.FileVersion >= UnitySerializedFileVersion.ExternalGuid) {
                 guid = new Guid(reader.ReadBytes(16));
                 type = reader.ReadInt32();
             }

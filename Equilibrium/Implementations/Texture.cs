@@ -29,13 +29,13 @@ namespace Equilibrium.Implementations {
         public bool DownscaleFallback { get; set; }
         public bool AlphaOptional { get; set; }
 
-        public override void Serialize(BiEndianBinaryWriter writer, string fileName, UnityVersion targetVersion, FileSerializationOptions options) {
-            base.Serialize(writer, fileName, targetVersion, options);
-            if (targetVersion >= UnityVersionRegister.Unity2017_3) {
+        public override void Serialize(BiEndianBinaryWriter writer, AssetSerializationOptions options) {
+            base.Serialize(writer, options);
+            if (options.TargetVersion >= UnityVersionRegister.Unity2017_3) {
                 writer.Write((int) FallbackFormat);
                 writer.Write(DownscaleFallback);
 
-                if (targetVersion >= UnityVersionRegister.Unity2020_2) {
+                if (options.TargetVersion >= UnityVersionRegister.Unity2020_2) {
                     writer.Write(AlphaOptional);
                 }
 

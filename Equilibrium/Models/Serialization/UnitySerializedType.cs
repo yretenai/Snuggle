@@ -21,23 +21,23 @@ namespace Equilibrium.Models.Serialization {
             var classId = reader.ReadInt32();
             var classIdEx = ObjectFactory.GetClassIdForGame(options.Game, classId);
             var isStrippedType = false;
-            if (header.Version >= UnitySerializedFileVersion.StrippedType) {
+            if (header.FileVersion >= UnitySerializedFileVersion.StrippedType) {
                 isStrippedType = reader.ReadBoolean();
             }
 
             short typeIndex = -1;
-            if (header.Version >= UnitySerializedFileVersion.NewTypeData) {
+            if (header.FileVersion >= UnitySerializedFileVersion.NewTypeData) {
                 typeIndex = reader.ReadInt16();
             }
 
             var hash = Array.Empty<byte>();
             var scriptId = Array.Empty<byte>();
 
-            if (header.Version >= UnitySerializedFileVersion.TypeTreeHash) {
+            if (header.FileVersion >= UnitySerializedFileVersion.TypeTreeHash) {
                 if (isRef && typeIndex >= 0) {
                     scriptId = reader.ReadBytes(16);
                 } else {
-                    switch (header.Version) {
+                    switch (header.FileVersion) {
                         case < UnitySerializedFileVersion.NewClassId when classId < (int) UnityClassId.Object:
                         case >= UnitySerializedFileVersion.NewClassId when classId == (int) UnityClassId.MonoBehaviour:
                             scriptId = reader.ReadBytes(16);
@@ -56,7 +56,7 @@ namespace Equilibrium.Models.Serialization {
             if (header.TypeTreeEnabled) {
                 typeTree = UnityTypeTree.FromReader(reader, header, options);
 
-                if (header.Version >= UnitySerializedFileVersion.TypeDependencies) {
+                if (header.FileVersion >= UnitySerializedFileVersion.TypeDependencies) {
                     if (isRef) {
                         className = reader.ReadNullString();
                         nameSpace = reader.ReadNullString();

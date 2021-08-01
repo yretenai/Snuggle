@@ -52,17 +52,17 @@ namespace Equilibrium.Implementations {
             Components = components;
         }
 
-        public override void Serialize(BiEndianBinaryWriter writer, string fileName, UnityVersion targetVersion, FileSerializationOptions options) {
-            base.Serialize(writer, fileName, targetVersion, options);
+        public override void Serialize(BiEndianBinaryWriter writer, AssetSerializationOptions options) {
+            base.Serialize(writer, options);
             writer.Write(Components.Count);
-            if (targetVersion < UnityVersionRegister.Unity5_5) {
+            if (options.TargetVersion < UnityVersionRegister.Unity5_5) {
                 foreach (var (classId, ptr) in Components) {
                     writer.Write((int) classId);
-                    ptr.ToWriter(writer, SerializedFile, targetVersion);
+                    ptr.ToWriter(writer, SerializedFile, options.TargetVersion);
                 }
             } else {
                 foreach (var (_, ptr) in Components) {
-                    ptr.ToWriter(writer, SerializedFile, targetVersion);
+                    ptr.ToWriter(writer, SerializedFile, options.TargetVersion);
                 }
             }
 

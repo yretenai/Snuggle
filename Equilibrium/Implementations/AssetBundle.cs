@@ -89,22 +89,22 @@ namespace Equilibrium.Implementations {
         public int PathFlags { get; set; }
         public Dictionary<string, string> SceneHashes { get; set; }
 
-        public override void Serialize(BiEndianBinaryWriter writer, string fileName, UnityVersion targetVersion, FileSerializationOptions options) {
-            base.Serialize(writer, fileName, targetVersion, options);
+        public override void Serialize(BiEndianBinaryWriter writer, AssetSerializationOptions options) {
+            base.Serialize(writer, options);
 
             writer.Write(PreloadTable.Count);
             foreach (var ptr in PreloadTable) {
-                ptr.ToWriter(writer, SerializedFile, targetVersion);
+                ptr.ToWriter(writer, SerializedFile, options.TargetVersion);
             }
 
             writer.Write(Container.Count);
             foreach (var (name, info) in Container) {
                 writer.WriteString32(name);
-                info.ToWriter(writer, SerializedFile, targetVersion);
+                info.ToWriter(writer, SerializedFile, options.TargetVersion);
             }
 
-            if (targetVersion >= UnityVersionRegister.Unity5_4 &&
-                targetVersion < UnityVersionRegister.Unity5_5) {
+            if (options.TargetVersion >= UnityVersionRegister.Unity5_4 &&
+                options.TargetVersion < UnityVersionRegister.Unity5_5) {
                 writer.Write(ClassInfos.Count);
                 foreach (var (id, flags) in ClassInfos) {
                     writer.Write(id);
@@ -114,7 +114,7 @@ namespace Equilibrium.Implementations {
                 ClassInfos = new Dictionary<int, uint>(0);
             }
 
-            MainAsset.ToWriter(writer, SerializedFile, targetVersion);
+            MainAsset.ToWriter(writer, SerializedFile, options.TargetVersion);
             writer.Write(RuntimeCompatibility);
             writer.WriteString32(AssetBundleName);
 
@@ -126,15 +126,15 @@ namespace Equilibrium.Implementations {
             writer.Write(IsStreamedSceneAssetBundle);
             writer.Align();
 
-            if (targetVersion > UnityVersionRegister.Unity2017_3) {
+            if (options.TargetVersion > UnityVersionRegister.Unity2017_3) {
                 writer.Write(ExplicitDataLayout);
             }
 
-            if (targetVersion > UnityVersionRegister.Unity2017_1) {
+            if (options.TargetVersion > UnityVersionRegister.Unity2017_1) {
                 writer.Write(PathFlags);
             }
 
-            if (targetVersion > UnityVersionRegister.Unity2017_3) {
+            if (options.TargetVersion > UnityVersionRegister.Unity2017_3) {
                 writer.Write(SceneHashes.Count);
                 foreach (var (scene, hash) in SceneHashes) {
                     writer.WriteString32(scene);

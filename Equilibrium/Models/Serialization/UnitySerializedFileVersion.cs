@@ -3,6 +3,7 @@
 namespace Equilibrium.Models.Serialization {
     [PublicAPI]
     public enum UnitySerializedFileVersion : uint {
+        Invalid = 0,
         InitialVersion = 1,
         VariableCount = 2,
         VariableCountRemoved = 3,

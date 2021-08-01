@@ -108,64 +108,64 @@ namespace Equilibrium.Implementations {
         [JsonIgnore]
         public override bool ShouldDeserialize => base.ShouldDeserialize || TextureData.IsEmpty;
 
-        public void Serialize(BiEndianBinaryWriter writer, string fileName, BiEndianBinaryWriter resourceStream, string resourceName, UnityVersion targetVersion, FileSerializationOptions options) {
-            base.Serialize(writer, fileName, targetVersion, options);
+        public void Serialize(BiEndianBinaryWriter writer, BiEndianBinaryWriter resourceStream, AssetSerializationOptions options) {
+            base.Serialize(writer, options);
             writer.Write(Width);
             writer.Write(Height);
             writer.Write(TextureData.Length);
 
-            if (targetVersion >= UnityVersionRegister.Unity2020_1) {
+            if (options.TargetVersion >= UnityVersionRegister.Unity2020_1) {
                 writer.Write(IsStrippedMips);
                 writer.Write(IsStrippedMips);
                 writer.Align();
             }
 
             writer.Write((int) TextureFormat);
-            if (targetVersion <= UnityVersionRegister.Unity5_2) {
+            if (options.TargetVersion <= UnityVersionRegister.Unity5_2) {
                 writer.Write(MipCount > 1);
             } else {
                 writer.Write(MipCount);
             }
 
             writer.Write(IsReadable);
-            if (targetVersion >= UnityVersionRegister.Unity2020_1) {
+            if (options.TargetVersion >= UnityVersionRegister.Unity2020_1) {
                 writer.Write(IsPreProcessed);
             }
 
-            if (targetVersion >= UnityVersionRegister.Unity2019_3) {
+            if (options.TargetVersion >= UnityVersionRegister.Unity2019_3) {
                 writer.Write(IgnoreTextureLimit);
             }
 
-            if (targetVersion <= UnityVersionRegister.Unity5_4) {
+            if (options.TargetVersion <= UnityVersionRegister.Unity5_4) {
                 writer.Write(IsReadAllowed);
             }
 
-            if (targetVersion >= UnityVersionRegister.Unity2018_2) {
+            if (options.TargetVersion >= UnityVersionRegister.Unity2018_2) {
                 writer.Write(IsStreaming);
             }
 
             writer.Align();
 
-            if (targetVersion >= UnityVersionRegister.Unity2018_2) {
+            if (options.TargetVersion >= UnityVersionRegister.Unity2018_2) {
                 writer.Write(StreamingPriority);
             }
 
             writer.Write(TextureCount);
             writer.Write((int) TextureDimension);
-            TextureSettings.ToWriter(writer, SerializedFile, targetVersion);
+            TextureSettings.ToWriter(writer, SerializedFile, options.TargetVersion);
             writer.Write((int) LightmapFormat);
             writer.Write((int) ColorSpace);
-            if (targetVersion >= UnityVersionRegister.Unity2020_2) {
+            if (options.TargetVersion >= UnityVersionRegister.Unity2020_2) {
                 writer.WriteMemory(PlatformData);
             }
 
             if (TextureData.Length > options.ResourceDataThreshold) {
                 writer.Write(0);
-                new StreamingInfo(resourceStream.BaseStream.Position, TextureData.Length, resourceName).ToWriter(writer, SerializedFile, targetVersion);
+                new StreamingInfo(resourceStream.BaseStream.Position, TextureData.Length, options.ResourceFileName).ToWriter(writer, SerializedFile, options.TargetVersion);
                 resourceStream.WriteMemory(TextureData);
                 resourceStream.Align(options.Alignment);
             } else {
-                new StreamingInfo(writer.BaseStream.Position, TextureData.Length, fileName).ToWriter(writer, SerializedFile, targetVersion);
+                new StreamingInfo(writer.BaseStream.Position, TextureData.Length, options.FileName).ToWriter(writer, SerializedFile, options.TargetVersion);
                 writer.WriteMemory(TextureData);
             }
         }

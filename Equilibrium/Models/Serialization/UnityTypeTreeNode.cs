@@ -34,7 +34,7 @@ namespace Equilibrium.Models.Serialization {
             var index = reader.ReadInt32();
             var flags = (UnityTypeTreeFlags) reader.ReadUInt32();
             var typeHash = 0ul;
-            if (header.Version >= UnitySerializedFileVersion.RefObject) {
+            if (header.FileVersion >= UnitySerializedFileVersion.RefObject) {
                 typeHash = reader.ReadUInt64();
             }
 
@@ -46,19 +46,19 @@ namespace Equilibrium.Models.Serialization {
             var name = reader.ReadNullString();
             var size = reader.ReadInt32();
             var variableCount = 0;
-            if (header.Version == UnitySerializedFileVersion.VariableCount) {
+            if (header.FileVersion == UnitySerializedFileVersion.VariableCount) {
                 variableCount = reader.ReadInt32();
             }
 
             var index = 0;
-            if (header.Version >= UnitySerializedFileVersion.TypeTreeIndex) {
+            if (header.FileVersion >= UnitySerializedFileVersion.TypeTreeIndex) {
                 index = reader.ReadInt32();
             }
 
             var flags = (UnityTypeArrayKind) reader.ReadInt32();
             var version = reader.ReadInt32();
             var metaFlags = (UnityTypeTreeFlags) 0;
-            if (header.Version >= UnitySerializedFileVersion.TypeTreeMeta) {
+            if (header.FileVersion >= UnitySerializedFileVersion.TypeTreeMeta) {
                 metaFlags = (UnityTypeTreeFlags) reader.ReadInt32();
             }
 

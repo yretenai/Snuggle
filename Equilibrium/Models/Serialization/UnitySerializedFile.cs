@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using Equilibrium.IO;
+using Equilibrium.Meta;
 using Equilibrium.Options;
 using JetBrains.Annotations;
 
@@ -8,14 +9,16 @@ namespace Equilibrium.Models.Serialization {
     public record UnitySerializedFile (
         int HeaderSize,
         long Size,
-        UnitySerializedFileVersion Version,
+        UnitySerializedFileVersion FileVersion,
         long Offset,
         bool IsBigEndian,
         ulong LargeAddressableFlags,
-        string UnityVersion,
+        string EngineVersion,
         UnityPlatform Platform,
         bool TypeTreeEnabled,
         bool BigIdEnabled) {
+        public UnityVersion? Version { get; } = UnityVersion.ParseSafe(EngineVersion);
+
         public static UnitySerializedFile FromReader(BiEndianBinaryReader reader, EquilibriumOptions options) {
             var headerSize = reader.ReadInt32();
             long size = reader.ReadInt32();
@@ -39,9 +42,9 @@ namespace Equilibrium.Models.Serialization {
 
             reader.IsBigEndian = isBigEndian;
 
-            var unityVersion = string.Empty;
+            var engineVersion = string.Empty;
             if (version >= UnitySerializedFileVersion.UnityVersion) {
-                unityVersion = reader.ReadNullString();
+                engineVersion = reader.ReadNullString();
             }
 
             var targetPlatform = UnityPlatform.Unknown;
@@ -54,7 +57,7 @@ namespace Equilibrium.Models.Serialization {
                 typeTreeEnabled = reader.ReadBoolean();
             }
 
-            return new UnitySerializedFile(headerSize, size, version, offset, isBigEndian, laf, unityVersion, targetPlatform, typeTreeEnabled, version >= UnitySerializedFileVersion.BigIdAlwaysEnabled);
+            return new UnitySerializedFile(headerSize, size, version, offset, isBigEndian, laf, engineVersion, targetPlatform, typeTreeEnabled, version >= UnitySerializedFileVersion.BigIdAlwaysEnabled);
         }
     }
 }

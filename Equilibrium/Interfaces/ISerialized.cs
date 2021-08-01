@@ -1,5 +1,4 @@
 ﻿using Equilibrium.IO;
-using Equilibrium.Meta;
 using Equilibrium.Options;
 using JetBrains.Annotations;
 
@@ -8,7 +7,7 @@ namespace Equilibrium.Interfaces {
     public interface ISerialized {
         public void Deserialize(BiEndianBinaryReader reader, ObjectDeserializationOptions options);
         public void Deserialize(ObjectDeserializationOptions options);
-        public void Serialize(BiEndianBinaryWriter writer, string fileName, UnityVersion targetVersion, FileSerializationOptions options);
+        public void Serialize(BiEndianBinaryWriter writer, AssetSerializationOptions options);
         public void Free();
     }
 }

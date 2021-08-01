@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Buffers;
 using System.IO;
 using System.Runtime.InteropServices;
 using Equilibrium.IO;
@@ -46,7 +45,7 @@ namespace Equilibrium.Models.Bundle {
         }
 
         public static void ToWriter(BiEndianBinaryWriter writer, UnityBundle header, EquilibriumOptions options, BundleSerializationOptions serializationOptions, Stream blockDataStream, Stream blockStream) {
-            var (blockSize, _, blockCompressionType) = serializationOptions;
+            var (blockSize, _, blockCompressionType, _, _) = serializationOptions;
             var actualBlockSize = (int) Math.Min(blockStream.Length - blockStream.Position, blockSize);
             writer.Write(actualBlockSize);
             using var chunk = new MemoryStream();

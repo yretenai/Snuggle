@@ -9,7 +9,7 @@ namespace Equilibrium.Models.Serialization {
         int Index,
         long PathId) {
         public static UnityScriptInfo FromReader(BiEndianBinaryReader reader, UnitySerializedFile header, EquilibriumOptions options) {
-            if (header.Version >= UnitySerializedFileVersion.BigIdAlwaysEnabled) {
+            if (header.FileVersion >= UnitySerializedFileVersion.BigIdAlwaysEnabled) {
                 reader.Align();
             }
 
@@ -19,7 +19,7 @@ namespace Equilibrium.Models.Serialization {
         }
 
         public static UnityScriptInfo[] ArrayFromReader(BiEndianBinaryReader reader, UnitySerializedFile header, EquilibriumOptions options) {
-            if (header.Version <= UnitySerializedFileVersion.ScriptTypeIndex) {
+            if (header.FileVersion <= UnitySerializedFileVersion.ScriptTypeIndex) {
                 return Array.Empty<UnityScriptInfo>();
             }
 

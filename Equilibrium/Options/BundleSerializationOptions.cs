@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using Equilibrium.Meta;
 using Equilibrium.Models.Bundle;
 using JetBrains.Annotations;
 
@@ -7,10 +8,12 @@ namespace Equilibrium.Options {
     public record BundleSerializationOptions(
         int BlockSize,
         UnityCompressionType CompressionType,
-        UnityCompressionType BlockCompressionType) {
-        public static BundleSerializationOptions LZMA { get; } = new(int.MaxValue, UnityCompressionType.None, UnityCompressionType.LZMA);
-        public static BundleSerializationOptions LZ4 { get; } = new(0x20000, UnityCompressionType.None, UnityCompressionType.LZ4);
-        public static BundleSerializationOptions Default { get; } = new(int.MaxValue, UnityCompressionType.None, UnityCompressionType.None);
+        UnityCompressionType BlockCompressionType,
+        int TargetVersion,
+        UnityGame TargetGame) {
+        public static BundleSerializationOptions LZMA { get; } = new(int.MaxValue, UnityCompressionType.None, UnityCompressionType.LZMA, -1, UnityGame.Default);
+        public static BundleSerializationOptions LZ4 { get; } = new(0x20000, UnityCompressionType.None, UnityCompressionType.LZ4, -1, UnityGame.Default);
+        public static BundleSerializationOptions Default { get; } = new(int.MaxValue, UnityCompressionType.None, UnityCompressionType.None, -1, UnityGame.Default);
 
         public static BundleSerializationOptions FromJson(string json) {
             try {
