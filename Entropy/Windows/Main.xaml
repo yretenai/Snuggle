@@ -15,10 +15,10 @@
         Background="{DynamicResource MaterialDesignPaper}"
         FontFamily="{DynamicResource MaterialDesignFont}"
         DataContext="{x:Static Member=viewModels:EntropyCore.Instance}"
-        Title="Equilibrium Entropy" Height="450" Width="800">
+        Title="Equilibrium Entropy" Height="450" Width="1200">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition MinWidth="300" />
+            <ColumnDefinition MinWidth="500" Width="500" />
             <ColumnDefinition Width="5" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
@@ -29,8 +29,7 @@
         </Grid.RowDefinitions>
         <entropy:Navigation Grid.ColumnSpan="3" DataContext="{Binding}" />
         <dragablz:TabablzControl Grid.Column="0" Grid.Row="1"
-                                 Style="{StaticResource MaterialDesignAlternateTabablzControlStyle}"
-                                 BorderBrush="Transparent">
+                                 Style="{StaticResource MaterialDesignAlternateTabablzControlStyle}">
             <dragablz:TabablzControl.InterTabController>
                 <dragablz:InterTabController />
             </dragablz:TabablzControl.InterTabController>
@@ -43,16 +42,15 @@
         </dragablz:TabablzControl>
         <GridSplitter Grid.Column="1" Grid.Row="1" HorizontalAlignment="Stretch" />
         <dragablz:TabablzControl Grid.Column="2" Grid.Row="1"
-                                 Style="{StaticResource MaterialDesignAlternateTabablzControlStyle}"
-                                 BorderBrush="Transparent">
+                                 Style="{StaticResource MaterialDesignAlternateTabablzControlStyle}">
             <dragablz:TabablzControl.InterTabController>
                 <dragablz:InterTabController />
             </dragablz:TabablzControl.InterTabController>
             <TabItem Header="Preview" IsSelected="True">
                 <entropy:Preview DataContext="{Binding}" />
             </TabItem>
-            <TabItem Header="Dump">
-                <!-- <entropy:Dump></entropy:Dump> -->
+            <TabItem Header="Data">
+                <entropy:DataView DataContext="{Binding SelectedObject}" />
             </TabItem>
         </dragablz:TabablzControl>
         <entropy:Status Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="2" DataContext="{Binding}" />

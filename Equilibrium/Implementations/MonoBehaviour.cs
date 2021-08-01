@@ -6,6 +6,7 @@ using Equilibrium.Models;
 using Equilibrium.Models.Serialization;
 using Equilibrium.Options;
 using JetBrains.Annotations;
+using Newtonsoft.Json;
 
 namespace Equilibrium.Implementations {
     [PublicAPI, UsedImplicitly, ObjectImplementation(UnityClassId.MonoBehaviour)]
@@ -24,8 +25,13 @@ namespace Equilibrium.Implementations {
         public PPtr<MonoScript> Script { get; set; }
         public string Name { get; set; }
         public object? Data { get; set; }
+
+        [JsonIgnore]
         public ObjectNode? ObjectData { get; set; }
+
         private long DataStart { get; set; }
+
+        [JsonIgnore]
         public override bool ShouldDeserialize => base.ShouldDeserialize || Data == null && !Script.IsNull;
 
         public override void Deserialize(BiEndianBinaryReader reader, ObjectDeserializationOptions options) {

@@ -38,6 +38,7 @@ namespace Equilibrium.Models.Bundle {
             foreach (var (size, compressedSize, unityBundleBlockFlags) in BlockInfos) {
                 if (streamOffset + size < block.Offset) {
                     reader.BaseStream.Seek(compressedSize, SeekOrigin.Current);
+                    streamOffset += size;
                     continue;
                 }
 

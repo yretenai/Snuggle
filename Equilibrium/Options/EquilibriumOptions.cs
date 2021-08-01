@@ -14,15 +14,14 @@ namespace Equilibrium.Options {
 
         public static EquilibriumOptions Default { get; } = new(false, UnityGame.Default);
 
-        internal static JsonSerializerOptions JsonOptions { get; } = new() {
+        public static JsonSerializerOptions JsonOptions { get; } = new() {
             WriteIndented = true,
             DefaultIgnoreCondition = JsonIgnoreCondition.Never,
             AllowTrailingCommas = true,
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
             NumberHandling = JsonNumberHandling.AllowReadingFromString,
             Converters = {
-                new JsonStringEnumConverter(JsonNamingPolicy.CamelCase),
+                new JsonStringEnumConverter(),
             },
         };
 

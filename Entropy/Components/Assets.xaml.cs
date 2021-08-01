@@ -4,7 +4,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using Entropy.ViewModels;
-using Equilibrium.Implementations;
 
 namespace Entropy.Components {
     public partial class Assets {
@@ -70,15 +69,33 @@ namespace Entropy.Components {
             }
 
             dataView.Filter = o => {
-                if (o is not SerializedObject serializedObject) {
+                if (o is not EntropyObject entropyObject) {
                     return false;
                 }
 
-                return serializedObject.PathId.ToString().Contains(value, StringComparison.InvariantCultureIgnoreCase) ||
-                       serializedObject.ObjectComparableName.Contains(value, StringComparison.InvariantCultureIgnoreCase) ||
-                       serializedObject.ObjectContainerPath.Contains(value, StringComparison.InvariantCultureIgnoreCase) ||
-                       serializedObject.ClassId.ToString()?.Contains(value, StringComparison.InvariantCultureIgnoreCase) == true;
+                return entropyObject.PathId.ToString().Contains(value, StringComparison.InvariantCultureIgnoreCase) ||
+                       entropyObject.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase) ||
+                       entropyObject.Container.Contains(value, StringComparison.InvariantCultureIgnoreCase) ||
+                       entropyObject.SerializedName.Contains(value, StringComparison.InvariantCultureIgnoreCase) ||
+                       entropyObject.ClassId.ToString()?.Contains(value, StringComparison.InvariantCultureIgnoreCase) == true;
             };
+        }
+
+        private void UpdateSelected(object sender, RoutedEventArgs e) {
+            var list = (ListView) sender;
+            e.Handled = true;
+            var selectedItems = list.SelectedItems;
+            if (selectedItems.Count == 0) {
+                return;
+            }
+
+            var selectedItem = (EntropyObject) selectedItems[^1]!;
+            if (EntropyCore.Instance.Collection.Files.TryGetValue(selectedItem.SerializedName, out var serializedFile)) {
+                if (serializedFile.Objects.TryGetValue(selectedItem.PathId, out var serializedObject)) {
+                    EntropyCore.Instance.SelectedObject = serializedObject;
+                    EntropyCore.Instance.OnPropertyChanged(nameof(EntropyCore.SelectedObject));
+                }
+            }
         }
     }
 }

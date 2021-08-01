@@ -25,7 +25,10 @@ namespace Equilibrium.Implementations {
         }
 
         public long PathId { get; init; }
+
+        [JsonIgnore]
         public long Size { get; set; }
+
         public object ClassId { get; init; }
 
         [JsonIgnore]
@@ -37,7 +40,10 @@ namespace Equilibrium.Implementations {
         [JsonIgnore]
         public bool IsMutated { get; set; }
 
+        [JsonIgnore]
         public string ObjectComparableName => ToString();
+
+        [JsonIgnore]
         public string ObjectContainerPath { get; set; } = string.Empty;
 
         public bool Equals(SerializedObject? other) {

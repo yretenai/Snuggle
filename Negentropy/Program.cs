@@ -16,8 +16,8 @@ namespace Negentropy {
             foreach (var texture in assets.Files.First().Value.Objects.Values.Where(x => x.ClassId.Equals(UnityClassId.Texture2D)).Cast<Texture2D>()) {
                 using var output = File.OpenWrite($"{texture}.dds");
                 texture.Deserialize(ObjectDeserializationOptions.Default);
-                using var dds = texture.ToDDS();
-                dds.CopyTo(output);
+                var dds = texture.ToDDS();
+                output.Write(dds);
                 texture.Free();
             }
         }

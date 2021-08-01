@@ -12,7 +12,7 @@
              TextOptions.TextRenderingMode="Auto"
              Background="{DynamicResource MaterialDesignPaper}"
              FontFamily="{DynamicResource MaterialDesignFont}"
-             d:DataContext="{viewModel:EntropyCore}"
+             d:DataContext="{d:DesignInstance viewModel:EntropyCore}"
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
         <Grid.RowDefinitions>

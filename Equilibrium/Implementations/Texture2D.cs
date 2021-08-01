@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Text.Json.Serialization;
 using DragonLib.Imaging.DXGI;
 using Equilibrium.Extensions;
 using Equilibrium.Interfaces;
@@ -97,8 +98,14 @@ namespace Equilibrium.Implementations {
         public StreamingInfo StreamingInfo { get; set; }
         private long TextureDataStart { get; set; }
         private long PlatformDataStart { get; set; }
+
+        [JsonIgnore]
         public Memory<byte> PlatformData { get; set; } = Memory<byte>.Empty;
+
+        [JsonIgnore]
         public Memory<byte> TextureData { get; set; } = Memory<byte>.Empty;
+
+        [JsonIgnore]
         public override bool ShouldDeserialize => base.ShouldDeserialize || TextureData.IsEmpty;
 
         public void Serialize(BiEndianBinaryWriter writer, string fileName, BiEndianBinaryWriter resourceStream, string resourceName, UnityVersion targetVersion, FileSerializationOptions options) {
@@ -189,18 +196,17 @@ namespace Equilibrium.Implementations {
             TextureData = Memory<byte>.Empty;
         }
 
-        public Stream ToDDS() {
+        public Span<byte> ToDDS() {
             if (ShouldDeserialize) {
                 throw new InvalidDataException();
             }
 
-            return new MemoryStream(DXGI.BuildDDS(TextureFormat.ToD3DPixelFormat(),
-                    MipCount,
-                    Width,
-                    Height,
-                    TextureCount,
-                    TextureData.Span)
-                .ToArray()) { Position = 0 };
+            return DXGI.BuildDDS(TextureFormat.ToD3DPixelFormat(),
+                MipCount,
+                Width,
+                Height,
+                TextureCount,
+                TextureData.Span);
         }
 
         public void ImportDDS(Stream stream, bool leaveOpen = false) {
@@ -259,6 +265,6 @@ namespace Equilibrium.Implementations {
 
         public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Width, Height, TextureFormat, TextureData.Length, StreamingInfo);
 
-        public Stream ToKTX2() => throw new NotImplementedException();
+        public Span<byte> ToKTX2() => throw new NotImplementedException();
     }
 }

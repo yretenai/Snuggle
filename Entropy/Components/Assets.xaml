@@ -12,18 +12,19 @@
              TextOptions.TextRenderingMode="Auto"
              Background="{DynamicResource MaterialDesignPaper}"
              FontFamily="{DynamicResource MaterialDesignFont}"
-             d:DataContext="{viewModel:EntropyCore}"
+             d:DataContext="{d:DesignInstance viewModel:EntropyCore}"
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
         <ListView ItemsSource="{Binding Objects, Mode=OneWay}" GridViewColumnHeader.Click="SortColumn"
-                  x:Name="Entries">
+                  x:Name="Entries" SelectionChanged="UpdateSelected" SelectionMode="Extended">
             <ListView.View>
-                <GridView>
-                    <GridViewColumn Header="Id" DisplayMemberBinding="{Binding PathId}" />
-                    <GridViewColumn Header="Name" DisplayMemberBinding="{Binding ObjectComparableName}" />
-                    <GridViewColumn Header="Path" DisplayMemberBinding="{Binding ObjectContainerPath}" />
-                    <GridViewColumn Header="Type" DisplayMemberBinding="{Binding ClassId}" />
-                    <GridViewColumn Header="Size" DisplayMemberBinding="{Binding Size}" />
+                <GridView d:DataContext="{d:DesignInstance viewModel:EntropyObject}">
+                    <GridViewColumn Header="Id" DisplayMemberBinding="{Binding PathId, Mode=OneWay}" />
+                    <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Name, Mode=OneWay}" />
+                    <GridViewColumn Header="Type" DisplayMemberBinding="{Binding ClassId, Mode=OneWay}" />
+                    <GridViewColumn Header="Container" DisplayMemberBinding="{Binding Container, Mode=OneWay}" />
+                    <GridViewColumn Header="Asset" DisplayMemberBinding="{Binding SerializedName, Mode=OneWay}" />
+                    <GridViewColumn Header="Size" DisplayMemberBinding="{Binding Size, Mode=OneWay}" />
                 </GridView>
             </ListView.View>
         </ListView>

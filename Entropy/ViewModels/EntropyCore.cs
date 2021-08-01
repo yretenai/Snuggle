@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Immutable;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -32,10 +32,9 @@ namespace Entropy.ViewModels {
         public Thread WorkerThread { get; private set; }
         public CancellationTokenSource TokenSource { get; private set; } = new();
         private BlockingCollection<Action<CancellationToken>> Tasks { get; set; } = new();
-        public IImmutableList<SerializedObject> Objects => Collection.Files.SelectMany(x => x.Value.Objects.Values).ToImmutableArray();
+        public List<EntropyObject> Objects => Collection.Files.SelectMany(x => x.Value.Objects.Values).Select(x => new EntropyObject(x)).ToList();
         public SerializedObject? SelectedObject { get; set; }
         public string? Search { get; set; }
-
         private string SettingsFile { get; }
 
         public void Dispose() {

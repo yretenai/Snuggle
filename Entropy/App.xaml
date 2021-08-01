@@ -1,6 +1,8 @@
 ﻿<Application x:Class="Entropy.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:implementations="clr-namespace:Equilibrium.Implementations;assembly=Equilibrium"
+             xmlns:renderers="clr-namespace:Entropy.Components.Renderers"
              StartupUri="Windows/Main.xaml">
     <Application.Resources>
         <ResourceDictionary>
@@ -15,6 +17,14 @@
                     Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Accent/MaterialDesignColor.Amber.xaml" />
                 <ResourceDictionary
                     Source="pack://application:,,,/Dragablz;component/Themes/materialdesign.xaml" />
+                <ResourceDictionary>
+                    <DataTemplate x:Key="EntropyTexture2DRenderer" DataType="{x:Type implementations:Texture2D}">
+                        <renderers:Texture2DRenderer />
+                    </DataTemplate>
+                    <DataTemplate x:Key="EntropyNullRenderer">
+                        <renderers:NullRenderer />
+                    </DataTemplate>
+                </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>
