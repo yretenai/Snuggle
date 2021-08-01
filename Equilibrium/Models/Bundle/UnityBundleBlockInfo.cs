@@ -68,9 +68,9 @@ namespace Equilibrium.Models.Bundle {
                     Utils.EncodeLZMA(chunk, blockStream, actualBlockSize);
                     break;
                 }
-                case UnityCompressionType.LZ4:
+                case UnityCompressionType.LZ4: // this is deprecated.
                 case UnityCompressionType.LZ4HC: {
-                    Utils.CompressLZ4(blockStream, chunk, blockCompressionType == UnityCompressionType.LZ4HC ? LZ4Level.L12_MAX : LZ4Level.L00_FAST, actualBlockSize);
+                    Utils.CompressLZ4(blockStream, chunk, LZ4Level.L12_MAX, actualBlockSize);
                     break;
                 }
                 default:
