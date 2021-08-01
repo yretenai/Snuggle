@@ -16,7 +16,17 @@
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
         <ListView ItemsSource="{Binding Objects, Mode=OneWay}" GridViewColumnHeader.Click="SortColumn"
-                  x:Name="Entries" SelectionChanged="UpdateSelected" SelectionMode="Extended">
+                  x:Name="Entries" SelectionChanged="UpdateSelected" SelectionMode="Extended"
+                  VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.CacheLength="1,1"
+                  VirtualizingPanel.ScrollUnit="Item" VirtualizingPanel.VirtualizationMode="Recycling"
+                  VirtualizingPanel.CacheLengthUnit="Page" VirtualizingPanel.IsContainerVirtualizable="True"
+                  VirtualizingPanel.IsVirtualizingWhenGrouping="True" ScrollViewer.CanContentScroll="True"
+                  ScrollViewer.IsDeferredScrollingEnabled="True">
+            <ListView.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <VirtualizingStackPanel/>
+                </ItemsPanelTemplate>
+            </ListView.ItemsPanel>
             <ListView.View>
                 <GridView d:DataContext="{d:DesignInstance viewModel:EntropyObject}">
                     <GridViewColumn Header="Id" DisplayMemberBinding="{Binding PathId, Mode=OneWay}" />

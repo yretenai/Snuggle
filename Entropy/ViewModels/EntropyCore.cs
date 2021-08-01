@@ -21,14 +21,14 @@ namespace Entropy.ViewModels {
         public EntropyCore() {
             var workDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             SettingsFile = Path.Combine(workDir ?? "./", "Entropy.json");
-            Options = File.Exists(SettingsFile) ? EquilibriumOptions.FromJson(File.ReadAllText(SettingsFile)) : EquilibriumOptions.Default with { Reporter = Status };
+            SetOptions(File.Exists(SettingsFile) ? EquilibriumOptions.FromJson(File.ReadAllText(SettingsFile)) : EquilibriumOptions.Default);
             WorkerThread = new Thread(WorkLoop);
             WorkerThread.Start();
         }
 
         public AssetCollection Collection { get; } = new();
         public EntropyStatus Status { get; } = new();
-        public EquilibriumOptions Options { get; private set; }
+        public EquilibriumOptions Options { get; private set; } = EquilibriumOptions.Default;
         public Thread WorkerThread { get; private set; }
         public CancellationTokenSource TokenSource { get; private set; } = new();
         private BlockingCollection<Action<CancellationToken>> Tasks { get; set; } = new();

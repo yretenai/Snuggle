@@ -17,6 +17,7 @@ namespace Entropy.Components {
             InitializeComponent();
             var instance = EntropyCore.Instance;
             CacheData.IsChecked = instance.Options.CacheData;
+            CacheDataIfLZMA.IsChecked = instance.Options.CacheDataIfLZMA;
             foreach (var game in Enum.GetValues<UnityGame>()) {
                 var item = new MenuItem { Tag = game, Header = game.ToString("G"), IsChecked = instance.Options.Game == game, IsCheckable = true };
                 item.Checked += UpdateGame;
@@ -61,6 +62,16 @@ namespace Entropy.Components {
         private void CacheDataUnchecked(object sender, RoutedEventArgs e) {
             var instance = EntropyCore.Instance;
             instance.SetOptions(instance.Options with { CacheData = false });
+        }
+
+        private void CacheDataLZMAChecked(object sender, RoutedEventArgs e) {
+            var instance = EntropyCore.Instance;
+            instance.SetOptions(instance.Options with { CacheDataIfLZMA = true });
+        }
+
+        private void CacheDataLZMAUnchecked(object sender, RoutedEventArgs e) {
+            var instance = EntropyCore.Instance;
+            instance.SetOptions(instance.Options with { CacheDataIfLZMA = false });
         }
 
         private void LoadDirectory(object sender, RoutedEventArgs e) {

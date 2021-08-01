@@ -8,11 +8,12 @@ namespace Equilibrium.Options {
     [PublicAPI]
     public record EquilibriumOptions(
         bool CacheData,
+        bool CacheDataIfLZMA, // this literally takes two years, you want it to be enabled.
         UnityGame Game) {
         [JsonIgnore]
         public IStatusReporter? Reporter { get; set; }
 
-        public static EquilibriumOptions Default { get; } = new(false, UnityGame.Default);
+        public static EquilibriumOptions Default { get; } = new(false, true, UnityGame.Default);
 
         public static JsonSerializerOptions JsonOptions { get; } = new() {
             WriteIndented = true,

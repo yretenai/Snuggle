@@ -58,36 +58,36 @@ namespace Equilibrium {
 
         public static Stream DecompressLZ4(Stream inStream, int compressedSize, int size, Stream? outStream = null) {
             outStream ??= new MemoryStream(size) { Position = 0 };
-            var inPool = Utils.BytePool.Rent(compressedSize);
+            var inPool = BytePool.Rent(compressedSize);
             try {
-                var outPool = Utils.BytePool.Rent(size);
+                var outPool = BytePool.Rent(size);
                 try {
                     inStream.Read(inPool.AsSpan()[..compressedSize]);
                     var amount = LZ4Codec.Decode(inPool.AsSpan()[..compressedSize], outPool);
                     outStream.Write(outPool.AsSpan()[..amount]);
                 } finally {
-                    Utils.BytePool.Return(outPool);
+                    BytePool.Return(outPool);
                 }
             } finally {
-                Utils.BytePool.Return(inPool);
+                BytePool.Return(inPool);
             }
 
             return outStream;
         }
 
         public static void CompressLZ4(Stream inStream, Stream outStream, LZ4Level level, int size) {
-            var inPool = Utils.BytePool.Rent(size);
+            var inPool = BytePool.Rent(size);
             try {
-                var outPool = Utils.BytePool.Rent(size);
+                var outPool = BytePool.Rent(size);
                 try {
                     inStream.Read(inPool.AsSpan()[..size]);
                     var amount = LZ4Codec.Encode(inPool.AsSpan()[..size], outPool, level);
                     outStream.Write(outPool.AsSpan()[..amount]);
                 } finally {
-                    Utils.BytePool.Return(outPool);
+                    BytePool.Return(outPool);
                 }
             } finally {
-                Utils.BytePool.Return(inPool);
+                BytePool.Return(inPool);
             }
         }
     }

@@ -34,7 +34,8 @@ namespace Equilibrium {
                 Handler = fileHandler;
                 Tag = fileHandler.GetTag(tag, this);
 
-                if (Options.CacheData) {
+                if (Options.CacheData ||
+                    Options.CacheDataIfLZMA && Container.BlockInfos.Any(x => (UnityCompressionType) (x.Flags & UnityBundleBlockInfoFlags.CompressionMask) == UnityCompressionType.LZMA)) {
                     CacheData(reader);
                 }
             } finally {
@@ -122,7 +123,7 @@ namespace Equilibrium {
 
         public Stream OpenFile(UnityBundleBlock block) {
             BiEndianBinaryReader? reader = null;
-            if (DataStream == null) {
+            if (DataStream is not { CanRead: true }) {
                 reader = new BiEndianBinaryReader(Handler.OpenFile(Tag), true);
                 reader.BaseStream.Seek(DataStart, SeekOrigin.Begin);
             }
