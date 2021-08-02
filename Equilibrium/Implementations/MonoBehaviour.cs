@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Equilibrium.Exceptions;
 using Equilibrium.IO;
 using Equilibrium.Meta;
 using Equilibrium.Models;
@@ -41,7 +42,7 @@ namespace Equilibrium.Implementations {
                 SerializedFile.Assets != null) {
                 var script = Script.Value;
                 if (script == null) {
-                    throw new NullReferenceException();
+                    throw new PPtrNullReferenceException(UnityClassId.MonoScript);
                 }
 
                 var name = script.ToString();
@@ -68,7 +69,7 @@ namespace Equilibrium.Implementations {
 
         public override void Serialize(BiEndianBinaryWriter writer, AssetSerializationOptions options) {
             if (ShouldDeserialize) {
-                throw new InvalidOperationException();
+                throw new IncompleteDeserializationException();
             }
 
             base.Serialize(writer, options);

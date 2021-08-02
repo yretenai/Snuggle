@@ -91,7 +91,7 @@ namespace Equilibrium {
                 var path = tag switch {
                     UnityBundleBlock block => block.Path,
                     string str => Path.GetFileName(str),
-                    _ => throw new InvalidOperationException(),
+                    _ => throw new NotSupportedException($"{tag.GetType().FullName} is not supported"),
                 };
 
                 if (Files.ContainsKey(path)) {
@@ -110,7 +110,7 @@ namespace Equilibrium {
                         options?.Reporter?.SetStatus($"Processing {pathId} ({objectInfo.ClassId:G})");
                         file.Objects[pathId] = ObjectFactory.GetInstance(dataStream, objectInfo, file);
                     } catch (Exception e) {
-                        Debug.WriteLine($"Failed to decode {pathId} (type {objectInfo.ClassId}) on file {file.Name}.");
+                        Debug.WriteLine($"Failed to decode {pathId} (type {objectInfo.ClassId}) on file {file.Name}");
                         Debug.WriteLine(e);
                         file.Objects[pathId] = ObjectFactory.GetInstance(dataStream, objectInfo, file, UnityClassId.Object);
                     }
@@ -139,7 +139,7 @@ namespace Equilibrium {
                     LoadAssembly(dataStream, Path.GetDirectoryName(fs.Name) ?? "./", options, leaveOpen);
                 } else {
                     if (tag is not string path) {
-                        throw new InvalidOperationException();
+                        throw new NotSupportedException($"{tag.GetType().FullName} is not supported");
                     }
 
                     path = Path.GetFileName(path);

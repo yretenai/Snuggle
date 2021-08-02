@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Equilibrium.Exceptions;
 using Equilibrium.Extensions;
 using Equilibrium.Implementations;
 using Equilibrium.IO;
@@ -88,19 +89,19 @@ namespace Equilibrium {
                 }
 
                 if (type == null) {
-                    throw new NullReferenceException();
+                    throw new TypeImplementationNotFoundException(overrideType ?? info.ClassId);
                 }
 
                 using var reader = new BiEndianBinaryReader(serializedFile.OpenFile(info, stream, true), serializedFile.Header.IsBigEndian);
                 var instance = Activator.CreateInstance(type, reader, info, serializedFile);
                 if (instance is not SerializedObject serializedObject) {
-                    throw new InvalidOperationException();
+                    throw new InvalidTypeImplementation(overrideType ?? info.ClassId);
                 }
 
                 if (hasImplementation &&
                     reader.Unconsumed > 0 &&
                     !serializedObject.ShouldDeserialize) {
-                    var msg = $"{reader.Unconsumed} bytes left unconsumed in buffer and {serializedObject.ClassId:G} ({serializedObject.PathId}) object is not marked for deserialization! Check implementation.";
+                    var msg = $"{reader.Unconsumed} bytes left unconsumed in buffer and {serializedObject.ClassId:G} ({serializedObject.PathId}) object is not marked for deserialization! Check implementation";
                     Debug.WriteLine(msg);
                     serializedFile.Options.Reporter?.Log(msg);
                 }
@@ -224,18 +225,18 @@ namespace Equilibrium {
                         }
                         case "vector": {
                             if (node.Properties[0].TypeName != "Array") {
-                                throw new NotSupportedException();
+                                throw new NotSupportedException("Vector is not an Array type");
                             }
 
                             return CreateObject(reader, node.Properties[0], file);
                         }
                         case "map": {
                             if (node.Properties[0].TypeName != "Array") {
-                                throw new NotSupportedException();
+                                throw new NotSupportedException("Map is not an Array type");
                             }
 
                             if (node.Properties[0].Properties[1].TypeName != "pair") {
-                                throw new NotSupportedException();
+                                throw new NotSupportedException("Map.Array is not a pair type");
                             }
 
                             var dataNode = node.Properties[0].Properties[1];
@@ -372,7 +373,7 @@ namespace Equilibrium {
 
         private static ObjectNode CreateObjectNode(string name, TypeReference? typeReference, Dictionary<string, List<ObjectNode>> cache) {
             if (typeReference == null) {
-                throw new NotSupportedException();
+                throw new NotSupportedException("Type reference is null");
             }
 
             var typeDefinition = typeReference.Resolve();

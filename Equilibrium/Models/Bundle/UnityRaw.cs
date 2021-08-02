@@ -32,7 +32,7 @@ namespace Equilibrium.Models.Bundle {
             }
 
             if (reader == null) {
-                throw new NotSupportedException();
+                throw new NotSupportedException("Cannot read file with no stream or no reader");
             }
 
             var streamOffset = 0L;
@@ -42,6 +42,7 @@ namespace Equilibrium.Models.Bundle {
             foreach (var (size, compressedSize, unityBundleBlockFlags) in BlockInfos) {
                 if (streamOffset + size < block.Offset) {
                     reader.BaseStream.Seek(compressedSize, SeekOrigin.Current);
+                    streamOffset += size;
                     continue;
                 }
 
@@ -67,7 +68,7 @@ namespace Equilibrium.Models.Bundle {
                         Utils.DecompressLZ4(reader.BaseStream, compressedSize, size, stream);
                         break;
                     default:
-                        throw new InvalidOperationException();
+                        throw new NotSupportedException($"Unity Compression format {compressionType:G} is not supported");
                 }
 
                 streamOffset += size;

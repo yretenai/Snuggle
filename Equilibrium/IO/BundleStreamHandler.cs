@@ -16,7 +16,7 @@ namespace Equilibrium.IO {
             var path = tag switch {
                 string str => BundleFile.Container.Blocks.First(x => x.Path.Equals(str, StringComparison.InvariantCultureIgnoreCase)),
                 UnityBundleBlock block => block,
-                _ => throw new InvalidOperationException(),
+                _ => throw new NotSupportedException($"{tag.GetType().FullName} is not supported"),
             };
 
             return BundleFile.OpenFile(path);

@@ -29,15 +29,13 @@ namespace Equilibrium {
             false,
         };
 
-        static Utils() {
-            BytePool = ArrayPool<byte>.Create();
-        }
+        static Utils() => BytePool = ArrayPool<byte>.Create();
+
+        internal static ArrayPool<byte> BytePool { get; private set; }
 
         internal static void ClearPool() {
             BytePool = ArrayPool<byte>.Create();
         }
-
-        internal static ArrayPool<byte> BytePool { get; private set; }
 
         internal static Stream DecodeLZMA(Stream inStream, int compressedSize, int size, Stream? outStream = null) {
             outStream ??= new MemoryStream(size) { Position = 0 };

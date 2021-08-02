@@ -12,7 +12,7 @@ namespace Equilibrium.IO {
             string path = tag switch {
                 FileInfo fi => fi.FullName,
                 string str => str,
-                _ => throw new InvalidOperationException(),
+                _ => throw new NotSupportedException($"{tag.GetType().FullName} is not supported"),
             };
 
             return File.OpenRead(path);

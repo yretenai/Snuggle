@@ -28,7 +28,7 @@ namespace Equilibrium {
                     UnityFormat.Archive => throw new NotImplementedException(),
                     UnityFormat.Web => UnityRaw.FromReader(reader, Header, options),
                     UnityFormat.Raw => UnityRaw.FromReader(reader, Header, options),
-                    _ => throw new InvalidOperationException(),
+                    _ => throw new NotSupportedException($"Unity Bundle format {Header.Signature} is not supported"),
                 };
 
                 DataStart = dataStream.Position;

@@ -24,7 +24,7 @@
                   ScrollViewer.IsDeferredScrollingEnabled="True">
             <ListView.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <VirtualizingStackPanel/>
+                    <VirtualizingStackPanel />
                 </ItemsPanelTemplate>
             </ListView.ItemsPanel>
             <ListView.View>

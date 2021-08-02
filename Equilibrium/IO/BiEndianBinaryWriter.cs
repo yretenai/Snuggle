@@ -41,7 +41,7 @@ namespace Equilibrium.IO {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override void Write(decimal value) {
             if (ShouldInvertEndianness) {
-                throw new NotImplementedException();
+                throw new NotSupportedException("Cannot invert the endianness of decimals");
             }
 
             base.Write(value);
@@ -143,7 +143,7 @@ namespace Equilibrium.IO {
 
         public void WriteArray<T>(T[] array) where T : struct {
             if (ShouldInvertEndianness) {
-                throw new NotSupportedException();
+                throw new NotSupportedException("Cannot invert endianness of arrays");
             }
 
             Write(MemoryMarshal.Cast<T, byte>(array));
@@ -151,7 +151,7 @@ namespace Equilibrium.IO {
 
         public void WriteArray<T>(Span<T> span) where T : struct {
             if (ShouldInvertEndianness) {
-                throw new NotSupportedException();
+                throw new NotSupportedException("Cannot invert endianness of arrays");
             }
 
             Write(MemoryMarshal.Cast<T, byte>(span));
@@ -159,7 +159,7 @@ namespace Equilibrium.IO {
 
         public void WriteMemory(Memory<byte> memory) {
             if (ShouldInvertEndianness) {
-                throw new NotSupportedException();
+                throw new NotSupportedException("Cannot invert endianness of structs");
             }
 
             Write(memory.Span);
@@ -167,7 +167,7 @@ namespace Equilibrium.IO {
 
         public void WriteStruct<T>(T value) where T : struct {
             if (ShouldInvertEndianness) {
-                throw new NotSupportedException();
+                throw new NotSupportedException("Cannot invert endianness of structs");
             }
 
             Span<byte> span = new byte[Unsafe.SizeOf<T>()];

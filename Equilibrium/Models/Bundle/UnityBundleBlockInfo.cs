@@ -38,7 +38,7 @@ namespace Equilibrium.Models.Bundle {
                 case UnityFormat.Archive:
                     throw new NotImplementedException();
                 default:
-                    throw new InvalidOperationException();
+                    throw new NotSupportedException($"Unity Bundle format {header.Signature} is not supported");
             }
 
             return container;
@@ -74,7 +74,7 @@ namespace Equilibrium.Models.Bundle {
                     break;
                 }
                 default:
-                    throw new NotSupportedException();
+                    throw new NotSupportedException($"Unity Compression type {blockCompressionType:G} is not supported");
             }
 
             writer.Write((uint) chunk.Length);

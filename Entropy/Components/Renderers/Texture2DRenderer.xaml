@@ -12,18 +12,26 @@
     <UserControl.Resources>
         <converters:Texture2DToBitmapConverter x:Key="BitmapConverter" />
     </UserControl.Resources>
-    <Canvas x:Name="Root" Width="{Binding Width}" Height="{Binding Height}">
-        <Image Width="{Binding Width}" Height="{Binding Height}"
-               MouseWheel="Zoom" MouseLeftButtonDown="CapturePan" MouseMove="Pan" MouseLeftButtonUp="ReleasePan"
-               Source="{Binding Converter={StaticResource BitmapConverter}, Mode=OneWay}"
-               HorizontalAlignment="Left"
-               VerticalAlignment="Top" Stretch="Fill" x:Name="ImageView">
-            <Image.LayoutTransform>
-                <ScaleTransform ScaleX="1" ScaleY="-1" />
-            </Image.LayoutTransform>
-            <Image.RenderTransform>
-                <TranslateTransform />
-            </Image.RenderTransform>
-        </Image>
-    </Canvas>
+    <Grid DataContext="{Binding Converter={StaticResource BitmapConverter}, Mode=OneWay}">
+        <Canvas x:Name="Root" Width="{Binding Carried.Width}" Height="{Binding Carried.Height}">
+            <Image Width="{Binding Carried.Width}" Height="{Binding Carried.Height}"
+                   MouseWheel="Zoom" MouseLeftButtonDown="CapturePan" MouseMove="Pan" MouseLeftButtonUp="ReleasePan"
+                   Source="{Binding Path=Result}"
+                   HorizontalAlignment="Left"
+                   VerticalAlignment="Top" Stretch="Fill" x:Name="ImageView">
+                <Image.LayoutTransform>
+                    <ScaleTransform ScaleX="1" ScaleY="-1" />
+                </Image.LayoutTransform>
+                <Image.RenderTransform>
+                    <TranslateTransform />
+                </Image.RenderTransform>
+            </Image>
+        </Canvas>
+        <TextBlock TextAlignment="Center" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold"
+                   Opacity="0.5" FontSize="30" Grid.Row="0" Grid.Column="0" Visibility="{Binding LoadingVisibility}">
+            <Span>
+                LOADING DATA
+            </Span>
+        </TextBlock>
+    </Grid>
 </UserControl>

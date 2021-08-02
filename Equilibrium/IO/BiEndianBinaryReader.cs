@@ -178,7 +178,7 @@ namespace Equilibrium.IO {
             Read(span);
             var value = MemoryMarshal.Cast<byte, T>(span);
             if (ShouldInvertEndianness) {
-                throw new NotSupportedException();
+                throw new NotSupportedException("Cannot invert endianness of arrays");
             }
 
             return value;
@@ -195,7 +195,7 @@ namespace Equilibrium.IO {
             Read(span);
             var value = MemoryMarshal.Read<T>(span);
             if (ShouldInvertEndianness) {
-                throw new NotSupportedException();
+                throw new NotSupportedException("Cannot invert endianness of structs");
             }
 
             return value;

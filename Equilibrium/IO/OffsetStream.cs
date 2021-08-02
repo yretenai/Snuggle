@@ -86,15 +86,15 @@ namespace Equilibrium.IO {
                 SeekOrigin.Begin => Start + offset,
                 SeekOrigin.Current => BaseStream.Position + offset,
                 SeekOrigin.End => End - offset,
-                _ => throw new IOException(),
+                _ => throw new IOException("Unknown seek origin"),
             };
 
             if (absolutePosition > End) {
-                throw new IOException();
+                throw new IOException("Attempting to seek past the end of the stream");
             }
 
             if (absolutePosition < Start) {
-                throw new IOException();
+                throw new IOException("Attempting to seek to a negative value");
             }
 
             BaseStream.Seek(absolutePosition, SeekOrigin.Begin);
@@ -102,11 +102,11 @@ namespace Equilibrium.IO {
         }
 
         public override void SetLength(long value) {
-            throw new IOException();
+            throw new IOException("Read only");
         }
 
         public override void Write(byte[] buffer, int offset, int count) {
-            throw new IOException();
+            throw new IOException("Read only");
         }
     }
 }

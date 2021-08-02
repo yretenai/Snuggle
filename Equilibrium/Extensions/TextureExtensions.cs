@@ -33,7 +33,7 @@ namespace Equilibrium.Extensions {
                 DXGIPixelFormat.BC7_UNORM => TextureFormat.BC7,
                 DXGIPixelFormat.R8G8_UNORM => TextureFormat.RG16,
                 DXGIPixelFormat.R8_UNORM => TextureFormat.R8,
-                _ => throw new NotSupportedException(),
+                _ => throw new NotSupportedException($"Texture format {format:G} is not supported by Unity"),
             };
         }
 
@@ -66,7 +66,7 @@ namespace Equilibrium.Extensions {
                 TextureFormat.BC7 => DXGIPixelFormat.BC7_UNORM,
                 TextureFormat.RG16 => DXGIPixelFormat.R8G8_UNORM,
                 TextureFormat.R8 => DXGIPixelFormat.R8_UNORM,
-                _ => throw new NotSupportedException(),
+                _ => throw new NotSupportedException($"Texture format {format:G} is not supported by DXGI"),
             };
         }
     }

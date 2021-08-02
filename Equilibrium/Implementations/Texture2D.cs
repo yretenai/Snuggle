@@ -2,6 +2,7 @@
 using System.IO;
 using System.Text.Json.Serialization;
 using DragonLib.Imaging.DXGI;
+using Equilibrium.Exceptions;
 using Equilibrium.Extensions;
 using Equilibrium.Interfaces;
 using Equilibrium.IO;
@@ -109,6 +110,10 @@ namespace Equilibrium.Implementations {
         public override bool ShouldDeserialize => base.ShouldDeserialize || TextureData.IsEmpty;
 
         public void Serialize(BiEndianBinaryWriter writer, BiEndianBinaryWriter resourceStream, AssetSerializationOptions options) {
+            if (ShouldDeserialize) {
+                throw new IncompleteDeserializationException();
+            }
+
             base.Serialize(writer, options);
             writer.Write(Width);
             writer.Write(Height);
@@ -240,7 +245,7 @@ namespace Equilibrium.Implementations {
                     TextureFormat = TextureFormat.BC5;
                     break;
                 default:
-                    throw new NotSupportedException();
+                    throw new NotSupportedException($"DDS FourCC {header.Format.FourCC} is not supported");
             }
 
             TextureData = reader.ReadMemory(reader.Unconsumed);

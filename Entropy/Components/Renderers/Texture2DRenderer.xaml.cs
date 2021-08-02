@@ -9,15 +9,15 @@ namespace Entropy.Components.Renderers {
             InitializeComponent();
         }
 
+        private Point Start { get; set; }
+        private Point Origin { get; set; }
+
         private void Zoom(object sender, MouseWheelEventArgs e) {
             var st = (ScaleTransform) ImageView.LayoutTransform;
             var zoom = e.Delta > 0 ? .2 : -.2;
             st.ScaleX = Math.Clamp(st.ScaleX + zoom, 0.2, 3);
             st.ScaleY = 0 - st.ScaleX;
         }
-
-        private Point Start { get; set; }
-        private Point Origin { get; set; }
 
         private void CapturePan(object sender, MouseButtonEventArgs e) {
             ImageView.CaptureMouse();

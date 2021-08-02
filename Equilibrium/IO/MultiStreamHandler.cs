@@ -21,7 +21,7 @@ namespace Equilibrium.IO {
             var (subTag, offset, size) = tag switch {
                 MultiMetaInfo meta => meta,
                 string str => new MultiMetaInfo(str, 0, new FileInfo(str).Length),
-                _ => throw new FileNotFoundException(),
+                _ => throw new NotSupportedException($"{tag.GetType().FullName} is not supported"),
             };
 
             var stream = UnderlyingHandler.OpenFile(subTag);

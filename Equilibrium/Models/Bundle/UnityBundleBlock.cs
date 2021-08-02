@@ -50,7 +50,7 @@ namespace Equilibrium.Models.Bundle {
                 case UnityFormat.Archive:
                     throw new NotImplementedException();
                 default:
-                    throw new InvalidOperationException();
+                    throw new NotSupportedException($"Unity Bundle format {header.Signature} is not supported");
             }
         }
 

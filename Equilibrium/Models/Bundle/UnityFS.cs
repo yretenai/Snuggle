@@ -29,7 +29,7 @@ namespace Equilibrium.Models.Bundle {
             }
 
             if (reader == null) {
-                throw new NotSupportedException();
+                throw new NotSupportedException("Cannot read file with no stream or no reader");
             }
 
             var streamOffset = 0L;
@@ -64,7 +64,7 @@ namespace Equilibrium.Models.Bundle {
                         Utils.DecompressLZ4(reader.BaseStream, compressedSize, size, stream);
                         break;
                     default:
-                        throw new InvalidOperationException();
+                        throw new NotSupportedException($"Unity Compression format {compressionType:G} is not supported");
                 }
 
                 streamOffset += size;
@@ -119,7 +119,7 @@ namespace Equilibrium.Models.Bundle {
                     break;
                 }
                 default:
-                    throw new NotSupportedException();
+                    throw new NotSupportedException($"Unity Compression format {unityCompressionType:G} is not supported");
             }
 
             compressedStream.Seek(0, SeekOrigin.Begin);
@@ -152,7 +152,7 @@ namespace Equilibrium.Models.Bundle {
                     UnityCompressionType.LZMA => Utils.DecodeLZMA(reader.BaseStream, fs.CompressedBlockInfoSize, fs.BlockInfoSize),
                     UnityCompressionType.LZ4 => Utils.DecompressLZ4(reader.BaseStream, fs.CompressedBlockInfoSize, fs.BlockInfoSize),
                     UnityCompressionType.LZ4HC => Utils.DecompressLZ4(reader.BaseStream, fs.CompressedBlockInfoSize, fs.BlockInfoSize),
-                    _ => throw new InvalidOperationException(),
+                    _ => throw new NotSupportedException($"Unity Compression format {compressionType} is not supported"),
                 },
                 true,
                 compressionType == UnityCompressionType.None);
