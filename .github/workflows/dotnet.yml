@@ -26,7 +26,7 @@ jobs:
       - name: Publish Release (Self Contained)
         run: dotnet publish -c Release --self-contained -r win-x64 -o dist/win-x64
       - name: Publish Debug
-        run: dotnet publish -c Release /p:PublishTrimmed=false -o dist/netdebug
+        run: dotnet publish -c Release /p:PublishTrimmed=false -o dist/debug
       - name: Upload Release
         uses: actions/upload-artifact@v2
         with:
