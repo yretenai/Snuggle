@@ -1,0 +1,44 @@
+name: Equilibrium
+on:
+  push:
+    branches: [develop]
+  pull_request:
+    branches: [develop]
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Install .NET Core 6
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 6.0.x
+          include-prerelease: true
+      - name: Run tests
+        run: dotnet test
+      - name: Restore project
+        run: dotnet restore
+      - name: Publish Release
+        run: dotnet publish -c Release /p:PublishTrimmed=false -o dist/release
+      - name: Publish Release (Self Contained)
+        run: dotnet publish -c Release --self-contained -r win-x64 -o dist/win-x64
+      - name: Publish Debug
+        run: dotnet publish -c Release /p:PublishTrimmed=false -o dist/netdebug
+      - name: Upload Release
+        uses: actions/upload-artifact@v2
+        with:
+          name: Equilibrium Windows-x64
+          path: dist/release
+      - name: Upload Release (Self Contained)
+        uses: actions/upload-artifact@v2
+        with:
+          name: Equilibrium Windows-x64 Core
+          path: dist/win-x64
+      - name: Upload Debug
+        uses: actions/upload-artifact@v2
+        with:
+          name: Equilibrium Windows-x64 Debug
+          path: dist/debug
