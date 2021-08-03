@@ -30,7 +30,7 @@ namespace Equilibrium.Implementations {
         [JsonIgnore]
         public ObjectNode? ObjectData { get; set; }
 
-        private long DataStart { get; set; }
+        private long DataStart { get; set; } = -1;
 
         [JsonIgnore]
         public override bool ShouldDeserialize => base.ShouldDeserialize || Data == null && !Script.IsNull;

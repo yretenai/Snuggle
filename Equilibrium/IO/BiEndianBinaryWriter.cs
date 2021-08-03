@@ -157,12 +157,28 @@ namespace Equilibrium.IO {
             Write(MemoryMarshal.Cast<T, byte>(span));
         }
 
-        public void WriteMemory(Memory<byte> memory) {
+        public void WriteMemory(Memory<byte>? memory) {
             if (ShouldInvertEndianness) {
                 throw new NotSupportedException("Cannot invert endianness of structs");
             }
 
-            Write(memory.Span);
+            if (memory == null) {
+                Write(0);
+            } else {
+                Write(memory.Value.Span);
+            }
+        }
+
+        public void WriteMemory<T>(Memory<T>? memory) where T : struct {
+            if (ShouldInvertEndianness) {
+                throw new NotSupportedException("Cannot invert endianness of structs");
+            }
+
+            if (memory == null) {
+                Write(0);
+            } else {
+                Write(MemoryMarshal.Cast<T, byte>(memory.Value.Span));
+            }
         }
 
         public void WriteStruct<T>(T value) where T : struct {
