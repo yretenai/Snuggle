@@ -6,7 +6,6 @@ namespace Equilibrium.Interfaces {
     [PublicAPI]
     public interface ISerialized {
         public void Deserialize(BiEndianBinaryReader reader, ObjectDeserializationOptions options);
-        public void Deserialize(ObjectDeserializationOptions options);
         public void Serialize(BiEndianBinaryWriter writer, AssetSerializationOptions options);
         public void Free();
     }

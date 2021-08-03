@@ -37,6 +37,12 @@ namespace Equilibrium.Extensions {
             };
         }
 
+        public static bool IsASTC(this TextureFormat format) => format is >= TextureFormat.ASTC_4x4 and < TextureFormat.ASTC_12x12 or >= TextureFormat.ASTC_HDR_4x4 and <= TextureFormat.ASTC_HDR_12x12;
+
+        public static bool IsETC(this TextureFormat format) => format is >= TextureFormat.ETC_RGB4 and < TextureFormat.ETC2_RGBA8 or >= TextureFormat.ETC_RGB4_3DS and <= TextureFormat.ETC_RGBA8_3DS or >= TextureFormat.ETC_RGB4Crunched and <= TextureFormat.ETC2_RGBA8Crunched;
+
+        public static bool IsPVRTC(this TextureFormat format) => format is >= TextureFormat.PVRTC_RGB2 and < TextureFormat.PVRTC_RGBA4;
+
         public static DXGIPixelFormat ToD3DPixelFormat(this TextureFormat format) {
             // ReSharper disable once SwitchExpressionHandlesSomeKnownEnumValuesWithExceptionInDefault
             return format switch {

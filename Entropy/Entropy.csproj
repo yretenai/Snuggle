@@ -10,6 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Astc\Astc\AstcNETStandard.csproj" />
     <ProjectReference Include="..\Equilibrium\Equilibrium.csproj" />
   </ItemGroup>
 

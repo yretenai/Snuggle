@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 using Equilibrium.Interfaces;
 using Equilibrium.IO;
@@ -46,6 +48,8 @@ namespace Equilibrium.Implementations {
         [JsonIgnore]
         public string ObjectContainerPath { get; set; } = string.Empty;
 
+        public Dictionary<object, ISerialized> ExtraContainers { get; } = new();
+
         public bool Equals(SerializedObject? other) {
             if (ReferenceEquals(null, other)) {
                 return false;
@@ -60,16 +64,40 @@ namespace Equilibrium.Implementations {
 
         public virtual void Deserialize(BiEndianBinaryReader reader, ObjectDeserializationOptions options) { }
 
+        public virtual void Serialize(BiEndianBinaryWriter writer, AssetSerializationOptions options) {
+            IsMutated = false;
+        }
+
+        public virtual void Free() {
+            foreach (var container in ExtraContainers.Values) {
+                container.Free();
+            }
+        }
+
         public void Deserialize(ObjectDeserializationOptions options) {
             using var reader = new BiEndianBinaryReader(SerializedFile.OpenFile(PathId), SerializedFile.Header.IsBigEndian);
             Deserialize(reader, options);
         }
 
-        public virtual void Serialize(BiEndianBinaryWriter writer, AssetSerializationOptions options) {
-            IsMutated = false;
+        protected T GetExtraContainer<T>(object classId) where T : ISerialized, new() {
+            if (!ExtraContainers.TryGetValue(classId, out var instance) ||
+                instance is not T tInstance) {
+                tInstance = new T();
+                ExtraContainers[classId] = tInstance;
+            }
+
+            return tInstance;
         }
 
-        public virtual void Free() { }
+        protected bool TryGetExtraContainer(object classId, [MaybeNullWhen(false)] out ISerialized? container) {
+            if (!ExtraContainers.TryGetValue(classId, out var instance)) {
+                container = null;
+                return false;
+            }
+
+            container = instance;
+            return true;
+        }
 
         public override string ToString() => Enum.Format(ClassId.GetType(), ClassId, "G");
 

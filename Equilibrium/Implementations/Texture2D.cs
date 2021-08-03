@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 using DragonLib.Imaging.DXGI;
 using Equilibrium.Exceptions;
 using Equilibrium.Extensions;
+using Equilibrium.Game.Unite;
 using Equilibrium.Interfaces;
 using Equilibrium.IO;
 using Equilibrium.Meta;
@@ -30,7 +31,7 @@ namespace Equilibrium.Implementations {
             TextureFormat = (TextureFormat) reader.ReadInt32();
             if (serializedFile.Version <= UnityVersionRegister.Unity5_2) {
                 if (reader.ReadBoolean()) {
-                    MipCount = (int) (Math.Log(Math.Max(Width, Height)) / Math.Log(2));
+                    MipCount = (int) Math.Ceiling(Math.Log(Math.Max(Width, Height)) / Math.Log(2)) + 1;
                 }
             } else {
                 MipCount = reader.ReadInt32();
@@ -63,6 +64,11 @@ namespace Equilibrium.Implementations {
             TextureDimension = (TextureDimension) reader.ReadInt32();
             TextureSettings = GLTextureSettings.FromReader(reader, serializedFile);
             LightmapFormat = (LightmapFormat) reader.ReadInt32();
+            if (serializedFile.Options.Game == UnityGame.PokemonUnite) {
+                var container = GetExtraContainer<Texture2DExtension>(UnityClassId.Texture2D);
+                container.UnknownValue = reader.ReadInt32();
+            }
+
             ColorSpace = (ColorSpace) reader.ReadInt32();
             if (serializedFile.Version >= UnityVersionRegister.Unity2020_2) {
                 PlatformDataStart = reader.BaseStream.Position;

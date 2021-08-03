@@ -12,7 +12,7 @@ namespace Equilibrium.Models.Bundle {
         int Size,
         int CompressedSize,
         UnityBundleBlockInfoFlags Flags) {
-        public static UnityBundleBlockInfo FromReader(BiEndianBinaryReader reader, UnityBundle header, EquilibriumOptions options) {
+        public static UnityBundleBlockInfo FromReader(BiEndianBinaryReader reader, UnityBundle header, int fsFlags, EquilibriumOptions options) {
             var size = reader.ReadInt32();
             var compressedSize = reader.ReadInt32();
             var flags = header.Format switch {
@@ -24,14 +24,14 @@ namespace Equilibrium.Models.Bundle {
             return new UnityBundleBlockInfo(size, compressedSize, flags);
         }
 
-        public static UnityBundleBlockInfo[] ArrayFromReader(BiEndianBinaryReader reader, UnityBundle header, int count, EquilibriumOptions options) {
+        public static UnityBundleBlockInfo[] ArrayFromReader(BiEndianBinaryReader reader, UnityBundle header, int fsFlags, int count, EquilibriumOptions options) {
             var container = new UnityBundleBlockInfo[count];
             switch (header.Format) {
                 case UnityFormat.FS:
                 case UnityFormat.Raw:
                 case UnityFormat.Web: {
                     for (var i = 0; i < count; ++i) {
-                        container[i] = FromReader(reader, header, options);
+                        container[i] = FromReader(reader, header, fsFlags, options);
                     }
                 }
                     break;

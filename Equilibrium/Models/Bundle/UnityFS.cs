@@ -1,8 +1,10 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using Equilibrium.Game.Unite;
 using Equilibrium.Interfaces;
 using Equilibrium.IO;
+using Equilibrium.Meta;
 using Equilibrium.Options;
 using JetBrains.Annotations;
 using K4os.Compression.LZ4;
@@ -13,68 +15,12 @@ namespace Equilibrium.Models.Bundle {
         long Size,
         int CompressedBlockInfoSize,
         int BlockInfoSize,
-        UnityFSFlags Flags) : IUnityContainer {
+        UnityFSFlags Flags) : UnityContainer {
         public byte[] Hash { get; set; } = new byte[16];
-        public UnityBundleBlockInfo[] BlockInfos { get; set; } = Array.Empty<UnityBundleBlockInfo>();
-        public UnityBundleBlock[] Blocks { get; set; } = Array.Empty<UnityBundleBlock>();
-        public long Length => Size;
+        public override long Length => Size;
+        public override long DataStart => 0;
 
-        public Stream OpenFile(UnityBundleBlock? block, EquilibriumOptions options, BiEndianBinaryReader? reader = null, Stream? stream = null) {
-            if (block == null) {
-                return Stream.Null;
-            }
-
-            if (stream != null) {
-                return new OffsetStream(stream, block.Offset, block.Size, true);
-            }
-
-            if (reader == null) {
-                throw new NotSupportedException("Cannot read file with no stream or no reader");
-            }
-
-            var streamOffset = 0L;
-            var cur = -1L;
-            stream = new MemoryStream((int) block.Size) { Position = 0 };
-            foreach (var (size, compressedSize, unityBundleBlockFlags) in BlockInfos) {
-                if (streamOffset + size < block.Offset) {
-                    reader.BaseStream.Seek(compressedSize, SeekOrigin.Current);
-                    streamOffset += size;
-                    continue;
-                }
-
-                if (streamOffset + size > block.Size + block.Offset &&
-                    cur > -1) {
-                    break;
-                }
-
-                if (cur == -1) {
-                    cur = block.Offset - streamOffset;
-                }
-
-                var compressionType = (UnityCompressionType) (unityBundleBlockFlags & UnityBundleBlockInfoFlags.CompressionMask);
-                switch (compressionType) {
-                    case UnityCompressionType.None:
-                        stream.Write(reader.ReadBytes(compressedSize));
-                        break;
-                    case UnityCompressionType.LZMA:
-                        Utils.DecodeLZMA(reader.BaseStream, compressedSize, size, stream);
-                        break;
-                    case UnityCompressionType.LZ4:
-                    case UnityCompressionType.LZ4HC:
-                        Utils.DecompressLZ4(reader.BaseStream, compressedSize, size, stream);
-                        break;
-                    default:
-                        throw new NotSupportedException($"Unity Compression format {compressionType:G} is not supported");
-                }
-
-                streamOffset += size;
-            }
-
-            stream.Seek((int) cur, SeekOrigin.Begin);
-            return new OffsetStream(stream, cur, block.Size);
-        }
-
-        public void ToWriter(BiEndianBinaryWriter writer, UnityBundle header, EquilibriumOptions options, UnityBundleBlock[] blocks, Stream blockStream, BundleSerializationOptions serializationOptions) {
+        public override void ToWriter(BiEndianBinaryWriter writer, UnityBundle header, EquilibriumOptions options, UnityBundleBlock[] blocks, Stream blockStream, BundleSerializationOptions serializationOptions) {
             var start = writer.BaseStream.Position;
             writer.Write(0L);
             writer.Write(0);
@@ -139,6 +85,11 @@ namespace Equilibrium.Models.Bundle {
             var blockSize = reader.ReadInt32();
             var flags = (UnityFSFlags) reader.ReadUInt32();
 
+            if (options.Game == UnityGame.PokemonUnite &&
+                ((UniteFSFlags) flags).HasFlag(UniteFSFlags.Encrypted)) {
+                throw new NotImplementedException("Pokemon Unite bundle is encrypted, use UntieUnite or another decryption tool");
+            }
+
             var fs = new UnityFS(size, compressedBlockSize, blockSize, flags);
             if (fs.Flags.HasFlag(UnityFSFlags.BlocksInfoAtEnd)) {
                 reader.BaseStream.Seek(fs.CompressedBlockInfoSize, SeekOrigin.End);
@@ -159,9 +110,9 @@ namespace Equilibrium.Models.Bundle {
             blocksReader.BaseStream.Seek(0, SeekOrigin.Begin);
             fs.Hash = blocksReader.ReadBytes(16);
             var infoCount = blocksReader.ReadInt32();
-            fs.BlockInfos = UnityBundleBlockInfo.ArrayFromReader(blocksReader, header, infoCount, options);
+            fs.BlockInfos = UnityBundleBlockInfo.ArrayFromReader(blocksReader, header, (int) flags, infoCount, options);
             var blockCount = blocksReader.ReadInt32();
-            fs.Blocks = UnityBundleBlock.ArrayFromReader(blocksReader, header, blockCount, options);
+            fs.Blocks = UnityBundleBlock.ArrayFromReader(blocksReader, header, (int) flags, blockCount, options);
             return fs;
         }
     }

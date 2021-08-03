@@ -15,70 +15,12 @@ namespace Equilibrium.Models.Bundle {
         long Size,
         int MinimumBlocks,
         long TotalSize,
-        long BlockSize) : IUnityContainer {
+        long BlockSize) : UnityContainer {
         public byte[] Hash { get; set; } = Array.Empty<byte>();
+        public override long Length { get; }
+        public override long DataStart => Size;
 
-        public UnityBundleBlockInfo[] BlockInfos { get; set; } = Array.Empty<UnityBundleBlockInfo>();
-        public UnityBundleBlock[] Blocks { get; set; } = Array.Empty<UnityBundleBlock>();
-        public long Length => TotalSize;
-
-        public Stream OpenFile(UnityBundleBlock? block, EquilibriumOptions options, BiEndianBinaryReader? reader = null, Stream? stream = null) {
-            if (block == null) {
-                return Stream.Null;
-            }
-
-            if (stream != null) {
-                return new OffsetStream(stream, block.Offset, block.Size, true);
-            }
-
-            if (reader == null) {
-                throw new NotSupportedException("Cannot read file with no stream or no reader");
-            }
-
-            var streamOffset = 0L;
-            var cur = -1L;
-            stream = new MemoryStream();
-            reader.BaseStream.Seek(Size, SeekOrigin.Begin);
-            foreach (var (size, compressedSize, unityBundleBlockFlags) in BlockInfos) {
-                if (streamOffset + size < block.Offset) {
-                    reader.BaseStream.Seek(compressedSize, SeekOrigin.Current);
-                    streamOffset += size;
-                    continue;
-                }
-
-                if (streamOffset + size > block.Size + block.Offset &&
-                    cur > -1) {
-                    break;
-                }
-
-                if (cur == -1) {
-                    cur = block.Offset - streamOffset;
-                }
-
-                var compressionType = (UnityCompressionType) (unityBundleBlockFlags & UnityBundleBlockInfoFlags.CompressionMask);
-                switch (compressionType) {
-                    case UnityCompressionType.None:
-                        stream.Write(reader.ReadBytes(compressedSize));
-                        break;
-                    case UnityCompressionType.LZMA:
-                        Utils.DecodeLZMA(reader.BaseStream, compressedSize, size, stream);
-                        break;
-                    case UnityCompressionType.LZ4:
-                    case UnityCompressionType.LZ4HC:
-                        Utils.DecompressLZ4(reader.BaseStream, compressedSize, size, stream);
-                        break;
-                    default:
-                        throw new NotSupportedException($"Unity Compression format {compressionType:G} is not supported");
-                }
-
-                streamOffset += size;
-            }
-
-            stream.Seek((int) cur, SeekOrigin.Begin);
-            return new OffsetStream(stream, cur, block.Size);
-        }
-
-        public void ToWriter(BiEndianBinaryWriter writer, UnityBundle header, EquilibriumOptions options, UnityBundleBlock[] blocks, Stream blockStream, BundleSerializationOptions serializationOptions) {
+        public override void ToWriter(BiEndianBinaryWriter writer, UnityBundle header, EquilibriumOptions options, UnityBundleBlock[] blocks, Stream blockStream, BundleSerializationOptions serializationOptions) {
             throw new NotImplementedException();
         }
 
@@ -94,7 +36,7 @@ namespace Equilibrium.Models.Bundle {
             var size = reader.ReadUInt32();
             var minimumBlockInfos = reader.ReadInt32();
             var blockInfoCount = reader.ReadInt32();
-            var blockInfos = UnityBundleBlockInfo.ArrayFromReader(reader, header, blockInfoCount, options);
+            var blockInfos = UnityBundleBlockInfo.ArrayFromReader(reader, header, 0, blockInfoCount, options);
             Debug.Assert(blockInfoCount == 1, "blockInfoCount == 1"); // I haven't seen files that have more than 1.
             var totalSize = header.FormatVersion >= 2 ? reader.ReadUInt32() : size + blockInfos.Sum(x => x.Size);
 
@@ -107,7 +49,7 @@ namespace Equilibrium.Models.Bundle {
             var testBlock = new UnityBundleBlock(0, header.FormatVersion >= 3 ? blockSize : blockInfos[0].Size, 0, string.Empty);
             using var blockReader = new BiEndianBinaryReader(unityRaw.OpenFile(testBlock, options, reader), true);
             var blockCount = blockReader.ReadInt32();
-            unityRaw.Blocks = UnityBundleBlock.ArrayFromReader(blockReader, header, blockCount, options);
+            unityRaw.Blocks = UnityBundleBlock.ArrayFromReader(blockReader, header, 0, blockCount, options);
             return unityRaw;
         }
     }

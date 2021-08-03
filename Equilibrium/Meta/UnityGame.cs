@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using System.ComponentModel;
+using JetBrains.Annotations;
 
 namespace Equilibrium.Meta {
     /// <summary>
@@ -7,6 +8,7 @@ namespace Equilibrium.Meta {
     [PublicAPI]
     public enum UnityGame {
         Default,
+        [Description("Pokémon UNITE")]
         PokemonUnite,
     }
 }

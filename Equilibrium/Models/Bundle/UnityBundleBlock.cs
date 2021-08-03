@@ -10,15 +10,16 @@ namespace Equilibrium.Models.Bundle {
         long Size,
         UnityBundleBlockFlags Flags,
         string Path) {
-        public static UnityBundleBlock FromReader(BiEndianBinaryReader reader, EquilibriumOptions options) =>
-            new(
-                reader.ReadInt64(),
-                reader.ReadInt64(),
-                (UnityBundleBlockFlags) reader.ReadUInt32(),
-                reader.ReadNullString()
-            );
+        public static UnityBundleBlock FromReader(BiEndianBinaryReader reader, int fsFlags, EquilibriumOptions options) {
+            var offset = reader.ReadInt64();
+            var size = reader.ReadInt64();
+            var flags = (UnityBundleBlockFlags) reader.ReadUInt32();
+            var path = reader.ReadNullString();
 
-        public static UnityBundleBlock FromReaderRaw(BiEndianBinaryReader reader, EquilibriumOptions options) {
+            return new UnityBundleBlock(offset, size, flags, path);
+        }
+
+        public static UnityBundleBlock FromReaderRaw(BiEndianBinaryReader reader, int fsFlags, EquilibriumOptions options) {
             var path = reader.ReadNullString();
             var offset = reader.ReadUInt32();
             var size = reader.ReadUInt32();
@@ -27,13 +28,14 @@ namespace Equilibrium.Models.Bundle {
 
         public static UnityBundleBlock[] ArrayFromReader(BiEndianBinaryReader reader,
             UnityBundle header,
+            int fsFlags,
             int count,
             EquilibriumOptions options) {
             switch (header.Format) {
                 case UnityFormat.FS: {
                     var container = new UnityBundleBlock[count];
                     for (var i = 0; i < count; ++i) {
-                        container[i] = FromReader(reader, options);
+                        container[i] = FromReader(reader, fsFlags, options);
                     }
 
                     return container;
@@ -42,7 +44,7 @@ namespace Equilibrium.Models.Bundle {
                 case UnityFormat.Web: {
                     var container = new UnityBundleBlock[count];
                     for (var i = 0; i < count; ++i) {
-                        container[i] = FromReaderRaw(reader, options);
+                        container[i] = FromReaderRaw(reader, fsFlags, options);
                     }
 
                     return container;

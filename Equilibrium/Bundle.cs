@@ -47,7 +47,7 @@ namespace Equilibrium {
         }
 
         public UnityBundle Header { get; init; }
-        public IUnityContainer Container { get; init; }
+        public UnityContainer Container { get; init; }
         public long DataStart { get; set; }
         public EquilibriumOptions Options { get; init; }
         public Stream? DataStream { get; private set; }

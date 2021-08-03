@@ -93,20 +93,43 @@ namespace Equilibrium {
                 }
 
                 using var reader = new BiEndianBinaryReader(serializedFile.OpenFile(info, stream, true), serializedFile.Header.IsBigEndian);
-                var instance = Activator.CreateInstance(type, reader, info, serializedFile);
-                if (instance is not SerializedObject serializedObject) {
-                    throw new InvalidTypeImplementation(overrideType ?? info.ClassId);
-                }
+                try {
+                    var instance = Activator.CreateInstance(type, reader, info, serializedFile);
+                    if (instance is not SerializedObject serializedObject) {
+                        throw new InvalidTypeImplementation(overrideType ?? info.ClassId);
+                    }
 
-                if (hasImplementation &&
-                    reader.Unconsumed > 0 &&
-                    !serializedObject.ShouldDeserialize) {
-                    var msg = $"{reader.Unconsumed} bytes left unconsumed in buffer and {serializedObject.ClassId:G} ({serializedObject.PathId}) object is not marked for deserialization! Check implementation";
-                    Debug.WriteLine(msg);
-                    serializedFile.Options.Reporter?.Log(msg);
-                }
+                    if (overrideType == null &&
+                        hasImplementation &&
+                        reader.Unconsumed > 0 &&
+                        !serializedObject.ShouldDeserialize) {
+                        var msg = $"{reader.Unconsumed} bytes left unconsumed in buffer and {serializedObject.ClassId:G} ({serializedObject.PathId}) object is not marked for deserialization! Check implementation";
+                        Debug.WriteLine(msg);
+                        serializedFile.Options.Reporter?.Log(msg);
+                    }
 
-                return serializedObject;
+                    return serializedObject;
+                } catch {
+#if DEBUG
+                    try {
+                        if (!Directory.Exists($"DEBUG_DUMP/{serializedFile.Name}")) {
+                            Directory.CreateDirectory($"DEBUG_DUMP/{serializedFile.Name}");
+                        }
+
+                        reader.BaseStream.Seek(0, SeekOrigin.Begin);
+                        File.WriteAllBytes($"DEBUG_DUMP/{serializedFile.Name}/{info.PathId}.{info.ClassId:G}", reader.ReadBytes((int) info.Size));
+                    } catch {
+                        // ignored
+                    }
+#else
+                    if (overrideType?.Equals(UnityClassId.Object) == false) {
+                        overrideType = UnityClassId.Object;
+                        continue;
+                    }
+#endif
+
+                    throw;
+                }
             }
         }
 

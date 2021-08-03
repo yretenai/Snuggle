@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -18,8 +20,9 @@ namespace Entropy.Components {
             var instance = EntropyCore.Instance;
             CacheData.IsChecked = instance.Options.CacheData;
             CacheDataIfLZMA.IsChecked = instance.Options.CacheDataIfLZMA;
+            var descriptions = typeof(UnityGame).GetFields(BindingFlags.Static | BindingFlags.Public).ToDictionary(x => (UnityGame) x.GetValue(null)!, x => x.GetCustomAttribute<DescriptionAttribute>()?.Description ?? x.Name);
             foreach (var game in Enum.GetValues<UnityGame>()) {
-                var item = new MenuItem { Tag = game, Header = game.ToString("G"), IsChecked = instance.Options.Game == game, IsCheckable = true };
+                var item = new MenuItem { Tag = game, Header = descriptions[game], IsChecked = instance.Options.Game == game, IsCheckable = true };
                 item.Checked += UpdateGame;
                 item.Unchecked += CancelEvent;
                 UnityGameList.Items.Add(item);
