@@ -330,6 +330,7 @@ namespace Equilibrium.Models {
         VisualEffectSubgraph = 994735392,
         VisualEffectSubgraphOperator = 994735403,
         VisualEffectSubgraphBlock = 994735404,
+        Prefab = 1001480554,
         LocalizationImporter = 1027052791,
         Derived = 1091556383,
         PropertyModificationsTargetTestObject = 1111377672,
