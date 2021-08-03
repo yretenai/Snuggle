@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -113,23 +114,21 @@ namespace Equilibrium {
 
                     return serializedObject;
                 } catch {
-#if DEBUG
-                    try {
-                        if (!Directory.Exists($"DEBUG_DUMP/{serializedFile.Name}")) {
-                            Directory.CreateDirectory($"DEBUG_DUMP/{serializedFile.Name}");
-                        }
+                    if (Debugger.IsAttached) {
+                        try {
+                            if (!Directory.Exists($"DEBUG_DUMP/{serializedFile.Name}")) {
+                                Directory.CreateDirectory($"DEBUG_DUMP/{serializedFile.Name}");
+                            }
 
-                        reader.BaseStream.Seek(0, SeekOrigin.Begin);
-                        File.WriteAllBytes($"DEBUG_DUMP/{serializedFile.Name}/{info.PathId}.{info.ClassId:G}", reader.ReadBytes((int) info.Size));
-                    } catch {
-                        // ignored
-                    }
-#else
-                    if (overrideType?.Equals(UnityClassId.Object) == false) {
+                            reader.BaseStream.Seek(0, SeekOrigin.Begin);
+                            File.WriteAllBytes($"DEBUG_DUMP/{serializedFile.Name}/{info.PathId}.{info.ClassId:G}", reader.ReadBytes((int) info.Size));
+                        } catch {
+                            // ignored
+                        }
+                    } else if (overrideType?.Equals(UnityClassId.Object) == false) {
                         overrideType = UnityClassId.Object;
                         continue;
                     }
-#endif
 
                     throw;
                 }
