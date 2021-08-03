@@ -18,7 +18,7 @@ namespace Equilibrium.Models.Bundle {
         UnityFSFlags Flags) : UnityContainer {
         public byte[] Hash { get; set; } = new byte[16];
         public override long Length => Size;
-        public override long DataStart => 0;
+        public override long DataStart => -1;
 
         public override void ToWriter(BiEndianBinaryWriter writer, UnityBundle header, EquilibriumOptions options, UnityBundleBlock[] blocks, Stream blockStream, BundleSerializationOptions serializationOptions) {
             var start = writer.BaseStream.Position;

@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Entropy.ViewModels;
+using Entropy.Windows;
 using Equilibrium.Meta;
 using Microsoft.WindowsAPICodePack.Dialogs;
 
@@ -151,7 +152,7 @@ namespace Entropy.Components {
         }
 
         private void ExitTrampoline(object sender, RoutedEventArgs e) {
-            EntropyCore.Instance.Dispose();
+            Application.Current.MainWindow?.Close();
         }
 
         private void ResetTrampoline(object sender, RoutedEventArgs e) {
@@ -180,6 +181,15 @@ namespace Entropy.Components {
                 var value = ((TextBox) sender).Text;
                 EntropyCore.Instance.Search = value;
                 EntropyCore.Instance.OnPropertyChanged(nameof(EntropyCore.Search));
+            }
+        }
+
+        private void OpenLog(object sender, RoutedEventArgs e) {
+            var existing = Application.Current.Windows.OfType<DebugLog>().FirstOrDefault();
+            if (existing == null) {
+                new DebugLog().Show();
+            } else {
+                existing.Focus();
             }
         }
     }

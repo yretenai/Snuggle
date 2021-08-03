@@ -2,7 +2,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -12,6 +11,8 @@ using System.Threading.Tasks;
 using DragonLib;
 using Equilibrium;
 using Equilibrium.Implementations;
+using Equilibrium.Interfaces;
+using Equilibrium.Logging;
 using Equilibrium.Options;
 using JetBrains.Annotations;
 
@@ -21,13 +22,22 @@ namespace Entropy.ViewModels {
         public EntropyCore() {
             var workDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             SettingsFile = Path.Combine(workDir ?? "./", "Entropy.json");
-            SetOptions(File.Exists(SettingsFile) ? EquilibriumOptions.FromJson(File.ReadAllText(SettingsFile)) : EquilibriumOptions.Default);
             WorkerThread = new Thread(WorkLoop);
             WorkerThread.Start();
+            LogTarget = new MultiLogger {
+                Loggers = {
+                    new ConsoleLogger(),
+                    new DebugLogger(),
+                    Log,
+                },
+            };
+            SetOptions(File.Exists(SettingsFile) ? EquilibriumOptions.FromJson(File.ReadAllText(SettingsFile)) : EquilibriumOptions.Default);
         }
 
         public AssetCollection Collection { get; } = new();
         public EntropyStatus Status { get; } = new();
+        public EntropyLog Log { get; set; } = new();
+        public ILogger LogTarget { get; }
         public EquilibriumOptions Options { get; private set; } = EquilibriumOptions.Default;
         public Thread WorkerThread { get; private set; }
         public CancellationTokenSource TokenSource { get; private set; } = new();
@@ -65,12 +75,15 @@ namespace Entropy.ViewModels {
                     try {
                         task(TokenSource.Token);
                     } catch (Exception e) {
-                        Debug.WriteLine(e);
-                        // TODO show an alert.
+                        LogTarget.Error("Worker", "Failed to perform task", e);
                     }
                 }
-            } catch (TaskCanceledException) { } catch (Exception e) {
-                Debug.WriteLine(e);
+            } catch (TaskCanceledException) {
+                // ignored
+            } catch (OperationCanceledException) {
+                // ignored
+            } catch (Exception e) {
+                LogTarget.Error("Worker", "Failed to get tasks", e);
             }
         }
 
@@ -83,6 +96,7 @@ namespace Entropy.ViewModels {
             SelectedObject = null;
             Collection.Reset();
             Status.Reset();
+            Log.Clear();
             if (respawn) {
                 TokenSource = new CancellationTokenSource();
                 WorkerThread = new Thread(WorkLoop);
@@ -116,7 +130,7 @@ namespace Entropy.ViewModels {
         }
 
         public void SetOptions(EquilibriumOptions options) {
-            Options = options with { Reporter = Status };
+            Options = options with { Reporter = Status, Logger = LogTarget };
             File.WriteAllText(SettingsFile, Options.ToJson());
             OnPropertyChanged(nameof(Options));
         }

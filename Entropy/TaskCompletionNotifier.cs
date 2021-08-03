@@ -6,6 +6,7 @@ using System.Windows;
 using JetBrains.Annotations;
 
 namespace Entropy {
+    [PublicAPI]
     public sealed class TaskCompletionNotifier<T> : INotifyPropertyChanged {
         public TaskCompletionNotifier(object? carry, Task<T> task) {
             Task = task;

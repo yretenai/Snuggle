@@ -5,73 +5,40 @@ using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Markup;
 using System.Windows.Media.Imaging;
-using Astc;
 using DirectXTexNet;
 using Entropy.ViewModels;
 using Equilibrium.Extensions;
 using Equilibrium.Implementations;
-using Equilibrium.Models.Objects.Graphics;
 using Equilibrium.Options;
 
 namespace Entropy.Converters {
     public class Texture2DToBitmapConverter : MarkupExtension, IValueConverter {
-        private static readonly int[] ASTCBlockWidths = {
-            4,
-            5,
-            6,
-            8,
-            10,
-            12,
-        };
-
         public object? Convert(object? value, Type targetType, object parameter, CultureInfo culture) => value is not Texture2D texture ? null : new TaskCompletionNotifier<BitmapImage?>(texture, ConvertTexture(texture));
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotSupportedException($"{nameof(Texture2DToBitmapConverter)} only supports converting to BitmapImage");
 
-        public static async Task<BitmapImage?> ConvertTexture(Texture2D texture) {
+        private static async Task<BitmapImage?> ConvertTexture(Texture2D texture) {
             return await EntropyCore.Instance.WorkerAction(_ => {
                 if (texture.ShouldDeserialize) {
                     texture.Deserialize(ObjectDeserializationOptions.Default);
                 }
 
+                var bytes = default(byte[]);
                 if (texture.TextureFormat.CanSupportDDS()) {
-                    return ConvertDDS(texture);
+                    bytes = ConvertDDS(texture);
+                } else if (texture.TextureFormat.IsASTC()) {
+                    bytes = null;
+                } else if (texture.TextureFormat.IsETC()) {
+                    bytes = null;
+                } else if (texture.TextureFormat.IsPVRTC()) {
+                    bytes = null;
                 }
 
-                if (texture.TextureFormat.IsASTC()) {
-                    return ConvertASTC(texture);
-                }
-
-                if (texture.TextureFormat.IsETC()) {
-                    return null;
-                }
-
-                if (texture.TextureFormat.IsPVRTC()) {
-                    return null;
-                }
-
-                return null;
+                return BytesToBitmap(bytes);
             });
         }
 
-        private static BitmapImage ConvertASTC(Texture2D texture) {
-            var astc = new AstcDecoder();
-            var blockSize = texture.TextureFormat - TextureFormat.ASTC_4x4;
-            if (blockSize >= 6) {
-                blockSize = texture.TextureFormat - TextureFormat.ASTC_HDR_4x4;
-            }
-
-            blockSize = ASTCBlockWidths[blockSize];
-
-            return BytesToBitmap(astc.DecodeASTC(texture.TextureData.ToArray(),
-                texture.Width,
-                texture.Height,
-                blockSize,
-                blockSize
-            ));
-        }
-
-        private static unsafe BitmapImage? ConvertDDS(Texture2D texture) {
+        private static unsafe byte[]? ConvertDDS(Texture2D texture) {
             ScratchImage? scratch = null;
             try {
                 var data = texture.ToDDS();
@@ -103,7 +70,7 @@ namespace Entropy.Converters {
                     stream.Read(tex, 0, tex.Length);
                     scratch.Dispose();
 
-                    return BytesToBitmap(tex);
+                    return tex;
                 }
             } catch {
                 if (scratch is { IsDisposed: false }) {
@@ -114,7 +81,12 @@ namespace Entropy.Converters {
             return null;
         }
 
-        private static BitmapImage BytesToBitmap(byte[] tex) {
+        private static BitmapImage? BytesToBitmap(byte[]? tex) {
+            if (tex == null ||
+                tex.Length == 0) {
+                return null;
+            }
+
             var bitmap = new BitmapImage();
             using (var ms = new MemoryStream(tex)) {
                 ms.Position = 0;

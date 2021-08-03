@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using Equilibrium.Interfaces;
@@ -49,7 +48,7 @@ namespace Equilibrium {
             var handler = new BundleStreamHandler(bundle);
             foreach (var block in bundle.Container.Blocks) {
                 if (block.Flags.HasFlag(UnityBundleBlockFlags.SerializedFile)) {
-                    LoadSerializedFile(bundle.OpenFile(block), block, handler, false, bundle.Header.Version, bundle.Options);
+                    LoadSerializedFile(bundle.OpenFile(block), block, handler, bundle.Options, false, bundle.Header.Version);
                 } else {
                     var ext = Path.GetExtension(block.Path)[1..].ToLower();
                     switch (ext) {
@@ -67,13 +66,13 @@ namespace Equilibrium {
             Bundles.Add(bundle);
         }
 
-        public void LoadBundle(Stream dataStream, object tag, IFileHandler handler, EquilibriumOptions? options, bool leaveOpen = false) => LoadBundle(new Bundle(dataStream, tag, handler, options ?? EquilibriumOptions.Default, leaveOpen));
+        public void LoadBundle(Stream dataStream, object tag, IFileHandler handler, EquilibriumOptions options, bool leaveOpen = false) => LoadBundle(new Bundle(dataStream, tag, handler, options, leaveOpen));
 
-        public void LoadBundle(string path, EquilibriumOptions? options, bool leaveOpen = false) => LoadBundle(File.OpenRead(path), path, FileStreamHandler.Instance.Value, options, leaveOpen);
+        public void LoadBundle(string path, EquilibriumOptions options, bool leaveOpen = false) => LoadBundle(File.OpenRead(path), path, FileStreamHandler.Instance.Value, options, leaveOpen);
 
-        public void LoadBundleSequence(Stream dataStream, object tag, IFileHandler handler, EquilibriumOptions? options = null, int align = 1, bool leaveOpen = false) {
+        public void LoadBundleSequence(Stream dataStream, object tag, IFileHandler handler, EquilibriumOptions options, int align = 1, bool leaveOpen = false) {
             try {
-                var bundles = Bundle.OpenBundleSequence(dataStream, tag, handler, align, options, leaveOpen);
+                var bundles = Bundle.OpenBundleSequence(dataStream, tag, handler, options, align, leaveOpen);
                 foreach (var bundle in bundles) {
                     LoadBundle(bundle);
                 }
@@ -84,9 +83,9 @@ namespace Equilibrium {
             }
         }
 
-        public void LoadBundleSequence(string path, EquilibriumOptions? options = null, int align = 1) => LoadBundleSequence(File.OpenRead(path), path, MultiStreamHandler.FileInstance.Value, options, align);
+        public void LoadBundleSequence(string path, EquilibriumOptions options, int align = 1) => LoadBundleSequence(File.OpenRead(path), path, MultiStreamHandler.FileInstance.Value, options, align);
 
-        public void LoadSerializedFile(Stream dataStream, object tag, IFileHandler handler, bool leaveOpen = false, UnityVersion? fallbackVersion = null, EquilibriumOptions? options = null) {
+        public void LoadSerializedFile(Stream dataStream, object tag, IFileHandler handler, EquilibriumOptions options, bool leaveOpen = false, UnityVersion? fallbackVersion = null) {
             try {
                 var path = tag switch {
                     UnityBundleBlock block => block.Path,
@@ -98,7 +97,7 @@ namespace Equilibrium {
                     return;
                 }
 
-                var file = new SerializedFile(dataStream, tag, handler, options ?? EquilibriumOptions.Default, true) { Assets = this, Name = path };
+                var file = new SerializedFile(dataStream, tag, handler, options, true) { Assets = this, Name = path };
                 if (file.Version == UnityVersion.MinValue &&
                     fallbackVersion != null &&
                     fallbackVersion != UnityVersion.MinValue) {
@@ -107,11 +106,10 @@ namespace Equilibrium {
 
                 foreach (var (pathId, objectInfo) in file.ObjectInfos) {
                     try {
-                        options?.Reporter?.SetStatus($"Processing {pathId} ({objectInfo.ClassId:G})");
+                        options.Reporter?.SetStatus($"Processing {pathId} ({objectInfo.ClassId:G})");
                         file.Objects[pathId] = ObjectFactory.GetInstance(dataStream, objectInfo, file);
                     } catch (Exception e) {
-                        Debug.WriteLine($"Failed to decode {pathId} (type {objectInfo.ClassId}) on file {file.Name}");
-                        Debug.WriteLine(e);
+                        options.Logger.Error("Assets", $"Failed to decode {pathId} (type {objectInfo.ClassId}) on file {file.Name}", e);
                         file.Objects[pathId] = ObjectFactory.GetInstance(dataStream, objectInfo, file, UnityClassId.Object);
                     }
                 }
@@ -124,14 +122,14 @@ namespace Equilibrium {
             }
         }
 
-        public void LoadSerializedFile(string path, EquilibriumOptions? options) => LoadSerializedFile(File.OpenRead(path), path, FileStreamHandler.Instance.Value, false, null, options);
+        public void LoadSerializedFile(string path, EquilibriumOptions options) => LoadSerializedFile(File.OpenRead(path), path, FileStreamHandler.Instance.Value, options);
 
-        public void LoadFile(string path, EquilibriumOptions? options = null) => LoadFile(File.OpenRead(path), path, MultiStreamHandler.FileInstance.Value, options);
+        public void LoadFile(string path, EquilibriumOptions options) => LoadFile(File.OpenRead(path), path, MultiStreamHandler.FileInstance.Value, options);
 
-        private void LoadFile(Stream dataStream, object tag, IFileHandler handler, EquilibriumOptions? options = null, int align = 1, bool leaveOpen = false) {
+        private void LoadFile(Stream dataStream, object tag, IFileHandler handler, EquilibriumOptions options, int align = 1, bool leaveOpen = false) {
             try {
                 if (SerializedFile.IsSerializedFile(dataStream)) {
-                    LoadSerializedFile(dataStream, tag, handler, leaveOpen, null, options);
+                    LoadSerializedFile(dataStream, tag, handler, options, leaveOpen);
                 } else if (Bundle.IsBundleFile(dataStream)) {
                     LoadBundleSequence(dataStream, tag, handler, options, align, leaveOpen);
                 } else if (dataStream is FileStream fs &&
@@ -163,7 +161,7 @@ namespace Equilibrium {
             }
         }
 
-        public void LoadAssembly(Stream dataStream, string assemblyLocation, EquilibriumOptions? options, bool leaveOpen = false) {
+        public void LoadAssembly(Stream dataStream, string assemblyLocation, EquilibriumOptions options, bool leaveOpen = false) {
             try {
                 Assemblies.RemoveSearchDirectory(assemblyLocation);
                 Assemblies.AddSearchDirectory(assemblyLocation);
@@ -172,7 +170,7 @@ namespace Equilibrium {
                     dataStream.Dispose();
                 }
             } catch (Exception e) {
-                Debug.WriteLine(e);
+                options.Logger.Error("Assets", $"Failed to load assembly from {assemblyLocation}", e);
             } finally {
                 if (!leaveOpen) {
                     dataStream.Close();

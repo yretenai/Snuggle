@@ -11,10 +11,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Entropy", "Entropy\Entropy.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Negentropy", "Negentropy\Negentropy.csproj", "{A2606042-51E9-40BF-B4E0-6A1BCB9958F8}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Third Party", "Third Party", "{2CDE704F-92BD-41FE-8A13-358384EC4696}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AstcNETStandard", "Astc\Astc\AstcNETStandard.csproj", "{BFC899EA-919C-4323-80D9-71858C44FAF1}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -40,12 +36,7 @@ Global
 		{A2606042-51E9-40BF-B4E0-6A1BCB9958F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A2606042-51E9-40BF-B4E0-6A1BCB9958F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A2606042-51E9-40BF-B4E0-6A1BCB9958F8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BFC899EA-919C-4323-80D9-71858C44FAF1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BFC899EA-919C-4323-80D9-71858C44FAF1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BFC899EA-919C-4323-80D9-71858C44FAF1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BFC899EA-919C-4323-80D9-71858C44FAF1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{BFC899EA-919C-4323-80D9-71858C44FAF1} = {2CDE704F-92BD-41FE-8A13-358384EC4696}
 	EndGlobalSection
 EndGlobal

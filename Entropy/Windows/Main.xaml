@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:entropy="clr-namespace:Entropy.Components"
-        xmlns:viewModels="clr-namespace:Entropy.ViewModels"
+        xmlns:viewModel="clr-namespace:Entropy.ViewModels"
         xmlns:dragablz="http://dragablz.net/winfx/xaml/dragablz"
         mc:Ignorable="d"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
@@ -14,8 +14,10 @@
         TextOptions.TextRenderingMode="Auto"
         Background="{DynamicResource MaterialDesignPaper}"
         FontFamily="{DynamicResource MaterialDesignFont}"
-        DataContext="{x:Static Member=viewModels:EntropyCore.Instance}"
-        Title="Equilibrium Entropy" Height="450" Width="1200">
+        DataContext="{x:Static Member=viewModel:EntropyCore.Instance}"
+        Closing="ClearMemory"
+        Closed="Exit"
+        Title="Entropy" Height="800" Width="1200">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition MinWidth="500" Width="500" />

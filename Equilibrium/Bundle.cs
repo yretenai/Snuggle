@@ -61,7 +61,7 @@ namespace Equilibrium {
         public object Tag { get; set; }
         public IFileHandler Handler { get; set; }
 
-        public static Bundle[] OpenBundleSequence(Stream dataStream, object tag, IFileHandler handler, int align = 1, EquilibriumOptions? options = null, bool leaveOpen = false) {
+        public static Bundle[] OpenBundleSequence(Stream dataStream, object tag, IFileHandler handler, EquilibriumOptions options, int align = 1, bool leaveOpen = false) {
             var bundles = new List<Bundle>();
             while (dataStream.Position < dataStream.Length) {
                 var start = dataStream.Position;
@@ -69,7 +69,7 @@ namespace Equilibrium {
                     break;
                 }
 
-                var bundle = new Bundle(new OffsetStream(dataStream), new MultiMetaInfo(tag, start, 0), handler, options ?? EquilibriumOptions.Default, true);
+                var bundle = new Bundle(new OffsetStream(dataStream), new MultiMetaInfo(tag, start, 0), handler, options, true);
                 bundles.Add(bundle);
                 dataStream.Seek(start + bundle.Container.Length, SeekOrigin.Begin);
 

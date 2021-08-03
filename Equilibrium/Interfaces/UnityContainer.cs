@@ -31,7 +31,10 @@ namespace Equilibrium.Interfaces {
 
             stream = new MemoryStream { Position = 0 };
             var offset = block.Offset;
-            reader.BaseStream.Seek(DataStart, SeekOrigin.Begin);
+            if (DataStart >= 0) {
+                reader.BaseStream.Seek(DataStart, SeekOrigin.Begin);
+            }
+
             foreach (var (size, compressedSize, unityBundleBlockFlags) in BlockInfos) {
                 if (offset > size) {
                     offset -= size;

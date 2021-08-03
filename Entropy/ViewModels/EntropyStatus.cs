@@ -7,7 +7,22 @@ namespace Entropy.ViewModels {
     [PublicAPI]
     public class EntropyStatus : IStatusReporter, INotifyPropertyChanged {
         public string Message { get; private set; } = string.Empty;
-        public double Percent => InvalidValue ? 0 : (double) Value / Max * 100d;
+
+        public double Percent {
+            get {
+                if (InvalidValue) {
+                    return 0;
+                }
+
+                var value = (double) Value / Max * 100d;
+                if (double.IsNaN(value)) {
+                    return 0;
+                }
+
+                return value;
+            }
+        }
+
         public long Max { get; private set; }
         public long Value { get; private set; }
         public bool InvalidValue => Max == 0 && Value != 0 || Value < 0 || Max < 0;
@@ -30,8 +45,6 @@ namespace Entropy.ViewModels {
             OnPropertyChanged(nameof(Max));
             OnPropertyChanged(nameof(Percent));
         }
-
-        public void Log(string message) { }
 
         public void Reset() {
             Message = string.Empty;

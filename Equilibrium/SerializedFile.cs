@@ -14,11 +14,11 @@ using JetBrains.Annotations;
 namespace Equilibrium {
     [PublicAPI]
     public class SerializedFile : IRenewable {
-        public SerializedFile(Stream dataStream, object tag, IFileHandler handler, EquilibriumOptions? options = null, bool leaveOpen = false) {
+        public SerializedFile(Stream dataStream, object tag, IFileHandler handler, EquilibriumOptions options, bool leaveOpen = false) {
             try {
                 Tag = tag;
                 Handler = handler;
-                Options = options ?? EquilibriumOptions.Default;
+                Options = options;
 
                 using var reader = new BiEndianBinaryReader(dataStream, true, leaveOpen);
                 var header = UnitySerializedFile.FromReader(reader, Options);

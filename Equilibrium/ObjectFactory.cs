@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -94,18 +93,22 @@ namespace Equilibrium {
 
                 using var reader = new BiEndianBinaryReader(serializedFile.OpenFile(info, stream, true), serializedFile.Header.IsBigEndian);
                 try {
+                    var currentMemory = GC.GetTotalMemory(false);
                     var instance = Activator.CreateInstance(type, reader, info, serializedFile);
+                    var memoryUse = GC.GetTotalMemory(false) - currentMemory;
                     if (instance is not SerializedObject serializedObject) {
                         throw new InvalidTypeImplementation(overrideType ?? info.ClassId);
+                    }
+
+                    if (memoryUse >= 1.ToMebiBit()) {
+                        serializedFile.Options.Logger.Warning("Object", $"Using more than 1 MiB of memory to load {overrideType ?? serializedObject.ClassId:G} ({serializedObject.PathId}), consider moving some things to ToSerialize()");
                     }
 
                     if (overrideType == null &&
                         hasImplementation &&
                         reader.Unconsumed > 0 &&
                         !serializedObject.ShouldDeserialize) {
-                        var msg = $"{reader.Unconsumed} bytes left unconsumed in buffer and {serializedObject.ClassId:G} ({serializedObject.PathId}) object is not marked for deserialization! Check implementation";
-                        Debug.WriteLine(msg);
-                        serializedFile.Options.Reporter?.Log(msg);
+                        serializedFile.Options.Logger.Warning("Object", $"{reader.Unconsumed} bytes left unconsumed in buffer and {serializedObject.ClassId:G} ({serializedObject.PathId}) object is not marked for deserialization! Check implementation");
                     }
 
                     return serializedObject;

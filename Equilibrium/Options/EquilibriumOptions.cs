@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 using Equilibrium.Interfaces;
+using Equilibrium.Logging;
 using Equilibrium.Meta;
 using JetBrains.Annotations;
 
@@ -12,6 +13,9 @@ namespace Equilibrium.Options {
         UnityGame Game) {
         [JsonIgnore]
         public IStatusReporter? Reporter { get; set; }
+
+        [JsonIgnore]
+        public ILogger Logger { get; set; } = DebugLogger.Instance;
 
         public static EquilibriumOptions Default { get; } = new(false, true, UnityGame.Default);
 
