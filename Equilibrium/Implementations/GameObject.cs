@@ -14,6 +14,7 @@ namespace Equilibrium.Implementations {
         public GameObject(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) {
             var componentCount = reader.ReadInt32();
             Components = new List<ComponentPair>();
+            Components.EnsureCapacity(componentCount);
             for (var i = 0; i < componentCount; ++i) {
                 Components.Add(ComponentPair.FromReader(reader, serializedFile));
             }

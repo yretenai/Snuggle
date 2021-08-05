@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using Equilibrium.Interfaces;
 using Equilibrium.IO;
 using Equilibrium.Meta;
 using Equilibrium.Models;
@@ -9,13 +10,16 @@ using Equilibrium.Models.Objects;
 using Equilibrium.Models.Objects.Graphics;
 using Equilibrium.Models.Objects.Math;
 using Equilibrium.Models.Serialization;
+using Equilibrium.Options;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 
 namespace Equilibrium.Implementations {
     [PublicAPI, ObjectImplementation(UnityClassId.Mesh)]
-    public class Mesh : NamedObject {
-        public Mesh(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) { }
+    public class Mesh : NamedObject, ISerializedResource {
+        public Mesh(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) {
+            
+        }
 
         public Mesh(UnityObjectInfo info, SerializedFile serializedFile) : base(info, serializedFile) {
             Submeshes = new List<Submesh>();
@@ -69,6 +73,14 @@ namespace Equilibrium.Implementations {
 
         public float[] MeshMetrics { get; set; }
         public StreamingInfo StreamData { get; set; }
+
+        public override void Serialize(BiEndianBinaryWriter writer, AssetSerializationOptions options) {
+            throw new InvalidOperationException("Use Serialize(BiEndianBinaryWriter writer, BiEndianBinaryWriter resourceStream, AssetSerializationOptions options)");
+        }
+        
+        public void Serialize(BiEndianBinaryWriter writer, BiEndianBinaryWriter resourceStream, AssetSerializationOptions options) {
+            throw new NotImplementedException();
+        }
 
         public override bool ShouldDeserialize =>
             base.ShouldDeserialize ||

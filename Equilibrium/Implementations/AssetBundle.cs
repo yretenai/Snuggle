@@ -14,12 +14,14 @@ namespace Equilibrium.Implementations {
         public AssetBundle(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) {
             var preloadCount = reader.ReadInt32();
             PreloadTable = new List<PPtr<SerializedObject>>();
+            PreloadTable.EnsureCapacity(preloadCount);
             for (var i = 0; i < preloadCount; ++i) {
                 PreloadTable.Add(PPtr<SerializedObject>.FromReader(reader, serializedFile));
             }
 
             var containerCount = reader.ReadInt32();
             Container = new Dictionary<string, AssetInfo>();
+            Container.EnsureCapacity(containerCount);
             for (var i = 0; i < containerCount; ++i) {
                 Container[reader.ReadString32()] = AssetInfo.FromReader(reader, serializedFile);
             }
@@ -28,11 +30,12 @@ namespace Equilibrium.Implementations {
                 serializedFile.Version < UnityVersionRegister.Unity5_5) {
                 var classInfoCount = reader.ReadInt32();
                 ClassInfos = new Dictionary<int, uint>();
+                ClassInfos.EnsureCapacity(classInfoCount);
                 for (var i = 0; i < classInfoCount; ++i) {
                     ClassInfos[reader.ReadInt32()] = reader.ReadUInt32();
                 }
             } else {
-                ClassInfos = new Dictionary<int, uint>(0);
+                ClassInfos = new Dictionary<int, uint>();
             }
 
             MainAsset = AssetInfo.FromReader(reader, serializedFile);
@@ -41,6 +44,7 @@ namespace Equilibrium.Implementations {
 
             var dependencyCount = reader.ReadInt32();
             Dependencies = new List<string>();
+            Dependencies.EnsureCapacity(dependencyCount);
             for (var i = 0; i < dependencyCount; ++i) {
                 Dependencies.Add(reader.ReadString32());
             }
@@ -59,11 +63,12 @@ namespace Equilibrium.Implementations {
             if (serializedFile.Version > UnityVersionRegister.Unity2017_3) {
                 var sceneHashCount = reader.ReadInt32();
                 SceneHashes = new Dictionary<string, string>();
+                SceneHashes.EnsureCapacity(sceneHashCount);
                 for (var i = 0; i < sceneHashCount; ++i) {
                     SceneHashes[reader.ReadString32()] = reader.ReadString32();
                 }
             } else {
-                SceneHashes = new Dictionary<string, string>(0);
+                SceneHashes = new Dictionary<string, string>();
             }
         }
 

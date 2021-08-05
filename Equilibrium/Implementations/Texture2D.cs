@@ -115,6 +115,10 @@ namespace Equilibrium.Implementations {
         [JsonIgnore]
         public override bool ShouldDeserialize => base.ShouldDeserialize || PlatformData == null || TextureData == null;
 
+        public override void Serialize(BiEndianBinaryWriter writer, AssetSerializationOptions options) {
+            throw new InvalidOperationException("Use Serialize(BiEndianBinaryWriter writer, BiEndianBinaryWriter resourceStream, AssetSerializationOptions options)");
+        }
+
         public void Serialize(BiEndianBinaryWriter writer, BiEndianBinaryWriter resourceStream, AssetSerializationOptions options) {
             if (ShouldDeserialize) {
                 throw new IncompleteDeserializationException();

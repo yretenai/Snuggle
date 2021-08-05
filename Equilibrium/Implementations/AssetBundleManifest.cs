@@ -14,15 +14,18 @@ namespace Equilibrium.Implementations {
         public AssetBundleManifest(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) {
             var assetBundleNameCount = reader.ReadInt32();
             AssetBundleNames = new Dictionary<int, string>();
+            AssetBundleNames.EnsureCapacity(assetBundleNameCount);
             for (var i = 0; i < assetBundleNameCount; ++i) {
                 AssetBundleNames[reader.ReadInt32()] = reader.ReadString32();
             }
 
             var assetBundlesWithVariantCount = reader.ReadInt32();
             AssetBundlesWithVariant = new List<int>(reader.ReadArray<int>(assetBundlesWithVariantCount).ToArray());
+            AssetBundlesWithVariant.EnsureCapacity(assetBundlesWithVariantCount);
 
             var assetBundleInfoCount = reader.ReadInt32();
             AssetBundleInfos = new Dictionary<int, AssetBundleInfo>();
+            AssetBundleInfos.EnsureCapacity(assetBundleInfoCount);
             for (var i = 0; i < assetBundleInfoCount; ++i) {
                 AssetBundleInfos[reader.ReadInt32()] = AssetBundleInfo.FromReader(reader, serializedFile);
             }
