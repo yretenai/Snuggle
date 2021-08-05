@@ -11,6 +11,9 @@ namespace Equilibrium.Options {
         bool CacheData,
         bool CacheDataIfLZMA, // this literally takes two years, you want it to be enabled.
         UnityGame Game) {
+        private const int LatestVersion = 2;
+        public int Version { get; set; } = LatestVersion;
+
         [JsonIgnore]
         public IStatusReporter? Reporter { get; set; }
 
@@ -32,12 +35,23 @@ namespace Equilibrium.Options {
 
         public static EquilibriumOptions FromJson(string json) {
             try {
-                return JsonSerializer.Deserialize<EquilibriumOptions>(json, JsonOptions) ?? Default;
+                var options = JsonSerializer.Deserialize<EquilibriumOptions>(json, JsonOptions) ?? Default;
+                return options.NeedsMigration() ? options.Migrate() : options;
             } catch {
                 return Default;
             }
         }
 
         public string ToJson() => JsonSerializer.Serialize(this, JsonOptions);
+
+        public bool NeedsMigration() => Version < LatestVersion;
+
+        public EquilibriumOptions Migrate() {
+            if (Version < LatestVersion) {
+                return this with { CacheDataIfLZMA = true, Version = LatestVersion };
+            }
+
+            return this with { Version = LatestVersion };
+        }
     }
 }

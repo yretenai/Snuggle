@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -23,6 +22,7 @@ namespace Equilibrium {
         }
 
         public static Type BaseType { get; } = typeof(SerializedObject);
+        public static Type NamedBaseType { get; } = typeof(NamedObject);
         public static Type BaseClassIdType { get; } = typeof(UnityClassId);
 
         public static Dictionary<UnityGame, Dictionary<object, Type>> Implementations { get; set; } = new() {
@@ -101,32 +101,23 @@ namespace Equilibrium {
                         throw new InvalidTypeImplementation(overrideType ?? info.ClassId);
                     }
 
-                    if (memoryUse >= 1.ToMebiBit()) {
-                        serializedFile.Options.Logger.Warning("Object", $"Using more than 1 MiB of memory to load {overrideType ?? serializedObject.ClassId:G} ({serializedObject.PathId}), consider moving some things to ToSerialize()");
+                    if (memoryUse >= 1.ToMebiByte()) {
+                        serializedFile.Options.Logger.Warning("Object", $"Using more than 1 MiB of memory to load object {info.PathId} ({overrideType ?? info.ClassId:G}, {overrideGame:G}), consider moving some things to ToSerialize()");
                     }
 
                     if (overrideType == null &&
                         hasImplementation &&
                         reader.Unconsumed > 0 &&
                         !serializedObject.ShouldDeserialize) {
-                        serializedFile.Options.Logger.Warning("Object", $"{reader.Unconsumed} bytes left unconsumed in buffer and {serializedObject.ClassId:G} ({serializedObject.PathId}) object is not marked for deserialization! Check implementation");
+                        serializedFile.Options.Logger.Warning("Object", $"{reader.Unconsumed} bytes left unconsumed in buffer and object {info.PathId} ({overrideType ?? info.ClassId:G}, {overrideGame:G}) is not marked for deserialization! Check implementation");
                     }
 
                     return serializedObject;
-                } catch {
-                    if (Debugger.IsAttached) {
-                        try {
-                            if (!Directory.Exists($"DEBUG_DUMP/{serializedFile.Name}")) {
-                                Directory.CreateDirectory($"DEBUG_DUMP/{serializedFile.Name}");
-                            }
-
-                            reader.BaseStream.Seek(0, SeekOrigin.Begin);
-                            File.WriteAllBytes($"DEBUG_DUMP/{serializedFile.Name}/{info.PathId}.{info.ClassId:G}", reader.ReadBytes((int) info.Size));
-                        } catch {
-                            // ignored
-                        }
-                    } else if (overrideType?.Equals(UnityClassId.Object) == false) {
-                        overrideType = UnityClassId.Object;
+                } catch (Exception e) {
+                    serializedFile.Options.Logger.Error("Object", $"Failed to deserialize object {info.PathId} ({overrideType ?? info.ClassId:G}, {overrideGame:G})", e);
+                    if (overrideType == null ||
+                        overrideType.Equals(UnityClassId.Object) == false && overrideType.Equals(UnityClassId.NamedObject) == false) {
+                        overrideType = type.IsAssignableFrom(NamedBaseType) ? UnityClassId.NamedObject : UnityClassId.Object;
                         continue;
                     }
 

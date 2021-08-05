@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 using Equilibrium.Meta;
 using Equilibrium.Models.Bundle;
 using JetBrains.Annotations;
@@ -8,21 +9,34 @@ namespace Equilibrium.Options {
     public record BundleSerializationOptions(
         int BlockSize,
         UnityCompressionType CompressionType,
-        UnityCompressionType BlockCompressionType,
-        int TargetVersion,
-        UnityGame TargetGame) {
-        public static BundleSerializationOptions LZMA { get; } = new(int.MaxValue, UnityCompressionType.None, UnityCompressionType.LZMA, -1, UnityGame.Default);
-        public static BundleSerializationOptions LZ4 { get; } = new(0x20000, UnityCompressionType.None, UnityCompressionType.LZ4, -1, UnityGame.Default);
-        public static BundleSerializationOptions Default { get; } = new(int.MaxValue, UnityCompressionType.None, UnityCompressionType.None, -1, UnityGame.Default);
+        UnityCompressionType BlockCompressionType) {
+        private const int LatestVersion = 1;
+        public static BundleSerializationOptions LZMA { get; } = new(int.MaxValue, UnityCompressionType.None, UnityCompressionType.LZMA);
+        public static BundleSerializationOptions LZ4 { get; } = new(0x20000, UnityCompressionType.None, UnityCompressionType.LZ4);
+        public static BundleSerializationOptions Default { get; } = new(int.MaxValue, UnityCompressionType.None, UnityCompressionType.None);
+
+        [JsonIgnore]
+        public int TargetFormatVersion { get; init; } = -1;
+
+        [JsonIgnore]
+        public UnityGame TargetGame { get; init; } = UnityGame.Default;
+
+        public int Version { get; set; } = LatestVersion;
+
+        public BundleSerializationOptions MutateWithBundle(Bundle bundle) => this with { TargetFormatVersion = bundle.Header.FormatVersion, TargetGame = bundle.Options.Game };
 
         public static BundleSerializationOptions FromJson(string json) {
             try {
-                return JsonSerializer.Deserialize<BundleSerializationOptions>(json, EquilibriumOptions.JsonOptions) ?? Default;
+                var options = JsonSerializer.Deserialize<BundleSerializationOptions>(json, EquilibriumOptions.JsonOptions) ?? Default;
+                return options.NeedsMigration() ? options.Migrate() : options;
             } catch {
                 return Default;
             }
         }
 
         public string ToJson() => JsonSerializer.Serialize(this, EquilibriumOptions.JsonOptions);
+        public bool NeedsMigration() => Version < LatestVersion;
+
+        public BundleSerializationOptions Migrate() => this with { Version = LatestVersion };
     }
 }

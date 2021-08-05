@@ -31,14 +31,14 @@ namespace Entropy.ViewModels {
                     Log,
                 },
             };
-            SetOptions(File.Exists(SettingsFile) ? EquilibriumOptions.FromJson(File.ReadAllText(SettingsFile)) : EquilibriumOptions.Default);
+            SetOptions(File.Exists(SettingsFile) ? EntropySettings.FromJson(File.ReadAllText(SettingsFile)) : EntropySettings.Default);
         }
 
         public AssetCollection Collection { get; } = new();
         public EntropyStatus Status { get; } = new();
         public EntropyLog Log { get; set; } = new();
         public ILogger LogTarget { get; }
-        public EquilibriumOptions Options { get; private set; } = EquilibriumOptions.Default;
+        public EntropySettings Settings { get; private set; } = EntropySettings.Default;
         public Thread WorkerThread { get; private set; }
         public CancellationTokenSource TokenSource { get; private set; } = new();
         private BlockingCollection<Action<CancellationToken>> Tasks { get; set; } = new();
@@ -129,10 +129,16 @@ namespace Entropy.ViewModels {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
+        public void SetOptions(EntropySettings options) {
+            Settings = options with { Options = options.Options with { Reporter = Status, Logger = LogTarget } };
+            File.WriteAllText(SettingsFile, Settings.ToJson());
+            OnPropertyChanged(nameof(Settings));
+        }
+
         public void SetOptions(EquilibriumOptions options) {
-            Options = options with { Reporter = Status, Logger = LogTarget };
-            File.WriteAllText(SettingsFile, Options.ToJson());
-            OnPropertyChanged(nameof(Options));
+            Settings = Settings with { Options = options with { Reporter = Status, Logger = LogTarget } };
+            File.WriteAllText(SettingsFile, Settings.ToJson());
+            OnPropertyChanged(nameof(Settings));
         }
     }
 }

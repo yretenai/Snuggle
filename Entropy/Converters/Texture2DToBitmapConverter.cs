@@ -9,7 +9,6 @@ using DirectXTexNet;
 using Entropy.ViewModels;
 using Equilibrium.Extensions;
 using Equilibrium.Implementations;
-using Equilibrium.Options;
 
 namespace Entropy.Converters {
     public class Texture2DToBitmapConverter : MarkupExtension, IValueConverter {
@@ -20,7 +19,7 @@ namespace Entropy.Converters {
         private static async Task<BitmapImage?> ConvertTexture(Texture2D texture) {
             return await EntropyCore.Instance.WorkerAction(_ => {
                 if (texture.ShouldDeserialize) {
-                    texture.Deserialize(ObjectDeserializationOptions.Default);
+                    texture.Deserialize(EntropyCore.Instance.Settings.ObjectOptions);
                 }
 
                 var bytes = default(byte[]);

@@ -25,18 +25,22 @@
             <MenuItem Header="_Reset" Click="ResetTrampoline" />
             <MenuItem Header="_Exit" Click="ExitTrampoline" />
         </MenuItem>
-        <MenuItem Header="_Options">
-            <MenuItem Header="_Equilibrium">
-                <MenuItem Header="_Cache Memory"
-                          ToolTip="This can significantly increase performance at a heavy memory cost"
-                          IsCheckable="True"
-                          Checked="CacheDataChecked" Unchecked="CacheDataUnchecked" x:Name="CacheData" />
-                <MenuItem Header="_Cache LZMA Memory"
-                          ToolTip="This always significantly increases performance at a gigantic memory cost"
-                          IsCheckable="True"
-                          Checked="CacheDataLZMAChecked" Unchecked="CacheDataLZMAUnchecked" x:Name="CacheDataIfLZMA" />
-                <MenuItem Header="_Game" x:Name="UnityGameList" />
-            </MenuItem>
+        <MenuItem Header="_Equilibrium">
+            <MenuItem Header="_Cache Memory"
+                      ToolTip="This can significantly increase performance at a heavy memory cost"
+                      IsCheckable="True"
+                      Checked="CacheDataChecked" Unchecked="CacheDataUnchecked" x:Name="CacheData" />
+            <MenuItem Header="_Cache LZMA Memory"
+                      ToolTip="This always significantly increases performance at a gigantic memory cost"
+                      IsCheckable="True"
+                      Checked="CacheDataLZMAChecked" Unchecked="CacheDataLZMAUnchecked" x:Name="CacheDataIfLZMA" />
+            <MenuItem Header="_Game" x:Name="UnityGameList" />
+        </MenuItem>
+        <MenuItem Header="_Entropy">
+            <MenuItem Header="_Write Native Textures" />
+            <MenuItem Header="_Use Container Paths" />
+            <MenuItem Header="_Group By Type" />
+            <Separator />
             <MenuItem Header="Open _Debug Log" Click="OpenLog" />
         </MenuItem>
         <MenuItem>

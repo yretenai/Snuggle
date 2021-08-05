@@ -149,6 +149,10 @@ namespace Equilibrium.IO {
 
         public string ReadString32(int align = 4) {
             var length = ReadInt32();
+            if (length < 0) {
+                throw new InvalidDataException();
+            }
+
             Span<byte> span = new byte[length];
             Read(span);
             if (align > 1) {

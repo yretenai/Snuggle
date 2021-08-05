@@ -140,8 +140,8 @@ namespace Equilibrium {
                 bundleStream = new MemoryStream();
                 using var writer = new BiEndianBinaryWriter(bundleStream, true, true);
                 Header.ToWriter(writer, Options);
-                if (serializationOptions.TargetVersion < 0) {
-                    serializationOptions = serializationOptions with { TargetVersion = Header.FormatVersion };
+                if (serializationOptions.TargetFormatVersion < 0) {
+                    serializationOptions = serializationOptions.MutateWithBundle(this);
                 }
 
                 Container.ToWriter(writer, Header, Options, blocks, dataStream, serializationOptions);

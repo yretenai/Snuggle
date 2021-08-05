@@ -74,23 +74,22 @@ namespace Equilibrium {
             bundleStream = null;
             resourceStream = null;
 
-            var (alignment, resourceDataThreshold, targetVersion, targetGame, targetFileVersion, isBundle, resourceSuffix) = serializationOptions;
-
-            if (targetVersion < UnityVersionRegister.Unity5) {
-                targetVersion = Header.Version ?? UnityVersionRegister.Unity5;
+            if (serializationOptions.TargetVersion < UnityVersionRegister.Unity5 ||
+                serializationOptions.TargetFileVersion < UnitySerializedFileVersion.InitialVersion) {
+                serializationOptions = serializationOptions.MutateWithSerializedFile(this);
             }
 
-            if (targetFileVersion < UnitySerializedFileVersion.InitialVersion) {
-                targetFileVersion = Header.FileVersion;
-            }
-
-            var prefix = isBundle ? $"archive:/{Name}/" : "";
+            var (alignment, resourceDataThreshold, resourceSuffix, bundleTemplate) = serializationOptions;
+            var targetVersion = serializationOptions.TargetVersion;
+            var targetFileVersion = serializationOptions.TargetFileVersion;
+            var isBundle = serializationOptions.IsBundle;
+            var prefix = isBundle ? string.Format(bundleTemplate, Name) : "";
 
             var options = new AssetSerializationOptions(
                 alignment,
                 resourceDataThreshold,
                 targetVersion,
-                targetGame,
+                serializationOptions.TargetGame,
                 targetFileVersion,
                 prefix + Name,
                 prefix + Name + resourceSuffix);

@@ -19,11 +19,11 @@ namespace Entropy.Components {
         public Navigation() {
             InitializeComponent();
             var instance = EntropyCore.Instance;
-            CacheData.IsChecked = instance.Options.CacheData;
-            CacheDataIfLZMA.IsChecked = instance.Options.CacheDataIfLZMA;
+            CacheData.IsChecked = instance.Settings.Options.CacheData;
+            CacheDataIfLZMA.IsChecked = instance.Settings.Options.CacheDataIfLZMA;
             var descriptions = typeof(UnityGame).GetFields(BindingFlags.Static | BindingFlags.Public).ToDictionary(x => (UnityGame) x.GetValue(null)!, x => x.GetCustomAttribute<DescriptionAttribute>()?.Description ?? x.Name);
             foreach (var game in Enum.GetValues<UnityGame>()) {
-                var item = new MenuItem { Tag = game, Header = descriptions[game], IsChecked = instance.Options.Game == game, IsCheckable = true };
+                var item = new MenuItem { Tag = game, Header = descriptions[game], IsChecked = instance.Settings.Options.Game == game, IsCheckable = true };
                 item.Checked += UpdateGame;
                 item.Unchecked += CancelEvent;
                 UnityGameList.Items.Add(item);
@@ -36,7 +36,7 @@ namespace Entropy.Components {
                 return;
             }
 
-            if ((UnityGame) menuItem.Tag == EntropyCore.Instance.Options.Game) {
+            if ((UnityGame) menuItem.Tag == EntropyCore.Instance.Settings.Options.Game) {
                 menuItem.IsChecked = true;
             }
 
@@ -48,34 +48,34 @@ namespace Entropy.Components {
                 return;
             }
 
-            var game = EntropyCore.Instance.Options.Game;
+            var game = EntropyCore.Instance.Settings.Options.Game;
             if ((UnityGame) menuItem.Tag == game) {
                 return;
             }
 
-            EntropyCore.Instance.SetOptions(EntropyCore.Instance.Options with { Game = (UnityGame) menuItem.Tag });
+            EntropyCore.Instance.SetOptions(EntropyCore.Instance.Settings.Options with { Game = (UnityGame) menuItem.Tag });
             UnityGameItems[game].IsChecked = false;
             e.Handled = true;
         }
 
         private void CacheDataChecked(object sender, RoutedEventArgs e) {
             var instance = EntropyCore.Instance;
-            instance.SetOptions(instance.Options with { CacheData = true });
+            instance.SetOptions(instance.Settings.Options with { CacheData = true });
         }
 
         private void CacheDataUnchecked(object sender, RoutedEventArgs e) {
             var instance = EntropyCore.Instance;
-            instance.SetOptions(instance.Options with { CacheData = false });
+            instance.SetOptions(instance.Settings.Options with { CacheData = false });
         }
 
         private void CacheDataLZMAChecked(object sender, RoutedEventArgs e) {
             var instance = EntropyCore.Instance;
-            instance.SetOptions(instance.Options with { CacheDataIfLZMA = true });
+            instance.SetOptions(instance.Settings.Options with { CacheDataIfLZMA = true });
         }
 
         private void CacheDataLZMAUnchecked(object sender, RoutedEventArgs e) {
             var instance = EntropyCore.Instance;
-            instance.SetOptions(instance.Options with { CacheDataIfLZMA = false });
+            instance.SetOptions(instance.Settings.Options with { CacheDataIfLZMA = false });
         }
 
         private void LoadDirectory(object sender, RoutedEventArgs e) {
@@ -104,7 +104,7 @@ namespace Entropy.Components {
 
                     instance.Status.SetStatus($"Loading {file}");
                     instance.Status.SetProgress(instance.Status.Value + 1);
-                    instance.Collection.LoadFile(file, instance.Options);
+                    instance.Collection.LoadFile(file, instance.Settings.Options);
                 }
 
                 instance.Status.Reset();
@@ -140,7 +140,7 @@ namespace Entropy.Components {
 
                     instance.Status.SetStatus($"Loading {file}");
                     instance.Status.SetProgress(instance.Status.Value + 1);
-                    instance.Collection.LoadFile(file, instance.Options);
+                    instance.Collection.LoadFile(file, instance.Settings.Options);
                 }
 
                 instance.Status.Reset();

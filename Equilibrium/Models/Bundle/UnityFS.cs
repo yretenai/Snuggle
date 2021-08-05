@@ -26,7 +26,7 @@ namespace Equilibrium.Models.Bundle {
             writer.Write(0);
             writer.Write(0);
             writer.Write((int) (UnityFSFlags.CombinedData | (UnityFSFlags) serializationOptions.CompressionType));
-            if (serializationOptions.TargetVersion >= 7) {
+            if (serializationOptions.TargetFormatVersion >= 7) {
                 writer.Align(16);
             }
 
@@ -34,7 +34,7 @@ namespace Equilibrium.Models.Bundle {
             using var blockDataStream = new MemoryStream();
             using var blockInfoWriter = new BiEndianBinaryWriter(blockInfoStream, true);
             blockInfoWriter.Write(Hash);
-            var (blockSize, unityCompressionType, _, _, _) = serializationOptions;
+            var (blockSize, unityCompressionType, _) = serializationOptions;
             var blockLength = blocks.Sum(x => x.Size);
             var blockInfoCount = (int) Math.Ceiling((double) blockLength / blockSize);
             var blockInfoStart = blockInfoStream.Position;
