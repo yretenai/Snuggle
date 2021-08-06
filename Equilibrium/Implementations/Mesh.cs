@@ -219,6 +219,11 @@ namespace Equilibrium.Implementations {
 
             VertexData.Deserialize(reader, SerializedFile, options);
 
+            if (VertexData.Data!.Value.IsEmpty &&
+                StreamData.Size > 0) {
+                VertexData.Data = StreamData.GetData(SerializedFile.Assets, options);
+            }
+
             CompressedMesh.Deserialize(reader, SerializedFile, options);
 
             if (BakedConvexCollisionMeshStart > -1) {
