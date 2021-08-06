@@ -177,15 +177,24 @@ namespace Equilibrium.IO {
             return sb.ToString();
         }
 
-        public Span<T> ReadArray<T>(int count) where T : struct {
-            Span<byte> span = new byte[Unsafe.SizeOf<T>() * count];
+        public Span<byte> ReadArray(int count) {
+            Span<byte> span = new byte[count];
             Read(span);
-            var value = MemoryMarshal.Cast<byte, T>(span);
             if (ShouldInvertEndianness) {
                 throw new NotSupportedException("Cannot invert endianness of arrays");
             }
 
-            return value;
+            return span;
+        }
+
+        public Span<T> ReadArray<T>(int count) where T : struct {
+            Span<T> span = new T[count];
+            Read(MemoryMarshal.Cast<T, byte>(span));
+            if (ShouldInvertEndianness) {
+                throw new NotSupportedException("Cannot invert endianness of arrays");
+            }
+
+            return span;
         }
 
         public Memory<byte> ReadMemory(long count) {
@@ -194,15 +203,24 @@ namespace Equilibrium.IO {
             return memory;
         }
 
+        public Memory<T> ReadMemory<T>(long count) where T : struct {
+            Memory<T> memory = new T[count];
+            Read(MemoryMarshal.Cast<T, byte>(memory.Span));
+            if (ShouldInvertEndianness) {
+                throw new NotSupportedException("Cannot invert endianness of arrays");
+            }
+
+            return memory;
+        }
+
         public T ReadStruct<T>() where T : struct {
-            Span<byte> span = new byte[Unsafe.SizeOf<T>()];
-            Read(span);
-            var value = MemoryMarshal.Read<T>(span);
+            Span<T> span = new T[1];
+            Read(MemoryMarshal.Cast<T, byte>(span));
             if (ShouldInvertEndianness) {
                 throw new NotSupportedException("Cannot invert endianness of structs");
             }
 
-            return value;
+            return span[0];
         }
     }
 }

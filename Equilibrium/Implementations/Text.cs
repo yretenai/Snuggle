@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Text.Json.Serialization;
 using Equilibrium.Exceptions;
 using Equilibrium.IO;
 using Equilibrium.Meta;
@@ -27,6 +28,8 @@ namespace Equilibrium.Implementations {
 
         private long StringStart { get; set; }
         public string? String { get; set; }
+
+        [JsonIgnore]
         public override bool ShouldDeserialize => base.ShouldDeserialize || String == null;
 
         public override void Deserialize(BiEndianBinaryReader reader, ObjectDeserializationOptions options) {

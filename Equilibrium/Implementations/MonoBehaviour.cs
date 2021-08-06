@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Text.Json.Serialization;
 using Equilibrium.Exceptions;
 using Equilibrium.IO;
 using Equilibrium.Meta;
@@ -7,7 +8,6 @@ using Equilibrium.Models;
 using Equilibrium.Models.Serialization;
 using Equilibrium.Options;
 using JetBrains.Annotations;
-using Newtonsoft.Json;
 
 namespace Equilibrium.Implementations {
     [PublicAPI, UsedImplicitly, ObjectImplementation(UnityClassId.MonoBehaviour)]
@@ -30,7 +30,7 @@ namespace Equilibrium.Implementations {
         [JsonIgnore]
         public ObjectNode? ObjectData { get; set; }
 
-        private long DataStart { get; set; } = -1;
+        private long DataStart { get; init; } = -1;
 
         [JsonIgnore]
         public override bool ShouldDeserialize => base.ShouldDeserialize || Data == null && !Script.IsNull;

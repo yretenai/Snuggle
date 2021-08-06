@@ -190,9 +190,8 @@ namespace Equilibrium.IO {
                 throw new NotSupportedException("Cannot invert endianness of structs");
             }
 
-            Span<byte> span = new byte[Unsafe.SizeOf<T>()];
-            MemoryMarshal.Write(span, ref value);
-            Write(span);
+            Span<T> span = new[] { value };
+            Write(MemoryMarshal.Cast<T, byte>(span));
         }
     }
 }

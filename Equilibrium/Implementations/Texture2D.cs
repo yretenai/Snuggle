@@ -102,8 +102,8 @@ namespace Equilibrium.Implementations {
         public GLTextureSettings TextureSettings { get; set; }
         public LightmapFormat LightmapFormat { get; set; }
         public ColorSpace ColorSpace { get; set; }
-        private long TextureDataStart { get; set; } = -1;
-        private long PlatformDataStart { get; set; } = -1;
+        private long TextureDataStart { get; init; } = -1;
+        private long PlatformDataStart { get; init; } = -1;
 
         [JsonIgnore]
         public Memory<byte>? PlatformData { get; set; }
@@ -218,7 +218,7 @@ namespace Equilibrium.Implementations {
 
         public Span<byte> ToDDS() {
             if (ShouldDeserialize) {
-                throw new InvalidDataException();
+                throw new IncompleteDeserializationException();
             }
 
             return DXGI.BuildDDS(TextureFormat.ToD3DPixelFormat(),

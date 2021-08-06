@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Text.Json.Serialization;
 using Equilibrium.Exceptions;
@@ -10,42 +9,38 @@ using JetBrains.Annotations;
 
 namespace Equilibrium.Models.Objects.Graphics {
     [PublicAPI]
-    public record VertexData(
-        uint CurrentChannels,
-        uint VertexCount,
-        List<ChannelInfo> Channels) {
+    public record PackedBitVector(
+        uint Count,
+        byte BitSize) {
         private long DataStart { get; init; } = -1;
+        public float Range { get; init; }
+        public float Start { get; init; }
+        public bool HasRange { get; init; }
 
         [JsonIgnore]
         public Memory<byte>? Data { get; set; }
 
-        public static VertexData Default { get; } = new(0, 0, new List<ChannelInfo>());
+        public static PackedBitVector Default { get; } = new(0, 0);
 
         [JsonIgnore]
         public bool ShouldDeserialize => Data == null;
 
-        public static VertexData FromReader(BiEndianBinaryReader reader, SerializedFile file) {
-            var currentChannels = 0U;
-            if (file.Version < UnityVersionRegister.Unity2018) {
-                currentChannels = reader.ReadUInt32();
-            }
-
-            var vertexCount = reader.ReadUInt32();
-
-            var channelCount = reader.ReadInt32();
-            var channels = new List<ChannelInfo>();
-            channels.EnsureCapacity(channelCount);
-
-            for (var i = 0; i < channelCount; ++i) {
-                channels.Add(ChannelInfo.FromReader(reader, file));
+        public static PackedBitVector FromReader(BiEndianBinaryReader reader, SerializedFile file, bool hasRange) {
+            var count = reader.ReadUInt32();
+            var range = 0f;
+            var start = 0f;
+            if (hasRange) {
+                range = reader.ReadSingle();
+                start = reader.ReadSingle();
             }
 
             var dataStart = reader.BaseStream.Position;
             var dataCount = reader.ReadInt32();
             reader.BaseStream.Seek(dataCount, SeekOrigin.Current);
             reader.Align();
-
-            return new VertexData(currentChannels, vertexCount, channels) { DataStart = dataStart };
+            var bitSize = reader.ReadByte();
+            reader.Align();
+            return new PackedBitVector(count, bitSize) { Range = range, Start = start, DataStart = dataStart, HasRange = hasRange };
         }
 
         public void ToWriter(BiEndianBinaryWriter writer, SerializedFile serializedFile, UnityVersion targetVersion) {
@@ -53,19 +48,16 @@ namespace Equilibrium.Models.Objects.Graphics {
                 throw new IncompleteDeserializationException();
             }
 
-            if (targetVersion < UnityVersionRegister.Unity2018) {
-                writer.Write(CurrentChannels);
-            }
-
-            writer.Write(VertexCount);
-            writer.Write(Channels.Count);
-
-            foreach (var channel in Channels) {
-                channel.ToWriter(writer, serializedFile, targetVersion);
+            writer.Write(Count);
+            if (HasRange) {
+                writer.Write(Range);
+                writer.Write(Start);
             }
 
             writer.Write(Data!.Value.Length);
             writer.WriteMemory(Data);
+            writer.Align();
+            writer.Write(BitSize);
         }
 
         public void Deserialize(BiEndianBinaryReader reader, SerializedFile serializedFile, ObjectDeserializationOptions options) {

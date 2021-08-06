@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Numerics;
+using System.Text.Json.Serialization;
 using Equilibrium.Interfaces;
 using Equilibrium.IO;
 using Equilibrium.Meta;
@@ -13,7 +13,6 @@ using Equilibrium.Models.Objects.Math;
 using Equilibrium.Models.Serialization;
 using Equilibrium.Options;
 using JetBrains.Annotations;
-using Newtonsoft.Json;
 
 namespace Equilibrium.Implementations {
     [PublicAPI, ObjectImplementation(UnityClassId.Mesh)]
@@ -30,11 +29,7 @@ namespace Equilibrium.Implementations {
 
             BindPoseStart = reader.BaseStream.Position;
             var bindPoseCount = reader.ReadInt32();
-            if (bindPoseCount == 0) {
-                BindPose = Memory<Matrix4x4>.Empty;
-            } else {
-                reader.BaseStream.Seek(64 * bindPoseCount, SeekOrigin.Current);
-            }
+            reader.BaseStream.Seek(64 * bindPoseCount, SeekOrigin.Current);
 
             var boneNameCount = reader.ReadInt32();
             BoneNameHashes = reader.ReadArray<uint>(boneNameCount).ToArray().ToList();
@@ -50,11 +45,7 @@ namespace Equilibrium.Implementations {
 
                 VariableBoneCountWeightsStart = reader.BaseStream.Position;
                 var variableBoneCountWeightsCount = reader.ReadInt32();
-                if (variableBoneCountWeightsCount == 0) {
-                    VariableBoneCountWeights = Memory<uint>.Empty;
-                } else {
-                    reader.BaseStream.Seek(4 * variableBoneCountWeightsCount, SeekOrigin.Current);
-                }
+                reader.BaseStream.Seek(4 * variableBoneCountWeightsCount, SeekOrigin.Current);
             } else {
                 BonesAABB = new List<AABB>();
                 VariableBoneCountWeights = Memory<uint>.Empty;
@@ -65,6 +56,8 @@ namespace Equilibrium.Implementations {
             KeepVertices = reader.ReadBoolean();
             KeepIndices = reader.ReadBoolean();
 
+            reader.Align();
+
             if (serializedFile.Version >= UnityVersionRegister.Unity2017_4 ||
                 serializedFile.Version == UnityVersionRegister.Unity2017_3_1_P ||
                 serializedFile.Version >= UnityVersionRegister.Unity2017_3 && MeshCompression == 0) {
@@ -73,11 +66,8 @@ namespace Equilibrium.Implementations {
 
             IndicesStart = reader.BaseStream.Position;
             var indicesCount = reader.ReadInt32();
-            if (indicesCount == 0) {
-                Indices = Memory<byte>.Empty;
-            } else {
-                reader.BaseStream.Seek(indicesCount, SeekOrigin.Current);
-            }
+            reader.BaseStream.Seek(indicesCount, SeekOrigin.Current);
+            reader.Align();
 
             if (serializedFile.Version <= UnityVersionRegister.Unity2018_1) {
                 SkinStart = reader.BaseStream.Position;
@@ -94,27 +84,19 @@ namespace Equilibrium.Implementations {
 
             BakedConvexCollisionMeshStart = reader.BaseStream.Position;
             var bakedMeshCollisionMeshSize = reader.ReadInt32();
-            if (bakedMeshCollisionMeshSize == 0) {
-                BakedConvexCollisionMesh = Memory<byte>.Empty;
-            } else {
-                reader.BaseStream.Seek(bakedMeshCollisionMeshSize, SeekOrigin.Current);
-            }
+            reader.BaseStream.Seek(bakedMeshCollisionMeshSize, SeekOrigin.Current);
+            reader.Align();
 
             BakedTriangleCollisionMeshStart = reader.BaseStream.Position;
             var bakedTriangleCollisionMeshSize = reader.ReadInt32();
-            if (bakedTriangleCollisionMeshSize == 0) {
-                BakedTriangleCollisionMesh = Memory<byte>.Empty;
-            } else {
-                reader.BaseStream.Seek(bakedTriangleCollisionMeshSize, SeekOrigin.Current);
-            }
+            reader.BaseStream.Seek(bakedTriangleCollisionMeshSize, SeekOrigin.Current);
+            reader.Align();
 
             if (serializedFile.Version >= UnityVersionRegister.Unity2018_2) {
                 MeshMetrics = new[] { reader.ReadSingle(), reader.ReadSingle() };
             } else {
                 MeshMetrics = new[] { 0f, 0f };
             }
-
-            reader.Align();
 
             if (serializedFile.Version >= UnityVersionRegister.Unity2018_3) {
                 StreamData = StreamingInfo.FromReader(reader, serializedFile);
@@ -135,18 +117,18 @@ namespace Equilibrium.Implementations {
             StreamData = StreamingInfo.Default;
         }
 
-        private long BindPoseStart { get; set; }
-        private long VariableBoneCountWeightsStart { get; set; }
-        private long IndicesStart { get; set; }
-        private long SkinStart { get; set; }
-        private long BakedConvexCollisionMeshStart { get; set; }
-        private long BakedTriangleCollisionMeshStart { get; set; }
+        private long BindPoseStart { get; init; } = -1;
+        private long VariableBoneCountWeightsStart { get; init; } = -1;
+        private long IndicesStart { get; init; } = -1;
+        private long SkinStart { get; init; } = -1;
+        private long BakedConvexCollisionMeshStart { get; init; } = -1;
+        private long BakedTriangleCollisionMeshStart { get; init; } = -1;
 
         public List<Submesh> Submeshes { get; set; }
         public BlendShapeData BlendShapeData { get; set; }
 
         [JsonIgnore]
-        public Memory<Matrix4x4>? BindPose { get; set; }
+        public Memory<Matrix4X4>? BindPose { get; set; }
 
         public List<uint> BoneNameHashes { get; set; }
         public uint RootBoneNameHash { get; set; }
@@ -164,6 +146,9 @@ namespace Equilibrium.Implementations {
         [JsonIgnore]
         public Memory<byte>? Indices { get; set; }
 
+        [JsonIgnore]
+        public List<BoneWeight>? Skin { get; set; }
+
         public VertexData VertexData { get; set; }
         public CompressedMesh CompressedMesh { get; set; }
         public AABB LocalAABB { get; set; }
@@ -177,11 +162,13 @@ namespace Equilibrium.Implementations {
 
         public float[] MeshMetrics { get; set; }
 
+        [JsonIgnore]
         public override bool ShouldDeserialize =>
             base.ShouldDeserialize ||
             BindPose == null ||
             VariableBoneCountWeights == null ||
             Indices == null ||
+            Skin == null ||
             BakedConvexCollisionMesh == null ||
             BakedTriangleCollisionMesh == null ||
             VertexData.ShouldDeserialize ||
@@ -189,6 +176,63 @@ namespace Equilibrium.Implementations {
             BlendShapeData.ShouldDeserialize;
 
         public StreamingInfo StreamData { get; set; }
+
+        public override void Deserialize(BiEndianBinaryReader reader, ObjectDeserializationOptions options) {
+            base.Deserialize(reader, options);
+            BlendShapeData.Deserialize(reader, SerializedFile, options);
+
+            if (BindPoseStart > -1) {
+                reader.BaseStream.Seek(BindPoseStart, SeekOrigin.Begin);
+                var bindPoseCount = reader.ReadInt32();
+                BindPose = reader.ReadMemory<Matrix4X4>(bindPoseCount);
+            } else {
+                BindPose = Memory<Matrix4X4>.Empty;
+            }
+
+            if (VariableBoneCountWeightsStart > -1) {
+                reader.BaseStream.Seek(VariableBoneCountWeightsStart, SeekOrigin.Begin);
+                var variableBoneCountWeightsCount = reader.ReadInt32();
+                VariableBoneCountWeights = reader.ReadMemory<uint>(variableBoneCountWeightsCount);
+            } else {
+                VariableBoneCountWeights = Memory<uint>.Empty;
+            }
+
+            if (IndicesStart > -1) {
+                reader.BaseStream.Seek(IndicesStart, SeekOrigin.Begin);
+                var indicesCount = reader.ReadInt32();
+                Indices = reader.ReadMemory(indicesCount);
+            } else {
+                Indices = Memory<byte>.Empty;
+            }
+
+            if (SkinStart > -1) {
+                reader.BaseStream.Seek(SkinStart, SeekOrigin.Begin);
+                var boneWeightsCount = reader.ReadInt32();
+                Skin = new List<BoneWeight>();
+                Skin.EnsureCapacity(boneWeightsCount);
+                for (var i = 0; i < boneWeightsCount; ++i) {
+                    Skin.Add(BoneWeight.FromReader(reader, SerializedFile));
+                }
+            } else {
+                Skin = new List<BoneWeight>();
+            }
+
+            VertexData.Deserialize(reader, SerializedFile, options);
+
+            CompressedMesh.Deserialize(reader, SerializedFile, options);
+
+            if (BakedConvexCollisionMeshStart > -1) {
+                reader.BaseStream.Seek(BakedConvexCollisionMeshStart, SeekOrigin.Begin);
+                var bakedMeshCollisionMeshSize = reader.ReadInt32();
+                BakedConvexCollisionMesh = reader.ReadMemory(bakedMeshCollisionMeshSize);
+            }
+
+            if (BakedTriangleCollisionMeshStart > -1) {
+                reader.BaseStream.Seek(BakedTriangleCollisionMeshStart, SeekOrigin.Begin);
+                var bakedTriangleCollisionMeshSize = reader.ReadInt32();
+                BakedTriangleCollisionMesh = reader.ReadMemory(bakedTriangleCollisionMeshSize);
+            }
+        }
 
         public override void Serialize(BiEndianBinaryWriter writer, AssetSerializationOptions options) {
             throw new InvalidOperationException("Use Serialize(BiEndianBinaryWriter writer, BiEndianBinaryWriter resourceStream, AssetSerializationOptions options)");
