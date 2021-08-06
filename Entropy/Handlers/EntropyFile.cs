@@ -169,16 +169,17 @@ namespace Entropy.Handlers {
         }
 
         private static string GetResultPath(string outputDirectory, SerializedObject serializedObject) {
+            var path = outputDirectory;
+            if (EntropyCore.Instance.Settings.GroupByType) {
+                path = Path.Combine(path, ((Enum) serializedObject.ClassId).ToString("G"));
+            }
+
             if (EntropyCore.Instance.Settings.UseContainerPaths &&
                 !string.IsNullOrWhiteSpace(serializedObject.ObjectContainerPath)) {
-                return Path.Combine(outputDirectory, "./" + serializedObject.ObjectContainerPath.SanitizeDirname());
+                path = Path.Combine(path, "./" + serializedObject.ObjectContainerPath.SanitizeDirname());
             }
 
-            if (EntropyCore.Instance.Settings.GroupByType) {
-                return Path.Combine(outputDirectory, ((Enum) serializedObject.ClassId).ToString("G"));
-            }
-
-            return outputDirectory;
+            return path;
         }
     }
 }

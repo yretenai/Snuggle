@@ -19,6 +19,9 @@ namespace Entropy.Components {
             var instance = EntropyCore.Instance;
             CacheData.IsChecked = instance.Settings.Options.CacheData;
             CacheDataIfLZMA.IsChecked = instance.Settings.Options.CacheDataIfLZMA;
+            WriteNativeTextures.IsChecked = instance.Settings.WriteNativeTextures;
+            UseContainerPaths.IsChecked = instance.Settings.UseContainerPaths;
+            GroupByType.IsChecked = instance.Settings.GroupByType;
             var descriptions = typeof(UnityGame).GetFields(BindingFlags.Static | BindingFlags.Public).ToDictionary(x => (UnityGame) x.GetValue(null)!, x => x.GetCustomAttribute<DescriptionAttribute>()?.Description ?? x.Name);
             foreach (var game in Enum.GetValues<UnityGame>()) {
                 var item = new MenuItem { Tag = game, Header = "_" + descriptions[game], IsChecked = instance.Settings.Options.Game == game, IsCheckable = true };
@@ -75,6 +78,36 @@ namespace Entropy.Components {
         private void CacheDataLZMAUnchecked(object sender, RoutedEventArgs e) {
             var instance = EntropyCore.Instance;
             instance.SetOptions(instance.Settings.Options with { CacheDataIfLZMA = false });
+        }
+
+        private void WriteNativeTexturesChecked(object sender, RoutedEventArgs e) {
+            var instance = EntropyCore.Instance;
+            instance.SetOptions(instance.Settings with { WriteNativeTextures = true });
+        }
+
+        private void WriteNativeTexturesUnchecked(object sender, RoutedEventArgs e) {
+            var instance = EntropyCore.Instance;
+            instance.SetOptions(instance.Settings with { WriteNativeTextures = false });
+        }
+
+        private void UseContainerPathsChecked(object sender, RoutedEventArgs e) {
+            var instance = EntropyCore.Instance;
+            instance.SetOptions(instance.Settings with { UseContainerPaths = true });
+        }
+
+        private void UseContainerPathsUnchecked(object sender, RoutedEventArgs e) {
+            var instance = EntropyCore.Instance;
+            instance.SetOptions(instance.Settings with { UseContainerPaths = false });
+        }
+
+        private void GroupByTypeChecked(object sender, RoutedEventArgs e) {
+            var instance = EntropyCore.Instance;
+            instance.SetOptions(instance.Settings with { GroupByType = true });
+        }
+
+        private void GroupByTypeUnchecked(object sender, RoutedEventArgs e) {
+            var instance = EntropyCore.Instance;
+            instance.SetOptions(instance.Settings with { GroupByType = false });
         }
 
         private void LoadDirectory(object sender, RoutedEventArgs e) {
