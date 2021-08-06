@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 
 namespace Equilibrium.Models.Serialization {
     [PublicAPI]
-    public record UnitySerializedFile (
+    public record UnitySerializedFile(
         int HeaderSize,
         long Size,
         UnitySerializedFileVersion FileVersion,

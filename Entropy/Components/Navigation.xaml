@@ -49,14 +49,16 @@
             <MenuItem Header="_Game" x:Name="UnityGameList" />
         </MenuItem>
         <MenuItem Header="_Entropy">
-            <MenuItem Header="_Write Native Textures" 
+            <MenuItem Header="_Write Native Textures"
                       ToolTip="Writes Native 3D textures such as DDS instead of converting them to PNG or TIF"
                       IsCheckable="True"
-                      Checked="WriteNativeTexturesChecked" Unchecked="WriteNativeTexturesUnchecked" x:Name="WriteNativeTextures" />
-            <MenuItem Header="_Use Container Paths" 
+                      Checked="WriteNativeTexturesChecked" Unchecked="WriteNativeTexturesUnchecked"
+                      x:Name="WriteNativeTextures" />
+            <MenuItem Header="_Use Container Paths"
                       ToolTip="Uses CAB container paths"
                       IsCheckable="True"
-                      Checked="UseContainerPathsChecked" Unchecked="UseContainerPathsUnchecked" x:Name="UseContainerPaths" />
+                      Checked="UseContainerPathsChecked" Unchecked="UseContainerPathsUnchecked"
+                      x:Name="UseContainerPaths" />
             <MenuItem Header="_Group By Class Id"
                       ToolTip="Groups Extraction paths by Class Id"
                       IsCheckable="True"

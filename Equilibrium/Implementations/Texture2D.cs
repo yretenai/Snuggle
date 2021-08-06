@@ -102,7 +102,6 @@ namespace Equilibrium.Implementations {
         public GLTextureSettings TextureSettings { get; set; }
         public LightmapFormat LightmapFormat { get; set; }
         public ColorSpace ColorSpace { get; set; }
-        public StreamingInfo StreamData { get; set; }
         private long TextureDataStart { get; set; } = -1;
         private long PlatformDataStart { get; set; } = -1;
 
@@ -114,6 +113,8 @@ namespace Equilibrium.Implementations {
 
         [JsonIgnore]
         public override bool ShouldDeserialize => base.ShouldDeserialize || PlatformData == null || TextureData == null;
+
+        public StreamingInfo StreamData { get; set; }
 
         public override void Serialize(BiEndianBinaryWriter writer, AssetSerializationOptions options) {
             throw new InvalidOperationException("Use Serialize(BiEndianBinaryWriter writer, BiEndianBinaryWriter resourceStream, AssetSerializationOptions options)");
