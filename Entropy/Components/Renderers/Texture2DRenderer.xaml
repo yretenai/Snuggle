@@ -8,7 +8,9 @@
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300"
              d:DataContext="{d:DesignInstance implementations:Texture2D}"
-             SnapsToDevicePixels="False">
+             x:Name="Renderer"
+             SnapsToDevicePixels="False"
+             Background="{Binding CanvasBackground, ElementName=Renderer}">
     <UserControl.Resources>
         <converters:Texture2DToBitmapConverter x:Key="BitmapConverter" />
     </UserControl.Resources>

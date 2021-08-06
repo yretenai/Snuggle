@@ -109,7 +109,7 @@ namespace Equilibrium {
 
                 foreach (var (pathId, objectInfo) in file.ObjectInfos) {
                     options.Reporter?.SetStatus($"Processing {pathId} ({objectInfo.ClassId:G})");
-                    file.GetObject(objectInfo, options, dataStream);
+                    file.PreloadObject(objectInfo, options, dataStream);
                 }
 
                 Files[path] = file;

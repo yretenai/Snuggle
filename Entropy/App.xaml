@@ -27,6 +27,15 @@
                     <DataTemplate x:Key="EntropyNullRenderer">
                         <renderers:NullRenderer />
                     </DataTemplate>
+                    <DrawingBrush TileMode="Tile" Viewport="0,0,32,32" ViewportUnits="Absolute"
+                                  x:Key="CheckerboardBrush">
+                        <DrawingBrush.Drawing>
+                            <DrawingGroup>
+                                <GeometryDrawing Geometry="M0,0 H2 V2 H0Z" Brush="#FF101010" />
+                                <GeometryDrawing Geometry="M0,0 H1 V1 H2 V2 H1 V1 H0Z" Brush="#FF202020" />
+                            </DrawingGroup>
+                        </DrawingBrush.Drawing>
+                    </DrawingBrush>
                 </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>

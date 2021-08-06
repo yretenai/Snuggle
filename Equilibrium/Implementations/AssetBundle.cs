@@ -22,10 +22,10 @@ namespace Equilibrium.Implementations {
             }
 
             var containerCount = reader.ReadInt32();
-            Container = new Dictionary<string, AssetInfo>();
+            Container = new List<KeyValuePair<string, AssetInfo>>();
             Container.EnsureCapacity(containerCount);
             for (var i = 0; i < containerCount; ++i) {
-                Container[reader.ReadString32()] = AssetInfo.FromReader(reader, serializedFile);
+                Container.Add(new KeyValuePair<string, AssetInfo>(reader.ReadString32(), AssetInfo.FromReader(reader, serializedFile)));
             }
 
             if (serializedFile.Version >= UnityVersionRegister.Unity5_4 &&
@@ -76,7 +76,7 @@ namespace Equilibrium.Implementations {
 
         public AssetBundle(UnityObjectInfo info, SerializedFile serializedFile) : base(info, serializedFile) {
             PreloadTable = new List<PPtr<SerializedObject>>();
-            Container = new Dictionary<string, AssetInfo>();
+            Container = new List<KeyValuePair<string, AssetInfo>>();
             ClassInfos = new Dictionary<int, uint>();
             AssetBundleName = string.Empty;
             MainAsset = new AssetInfo(0, 0, PPtr<SerializedObject>.Null);
@@ -85,7 +85,7 @@ namespace Equilibrium.Implementations {
         }
 
         public List<PPtr<SerializedObject>> PreloadTable { get; set; }
-        public Dictionary<string, AssetInfo> Container { get; set; }
+        public List<KeyValuePair<string, AssetInfo>> Container { get; set; }
         public Dictionary<int, uint> ClassInfos { get; set; }
         public AssetInfo MainAsset { get; set; }
         public uint RuntimeCompatibility { get; set; }
@@ -95,6 +95,10 @@ namespace Equilibrium.Implementations {
         public int ExplicitDataLayout { get; set; }
         public int PathFlags { get; set; }
         public Dictionary<string, string> SceneHashes { get; set; }
+
+        public Dictionary<PPtr<SerializedObject>, string> GetCABPaths() {
+            return Container.DistinctBy(x => x.Value.Asset).ToDictionary(x => x.Value.Asset, x => x.Key);
+        }
 
         public override void Serialize(BiEndianBinaryWriter writer, AssetSerializationOptions options) {
             base.Serialize(writer, options);
@@ -148,10 +152,6 @@ namespace Equilibrium.Implementations {
                     writer.WriteString32(hash);
                 }
             }
-        }
-
-        public Dictionary<string, PPtr<SerializedObject>> GetCABPaths() {
-            return Container.ToDictionary(x => x.Key, x => x.Value.Asset);
         }
 
         public override string ToString() => string.IsNullOrWhiteSpace(AssetBundleName) ? base.ToString() : AssetBundleName;

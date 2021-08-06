@@ -73,48 +73,19 @@ namespace Equilibrium {
 
         public static SerializedObject GetInstance(Stream stream, UnityObjectInfo info, SerializedFile serializedFile, object? overrideType = null, UnityGame? overrideGame = null) {
             while (true) {
-                if (!Implementations.TryGetValue(overrideGame ?? serializedFile.Options.Game, out var gameImplementations)) {
-                    overrideGame = UnityGame.Default;
-                    gameImplementations = Implementations[UnityGame.Default];
-                }
-
-                var hasImplementation = gameImplementations.TryGetValue(overrideType ?? info.ClassId, out var type);
-                if (!hasImplementation) {
-                    if (overrideGame != UnityGame.Default) {
-                        overrideGame = UnityGame.Default;
-                        continue;
-                    }
-
-                    type = BaseType;
+                if (FindObjectType(info, serializedFile, overrideType, ref overrideGame, out var hasImplementation, out var type)) {
+                    continue;
                 }
 
                 if (type == null) {
                     throw new TypeImplementationNotFoundException(overrideType ?? info.ClassId);
                 }
 
-                using var reader = new BiEndianBinaryReader(serializedFile.OpenFile(info, stream, true), serializedFile.Header.IsBigEndian);
+                using var reader = new BiEndianBinaryReader(stream, serializedFile.Header.IsBigEndian);
                 try {
-                    var currentMemory = GC.GetTotalMemory(false);
-                    var instance = Activator.CreateInstance(type, reader, info, serializedFile);
-                    var memoryUse = GC.GetTotalMemory(false) - currentMemory;
-                    if (instance is not SerializedObject serializedObject) {
-                        throw new InvalidTypeImplementation(overrideType ?? info.ClassId);
-                    }
-
-                    if (memoryUse >= 1.ToMebiByte()) {
-                        serializedFile.Options.Logger.Warning("Object", $"Using more than 1 MiB of memory to load object {info.PathId} ({overrideType ?? info.ClassId:G}, {overrideGame:G}), consider moving some things to ToSerialize()");
-                    }
-
-                    if (overrideType == null &&
-                        hasImplementation &&
-                        reader.Unconsumed > 0 &&
-                        !serializedObject.ShouldDeserialize) {
-                        serializedFile.Options.Logger.Warning("Object", $"{reader.Unconsumed} bytes left unconsumed in buffer and object {info.PathId} ({overrideType ?? info.ClassId:G}, {overrideGame:G}) is not marked for deserialization! Check implementation");
-                    }
-
-                    return serializedObject;
+                    return CreateObjectInstance(reader, info, serializedFile, type, hasImplementation, overrideType, overrideGame);
                 } catch (Exception e) {
-                    serializedFile.Options.Logger.Error("Object", $"Failed to deserialize object {info.PathId} ({overrideType ?? info.ClassId:G}, {overrideGame:G})", e);
+                    serializedFile.Options.Logger.Error("Object", $"Failed to deserialize object {info.PathId} ({overrideType ?? info.ClassId:G}, {overrideGame ?? UnityGame.Default:G})", e);
                     if (overrideType == null ||
                         overrideType.Equals(UnityClassId.Object) == false && overrideType.Equals(UnityClassId.NamedObject) == false) {
                         overrideType = type.IsAssignableFrom(NamedBaseType) ? UnityClassId.NamedObject : UnityClassId.Object;
@@ -124,6 +95,63 @@ namespace Equilibrium {
                     throw;
                 }
             }
+        }
+
+        private static bool FindObjectType(
+            UnityObjectInfo info,
+            SerializedFile serializedFile,
+            object? overrideType,
+            ref UnityGame? overrideGame,
+            out bool hasImplementation,
+            out Type? type) {
+            type = null;
+            if (!Implementations.TryGetValue(overrideGame ?? serializedFile.Options.Game, out var gameImplementations)) {
+                overrideGame = UnityGame.Default;
+                gameImplementations = Implementations[UnityGame.Default];
+            }
+
+            hasImplementation = gameImplementations.TryGetValue(overrideType ?? info.ClassId, out type);
+            if (!hasImplementation) {
+                if (overrideGame != UnityGame.Default) {
+                    overrideGame = UnityGame.Default;
+                    return true;
+                }
+
+                type = BaseType;
+            }
+
+            return false;
+        }
+
+        private static SerializedObject CreateObjectInstance(
+            BiEndianBinaryReader reader,
+            UnityObjectInfo info,
+            SerializedFile serializedFile,
+            Type type,
+            bool hasImplementation,
+            object? overrideType,
+            UnityGame? overrideGame) {
+            var currentMemory = GC.GetTotalMemory(false);
+            var instance = Activator.CreateInstance(type, reader, info, serializedFile);
+            var memoryUse = GC.GetTotalMemory(false) - currentMemory;
+            if (instance is not SerializedObject serializedObject) {
+                throw new InvalidTypeImplementation(overrideType ?? info.ClassId);
+            }
+
+            if (memoryUse >= 1.ToMebiByte()) {
+                serializedFile.Options.Logger.Warning("Object",
+                    $"Using more than 1 MiB of memory to load object {info.PathId} ({overrideType ?? info.ClassId:G}, {overrideGame ?? UnityGame.Default:G}), consider moving some things to ToSerialize()");
+            }
+
+            if (overrideType == null &&
+                hasImplementation &&
+                reader.Unconsumed > 0 &&
+                !serializedObject.ShouldDeserialize) {
+                serializedFile.Options.Logger.Warning("Object",
+                    $"{reader.Unconsumed} bytes left unconsumed in buffer and object {info.PathId} ({overrideType ?? info.ClassId:G}, {overrideGame ?? UnityGame.Default:G}) is not marked for deserialization! Check implementation");
+            }
+
+            return serializedObject;
         }
 
         public static object? CreateObject(BiEndianBinaryReader reader, ObjectNode node, SerializedFile file, string? skipUntil = null) {

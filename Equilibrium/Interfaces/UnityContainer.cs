@@ -30,14 +30,14 @@ namespace Equilibrium.Interfaces {
             }
 
             stream = new MemoryStream { Position = 0 };
-            var offset = block.Offset;
             if (DataStart >= 0) {
                 reader.BaseStream.Seek(DataStart, SeekOrigin.Begin);
             }
 
+            var skippedBytes = 0L;
             foreach (var (size, compressedSize, unityBundleBlockFlags) in BlockInfos) {
-                if (offset > size) {
-                    offset -= size;
+                if (block.Offset > stream.Length + skippedBytes + size) {
+                    skippedBytes += size;
                     reader.BaseStream.Seek(compressedSize, SeekOrigin.Current);
                     continue;
                 }
@@ -58,13 +58,12 @@ namespace Equilibrium.Interfaces {
                         throw new NotSupportedException($"Unity Compression format {compressionType:G} is not supported");
                 }
 
-                if (stream.Length >= offset + block.Size) {
+                if (skippedBytes + stream.Length >= block.Offset + block.Size) {
                     break;
                 }
             }
 
-            stream.Seek(offset, SeekOrigin.Begin);
-            return new OffsetStream(stream, offset, block.Size);
+            return new OffsetStream(stream, block.Offset - skippedBytes, block.Size) { Position = 0 };
         }
 
         public virtual void ToWriter(BiEndianBinaryWriter writer, UnityBundle header, EquilibriumOptions options, UnityBundleBlock[] blocks, Stream blockStream, BundleSerializationOptions bundleSerializationOptions) { }

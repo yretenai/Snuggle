@@ -5,12 +5,20 @@ using System.Windows.Media;
 
 namespace Entropy.Components.Renderers {
     public sealed partial class Texture2DRenderer {
+        public static readonly DependencyProperty CanvasBackgroundProperty = DependencyProperty.Register("CanvasBackground", typeof(Brush), typeof(Texture2DRenderer), new PropertyMetadata(new SolidColorBrush(Colors.White)));
+
         public Texture2DRenderer() {
             InitializeComponent();
+            CanvasBackground = (Brush) Application.Current.Resources["CheckerboardBrush"];
         }
 
         private Point Start { get; set; }
         private Point Origin { get; set; }
+
+        public Brush CanvasBackground {
+            get => (Brush) GetValue(CanvasBackgroundProperty);
+            set => SetValue(CanvasBackgroundProperty, value);
+        }
 
         private void Zoom(object sender, MouseWheelEventArgs e) {
             var st = (ScaleTransform) ImageView.LayoutTransform;

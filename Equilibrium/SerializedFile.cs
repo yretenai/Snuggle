@@ -68,7 +68,7 @@ namespace Equilibrium {
 
         public Stream OpenFile(UnityObjectInfo info) => OpenFile(info, Handler.OpenFile(Tag));
 
-        public Stream OpenFile(UnityObjectInfo info, Stream stream, bool leaveOpen = false) => new OffsetStream(stream, info.Offset + Header.Offset, info.Size, leaveOpen) { Position = 0 };
+        public Stream OpenFile(UnityObjectInfo info, Stream? stream, bool leaveOpen = false) => new OffsetStream(stream ?? Handler.OpenFile(Tag), info.Offset + Header.Offset, info.Size, leaveOpen) { Position = 0 };
 
         public bool ToStream(FileSerializationOptions serializationOptions, [MaybeNullWhen(false)] out Stream? bundleStream, [MaybeNullWhen(false)] out Stream? resourceStream) {
             bundleStream = null;
@@ -137,7 +137,7 @@ namespace Equilibrium {
         }
 
         public void FindAssetContainerNames(SerializedObject? resourceManager) {
-            foreach (var (path, pPtr) in Objects.Values.OfType<ICABPathProvider>().SelectMany(x => x.GetCABPaths())) {
+            foreach (var (pPtr, path) in Objects.Values.OfType<ICABPathProvider>().SelectMany(x => x.GetCABPaths())) {
                 if (pPtr.Value != null) {
                     pPtr.Value.ObjectContainerPath = path;
                 }
@@ -163,7 +163,7 @@ namespace Equilibrium {
                 }
 
                 if (shouldLoad) {
-                    serializedObject = ObjectFactory.GetInstance(dataStream ?? OpenFile(objectInfo), objectInfo, this);
+                    serializedObject = ObjectFactory.GetInstance(OpenFile(objectInfo, dataStream, dataStream != null), objectInfo, this);
                 } else {
                     serializedObject = new SerializedObject(objectInfo, this) { NeedsLoad = true };
                 }
@@ -176,13 +176,19 @@ namespace Equilibrium {
             }
         }
 
-        public IEnumerable<SerializedObject> GetAllObjects() {
-            return Objects.Values;
-        }
+        public IEnumerable<SerializedObject> GetAllObjects() => Objects.Values;
 
         public void Free() {
             foreach (var (_, serializedObject) in Objects) {
                 serializedObject.Free();
+            }
+        }
+
+        public void PreloadObject(UnityObjectInfo objectInfo, EquilibriumOptions? options = null, Stream? dataStream = null) {
+            if ((options ?? Options).LoadOnDemand) {
+                Objects[objectInfo.PathId] = new SerializedObject(objectInfo, this) { NeedsLoad = true };
+            } else {
+                Objects[objectInfo.PathId] = ObjectFactory.GetInstance(OpenFile(objectInfo, dataStream, dataStream != null), objectInfo, this);
             }
         }
     }

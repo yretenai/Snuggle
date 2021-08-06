@@ -4,6 +4,6 @@ using Equilibrium.Models;
 
 namespace Equilibrium.Interfaces {
     public interface ICABPathProvider {
-        public Dictionary<string, PPtr<SerializedObject>> GetCABPaths();
+        public Dictionary<PPtr<SerializedObject>, string> GetCABPaths();
     }
 }
