@@ -125,7 +125,7 @@ namespace Equilibrium.IO {
             base.Write(value);
         }
 
-        public void WriteString32(string value) {
+        public void WriteString32(string value, int align = 4) {
             var length = value.Length;
 
             if (ShouldInvertEndianness) {
@@ -134,6 +134,10 @@ namespace Equilibrium.IO {
 
             base.Write(length);
             Write(Encoding.GetBytes(value));
+
+            if (align > 1) {
+                Align(align);
+            }
         }
 
         public void WriteNullString(string value) {

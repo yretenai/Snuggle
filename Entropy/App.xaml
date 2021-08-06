@@ -21,6 +21,9 @@
                     <DataTemplate x:Key="EntropyTexture2DRenderer" DataType="{x:Type implementations:Texture2D}">
                         <renderers:Texture2DRenderer />
                     </DataTemplate>
+                    <DataTemplate x:Key="EntropyTextRenderer" DataType="{x:Type implementations:Text}">
+                        <renderers:TextRenderer />
+                    </DataTemplate>
                     <DataTemplate x:Key="EntropyNullRenderer">
                         <renderers:NullRenderer />
                     </DataTemplate>

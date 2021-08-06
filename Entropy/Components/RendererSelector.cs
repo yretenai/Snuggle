@@ -10,11 +10,11 @@ namespace Entropy.Components {
                 item = entropyObject.GetObject();
             }
 
-            if (item is Texture2D) {
-                return (DataTemplate) Application.Current.Resources["EntropyTexture2DRenderer"];
-            }
-
-            return (DataTemplate) Application.Current.Resources["EntropyNullRenderer"];
+            return item switch {
+                Texture2D => (DataTemplate) Application.Current.Resources["EntropyTexture2DRenderer"],
+                Text => (DataTemplate) Application.Current.Resources["EntropyTextRenderer"],
+                _ => (DataTemplate) Application.Current.Resources["EntropyNullRenderer"],
+            };
         }
     }
 }

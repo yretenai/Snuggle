@@ -6,155 +6,36 @@ using JetBrains.Annotations;
 
 namespace Equilibrium.Meta {
     [PublicAPI]
-    public struct UnityVersion : ICloneable, IComparable, IComparable<UnityVersion>, IEquatable<UnityVersion>, IComparable<Version?>, IEquatable<Version?>, ISpanFormattable {
-        public UnityVersion(int major, int minor = 0, int build = 0, int revision = 0, UnityBuildType type = UnityBuildType.None, int extraVersion = 0) {
-            Major = major;
-            Minor = minor;
-            Build = build;
-            Type = type;
-            Revision = revision;
-            ExtraVersion = extraVersion;
-        }
-
-        public static UnityVersion MaxValue { get; } = new(int.MaxValue, int.MaxValue, int.MaxValue, int.MaxValue);
+    public record struct UnityVersion(
+        int Major,
+        int Minor = 0,
+        int Build = 0,
+        UnityBuildType Type = UnityBuildType.Release,
+        int Revision = 0,
+        int ExtraVersion = 0
+    ) : IComparable<UnityVersion>, IComparable<int> {
+        public static UnityVersion MaxValue { get; } = new(int.MaxValue, int.MaxValue, int.MaxValue);
         public static UnityVersion MinValue { get; } = new(0);
 
-        public int Major { get; }
-        public int Minor { get; }
-        public int Build { get; }
-        public UnityBuildType Type { get; }
-        public int Revision { get; }
-        public int ExtraVersion { get; }
-
-        public object Clone() => new UnityVersion(Major, Minor, Build, Revision, Type, ExtraVersion);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int CompareTo(object? version) {
-            return version switch {
-                Version v => CompareTo(v),
-                UnityVersion v => CompareTo(v),
-                _ => 1,
-            };
-        }
+        public int CompareTo(int value) => Major > value ? 1 : Minor + Build == 0 ? 1 : -1;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int CompareTo(UnityVersion value) =>
             Major != value.Major ? Major > value.Major ? 1 : -1 :
             Minor != value.Minor ? Minor > value.Minor ? 1 : -1 :
             Build != value.Build ? Build > value.Build ? 1 : -1 :
-            Revision != value.Revision ? Revision > value.Revision ? 1 : -1 :
             0;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int CompareTo(Version? value) => value is null ? 1 : ((Version) this).CompareTo(value);
-
-        public bool Equals(UnityVersion other) => other.Major == Major && other.Minor == Minor && other.Build == Build && other.Type == Type && other.Revision == Revision && other.ExtraVersion == ExtraVersion;
-
-        public bool Equals(Version? other) {
-            if (other == null) {
-                return false;
-            }
-
-            return other == (Version) this;
-        }
-
-        public string ToString(string? format, IFormatProvider? formatProvider) => ToString();
-
-        public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => TryFormat(destination, out charsWritten);
-
-        public override int GetHashCode() => HashCode.Combine(Major, Minor, Build, Revision, Type, ExtraVersion);
-
-        public override string ToString() {
-            var str = $"{Major}.{Minor}.{Build}";
-            if (Type != UnityBuildType.None) {
-                str += (char) Type;
-            }
-
-            if (Revision != 0 ||
-                ExtraVersion != 0) {
-                str += Revision;
-            }
-
-            if (ExtraVersion != 0) {
-                str += $"\n{ExtraVersion}";
-            }
-
-            return str;
-        }
-
-        private bool TryFormat(Span<char> destination, out int charsWritten) {
-            var totalCharsWritten = 0;
-            for (var i = 0; i < 6; i++) {
-                if (destination.IsEmpty) {
-                    charsWritten = 0;
-                    return false;
-                }
-
-                switch (i) {
-                    case 5 when ExtraVersion == 0:
-                    case 4 when ExtraVersion == 0 && Revision == 0:
-                    case 3 when Type == UnityBuildType.None:
-                        continue;
-                }
-
-                switch (i) {
-                    case 0:
-                    case 1:
-                        destination[0] = '.';
-                        destination = destination[1..];
-                        totalCharsWritten++;
-                        break;
-                    case 3:
-                        destination[0] = (char) Type;
-                        destination = destination[1..];
-                        totalCharsWritten++;
-                        continue;
-                    case 4:
-                        break;
-                    case 5:
-                        destination[0] = '\n';
-                        destination = destination[1..];
-                        totalCharsWritten++;
-                        break;
-                }
-
-                var value = i switch {
-                    0 => Major,
-                    1 => Minor,
-                    2 => Build,
-                    4 => Revision,
-                    _ => ExtraVersion,
-                };
-
-                if (!value.TryFormat(destination, out var valueCharsWritten)) {
-                    charsWritten = 0;
-                    return false;
-                }
-
-                totalCharsWritten += valueCharsWritten;
-                destination = destination[valueCharsWritten..];
-            }
-
-            charsWritten = totalCharsWritten;
-            return true;
-        }
-
-        public override bool Equals(object? obj) {
-            return obj switch {
-                Version version => Equals(version),
-                UnityVersion unityVersion => Equals(unityVersion),
-                _ => false,
+        public int CompareTo(object? version) {
+            return version switch {
+                UnityVersion v => CompareTo(v),
+                int v => CompareTo(v),
+                _ => 1,
             };
         }
 
-        public static implicit operator Version(UnityVersion version) => new(version.Major, version.Minor, version.Build, version.Revision);
-
-        public static implicit operator UnityVersion(Version version) => new(version.Major, version.Minor, version.Build, version.Revision);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator ==(UnityVersion v1, UnityVersion v2) => v2.Equals(v1);
-
-        public static bool operator !=(UnityVersion v1, UnityVersion v2) => !(v1 == v2);
+        public static implicit operator UnityVersion(int version) => new(version);
 
         public static bool operator <(UnityVersion v1, UnityVersion v2) => v1.CompareTo(v2) < 0;
 
@@ -189,7 +70,7 @@ namespace Equilibrium.Meta {
                 }
             }
 
-            return new UnityVersion(major, minor, build, revision, (UnityBuildType) typeChar, extra);
+            return new UnityVersion(major, minor, build, (UnityBuildType) typeChar, revision, extra);
         }
 
         private static int ExtractVersionPart(string input, out int end) {

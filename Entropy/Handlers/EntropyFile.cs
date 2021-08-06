@@ -142,6 +142,10 @@ namespace Entropy.Handlers {
         }
 
         private static void ExtractJson(SerializedObject serializedObject, string resultDir, string resultPath) {
+            if (serializedObject.ShouldDeserialize) {
+                serializedObject.Deserialize(EntropyCore.Instance.Settings.ObjectOptions);
+            }
+
             var data = JsonSerializer.Serialize<object>(serializedObject, EquilibriumOptions.JsonOptions);
             if (!Directory.Exists(resultDir)) {
                 Directory.CreateDirectory(resultDir);

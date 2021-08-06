@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using Equilibrium.Models;
+using JetBrains.Annotations;
 
 namespace Equilibrium.Meta {
     [PublicAPI]
@@ -24,6 +25,7 @@ namespace Equilibrium.Meta {
         public static readonly UnityVersion Unity2018 = new(2018);
 
         public static readonly UnityVersion Unity2017_4 = new(2017, 4);
+        public static readonly UnityVersion Unity2017_3_1_P = new(2017, 3, 1, UnityBuildType.Patch);
         public static readonly UnityVersion Unity2017_3 = new(2017, 3);
         public static readonly UnityVersion Unity2017_2 = new(2017, 2);
         public static readonly UnityVersion Unity2017_1 = new(2017, 1);
