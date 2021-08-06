@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using Equilibrium.Options;
 
-namespace Entropy.ViewModels {
+namespace Entropy.Handlers {
     public record EntropySettings(
         EquilibriumOptions Options,
         ObjectDeserializationOptions ObjectOptions,

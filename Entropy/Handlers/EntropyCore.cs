@@ -10,13 +10,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using DragonLib;
 using Equilibrium;
-using Equilibrium.Implementations;
 using Equilibrium.Interfaces;
 using Equilibrium.Logging;
 using Equilibrium.Options;
 using JetBrains.Annotations;
 
-namespace Entropy.ViewModels {
+namespace Entropy.Handlers {
     [PublicAPI]
     public class EntropyCore : Singleton<EntropyCore>, INotifyPropertyChanged, IDisposable {
         public EntropyCore() {
@@ -43,7 +42,8 @@ namespace Entropy.ViewModels {
         public CancellationTokenSource TokenSource { get; private set; } = new();
         private BlockingCollection<Action<CancellationToken>> Tasks { get; set; } = new();
         public List<EntropyObject> Objects => Collection.Files.SelectMany(x => x.Value.Objects.Values).Select(x => new EntropyObject(x)).ToList();
-        public SerializedObject? SelectedObject { get; set; }
+        public EntropyObject? SelectedObject { get; set; }
+        public IReadOnlyList<EntropyObject> SelectedObjects { get; set; } = Array.Empty<EntropyObject>();
         public string? Search { get; set; }
         private string SettingsFile { get; }
 

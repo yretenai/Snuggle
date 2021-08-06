@@ -6,7 +6,7 @@ using System.Windows.Data;
 using System.Windows.Markup;
 using System.Windows.Media.Imaging;
 using DirectXTexNet;
-using Entropy.ViewModels;
+using Entropy.Handlers;
 using Equilibrium.Extensions;
 using Equilibrium.Implementations;
 

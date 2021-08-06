@@ -1,9 +1,10 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using Entropy.ViewModels;
+using Entropy.Handlers;
 
 namespace Entropy.Components {
     public partial class Assets {
@@ -89,13 +90,10 @@ namespace Entropy.Components {
                 return;
             }
 
-            var selectedItem = (EntropyObject) selectedItems[^1]!;
-            if (EntropyCore.Instance.Collection.Files.TryGetValue(selectedItem.SerializedName, out var serializedFile)) {
-                if (serializedFile.Objects.TryGetValue(selectedItem.PathId, out var serializedObject)) {
-                    EntropyCore.Instance.SelectedObject = serializedObject;
-                    EntropyCore.Instance.OnPropertyChanged(nameof(EntropyCore.SelectedObject));
-                }
-            }
+            EntropyCore.Instance.SelectedObject = (EntropyObject) selectedItems[^1]!;
+            EntropyCore.Instance.OnPropertyChanged(nameof(EntropyCore.SelectedObject));
+            EntropyCore.Instance.SelectedObjects = selectedItems.Cast<EntropyObject>().ToList();
+            EntropyCore.Instance.OnPropertyChanged(nameof(EntropyCore.SelectedObjects));
         }
     }
 }

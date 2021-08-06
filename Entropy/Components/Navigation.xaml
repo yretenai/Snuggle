@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-             xmlns:viewModel="clr-namespace:Entropy.ViewModels"
+             xmlns:handlers="clr-namespace:Entropy.Handlers"
              mc:Ignorable="d"
              TextElement.Foreground="{DynamicResource MaterialDesignBody}"
              TextElement.FontWeight="Regular"
@@ -13,7 +13,7 @@
              TextOptions.TextRenderingMode="Auto"
              Background="{DynamicResource MaterialDesignPaper}"
              FontFamily="{DynamicResource MaterialDesignFont}"
-             d:DataContext="{d:DesignInstance viewModel:EntropyCore}"
+             d:DataContext="{d:DesignInstance handlers:EntropyCore}"
              d:DesignHeight="300" d:DesignWidth="300">
     <Menu>
         <MenuItem Header="_File">
@@ -24,6 +24,18 @@
                       Click="FreeMemory" />
             <MenuItem Header="_Reset" Click="ResetTrampoline" />
             <MenuItem Header="_Exit" Click="ExitTrampoline" />
+        </MenuItem>
+        <MenuItem Header="_Extract">
+            <MenuItem Header="_All">
+                <MenuItem Header="_Raw" Click="ExtractRaw" Tag="1" />
+                <MenuItem Header="_Convert" Click="ExtractConvert" Tag="1" />
+                <MenuItem Header="_Serialize" Click="ExtractSerialize" Tag="1" />
+            </MenuItem>
+            <MenuItem Header="_Selected">
+                <MenuItem Header="_Raw" Click="ExtractRaw" />
+                <MenuItem Header="_Convert" Click="ExtractConvert" />
+                <MenuItem Header="_Serialize" Click="ExtractSerialize" />
+            </MenuItem>
         </MenuItem>
         <MenuItem Header="_Equilibrium">
             <MenuItem Header="_Cache Memory"
@@ -42,6 +54,7 @@
             <MenuItem Header="_Group By Type" />
             <Separator />
             <MenuItem Header="Open _Debug Log" Click="OpenLog" />
+            <MenuItem Header="Open GameObject Tree" />
         </MenuItem>
         <MenuItem>
             <MenuItem.Header>

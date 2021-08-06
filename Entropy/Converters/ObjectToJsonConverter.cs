@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Text.Json;
 using System.Windows.Data;
+using Entropy.Handlers;
 using Equilibrium.Options;
 
 namespace Entropy.Converters {
@@ -9,6 +10,10 @@ namespace Entropy.Converters {
         public object Convert(object? value, Type targetType, object parameter, CultureInfo culture) {
             if (targetType != typeof(string)) {
                 throw new NotSupportedException($"{nameof(ObjectToJsonConverter)} only supports converting to string");
+            }
+
+            if (value is EntropyObject entropyObject) {
+                value = entropyObject.GetObject();
             }
 
             return value == null ? "{}" : JsonSerializer.Serialize(value, EquilibriumOptions.JsonOptions);

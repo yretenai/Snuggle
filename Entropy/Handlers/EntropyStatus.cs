@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 using Equilibrium.Interfaces;
 using JetBrains.Annotations;
 
-namespace Entropy.ViewModels {
+namespace Entropy.Handlers {
     [PublicAPI]
     public class EntropyStatus : IStatusReporter, INotifyPropertyChanged {
         public string Message { get; private set; } = string.Empty;

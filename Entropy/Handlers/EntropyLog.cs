@@ -8,7 +8,7 @@ using Equilibrium.Interfaces;
 using Equilibrium.Meta;
 using JetBrains.Annotations;
 
-namespace Entropy.ViewModels {
+namespace Entropy.Handlers {
     public sealed class EntropyLog : ILogger, INotifyPropertyChanged {
         public EntropyLog() => Context = SynchronizationContext.Current ?? throw new InvalidOperationException("Cannot get syncronization context");
 

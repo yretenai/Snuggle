@@ -3,8 +3,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:viewModel="clr-namespace:Entropy.ViewModels"
              xmlns:components="clr-namespace:Entropy.Components"
+             xmlns:converters="clr-namespace:Entropy.Converters"
+             xmlns:handlers="clr-namespace:Entropy.Handlers"
              mc:Ignorable="d"
              TextElement.Foreground="{DynamicResource MaterialDesignBody}"
              TextElement.FontWeight="Regular"
@@ -13,13 +14,14 @@
              TextOptions.TextRenderingMode="Auto"
              Background="{DynamicResource MaterialDesignPaper}"
              FontFamily="{DynamicResource MaterialDesignFont}"
-             d:DataContext="{d:DesignInstance viewModel:EntropyCore}"
+             d:DataContext="{d:DesignInstance handlers:EntropyCore}"
              d:DesignHeight="300" d:DesignWidth="300">
     <UserControl.Resources>
         <components:RendererSelector x:Key="RendererSelector" />
+        <converters:RendererConverter x:Key="RendererConverter" />
     </UserControl.Resources>
     <Grid>
-        <ContentControl Content="{Binding SelectedObject, Mode=OneWay}"
+        <ContentControl Content="{Binding SelectedObject, Converter={StaticResource RendererConverter}, Mode=OneWay}"
                         ContentTemplateSelector="{StaticResource RendererSelector}" />
     </Grid>
 </UserControl>

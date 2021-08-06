@@ -1,25 +1,24 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows</TargetFramework>
-    <LangVersion>preview</LangVersion>
-    <Nullable>enable</Nullable>
-    <UseWPF>true</UseWPF>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net6.0-windows</TargetFramework>
+        <LangVersion>preview</LangVersion>
+        <Nullable>enable</Nullable>
+        <UseWPF>true</UseWPF>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Astc\Astc\AstcNETStandard.csproj" />
-    <ProjectReference Include="..\Equilibrium\Equilibrium.csproj" />
-  </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\Equilibrium\Equilibrium.csproj"/>
+    </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="DirectXTexNet" Version="1.0.2" />
-    <PackageReference Include="Dragablz" Version="0.0.3.223" />
-    <PackageReference Include="MaterialDesignColors" Version="2.0.1" />
-    <PackageReference Include="MaterialDesignThemes" Version="4.1.0" />
-    <PackageReference Include="WindowsAPICodePack-Shell" Version="1.1.1" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="DirectXTexNet" Version="1.0.2"/>
+        <PackageReference Include="Dragablz" Version="0.0.3.223"/>
+        <PackageReference Include="MaterialDesignColors" Version="2.0.1"/>
+        <PackageReference Include="MaterialDesignThemes" Version="4.1.0"/>
+        <PackageReference Include="WindowsAPICodePack-Shell" Version="1.1.1"/>
+    </ItemGroup>
 
 </Project>

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
-using Entropy.ViewModels;
+using Entropy.Handlers;
 
 namespace Entropy.Windows {
     /// <summary>

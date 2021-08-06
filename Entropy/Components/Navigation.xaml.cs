@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using Entropy.ViewModels;
+using Entropy.Handlers;
 using Entropy.Windows;
 using Equilibrium.Meta;
-using Microsoft.WindowsAPICodePack.Dialogs;
 
 namespace Entropy.Components {
     public partial class Navigation {
@@ -23,7 +21,7 @@ namespace Entropy.Components {
             CacheDataIfLZMA.IsChecked = instance.Settings.Options.CacheDataIfLZMA;
             var descriptions = typeof(UnityGame).GetFields(BindingFlags.Static | BindingFlags.Public).ToDictionary(x => (UnityGame) x.GetValue(null)!, x => x.GetCustomAttribute<DescriptionAttribute>()?.Description ?? x.Name);
             foreach (var game in Enum.GetValues<UnityGame>()) {
-                var item = new MenuItem { Tag = game, Header = descriptions[game], IsChecked = instance.Settings.Options.Game == game, IsCheckable = true };
+                var item = new MenuItem { Tag = game, Header = "_" + descriptions[game], IsChecked = instance.Settings.Options.Game == game, IsCheckable = true };
                 item.Checked += UpdateGame;
                 item.Unchecked += CancelEvent;
                 UnityGameList.Items.Add(item);
@@ -49,11 +47,12 @@ namespace Entropy.Components {
             }
 
             var game = EntropyCore.Instance.Settings.Options.Game;
-            if ((UnityGame) menuItem.Tag == game) {
+            var tag = (UnityGame) menuItem.Tag;
+            if (tag == game) {
                 return;
             }
 
-            EntropyCore.Instance.SetOptions(EntropyCore.Instance.Settings.Options with { Game = (UnityGame) menuItem.Tag });
+            EntropyCore.Instance.SetOptions(EntropyCore.Instance.Settings.Options with { Game = tag });
             UnityGameItems[game].IsChecked = false;
             e.Handled = true;
         }
@@ -79,76 +78,11 @@ namespace Entropy.Components {
         }
 
         private void LoadDirectory(object sender, RoutedEventArgs e) {
-            using var selection = new CommonOpenFileDialog {
-                IsFolderPicker = true,
-                Multiselect = true,
-                AllowNonFileSystemItems = false,
-                Title = "Select folder to load",
-                ShowPlacesList = true,
-            };
-
-            if (selection.ShowDialog() != CommonFileDialogResult.Ok) {
-                return;
-            }
-
-            var directories = selection.FileNames.ToArray();
-            var instance = EntropyCore.Instance;
-            instance.WorkerAction(token => {
-                // TODO: Split files.
-                var files = directories.SelectMany(x => Directory.EnumerateFiles(x, "*", SearchOption.AllDirectories)).ToArray();
-                instance.Status.SetProgressMax(files.Length);
-                foreach (var file in files) {
-                    if (token.IsCancellationRequested) {
-                        return;
-                    }
-
-                    instance.Status.SetStatus($"Loading {file}");
-                    instance.Status.SetProgress(instance.Status.Value + 1);
-                    instance.Collection.LoadFile(file, instance.Settings.Options);
-                }
-
-                instance.Status.Reset();
-                instance.Status.SetStatus("Finding container paths...");
-                instance.Collection.FindAssetContainerNames();
-                instance.Status.SetStatus($"Loaded {instance.Collection.Files.Count} files");
-                instance.OnPropertyChanged(nameof(EntropyCore.Objects));
-            });
+            EntropyFile.LoadDirectory();
         }
 
         private void LoadFiles(object sender, RoutedEventArgs e) {
-            using var selection = new CommonOpenFileDialog {
-                IsFolderPicker = false,
-                Multiselect = true,
-                AllowNonFileSystemItems = false,
-                Title = "Select files to load",
-                ShowPlacesList = true,
-            };
-
-            if (selection.ShowDialog() != CommonFileDialogResult.Ok) {
-                return;
-            }
-
-            var files = selection.FileNames.ToArray();
-            var instance = EntropyCore.Instance;
-            instance.WorkerAction(token => {
-                // TODO: Split files.
-                instance.Status.SetProgressMax(files.Length);
-                foreach (var file in files) {
-                    if (token.IsCancellationRequested) {
-                        return;
-                    }
-
-                    instance.Status.SetStatus($"Loading {file}");
-                    instance.Status.SetProgress(instance.Status.Value + 1);
-                    instance.Collection.LoadFile(file, instance.Settings.Options);
-                }
-
-                instance.Status.Reset();
-                instance.Status.SetStatus("Finding container paths...");
-                instance.Collection.FindAssetContainerNames();
-                instance.Status.SetStatus($"Loaded  {instance.Collection.Files.Count} files");
-                instance.OnPropertyChanged(nameof(EntropyCore.Objects));
-            });
+            EntropyFile.LoadFiles();
         }
 
         private void ExitTrampoline(object sender, RoutedEventArgs e) {
@@ -185,12 +119,19 @@ namespace Entropy.Components {
         }
 
         private void OpenLog(object sender, RoutedEventArgs e) {
-            var existing = Application.Current.Windows.OfType<DebugLog>().FirstOrDefault();
-            if (existing == null) {
-                new DebugLog().Show();
-            } else {
-                existing.Focus();
-            }
+            App.OpenWindow<DebugLog>();
+        }
+
+        private void ExtractRaw(object sender, RoutedEventArgs e) {
+            EntropyFile.Extract(ExtractMode.Raw, (sender as MenuItem)?.Tag == null);
+        }
+
+        private void ExtractConvert(object sender, RoutedEventArgs e) {
+            EntropyFile.Extract(ExtractMode.Convert, (sender as MenuItem)?.Tag == null);
+        }
+
+        private void ExtractSerialize(object sender, RoutedEventArgs e) {
+            EntropyFile.Extract(ExtractMode.Serialize, (sender as MenuItem)?.Tag == null);
         }
     }
 }

@@ -48,7 +48,7 @@ namespace Equilibrium.Implementations {
         [JsonIgnore]
         public string ObjectContainerPath { get; set; } = string.Empty;
 
-        public Dictionary<object, ISerialized> ExtraContainers { get; } = new();
+        public Dictionary<object, object> ExtraContainers { get; } = new();
 
         public bool Equals(SerializedObject? other) {
             if (ReferenceEquals(null, other)) {
@@ -69,7 +69,7 @@ namespace Equilibrium.Implementations {
         }
 
         public virtual void Free() {
-            foreach (var container in ExtraContainers.Values) {
+            foreach (ISerialized container in ExtraContainers.Values) {
                 container.Free();
             }
         }
@@ -95,7 +95,7 @@ namespace Equilibrium.Implementations {
                 return false;
             }
 
-            container = instance;
+            container = (ISerialized) instance;
             return true;
         }
 
