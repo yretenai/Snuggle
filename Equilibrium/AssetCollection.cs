@@ -5,7 +5,6 @@ using System.IO;
 using Equilibrium.Interfaces;
 using Equilibrium.IO;
 using Equilibrium.Meta;
-using Equilibrium.Models;
 using Equilibrium.Models.Bundle;
 using Equilibrium.Options;
 using JetBrains.Annotations;
@@ -33,6 +32,10 @@ namespace Equilibrium {
                 } catch {
                     // ignored 
                 }
+            }
+
+            foreach (var (_, file) in Files) {
+                file.Free();
             }
 
             Bundles.Clear();
@@ -105,13 +108,8 @@ namespace Equilibrium {
                 }
 
                 foreach (var (pathId, objectInfo) in file.ObjectInfos) {
-                    try {
-                        options.Reporter?.SetStatus($"Processing {pathId} ({objectInfo.ClassId:G})");
-                        file.Objects[pathId] = ObjectFactory.GetInstance(dataStream, objectInfo, file);
-                    } catch (Exception e) {
-                        options.Logger.Error("Assets", $"Failed to decode {pathId} (type {objectInfo.ClassId}) on file {file.Name}", e);
-                        file.Objects[pathId] = ObjectFactory.GetInstance(dataStream, objectInfo, file, UnityClassId.Object);
-                    }
+                    options.Reporter?.SetStatus($"Processing {pathId} ({objectInfo.ClassId:G})");
+                    file.GetObject(objectInfo, options, dataStream);
                 }
 
                 Files[path] = file;
@@ -206,7 +204,6 @@ namespace Equilibrium {
         }
 
         public void FindAssetContainerNames() {
-            // TODO: ResourceManager
             foreach (var file in Files.Values) {
                 file.FindAssetContainerNames(default);
             }

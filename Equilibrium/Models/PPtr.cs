@@ -75,9 +75,7 @@ namespace Equilibrium.Models {
                     return null;
                 }
 
-                if (!referencedFile.Objects.TryGetValue(PathId, out var referencedObject)) {
-                    return null;
-                }
+                var referencedObject = referencedFile.GetObject(PathId);
 
                 if (referencedObject is not T referencedType) {
                     return null;

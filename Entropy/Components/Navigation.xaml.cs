@@ -133,8 +133,8 @@ namespace Entropy.Components {
                     bundle.ClearCache();
                 }
 
-                foreach (var serializedObject in instance.Collection.Files.SelectMany(x => x.Value.Objects.Values)) {
-                    serializedObject.Free();
+                foreach (var (_, file) in instance.Collection.Files) {
+                    file.Free();
                 }
 
                 GC.Collect();

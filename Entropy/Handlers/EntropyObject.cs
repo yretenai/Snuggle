@@ -15,8 +15,7 @@ namespace Entropy.Handlers {
                 return null;
             }
 
-            serializedFile.Objects.TryGetValue(PathId, out var serializedObject);
-            return serializedObject;
+            return serializedFile.GetObject(PathId);
         }
     }
 }

@@ -41,7 +41,7 @@ namespace Entropy.Handlers {
         public Thread WorkerThread { get; private set; }
         public CancellationTokenSource TokenSource { get; private set; } = new();
         private BlockingCollection<Action<CancellationToken>> Tasks { get; set; } = new();
-        public List<EntropyObject> Objects => Collection.Files.SelectMany(x => x.Value.Objects.Values).Select(x => new EntropyObject(x)).ToList();
+        public List<EntropyObject> Objects => Collection.Files.SelectMany(x => x.Value.GetAllObjects()).Select(x => new EntropyObject(x)).ToList();
         public EntropyObject? SelectedObject { get; set; }
         public IReadOnlyList<EntropyObject> SelectedObjects { get; set; } = Array.Empty<EntropyObject>();
         public string? Search { get; set; }

@@ -59,7 +59,7 @@ namespace Equilibrium {
         public AssetCollection? Assets { get; set; }
         public string Name { get; set; } = string.Empty;
 
-        public Dictionary<long, SerializedObject> Objects { get; init; }
+        private Dictionary<long, SerializedObject> Objects { get; init; }
 
         public object Tag { get; set; }
         public IFileHandler Handler { get; set; }
@@ -137,16 +137,53 @@ namespace Equilibrium {
         }
 
         public void FindAssetContainerNames(SerializedObject? resourceManager) {
-            if (Objects.Values.FirstOrDefault(x => x is AssetBundle) is AssetBundle assetBundle &&
-                assetBundle.Container.Count > 0) {
-                foreach (var (path, (_, _, pPtr)) in assetBundle.Container) {
-                    if (pPtr.Value != null) {
-                        pPtr.Value.ObjectContainerPath = path;
-                    }
+            foreach (var (path, pPtr) in Objects.Values.OfType<ICABPathProvider>().SelectMany(x => x.GetCABPaths())) {
+                if (pPtr.Value != null) {
+                    pPtr.Value.ObjectContainerPath = path;
                 }
             }
+        }
 
-            // TODO: resource manager
+        public SerializedObject? GetObject(long pathId, EquilibriumOptions? options = null, Stream? dataStream = null) => !ObjectInfos.ContainsKey(pathId) ? null : GetObject(ObjectInfos[pathId], options, dataStream);
+
+        public SerializedObject? GetObject(UnityObjectInfo objectInfo, EquilibriumOptions? options = null, Stream? dataStream = null) {
+            if (!ObjectInfos.ContainsKey(objectInfo.PathId)) {
+                return null;
+            }
+
+            options ??= Options;
+            try {
+                var shouldLoad = !options.LoadOnDemand;
+                if (Objects.TryGetValue(objectInfo.PathId, out var serializedObject)) {
+                    if (!serializedObject.NeedsLoad) {
+                        return serializedObject;
+                    }
+
+                    shouldLoad = true;
+                }
+
+                if (shouldLoad) {
+                    serializedObject = ObjectFactory.GetInstance(dataStream ?? OpenFile(objectInfo), objectInfo, this);
+                } else {
+                    serializedObject = new SerializedObject(objectInfo, this) { NeedsLoad = true };
+                }
+
+                Objects[objectInfo.PathId] = serializedObject;
+                return serializedObject;
+            } catch (Exception e) {
+                options.Logger.Error("Serialized", $"Failed to decode {objectInfo.PathId} (type {objectInfo.ClassId}) on file {Name}", e);
+                return null;
+            }
+        }
+
+        public IEnumerable<SerializedObject> GetAllObjects() {
+            return Objects.Values;
+        }
+
+        public void Free() {
+            foreach (var (_, serializedObject) in Objects) {
+                serializedObject.Free();
+            }
         }
     }
 }

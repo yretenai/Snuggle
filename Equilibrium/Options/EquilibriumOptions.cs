@@ -10,8 +10,9 @@ namespace Equilibrium.Options {
     public record EquilibriumOptions(
         bool CacheData,
         bool CacheDataIfLZMA, // this literally takes two years, you want it to be enabled.
+        bool LoadOnDemand,
         UnityGame Game) {
-        private const int LatestVersion = 2;
+        private const int LatestVersion = 3;
         public int Version { get; set; } = LatestVersion;
 
         [JsonIgnore]
@@ -20,7 +21,7 @@ namespace Equilibrium.Options {
         [JsonIgnore]
         public ILogger Logger { get; set; } = DebugLogger.Instance;
 
-        public static EquilibriumOptions Default { get; } = new(false, true, UnityGame.Default);
+        public static EquilibriumOptions Default { get; } = new(false, true, false, UnityGame.Default);
 
         public static JsonSerializerOptions JsonOptions { get; } = new() {
             WriteIndented = true,
@@ -47,11 +48,16 @@ namespace Equilibrium.Options {
         public bool NeedsMigration() => Version < LatestVersion;
 
         public EquilibriumOptions Migrate() {
-            if (Version < LatestVersion) {
-                return this with { CacheDataIfLZMA = true, Version = LatestVersion };
+            var options = this;
+            if (options.Version <= 1) {
+                options = options with { CacheDataIfLZMA = true, Version = 2 };
             }
 
-            return this with { Version = LatestVersion };
+            if (options.Version == 2) {
+                options = options with { LoadOnDemand = false, Version = 3 };
+            }
+
+            return options;
         }
     }
 }

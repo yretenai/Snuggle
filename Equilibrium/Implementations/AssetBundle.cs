@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using Equilibrium.Interfaces;
 using Equilibrium.IO;
 using Equilibrium.Meta;
 using Equilibrium.Models;
@@ -10,7 +12,7 @@ using JetBrains.Annotations;
 
 namespace Equilibrium.Implementations {
     [PublicAPI, UsedImplicitly, ObjectImplementation(UnityClassId.AssetBundle)]
-    public class AssetBundle : NamedObject {
+    public class AssetBundle : NamedObject, ICABPathProvider {
         public AssetBundle(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) {
             var preloadCount = reader.ReadInt32();
             PreloadTable = new List<PPtr<SerializedObject>>();
@@ -146,6 +148,10 @@ namespace Equilibrium.Implementations {
                     writer.WriteString32(hash);
                 }
             }
+        }
+
+        public Dictionary<string, PPtr<SerializedObject>> GetCABPaths() {
+            return Container.ToDictionary(x => x.Key, x => x.Value.Asset);
         }
 
         public override string ToString() => string.IsNullOrWhiteSpace(AssetBundleName) ? base.ToString() : AssetBundleName;
