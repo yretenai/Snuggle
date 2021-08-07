@@ -13,10 +13,7 @@ using JetBrains.Annotations;
 namespace Equilibrium.Implementations {
     [PublicAPI, UsedImplicitly, ObjectImplementation(UnityClassId.Object)]
     public class SerializedObject : IEquatable<SerializedObject>, ISerialized {
-        public SerializedObject(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : this(info, serializedFile) {
-            IsMutated = false;
-            Size = info.Size;
-        }
+        public SerializedObject(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : this(info, serializedFile) => IsMutated = false;
 
         public SerializedObject(UnityObjectInfo info, SerializedFile serializedFile) {
             SerializedFile = serializedFile;

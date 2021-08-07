@@ -162,12 +162,14 @@ namespace Entropy.Handlers {
             }
 
             using var outputStream = File.OpenWrite(resultPath);
+            outputStream.SetLength(0);
             dataStream.CopyTo(outputStream);
 
             if (serializedObject is ISerializedResource serializedResource) {
                 var resource = serializedResource.StreamData.GetData(EntropyCore.Instance.Collection, EntropyCore.Instance.Settings.ObjectOptions);
                 resultPath = Path.ChangeExtension(resultPath, ".resS");
                 using var outputResourceStream = File.OpenWrite(resultPath);
+                outputResourceStream.SetLength(0);
                 outputResourceStream.Write(resource.Span);
             }
         }

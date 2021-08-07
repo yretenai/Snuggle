@@ -16,7 +16,11 @@ namespace Entropy.Converters {
                 value = entropyObject.GetObject();
             }
 
-            return value == null ? "{}" : JsonSerializer.Serialize(value, EquilibriumOptions.JsonOptions);
+            try {
+                return value == null ? "{}" : JsonSerializer.Serialize(value, EquilibriumOptions.JsonOptions);
+            } catch {
+                return "{}";
+            }
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotSupportedException($"{nameof(ObjectToJsonConverter)} only supports converting to string");

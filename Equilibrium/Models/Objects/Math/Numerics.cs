@@ -3,6 +3,13 @@ using JetBrains.Annotations;
 
 namespace Equilibrium.Models.Objects.Math {
     [PublicAPI]
+    public record struct Vector2(float X, float Y) {
+        public static Vector2 Zero { get; } = new(0, 0);
+
+        public static implicit operator System.Numerics.Vector2?(Vector2 vector) => new System.Numerics.Vector2(vector.X, vector.Y);
+    }
+
+    [PublicAPI]
     public record struct Vector3(float X, float Y, float Z) {
         public static Vector3 Zero { get; } = new(0, 0, 0);
 
@@ -14,6 +21,11 @@ namespace Equilibrium.Models.Objects.Math {
         public static Vector4 Zero { get; } = new(0, 0, 0, 0);
 
         public static implicit operator System.Numerics.Vector4?(Vector4 vector) => new System.Numerics.Vector4(vector.X, vector.Y, vector.Z, vector.W);
+    }
+
+    [PublicAPI]
+    public record struct ColorRGBA(float R, float G, float B, float A) {
+        public static ColorRGBA Zero { get; } = new(0, 0, 0, 1);
     }
 
     [PublicAPI]
