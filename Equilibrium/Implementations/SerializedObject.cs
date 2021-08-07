@@ -46,6 +46,8 @@ namespace Equilibrium.Implementations {
         public string ObjectContainerPath { get; set; } = string.Empty;
 
         public Dictionary<object, object> ExtraContainers { get; } = new();
+
+        [JsonIgnore]
         public bool NeedsLoad { get; set; }
 
         public bool Equals(SerializedObject? other) {

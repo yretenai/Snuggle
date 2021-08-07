@@ -67,15 +67,18 @@ namespace Equilibrium.Implementations {
                 MobileMTRendering = reader.ReadBoolean();
             }
 
-            if (SerializedFile.Version >= UnityVersionRegister.Unity2020_1) {
-                MipStripping = reader.ReadBoolean();
-                NumberOfMipsStripped = reader.ReadInt32();
+            if (SerializedFile.Version >= UnityVersionRegister.Unity2020_2) {
+                AID = reader.ReadArray<byte>(16).ToArray();
+                reader.Align();
+                PlayerMinOpenGLESVersion = reader.ReadInt32();
             }
 
-            if (SerializedFile.Version >= UnityVersionRegister.Unity2020_2) {
+            reader.Align();
+
+            if (SerializedFile.Version >= UnityVersionRegister.Unity2020_1) {
+                MipStripping = reader.ReadBoolean();
                 reader.Align();
-                AID = reader.ReadArray<byte>(16).ToArray();
-                PlayerMinOpenGLESVersion = reader.ReadInt32();
+                NumberOfMipsStripped = reader.ReadInt32();
             }
 
             if (SerializedFile.Version < UnityVersionRegister.Unity5_4) {
@@ -292,8 +295,10 @@ namespace Equilibrium.Implementations {
                             }
 
                             if (SerializedFile.Version >= UnityVersionRegister.Unity2019_4) {
-                                StadiaPresentMode = reader.ReadInt32();
-                                StadiaTargetFramerate = reader.ReadInt32();
+                                if (SerializedFile.Options.Game != UnityGame.PokemonUnite) {
+                                    StadiaPresentMode = reader.ReadInt32();
+                                    StadiaTargetFramerate = reader.ReadInt32();
+                                }
                             }
 
                             if (SerializedFile.Version > UnityVersionRegister.Unity2019_3) {
@@ -442,6 +447,10 @@ namespace Equilibrium.Implementations {
                 }
             }
 
+            if (SerializedFile.Version >= UnityVersionRegister.Unity2020_2) {
+                ActiveInputHandler = reader.ReadInt32();
+            }
+
             CloudProjectId = reader.ReadString32();
             if (SerializedFile.Version < UnityVersionRegister.Unity5_2) {
                 ProjectId = reader.ReadString32();
@@ -451,21 +460,35 @@ namespace Equilibrium.Implementations {
                 FramebufferDepthMemorylessMode = reader.ReadInt32();
             }
 
+            if (SerializedFile.Version >= UnityVersionRegister.Unity2020_2) {
+                var qualitySettingsNameCount = reader.ReadInt32();
+                QualitySettingsNames.EnsureCapacity(qualitySettingsNameCount);
+                for (var i = 0; i < qualitySettingsNameCount; ++i) {
+                    QualitySettingsNames.Add(reader.ReadString32());
+                }
+            }
+
             ProjectName = reader.ReadString32();
             OrganizationId = reader.ReadString32();
 
             CloudEnabled = reader.ReadBoolean();
-            if (SerializedFile.Version >= UnityVersionRegister.Unity5_6) {
+
+            if (SerializedFile.Version >= UnityVersionRegister.Unity5_6 &&
+                SerializedFile.Version < UnityVersionRegister.Unity2017_1) {
                 EnableNewInputSystem = reader.ReadBoolean();
-                if (SerializedFile.Version >= UnityVersionRegister.Unity2017_1) {
-                    DisableOldInputManagerSupport = reader.ReadBoolean();
-                    if (SerializedFile.Version >= UnityVersionRegister.Unity2018_3) {
-                        LegacyClampBlendShapeWeights = reader.ReadBoolean();
-                        if (SerializedFile.Version >= UnityVersionRegister.Unity2020_1) {
-                            VirtualTexturingSupportEnabled = reader.ReadBoolean();
-                        }
-                    }
-                }
+            }
+
+            if (SerializedFile.Version >= UnityVersionRegister.Unity2017_1 &&
+                SerializedFile.Version < UnityVersionRegister.Unity2020_2) {
+                DisableOldInputManagerSupport = reader.ReadBoolean();
+            }
+
+            if (SerializedFile.Version >= UnityVersionRegister.Unity2018_3) {
+                LegacyClampBlendShapeWeights = reader.ReadBoolean();
+            }
+
+            if (SerializedFile.Version >= UnityVersionRegister.Unity2020_1) {
+                VirtualTexturingSupportEnabled = reader.ReadBoolean();
             }
 
             reader.Align();
@@ -487,6 +510,7 @@ namespace Equilibrium.Implementations {
             VRSettings = VRSettings.Default;
             ColorGamuts = Array.Empty<int>();
             CloudProjectId = string.Empty;
+            QualitySettingsNames = new List<string>();
             ProjectId = string.Empty;
             ProjectName = string.Empty;
             OrganizationId = string.Empty;
@@ -642,9 +666,11 @@ namespace Equilibrium.Implementations {
         public int ResolutionScalingMode { get; set; }
         public int AndroidSupportedAspectRatio { get; set; }
         public float AndroidMaxAspectRatio { get; set; }
+        public int ActiveInputHandler { get; set; }
         public string CloudProjectId { get; set; }
         public string ProjectId { get; set; }
         public int FramebufferDepthMemorylessMode { get; set; }
+        public List<string> QualitySettingsNames { get; set; }
         public string ProjectName { get; set; }
         public string OrganizationId { get; set; }
         public bool CloudEnabled { get; set; }

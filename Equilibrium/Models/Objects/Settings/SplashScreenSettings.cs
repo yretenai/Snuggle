@@ -21,7 +21,7 @@ namespace Equilibrium.Models.Objects.Settings {
         float BackgroundPortraitAspectRatio,
         Rect LandscapeUV,
         Rect PortraitUV,
-        List<PPtr<SerializedObject>> Logos,
+        List<SplashScreenLogo> Logos,
         PPtr<Texture2D> BackgroundLandscape,
         PPtr<Texture2D> BackgroundPortrait,
         PPtr<Texture2D> VRSplashScreen,
@@ -40,7 +40,7 @@ namespace Equilibrium.Models.Objects.Settings {
                 1,
                 Rect.Zero,
                 Rect.Zero,
-                new List<PPtr<SerializedObject>>(),
+                new List<SplashScreenLogo>(),
                 PPtr<Texture2D>.Null,
                 PPtr<Texture2D>.Null,
                 PPtr<Texture2D>.Null,
@@ -62,7 +62,7 @@ namespace Equilibrium.Models.Objects.Settings {
             var portraitAspect = 1f;
             Rect landscapeUv;
             Rect portraitUv;
-            var logos = new List<PPtr<SerializedObject>>();
+            var logos = new List<SplashScreenLogo>();
             PPtr<Texture2D> backgroundLandscape;
             PPtr<Texture2D> backgroundPortait;
             if (serializedFile.Version >= UnityVersionRegister.Unity5_5) {
@@ -79,7 +79,7 @@ namespace Equilibrium.Models.Objects.Settings {
                 var logoCount = reader.ReadInt32();
                 logos.EnsureCapacity(logoCount);
                 for (var i = 0; i < logoCount; ++i) {
-                    logos.Add(PPtr<SerializedObject>.FromReader(reader, serializedFile));
+                    logos.Add(SplashScreenLogo.FromReader(reader, serializedFile));
                 }
 
                 backgroundLandscape = PPtr<Texture2D>.FromReader(reader, serializedFile);

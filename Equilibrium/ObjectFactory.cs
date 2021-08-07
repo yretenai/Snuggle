@@ -6,6 +6,7 @@ using System.Reflection;
 using Equilibrium.Exceptions;
 using Equilibrium.Extensions;
 using Equilibrium.Implementations;
+using Equilibrium.Interfaces;
 using Equilibrium.IO;
 using Equilibrium.Meta;
 using Equilibrium.Models;
@@ -149,6 +150,10 @@ namespace Equilibrium {
                 !serializedObject.ShouldDeserialize) {
                 serializedFile.Options.Logger.Warning("Object",
                     $"{reader.Unconsumed} bytes left unconsumed in buffer and object {info.PathId} ({overrideType ?? info.ClassId:G}, {overrideGame ?? UnityGame.Default:G}) is not marked for deserialization! Check implementation");
+            }
+
+            if (serializedObject is ISerializedResource resource) {
+                serializedObject.Size += resource.StreamData.Size;
             }
 
             return serializedObject;

@@ -11,11 +11,11 @@
             <_Parameter1>Equilibrium.Tests</_Parameter1>
         </AssemblyAttribute>
 
-        <PackageReference Include="DragonLib" Version="1.1.6"/>
-        <PackageReference Include="JetBrains.Annotations" Version="2021.2.0"/>
-        <PackageReference Include="K4os.Compression.LZ4.Streams" Version="1.2.6"/>
-        <PackageReference Include="Mono.Cecil" Version="0.11.4"/>
-        <PackageReference Include="SevenZip" Version="19.0.0"/>
+        <PackageReference Include="DragonLib" Version="1.1.6" />
+        <PackageReference Include="JetBrains.Annotations" Version="2021.2.0" />
+        <PackageReference Include="K4os.Compression.LZ4.Streams" Version="1.2.12" />
+        <PackageReference Include="Mono.Cecil" Version="0.11.4" />
+        <PackageReference Include="SevenZip" Version="19.0.0" />
     </ItemGroup>
 
 </Project>
