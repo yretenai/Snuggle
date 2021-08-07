@@ -14,13 +14,13 @@ namespace Equilibrium.Implementations {
             if (serializedFile.Version >= UnityVersionRegister.Unity2017_3) {
                 FallbackFormat = (TextureFormat) reader.ReadInt32();
                 DownscaleFallback = reader.ReadBoolean();
-
-                if (serializedFile.Version >= UnityVersionRegister.Unity2020_2) {
-                    AlphaOptional = reader.ReadBoolean();
-                }
-
-                reader.Align();
             }
+
+            if (serializedFile.Version >= UnityVersionRegister.Unity2020_2) {
+                AlphaOptional = reader.ReadBoolean();
+            }
+
+            reader.Align();
         }
 
         public Texture(UnityObjectInfo info, SerializedFile serializedFile) : base(info, serializedFile) { }

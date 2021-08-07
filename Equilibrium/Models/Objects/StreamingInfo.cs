@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Text.Json.Serialization;
 using Equilibrium.IO;
 using Equilibrium.Meta;
 using Equilibrium.Options;
@@ -13,6 +14,7 @@ namespace Equilibrium.Models.Objects {
         string Path) {
         public static StreamingInfo Null { get; } = new(0, 0, string.Empty);
 
+        [JsonIgnore]
         public bool IsNull => Size == 0 || string.IsNullOrEmpty(Path);
 
         public static StreamingInfo FromReader(BiEndianBinaryReader reader, SerializedFile file) {
@@ -33,27 +35,29 @@ namespace Equilibrium.Models.Objects {
             writer.WriteString32(Path);
         }
 
-        public Memory<byte> GetData(AssetCollection? assets, ObjectDeserializationOptions options) {
+        public Memory<byte> GetData(AssetCollection? assets, ObjectDeserializationOptions options, Memory<byte>? existingData = null) {
+            var existing = existingData ?? Memory<byte>.Empty;
             if (assets == null) {
-                return Memory<byte>.Empty;
+                return existing;
             }
 
             if (!assets.TryOpenResource(Path, out var resourceStream)) {
-                return Memory<byte>.Empty;
+                return existing;
             }
 
             try {
                 if (resourceStream.Length < Offset + Size) {
-                    return Memory<byte>.Empty;
+                    return existing;
                 }
 
                 if (resourceStream.Length < Offset) {
-                    return Memory<byte>.Empty;
+                    return existing;
                 }
 
                 resourceStream.Seek(Offset, SeekOrigin.Current);
-                Memory<byte> memory = new byte[Size];
-                resourceStream.Read(memory.Span);
+                Memory<byte> memory = new byte[existing.Length + Size];
+                existing.CopyTo(memory);
+                resourceStream.Read(memory[existing.Length..].Span);
                 return memory;
             } finally {
                 resourceStream.Dispose();

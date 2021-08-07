@@ -21,7 +21,7 @@ namespace Equilibrium.Implementations {
         public Texture2D(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) {
             Width = reader.ReadInt32();
             Height = reader.ReadInt32();
-            TextureDataSize = reader.ReadInt32();
+            TextureDataSize = reader.ReadUInt32();
 
             if (serializedFile.Version >= UnityVersionRegister.Unity2020_1) {
                 IsStrippedMips = reader.ReadBoolean();
@@ -29,15 +29,20 @@ namespace Equilibrium.Implementations {
             }
 
             TextureFormat = (TextureFormat) reader.ReadInt32();
-            if (serializedFile.Version <= UnityVersionRegister.Unity5_2) {
+            if (serializedFile.Version >= UnityVersionRegister.Unity5_2) {
+                MipCount = reader.ReadInt32();
+            } else {
                 if (reader.ReadBoolean()) {
                     MipCount = (int) Math.Ceiling(Math.Log(Math.Max(Width, Height)) / Math.Log(2)) + 1;
                 }
-            } else {
-                MipCount = reader.ReadInt32();
             }
 
             IsReadable = reader.ReadBoolean();
+
+            if (serializedFile.Version < UnityVersionRegister.Unity5_5) {
+                IsReadAllowed = reader.ReadBoolean();
+            }
+
             if (serializedFile.Version >= UnityVersionRegister.Unity2020_1) {
                 IsPreProcessed = reader.ReadBoolean();
             }
@@ -46,12 +51,8 @@ namespace Equilibrium.Implementations {
                 IgnoreTextureLimit = reader.ReadBoolean();
             }
 
-            if (serializedFile.Version <= UnityVersionRegister.Unity5_4) {
-                IsReadAllowed = reader.ReadBoolean();
-            }
-
             if (serializedFile.Version >= UnityVersionRegister.Unity2018_2) {
-                IsStreaming = reader.ReadBoolean();
+                IsStreamingMipmaps = reader.ReadBoolean();
             }
 
             reader.Align();
@@ -64,6 +65,7 @@ namespace Equilibrium.Implementations {
             TextureDimension = (TextureDimension) reader.ReadInt32();
             TextureSettings = GLTextureSettings.FromReader(reader, serializedFile);
             LightmapFormat = (LightmapFormat) reader.ReadInt32();
+
             if (serializedFile.Options.Game == UnityGame.PokemonUnite) {
                 var container = GetExtraContainer<UniteTexture2DExtension>(UnityClassId.Texture2D);
                 container.UnknownValue = reader.ReadInt32();
@@ -77,8 +79,14 @@ namespace Equilibrium.Implementations {
 
             TextureDataStart = reader.BaseStream.Position;
             reader.BaseStream.Seek(reader.ReadInt32(), SeekOrigin.Current);
-            StreamDataOffset = reader.BaseStream.Position;
-            StreamData = StreamingInfo.FromReader(reader, serializedFile);
+
+            if (serializedFile.Version > UnityVersionRegister.Unity5_3) {
+                StreamDataOffset = reader.BaseStream.Position;
+                StreamData = StreamingInfo.FromReader(reader, serializedFile);
+            } else {
+                StreamDataOffset = -1;
+                StreamData = StreamingInfo.Null;
+            }
         }
 
         public Texture2D(UnityObjectInfo info, SerializedFile serializedFile) : base(info, serializedFile) {
@@ -89,7 +97,7 @@ namespace Equilibrium.Implementations {
 
         public int Width { get; set; }
         public int Height { get; set; }
-        public int TextureDataSize { get; set; }
+        public uint TextureDataSize { get; set; }
         public bool IsStrippedMips { get; set; }
         public TextureFormat TextureFormat { get; set; }
         public int MipCount { get; set; } = 1;
@@ -97,7 +105,7 @@ namespace Equilibrium.Implementations {
         public bool IsPreProcessed { get; set; }
         public bool IgnoreTextureLimit { get; set; }
         public bool IsReadAllowed { get; set; }
-        public bool IsStreaming { get; set; }
+        public bool IsStreamingMipmaps { get; set; }
         public int StreamingPriority { get; set; }
         public int TextureCount { get; set; }
         public TextureDimension TextureDimension { get; set; }
@@ -140,7 +148,7 @@ namespace Equilibrium.Implementations {
             }
 
             writer.Write((int) TextureFormat);
-            if (options.TargetVersion <= UnityVersionRegister.Unity5_2) {
+            if (options.TargetVersion < UnityVersionRegister.Unity5_3) {
                 writer.Write(MipCount > 1);
             } else {
                 writer.Write(MipCount);
@@ -155,12 +163,12 @@ namespace Equilibrium.Implementations {
                 writer.Write(IgnoreTextureLimit);
             }
 
-            if (options.TargetVersion <= UnityVersionRegister.Unity5_4) {
+            if (options.TargetVersion < UnityVersionRegister.Unity5_5) {
                 writer.Write(IsReadAllowed);
             }
 
             if (options.TargetVersion >= UnityVersionRegister.Unity2018_2) {
-                writer.Write(IsStreaming);
+                writer.Write(IsStreamingMipmaps);
             }
 
             writer.Align();
@@ -199,14 +207,14 @@ namespace Equilibrium.Implementations {
             }
 
             if (TextureDataStart > -1) {
-                if (StreamData.IsNull) {
-                    TextureData = StreamData.GetData(SerializedFile.Assets, options);
-                } else {
-                    reader.BaseStream.Seek(TextureDataStart, SeekOrigin.Begin);
-                    TextureData = reader.ReadMemory(reader.ReadInt32());
-                }
+                reader.BaseStream.Seek(TextureDataStart, SeekOrigin.Begin);
+                TextureData = reader.ReadMemory(reader.ReadInt32());
             } else {
                 TextureData = Memory<byte>.Empty;
+            }
+
+            if (!StreamData.IsNull) {
+                TextureData = StreamData.GetData(SerializedFile.Assets, options, TextureData);
             }
         }
 

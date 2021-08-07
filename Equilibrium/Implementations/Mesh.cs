@@ -75,7 +75,7 @@ namespace Equilibrium.Implementations {
             reader.BaseStream.Seek(indicesCount, SeekOrigin.Current);
             reader.Align();
 
-            if (serializedFile.Version <= UnityVersionRegister.Unity2018_1) {
+            if (serializedFile.Version < UnityVersionRegister.Unity2018_2) {
                 SkinStart = reader.BaseStream.Position;
                 var skinCount = reader.ReadInt32();
                 if (skinCount != 0) {
@@ -230,7 +230,7 @@ namespace Equilibrium.Implementations {
             VertexData.Deserialize(reader, SerializedFile, options);
 
             if (!StreamData.IsNull) {
-                VertexData.Data = StreamData.GetData(SerializedFile.Assets, options);
+                VertexData.Data = StreamData.GetData(SerializedFile.Assets, options, VertexData.Data);
             }
 
             CompressedMesh.Deserialize(reader, SerializedFile, options);

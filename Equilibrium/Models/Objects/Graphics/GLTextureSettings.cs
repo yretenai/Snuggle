@@ -18,8 +18,8 @@ namespace Equilibrium.Models.Objects.Graphics {
             var anisotropy = reader.ReadInt32();
             var bias = reader.ReadSingle();
             var wrapu = (TextureWrapMode) reader.ReadInt32();
-            var wrapv = TextureWrapMode.Repeat;
-            var wrapw = TextureWrapMode.Repeat;
+            var wrapv = wrapu;
+            var wrapw = wrapu;
             if (file.Version >= UnityVersionRegister.Unity2017_1) {
                 wrapv = (TextureWrapMode) reader.ReadInt32();
                 wrapw = (TextureWrapMode) reader.ReadInt32();
