@@ -5,8 +5,8 @@ using JetBrains.Annotations;
 
 namespace Equilibrium.Game.Unite {
     [PublicAPI]
-    public class Texture2DExtension : ISerialized {
-        public int UnknownValue { get; set; }
+    public class UniteMeshExtension : ISerialized {
+        public int BoneCount { get; set; }
         public void Deserialize(BiEndianBinaryReader reader, ObjectDeserializationOptions options) { }
 
         public void Serialize(BiEndianBinaryWriter writer, AssetSerializationOptions options) { }

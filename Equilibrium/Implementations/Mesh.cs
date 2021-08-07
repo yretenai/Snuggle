@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json.Serialization;
+using Equilibrium.Game.Unite;
 using Equilibrium.Interfaces;
 using Equilibrium.IO;
 using Equilibrium.Meta;
@@ -49,6 +50,11 @@ namespace Equilibrium.Implementations {
             } else {
                 BonesAABB = new List<AABB>();
                 VariableBoneCountWeights = Memory<uint>.Empty;
+            }
+            
+            if (serializedFile.Options.Game == UnityGame.PokemonUnite) {
+                var container = GetExtraContainer<UniteMeshExtension>(UnityClassId.Mesh);
+                container.BoneCount = reader.ReadInt32();
             }
 
             MeshCompression = reader.ReadByte();
