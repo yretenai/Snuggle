@@ -11,7 +11,9 @@ namespace Equilibrium.Models.Objects {
         long Offset,
         long Size,
         string Path) {
-        public static StreamingInfo Default { get; } = new(0, 0, string.Empty);
+        public static StreamingInfo Null { get; } = new(0, 0, string.Empty);
+
+        public bool IsNull => Size == 0 || string.IsNullOrEmpty(Path);
 
         public static StreamingInfo FromReader(BiEndianBinaryReader reader, SerializedFile file) {
             var offset = file.Version >= UnityVersionRegister.Unity2020_1 ? reader.ReadInt64() : reader.ReadUInt32();

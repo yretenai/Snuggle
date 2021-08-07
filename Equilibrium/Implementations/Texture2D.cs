@@ -77,12 +77,14 @@ namespace Equilibrium.Implementations {
 
             TextureDataStart = reader.BaseStream.Position;
             reader.BaseStream.Seek(reader.ReadInt32(), SeekOrigin.Current);
+            StreamDataOffset = reader.BaseStream.Position;
             StreamData = StreamingInfo.FromReader(reader, serializedFile);
         }
 
         public Texture2D(UnityObjectInfo info, SerializedFile serializedFile) : base(info, serializedFile) {
             TextureSettings = GLTextureSettings.Default;
-            StreamData = StreamingInfo.Default;
+            StreamData = StreamingInfo.Null;
+            StreamDataOffset = -1;
         }
 
         public int Width { get; set; }
@@ -114,6 +116,7 @@ namespace Equilibrium.Implementations {
         [JsonIgnore]
         public override bool ShouldDeserialize => base.ShouldDeserialize || PlatformData == null || TextureData == null;
 
+        public long StreamDataOffset { get; set; }
         public StreamingInfo StreamData { get; set; }
 
         public override void Serialize(BiEndianBinaryWriter writer, AssetSerializationOptions options) {
@@ -196,11 +199,11 @@ namespace Equilibrium.Implementations {
             }
 
             if (TextureDataStart > -1) {
-                if (StreamData.Size == 0) {
+                if (StreamData.IsNull) {
+                    TextureData = StreamData.GetData(SerializedFile.Assets, options);
+                } else {
                     reader.BaseStream.Seek(TextureDataStart, SeekOrigin.Begin);
                     TextureData = reader.ReadMemory(reader.ReadInt32());
-                } else {
-                    TextureData = StreamData.GetData(SerializedFile.Assets, options);
                 }
             } else {
                 TextureData = Memory<byte>.Empty;

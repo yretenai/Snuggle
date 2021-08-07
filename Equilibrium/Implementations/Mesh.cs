@@ -51,7 +51,7 @@ namespace Equilibrium.Implementations {
                 BonesAABB = new List<AABB>();
                 VariableBoneCountWeights = Memory<uint>.Empty;
             }
-            
+
             if (serializedFile.Options.Game == UnityGame.PokemonUnite) {
                 var container = GetExtraContainer<UniteMeshExtension>(UnityClassId.Mesh);
                 container.BoneCount = reader.ReadInt32();
@@ -105,9 +105,11 @@ namespace Equilibrium.Implementations {
             }
 
             if (serializedFile.Version >= UnityVersionRegister.Unity2018_3) {
+                StreamDataOffset = reader.BaseStream.Position;
                 StreamData = StreamingInfo.FromReader(reader, serializedFile);
             } else {
-                StreamData = StreamingInfo.Default;
+                StreamDataOffset = -1;
+                StreamData = StreamingInfo.Null;
             }
         }
 
@@ -120,7 +122,8 @@ namespace Equilibrium.Implementations {
             CompressedMesh = CompressedMesh.Default;
             LocalAABB = AABB.Default;
             MeshMetrics = new float[2];
-            StreamData = StreamingInfo.Default;
+            StreamDataOffset = -1;
+            StreamData = StreamingInfo.Null;
         }
 
         private long BindPoseStart { get; init; } = -1;
@@ -181,6 +184,7 @@ namespace Equilibrium.Implementations {
             CompressedMesh.ShouldDeserialize ||
             BlendShapeData.ShouldDeserialize;
 
+        public long StreamDataOffset { get; set; }
         public StreamingInfo StreamData { get; set; }
 
         public override void Deserialize(BiEndianBinaryReader reader, ObjectDeserializationOptions options) {
@@ -225,8 +229,7 @@ namespace Equilibrium.Implementations {
 
             VertexData.Deserialize(reader, SerializedFile, options);
 
-            if (VertexData.Data!.Value.IsEmpty &&
-                StreamData.Size > 0) {
+            if (!StreamData.IsNull) {
                 VertexData.Data = StreamData.GetData(SerializedFile.Assets, options);
             }
 
