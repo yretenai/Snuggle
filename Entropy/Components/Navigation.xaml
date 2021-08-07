@@ -17,8 +17,9 @@
              d:DesignHeight="300" d:DesignWidth="300">
     <Menu>
         <MenuItem Header="_File">
-            <MenuItem Header="Load _Directory" Click="LoadDirectory" />
+            <MenuItem Header="Load _Directory" Click="LoadDirectories" />
             <MenuItem Header="Load _File" Click="LoadFiles" />
+            <MenuItem Header="_Recent" x:Name="RecentItems" />
             <Separator />
             <MenuItem Header="_Clear Memory" ToolTip="This will try to unload all large data blocks"
                       Click="FreeMemory" />

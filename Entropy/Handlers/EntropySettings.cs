@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Collections.Generic;
+using System.Text.Json;
 using Equilibrium.Options;
 
 namespace Entropy.Handlers {
@@ -11,7 +12,11 @@ namespace Entropy.Handlers {
         bool UseContainerPaths,
         bool GroupByType,
         string NameTemplate) {
-        private const int LatestVersion = 1;
+        private const int LatestVersion = 2;
+
+        public List<string> RecentFiles { get; set; } = new();
+        public List<string> RecentDirectories { get; set; } = new();
+        public string LastSaveDirectory { get; set; } = string.Empty;
 
         public static EntropySettings Default { get; } =
             new(EquilibriumOptions.Default,
@@ -28,6 +33,7 @@ namespace Entropy.Handlers {
         public static EntropySettings FromJson(string json) {
             try {
                 var settings = JsonSerializer.Deserialize<EntropySettings>(json, EquilibriumOptions.JsonOptions) ?? Default;
+
                 if (settings.Options.NeedsMigration()) {
                     settings = settings with { Options = settings.Options.Migrate() };
                 }
@@ -54,6 +60,14 @@ namespace Entropy.Handlers {
 
         public bool NeedsMigration() => Version < LatestVersion;
 
-        public EntropySettings Migrate() => this with { Version = LatestVersion };
+        public EntropySettings Migrate() {
+            var settings = this;
+
+            if (settings.Version < 2) {
+                settings = settings with { RecentDirectories = new List<string>(), RecentFiles = new List<string>(), LastSaveDirectory = string.Empty, Version = 2 };
+            }
+
+            return settings with { Version = LatestVersion };
+        }
     }
 }

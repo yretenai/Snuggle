@@ -17,11 +17,13 @@ namespace Entropy.Components {
         public Navigation() {
             InitializeComponent();
             var instance = EntropyCore.Instance;
+
             CacheData.IsChecked = instance.Settings.Options.CacheData;
             CacheDataIfLZMA.IsChecked = instance.Settings.Options.CacheDataIfLZMA;
             WriteNativeTextures.IsChecked = instance.Settings.WriteNativeTextures;
             UseContainerPaths.IsChecked = instance.Settings.UseContainerPaths;
             GroupByType.IsChecked = instance.Settings.GroupByType;
+
             var descriptions = typeof(UnityGame).GetFields(BindingFlags.Static | BindingFlags.Public).ToDictionary(x => (UnityGame) x.GetValue(null)!, x => x.GetCustomAttribute<DescriptionAttribute>()?.Description ?? x.Name);
             foreach (var game in Enum.GetValues<UnityGame>()) {
                 var item = new MenuItem { Tag = game, Header = "_" + descriptions[game], IsChecked = instance.Settings.Options.Game == game, IsCheckable = true };
@@ -30,6 +32,53 @@ namespace Entropy.Components {
                 UnityGameList.Items.Add(item);
                 UnityGameItems[game] = item;
             }
+
+            PopulateRecentItems();
+
+            instance.PropertyChanged += (_, args) => {
+                if (args.PropertyName == nameof(EntropyCore.Settings)) {
+                    PopulateRecentItems();
+                }
+            };
+        }
+
+        private void PopulateRecentItems() {
+            var instance = EntropyCore.Instance;
+            RecentItems.Items.Clear();
+            foreach (var item in instance.Settings.RecentFiles.Select(recentFile =>
+                new MenuItem { Tag = recentFile, Header = "_" + recentFile })) {
+                item.Click += LoadFile;
+                RecentItems.Items.Add(item);
+            }
+
+            if (!RecentItems.Items.IsEmpty &&
+                instance.Settings.RecentDirectories.Count > 0) {
+                RecentItems.Items.Add(new Separator());
+            }
+
+            foreach (var item in instance.Settings.RecentDirectories.Select(recentDirectory =>
+                new MenuItem { Tag = recentDirectory, Header = "_" + recentDirectory })) {
+                item.Click += LoadDirectory;
+                RecentItems.Items.Add(item);
+            }
+
+            RecentItems.Visibility = RecentItems.Items.IsEmpty ? Visibility.Collapsed : Visibility.Visible;
+        }
+
+        private static void LoadDirectory(object sender, RoutedEventArgs e) {
+            if (sender is not MenuItem { Tag: string directory }) {
+                return;
+            }
+
+            EntropyFile.LoadDirectory(directory);
+        }
+
+        private static void LoadFile(object sender, RoutedEventArgs e) {
+            if (sender is not MenuItem { Tag: string file }) {
+                return;
+            }
+
+            EntropyFile.LoadFile(file);
         }
 
         private static void CancelEvent(object sender, RoutedEventArgs e) {
@@ -110,8 +159,8 @@ namespace Entropy.Components {
             instance.SetOptions(instance.Settings with { GroupByType = false });
         }
 
-        private void LoadDirectory(object sender, RoutedEventArgs e) {
-            EntropyFile.LoadDirectory();
+        private void LoadDirectories(object sender, RoutedEventArgs e) {
+            EntropyFile.LoadDirectories();
         }
 
         private void LoadFiles(object sender, RoutedEventArgs e) {

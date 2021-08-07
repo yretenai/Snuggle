@@ -18,6 +18,8 @@ using JetBrains.Annotations;
 namespace Entropy.Handlers {
     [PublicAPI]
     public class EntropyCore : Singleton<EntropyCore>, INotifyPropertyChanged, IDisposable {
+        private object SaveLock = new();
+
         public EntropyCore() {
             var workDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             SettingsFile = Path.Combine(workDir ?? "./", "Entropy.json");
@@ -129,16 +131,22 @@ namespace Entropy.Handlers {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
+        public void SaveOptions() {
+            lock (SaveLock) {
+                File.WriteAllText(SettingsFile, Settings.ToJson());
+            }
+
+            OnPropertyChanged(nameof(Settings));
+        }
+
         public void SetOptions(EntropySettings options) {
             Settings = options with { Options = options.Options with { Reporter = Status, Logger = LogTarget } };
-            File.WriteAllText(SettingsFile, Settings.ToJson());
-            OnPropertyChanged(nameof(Settings));
+            SaveOptions();
         }
 
         public void SetOptions(EquilibriumOptions options) {
             Settings = Settings with { Options = options with { Reporter = Status, Logger = LogTarget } };
-            File.WriteAllText(SettingsFile, Settings.ToJson());
-            OnPropertyChanged(nameof(Settings));
+            SaveOptions();
         }
     }
 }

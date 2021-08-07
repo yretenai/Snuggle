@@ -13,12 +13,13 @@ using Microsoft.WindowsAPICodePack.Dialogs;
 
 namespace Entropy.Handlers {
     public static class EntropyFile {
-        public static void LoadDirectory() {
+        public static void LoadDirectories() {
             using var selection = new CommonOpenFileDialog {
                 IsFolderPicker = true,
                 Multiselect = true,
                 AllowNonFileSystemItems = false,
                 Title = "Select folder to load",
+                InitialDirectory = Path.GetDirectoryName(EntropyCore.Instance.Settings.RecentDirectories.LastOrDefault()),
                 ShowPlacesList = true,
             };
 
@@ -27,10 +28,19 @@ namespace Entropy.Handlers {
             }
 
             var directories = selection.FileNames.ToArray();
+            var recent = EntropyCore.Instance.Settings.RecentDirectories;
+            recent.AddRange(directories);
+            EntropyCore.Instance.Settings.RecentDirectories = recent.Distinct().TakeLast(5).ToList();
+            EntropyCore.Instance.SaveOptions();
+            LoadDirectory(directories);
+        }
+
+        public static void LoadDirectory(params string[] directories) {
             var instance = EntropyCore.Instance;
             instance.WorkerAction(token => {
                 // TODO: Split files.
-                var files = directories.SelectMany(x => Directory.EnumerateFiles(x, "*", SearchOption.AllDirectories)).ToArray();
+                var files = directories.SelectMany(x => Directory.EnumerateFiles(x, "*", SearchOption.AllDirectories))
+                    .ToArray();
                 instance.Status.SetProgressMax(files.Length);
                 foreach (var file in files) {
                     if (token.IsCancellationRequested) {
@@ -55,6 +65,7 @@ namespace Entropy.Handlers {
                 IsFolderPicker = false,
                 Multiselect = true,
                 AllowNonFileSystemItems = false,
+                InitialDirectory = Path.GetDirectoryName(EntropyCore.Instance.Settings.RecentFiles.LastOrDefault()),
                 Title = "Select files to load",
                 ShowPlacesList = true,
             };
@@ -64,6 +75,14 @@ namespace Entropy.Handlers {
             }
 
             var files = selection.FileNames.ToArray();
+            var recent = EntropyCore.Instance.Settings.RecentFiles;
+            recent.AddRange(files);
+            EntropyCore.Instance.Settings.RecentFiles = recent.Distinct().TakeLast(5).ToList();
+            EntropyCore.Instance.SaveOptions();
+            LoadFile(files);
+        }
+
+        public static void LoadFile(params string[] files) {
             var instance = EntropyCore.Instance;
             instance.WorkerAction(token => {
                 // TODO: Split files.
@@ -91,6 +110,7 @@ namespace Entropy.Handlers {
                 IsFolderPicker = true,
                 Multiselect = false,
                 AllowNonFileSystemItems = false,
+                InitialDirectory = EntropyCore.Instance.Settings.LastSaveDirectory,
                 Title = "Select folder to save to",
                 ShowPlacesList = true,
             };
@@ -105,10 +125,12 @@ namespace Entropy.Handlers {
             }
 
             var instance = EntropyCore.Instance;
-            instance.WorkerAction(token => { ExtractOperation(token, (selected ? instance.SelectedObjects : instance.Objects).ToImmutableArray(), outputDirectory, mode); });
+            instance.Settings.LastSaveDirectory = outputDirectory;
+            instance.SaveOptions();
+            instance.WorkerAction(token => { ExtractOperation((selected ? instance.SelectedObjects : instance.Objects).ToImmutableArray(), outputDirectory, mode, token); });
         }
 
-        private static void ExtractOperation(CancellationToken token, ImmutableArray<EntropyObject> items, string outputDirectory, ExtractMode mode) {
+        private static void ExtractOperation(ImmutableArray<EntropyObject> items, string outputDirectory, ExtractMode mode, CancellationToken token) {
             var instance = EntropyCore.Instance;
             foreach (var entropyObject in items) {
                 if (token.IsCancellationRequested) {
