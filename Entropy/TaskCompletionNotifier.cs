@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
 using JetBrains.Annotations;
 
 namespace Entropy {
@@ -16,11 +17,14 @@ namespace Entropy {
             }
 
             var scheduler = SynchronizationContext.Current != null ? TaskScheduler.FromCurrentSynchronizationContext() : TaskScheduler.Current;
+            var dispatcher = Dispatcher.CurrentDispatcher;
 
             task.ContinueWith(_ => {
-                    OnPropertyChanged(nameof(Loading));
-                    OnPropertyChanged(nameof(LoadingVisibility));
-                    OnPropertyChanged(nameof(Result));
+                    dispatcher.Invoke(() => {
+                        OnPropertyChanged(nameof(Loading));
+                        OnPropertyChanged(nameof(LoadingVisibility));
+                        OnPropertyChanged(nameof(Result));
+                    });
                 },
                 CancellationToken.None,
                 TaskContinuationOptions.None,

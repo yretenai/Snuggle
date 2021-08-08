@@ -1,0 +1,3 @@
+[submodule "Library/AssetStudio"]
+	path = Library/AssetStudio
+	url = https://github.com/yretenai/AssetStudio.git

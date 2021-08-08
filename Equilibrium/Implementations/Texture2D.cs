@@ -33,7 +33,7 @@ namespace Equilibrium.Implementations {
                 MipCount = reader.ReadInt32();
             } else {
                 if (reader.ReadBoolean()) {
-                    MipCount = (int) Math.Ceiling(Math.Log(Math.Max(Width, Height)) / Math.Log(2)) + 1;
+                    MipCount = (int) Math.Log2(Math.Max(Width, Height));
                 }
             }
 
@@ -227,75 +227,6 @@ namespace Equilibrium.Implementations {
             TextureData = null;
         }
 
-        public Span<byte> ToDDS() {
-            if (ShouldDeserialize) {
-                throw new IncompleteDeserializationException();
-            }
-
-            return DXGI.BuildDDS(TextureFormat.ToD3DPixelFormat(),
-                MipCount,
-                Width,
-                Height,
-                TextureCount,
-                TextureData!.Value.Span);
-        }
-
-        public void ImportDDS(Stream stream, bool leaveOpen = false) {
-            using var reader = new BiEndianBinaryReader(stream, leaveOpen);
-            var header = reader.ReadStruct<DDSImageHeader>();
-
-            IsMutated = true;
-
-            Width = header.Width;
-            Height = header.Height;
-            MipCount = header.MipmapCount;
-
-            switch (header.Format.FourCC) {
-                case 0x30315844: { // DX10
-                    var dx10 = reader.ReadStruct<DXT10Header>();
-                    TextureFormat = ((DXGIPixelFormat) dx10.Format).ToTextureFormat();
-                    TextureCount = dx10.Size;
-                    break;
-                }
-                case 0x31545844: // DXT1
-                    TextureFormat = TextureFormat.DXT1;
-                    break;
-                case 0x34545844: // DXT4
-                case 0x35545844: // DXT5
-                    TextureFormat = TextureFormat.DXT5;
-                    break;
-                case 0x31495441: // ATI1
-                    TextureFormat = TextureFormat.BC4;
-                    break;
-                case 0x32495441: // ATI2
-                    TextureFormat = TextureFormat.BC5;
-                    break;
-                default:
-                    throw new NotSupportedException($"DDS FourCC {header.Format.FourCC} is not supported");
-            }
-
-            TextureData = reader.ReadMemory(reader.Unconsumed);
-
-            if (!leaveOpen) {
-                stream.Close();
-            }
-        }
-
-        public static Texture2D FromDDS(UnityObjectInfo info, SerializedFile file, Stream stream, bool leaveOpen = false) {
-            var texture2D = new Texture2D(info, file) {
-                Name = "Texture2D",
-            };
-
-            texture2D.ImportDDS(stream, leaveOpen);
-            if (!leaveOpen) {
-                stream.Close();
-            }
-
-            return texture2D;
-        }
-
         public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Width, Height, TextureFormat, TextureDataSize, StreamData);
-
-        public Span<byte> ToKTX2() => throw new NotImplementedException();
     }
 }
