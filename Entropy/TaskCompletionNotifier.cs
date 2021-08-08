@@ -20,11 +20,8 @@ namespace Entropy {
             var dispatcher = Dispatcher.CurrentDispatcher;
 
             task.ContinueWith(_ => {
-                    dispatcher.Invoke(() => {
-                        OnPropertyChanged(nameof(Loading));
-                        OnPropertyChanged(nameof(LoadingVisibility));
-                        OnPropertyChanged(nameof(Result));
-                    });
+                    Result = Task.Status != TaskStatus.RanToCompletion ? default : Task.Result;
+                    dispatcher.Invoke(Refresh);
                 },
                 CancellationToken.None,
                 TaskContinuationOptions.None,
@@ -36,13 +33,19 @@ namespace Entropy {
         public bool Loading => Task.Status < TaskStatus.RanToCompletion;
         public Visibility LoadingVisibility => Loading ? Visibility.Visible : Visibility.Hidden;
 
-        public T? Result => Task.Status != TaskStatus.RanToCompletion ? default : Task.Result;
+        public T? Result { get; set; }
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
         [NotifyPropertyChangedInvocator]
         private void OnPropertyChanged([CallerMemberName] string? propertyName = null) {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public void Refresh() {
+            OnPropertyChanged(nameof(Loading));
+            OnPropertyChanged(nameof(LoadingVisibility));
+            OnPropertyChanged(nameof(Result));
         }
     }
 }

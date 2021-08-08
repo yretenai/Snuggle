@@ -36,6 +36,15 @@
                             </DrawingGroup>
                         </DrawingBrush.Drawing>
                     </DrawingBrush>
+                    <DrawingBrush TileMode="Tile" Viewport="0,0,32,32" ViewportUnits="Absolute"
+                                  x:Key="CheckerboardBrushWhite">
+                        <DrawingBrush.Drawing>
+                            <DrawingGroup>
+                                <GeometryDrawing Geometry="M0,0 H2 V2 H0Z" Brush="#FFE0E0E0" />
+                                <GeometryDrawing Geometry="M0,0 H1 V1 H2 V2 H1 V1 H0Z" Brush="#FFD0D0D0" />
+                            </DrawingGroup>
+                        </DrawingBrush.Drawing>
+                    </DrawingBrush>
                 </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Windows;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace Entropy.Components.Renderers {
     public sealed partial class Texture2DRenderer {
@@ -45,6 +47,50 @@ namespace Entropy.Components.Renderers {
 
         private void ReleasePan(object sender, MouseButtonEventArgs e) {
             ImageView.ReleaseMouseCapture();
+        }
+
+        private void Reset(object sender, RoutedEventArgs e) {
+            var st = (ScaleTransform) ImageView.LayoutTransform;
+            st.ScaleX = 1;
+            st.ScaleY = 0 - st.ScaleX;
+            var tt = (TranslateTransform) ImageView.RenderTransform;
+            tt.X = 0;
+            tt.Y = 0;
+
+            var result = ImageView.DataContext as TaskCompletionNotifier<BitmapSource?>;
+            if (result?.Task.Result is not RGBABitmapSource rgba) {
+                return;
+            }
+
+            result.Result = rgba;
+            result.Refresh();
+            Refresh(this, new DependencyPropertyChangedEventArgs());
+        }
+
+        private void ToggleColor(object sender, RoutedEventArgs e) {
+            var result = ImageView.DataContext as TaskCompletionNotifier<BitmapSource?>;
+            if (result?.Task.Result is not RGBABitmapSource rgba) {
+                return;
+            }
+
+            result.Result = new RGBABitmapSource(rgba) {
+                HideRed = Red.IsChecked == false,
+                HideGreen = Green.IsChecked == false,
+                HideBlue = Blue.IsChecked == false,
+                HideAlpha = Alpha.IsChecked == false,
+            };
+            result.Refresh();
+        }
+
+        private void ToggleBg(object sender, RoutedEventArgs e) {
+            CanvasBackground = (Brush) Application.Current.Resources[((ToggleButton) sender).IsChecked == true ? "CheckerboardBrush" : "CheckerboardBrushWhite"];
+        }
+
+        private void Refresh(object sender, DependencyPropertyChangedEventArgs e) {
+            Red.IsChecked = true;
+            Green.IsChecked = true;
+            Blue.IsChecked = true;
+            Alpha.IsChecked = true;
         }
     }
 }

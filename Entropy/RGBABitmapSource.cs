@@ -20,6 +20,16 @@ namespace Entropy {
             BackingPixelHeight = pixelHeight;
         }
 
+        public RGBABitmapSource(RGBABitmapSource rgba) {
+            Buffer = rgba.Buffer;
+            BackingPixelWidth = rgba.BackingPixelWidth;
+            BackingPixelHeight = rgba.BackingPixelHeight;
+            HideRed = rgba.HideRed;
+            HideGreen = rgba.HideGreen;
+            HideBlue = rgba.HideBlue;
+            HideAlpha = rgba.HideAlpha;
+        }
+
         public override void CopyPixels(Int32Rect sourceRect, Array pixels, int stride, int offset) {
             for (var y = sourceRect.Y; y < sourceRect.Y + sourceRect.Height; y++) {
                 for (var x = sourceRect.X; x < sourceRect.X + sourceRect.Width; x++) {
