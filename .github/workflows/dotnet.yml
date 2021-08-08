@@ -37,13 +37,13 @@ jobs:
             -   name: Build Debug
                 run: dotnet build -c Debug -o dist/debug
             -   name: Copy Texture2DDecoderNative (Release, x86)
-                run: xcopy Library\AssetStudio\Texture2DDecoderNative\bin\Win32\Release\Texture2DDecoderNative.dll dist\release\runtimes\win-x86\native
+                run: xcopy Library\AssetStudio\Texture2DDecoderNative\bin\Win32\Release\Texture2DDecoderNative.dll dist\release\runtimes\win-x86\native /Y
             -   name: Copy Texture2DDecoderNative (Release, x64)
-                run: xcopy Library\AssetStudio\Texture2DDecoderNative\bin\x64\Release\Texture2DDecoderNative.dll dist\release\runtimes\win-x64\native
+                run: xcopy Library\AssetStudio\Texture2DDecoderNative\bin\x64\Release\Texture2DDecoderNative.dll dist\release\runtimes\win-x64\native /Y
             -   name: Copy Texture2DDecoderNative (Debug, x86)
-                run: xcopy Library\AssetStudio\Texture2DDecoderNative\bin\Win32\Debug\Texture2DDecoderNative.dll dist\debug\runtimes\win-x86\native
+                run: xcopy Library\AssetStudio\Texture2DDecoderNative\bin\Win32\Debug\Texture2DDecoderNative.dll dist\debug\runtimes\win-x86\native /Y
             -   name: Copy Texture2DDecoderNative (Debug, x64)
-                run: xcopy Library\AssetStudio\Texture2DDecoderNative\bin\x64\Debug\Texture2DDecoderNative.dll dist\debug\runtimes\win-x64\native
+                run: xcopy Library\AssetStudio\Texture2DDecoderNative\bin\x64\Debug\Texture2DDecoderNative.dll dist\debug\runtimes\win-x64\native /Y
             -   name: Upload Release
                 uses: actions/upload-artifact@v2
                 with:
