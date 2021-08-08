@@ -12,6 +12,7 @@ jobs:
                 uses: actions/checkout@v2
                 with:
                     fetch-depth: 0
+                    submodules: 'recursive'
             -   name: Install .NET Core 6
                 uses: actions/setup-dotnet@v1
                 with:
@@ -35,7 +36,6 @@ jobs:
                 run: dotnet build -c Release -o dist/release
             -   name: Build Debug
                 run: dotnet build -c Debug -o dist/debug
-                uses: microsoft/setup-msbuild@v1.0.2
             -   name: Copy Texture2DDecoderNative (Release, x86)
                 run: xcopy Library\AssetStudio\Texture2DDecoderNative\bin\Win32\Release\Texture2DDecoderNative.dll dist\release\runtimes\win-x86\native
             -   name: Copy Texture2DDecoderNative (Release, x64)
