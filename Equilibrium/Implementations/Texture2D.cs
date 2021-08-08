@@ -1,9 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text.Json.Serialization;
-using DragonLib.Imaging.DXGI;
 using Equilibrium.Exceptions;
-using Equilibrium.Extensions;
 using Equilibrium.Game.Unite;
 using Equilibrium.Interfaces;
 using Equilibrium.IO;

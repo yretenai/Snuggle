@@ -10,19 +10,19 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Equilibrium.Converters\Equilibrium.Converters.csproj" />
-        <ProjectReference Include="..\Equilibrium\Equilibrium.csproj" />
+        <ProjectReference Include="..\Equilibrium.Converters\Equilibrium.Converters.csproj"/>
+        <ProjectReference Include="..\Equilibrium\Equilibrium.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Dragablz" Version="0.0.3.223" />
-        <PackageReference Include="MaterialDesignColors" Version="2.0.1" />
-        <PackageReference Include="MaterialDesignThemes" Version="4.1.0" />
-        <PackageReference Include="WindowsAPICodePack-Shell" Version="1.1.1" />
+        <PackageReference Include="Dragablz" Version="0.0.3.223"/>
+        <PackageReference Include="MaterialDesignColors" Version="2.0.1"/>
+        <PackageReference Include="MaterialDesignThemes" Version="4.1.0"/>
+        <PackageReference Include="WindowsAPICodePack-Shell" Version="1.1.1"/>
     </ItemGroup>
 
     <Target Name="CustomAfterBuild" AfterTargets="AfterBuild">
-        <Copy SourceFiles="$(SolutionDir)Library\AssetStudio\Texture2DDecoderNative\bin\Win32\$(Configuration)\Texture2DDecoderNative.dll" DestinationFolder="$(TargetDir)runtimes\win-x86\native" ContinueOnError="true" />
-        <Copy SourceFiles="$(SolutionDir)Library\AssetStudio\Texture2DDecoderNative\bin\x64\$(Configuration)\Texture2DDecoderNative.dll" DestinationFolder="$(TargetDir)runtimes\win-x64\native" ContinueOnError="true" />
+        <Copy SourceFiles="$(SolutionDir)Library\AssetStudio\Texture2DDecoderNative\bin\Win32\$(Configuration)\Texture2DDecoderNative.dll" DestinationFolder="$(TargetDir)runtimes\win-x86\native" ContinueOnError="true"/>
+        <Copy SourceFiles="$(SolutionDir)Library\AssetStudio\Texture2DDecoderNative\bin\x64\$(Configuration)\Texture2DDecoderNative.dll" DestinationFolder="$(TargetDir)runtimes\win-x64\native" ContinueOnError="true"/>
     </Target>
 </Project>

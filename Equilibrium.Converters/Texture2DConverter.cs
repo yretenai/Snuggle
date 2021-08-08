@@ -44,6 +44,7 @@ namespace Equilibrium.Converters {
                         fixed (byte* texPin = &tex.GetPinnableReference()) {
                             Buffer.MemoryCopy((void*) image.Pixels, texPin, tex.Length, tex.Length);
                         }
+
                         return tex;
                     }
                 } finally {

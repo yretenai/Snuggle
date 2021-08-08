@@ -11,7 +11,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\AssetStudio\AssetStudio.PInvoke\AssetStudio.PInvoke.csproj" />
+        <ProjectReference Include="..\AssetStudio\AssetStudio.PInvoke\AssetStudio.PInvoke.csproj"/>
     </ItemGroup>
 
 </Project>

@@ -5,14 +5,8 @@ using System.Windows.Media.Imaging;
 
 namespace Entropy {
     public class RGBABitmapSource : BitmapSource {
-        private readonly int BackingPixelWidth;
         private readonly int BackingPixelHeight;
-        private byte[] Buffer { get; }
-
-        public bool HideRed { get; set; }
-        public bool HideGreen { get; set; }
-        public bool HideBlue { get; set; }
-        public bool HideAlpha { get; set; }
+        private readonly int BackingPixelWidth;
 
         public RGBABitmapSource(Span<byte> rgbaBuffer, int pixelWidth, int pixelHeight) {
             Buffer = rgbaBuffer.ToArray();
@@ -29,6 +23,27 @@ namespace Entropy {
             HideBlue = rgba.HideBlue;
             HideAlpha = rgba.HideAlpha;
         }
+
+        private byte[] Buffer { get; }
+
+        public bool HideRed { get; set; }
+        public bool HideGreen { get; set; }
+        public bool HideBlue { get; set; }
+        public bool HideAlpha { get; set; }
+
+        public override double DpiX => 96;
+
+        public override double DpiY => 96;
+
+        public override PixelFormat Format => PixelFormats.Pbgra32;
+
+        public override int PixelWidth => BackingPixelWidth;
+
+        public override int PixelHeight => BackingPixelHeight;
+
+        public override double Width => BackingPixelWidth;
+
+        public override double Height => BackingPixelHeight;
 
         public override void CopyPixels(Int32Rect sourceRect, Array pixels, int stride, int offset) {
             for (var y = sourceRect.Y; y < sourceRect.Y + sourceRect.Height; y++) {
@@ -47,27 +62,11 @@ namespace Entropy {
             }
         }
 
-        protected override Freezable CreateInstanceCore() {
-            return new RGBABitmapSource(Buffer, PixelWidth, PixelHeight);
-        }
+        protected override Freezable CreateInstanceCore() => new RGBABitmapSource(Buffer, PixelWidth, PixelHeight);
 
         public override event EventHandler<DownloadProgressEventArgs>? DownloadProgress;
         public override event EventHandler? DownloadCompleted;
         public override event EventHandler<ExceptionEventArgs>? DownloadFailed;
         public override event EventHandler<ExceptionEventArgs>? DecodeFailed;
-
-        public override double DpiX => 96;
-
-        public override double DpiY => 96;
-
-        public override PixelFormat Format => PixelFormats.Pbgra32;
-
-        public override int PixelWidth => BackingPixelWidth;
-
-        public override int PixelHeight => BackingPixelHeight;
-
-        public override double Width => BackingPixelWidth;
-
-        public override double Height => BackingPixelHeight;
     }
 }

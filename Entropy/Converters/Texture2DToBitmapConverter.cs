@@ -25,7 +25,7 @@ namespace Entropy.Converters {
                 return span.Length == 0 ? null : dispatcher.Invoke(() => new RGBABitmapSource(span, texture.Width, texture.Height));
             });
         }
-        
+
         public override object ProvideValue(IServiceProvider serviceProvider) => this;
     }
 }

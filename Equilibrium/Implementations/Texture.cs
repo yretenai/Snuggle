@@ -28,7 +28,7 @@ namespace Equilibrium.Implementations {
         public TextureFormat FallbackFormat { get; set; }
         public bool DownscaleFallback { get; set; }
         public bool AlphaOptional { get; set; }
-        
+
         public override void Serialize(BiEndianBinaryWriter writer, AssetSerializationOptions options) {
             base.Serialize(writer, options);
             if (options.TargetVersion >= UnityVersionRegister.Unity2017_3) {

@@ -7,7 +7,7 @@ namespace Equilibrium.Models.Objects.Settings {
     public record SplashScreenLogo(
         PPtr<SerializedObject> Logo,
         float Duration) {
-        public static SplashScreenLogo Default { get; } = new SplashScreenLogo(PPtr<SerializedObject>.Null, 0);
+        public static SplashScreenLogo Default { get; } = new(PPtr<SerializedObject>.Null, 0);
 
         public static SplashScreenLogo FromReader(BiEndianBinaryReader reader, SerializedFile serializedFile) {
             var ptr = PPtr<SerializedObject>.FromReader(reader, serializedFile);
