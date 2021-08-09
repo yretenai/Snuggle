@@ -36,10 +36,28 @@ namespace Entropy.Components {
             PopulateRecentItems();
 
             instance.PropertyChanged += (_, args) => {
-                if (args.PropertyName == nameof(EntropyCore.Settings)) {
-                    PopulateRecentItems();
+                switch (args.PropertyName) {
+                    case nameof(EntropyCore.Settings):
+                        PopulateRecentItems();
+                        break;
+                    case nameof(EntropyCore.Objects):
+                        PopulateItemTypes();
+                        break;
+                    case nameof(EntropyCore.Filters):
+                        SearchBox.Text = EntropyCore.Instance.Search;
+                        break;
                 }
             };
+        }
+
+        private void PopulateItemTypes() {
+            var instance = EntropyCore.Instance;
+            Filters.Items.Clear();
+            foreach (var item in instance.Objects.DistinctBy(x => x.ClassId).Select(x => x.ClassId).OrderBy(x => ((Enum) x).ToString("G"))) {
+                var menuItem = new MenuItem { Tag = item, Header = "_" + ((Enum) item).ToString("G"), IsCheckable = true, IsChecked = instance.Filters.Contains(item) };
+                menuItem.Click += ToggleFilter;
+                Filters.Items.Add(menuItem);
+            }
         }
 
         private void PopulateRecentItems() {
@@ -63,6 +81,18 @@ namespace Entropy.Components {
             }
 
             RecentItems.Visibility = RecentItems.Items.IsEmpty ? Visibility.Collapsed : Visibility.Visible;
+        }
+
+        private static void ToggleFilter(object sender, RoutedEventArgs e) {
+            var tag = ((FrameworkElement) sender).Tag;
+            var instance = EntropyCore.Instance;
+            if (instance.Filters.Contains(tag)) {
+                instance.Filters.Remove(tag);
+            } else {
+                instance.Filters.Add(tag);
+            }
+
+            instance.OnPropertyChanged(nameof(EntropyCore.Filters));
         }
 
         private static void LoadDirectory(object sender, RoutedEventArgs e) {
@@ -109,54 +139,34 @@ namespace Entropy.Components {
             e.Handled = true;
         }
 
-        private void CacheDataChecked(object sender, RoutedEventArgs e) {
+        private void ToggleCacheData(object sender, RoutedEventArgs e) {
+            var enabled = ((MenuItem) sender).IsChecked;
             var instance = EntropyCore.Instance;
-            instance.SetOptions(instance.Settings.Options with { CacheData = true });
+            instance.SetOptions(instance.Settings.Options with { CacheData = enabled });
         }
 
-        private void CacheDataUnchecked(object sender, RoutedEventArgs e) {
+        private void ToggleCacheDataLZMA(object sender, RoutedEventArgs e) {
+            var enabled = ((MenuItem) sender).IsChecked;
             var instance = EntropyCore.Instance;
-            instance.SetOptions(instance.Settings.Options with { CacheData = false });
+            instance.SetOptions(instance.Settings.Options with { CacheDataIfLZMA = enabled });
         }
 
-        private void CacheDataLZMAChecked(object sender, RoutedEventArgs e) {
+        private void ToggleWriteNativeTextures(object sender, RoutedEventArgs e) {
+            var enabled = ((MenuItem) sender).IsChecked;
             var instance = EntropyCore.Instance;
-            instance.SetOptions(instance.Settings.Options with { CacheDataIfLZMA = true });
+            instance.SetOptions(instance.Settings with { WriteNativeTextures = enabled });
         }
 
-        private void CacheDataLZMAUnchecked(object sender, RoutedEventArgs e) {
+        private void ToggleUseContainerPaths(object sender, RoutedEventArgs e) {
+            var enabled = ((MenuItem) sender).IsChecked;
             var instance = EntropyCore.Instance;
-            instance.SetOptions(instance.Settings.Options with { CacheDataIfLZMA = false });
+            instance.SetOptions(instance.Settings with { UseContainerPaths = enabled });
         }
 
-        private void WriteNativeTexturesChecked(object sender, RoutedEventArgs e) {
+        private void ToggleGroupByType(object sender, RoutedEventArgs e) {
+            var enabled = ((MenuItem) sender).IsChecked;
             var instance = EntropyCore.Instance;
-            instance.SetOptions(instance.Settings with { WriteNativeTextures = true });
-        }
-
-        private void WriteNativeTexturesUnchecked(object sender, RoutedEventArgs e) {
-            var instance = EntropyCore.Instance;
-            instance.SetOptions(instance.Settings with { WriteNativeTextures = false });
-        }
-
-        private void UseContainerPathsChecked(object sender, RoutedEventArgs e) {
-            var instance = EntropyCore.Instance;
-            instance.SetOptions(instance.Settings with { UseContainerPaths = true });
-        }
-
-        private void UseContainerPathsUnchecked(object sender, RoutedEventArgs e) {
-            var instance = EntropyCore.Instance;
-            instance.SetOptions(instance.Settings with { UseContainerPaths = false });
-        }
-
-        private void GroupByTypeChecked(object sender, RoutedEventArgs e) {
-            var instance = EntropyCore.Instance;
-            instance.SetOptions(instance.Settings with { GroupByType = true });
-        }
-
-        private void GroupByTypeUnchecked(object sender, RoutedEventArgs e) {
-            var instance = EntropyCore.Instance;
-            instance.SetOptions(instance.Settings with { GroupByType = false });
+            instance.SetOptions(instance.Settings with { GroupByType = enabled });
         }
 
         private void LoadDirectories(object sender, RoutedEventArgs e) {
@@ -194,9 +204,9 @@ namespace Entropy.Components {
             if (e.Key == Key.Return) {
                 e.Handled = true;
 
-                var value = ((TextBox) sender).Text;
+                var value = SearchBox.Text;
                 EntropyCore.Instance.Search = value;
-                EntropyCore.Instance.OnPropertyChanged(nameof(EntropyCore.Search));
+                EntropyCore.Instance.OnPropertyChanged(nameof(EntropyCore.Filters)); // i know.
             }
         }
 

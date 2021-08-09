@@ -64,9 +64,11 @@ namespace Entropy {
 
         protected override Freezable CreateInstanceCore() => new RGBABitmapSource(Buffer, PixelWidth, PixelHeight);
 
+        #pragma warning disable 67
         public override event EventHandler<DownloadProgressEventArgs>? DownloadProgress;
         public override event EventHandler? DownloadCompleted;
         public override event EventHandler<ExceptionEventArgs>? DownloadFailed;
         public override event EventHandler<ExceptionEventArgs>? DecodeFailed;
+        #pragma warning restore 67
     }
 }

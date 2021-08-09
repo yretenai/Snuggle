@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Windows.Threading;
 using Entropy.Handlers;
 
 namespace Entropy.Windows {
@@ -9,6 +10,7 @@ namespace Entropy.Windows {
     public partial class Main {
         public Main() {
             InitializeComponent();
+            EntropyCore.Instance.Dispatcher = Dispatcher.CurrentDispatcher;
         }
 
         private void ClearMemory(object sender, CancelEventArgs e) {

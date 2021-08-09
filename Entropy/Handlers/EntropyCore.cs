@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Threading;
 using DragonLib;
 using Equilibrium;
 using Equilibrium.Interfaces;
@@ -21,6 +22,7 @@ namespace Entropy.Handlers {
         private object SaveLock = new();
 
         public EntropyCore() {
+            Dispatcher = Dispatcher.CurrentDispatcher;
             var workDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             SettingsFile = Path.Combine(workDir ?? "./", "Entropy.json");
             WorkerThread = new Thread(WorkLoop);
@@ -35,6 +37,7 @@ namespace Entropy.Handlers {
             SetOptions(File.Exists(SettingsFile) ? EntropySettings.FromJson(File.ReadAllText(SettingsFile)) : EntropySettings.Default);
         }
 
+        public Dispatcher Dispatcher { get; set; }
         public AssetCollection Collection { get; } = new();
         public EntropyStatus Status { get; } = new();
         public EntropyLog Log { get; set; } = new();
@@ -45,6 +48,7 @@ namespace Entropy.Handlers {
         private BlockingCollection<Action<CancellationToken>> Tasks { get; set; } = new();
         public List<EntropyObject> Objects => Collection.Files.SelectMany(x => x.Value.GetAllObjects()).Select(x => new EntropyObject(x)).ToList();
         public EntropyObject? SelectedObject { get; set; }
+        public HashSet<object> Filters { get; set; } = new();
         public IReadOnlyList<EntropyObject> SelectedObjects { get; set; } = Array.Empty<EntropyObject>();
         public string? Search { get; set; }
         private string SettingsFile { get; }
@@ -99,12 +103,16 @@ namespace Entropy.Handlers {
             Collection.Reset();
             Status.Reset();
             Log.Clear();
+            Search = string.Empty;
+            Filters.Clear();
             if (respawn) {
                 TokenSource = new CancellationTokenSource();
                 WorkerThread = new Thread(WorkLoop);
                 WorkerThread.Start();
                 OnPropertyChanged(nameof(Objects));
+                OnPropertyChanged(nameof(Filters));
                 OnPropertyChanged(nameof(SelectedObject));
+                OnPropertyChanged(nameof(SelectedObjects));
             }
         }
 
@@ -128,7 +136,9 @@ namespace Entropy.Handlers {
 
         [NotifyPropertyChangedInvocator]
         public virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null) {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            Dispatcher.Invoke(() => {
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            });
         }
 
         public void SaveOptions() {

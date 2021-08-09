@@ -41,36 +41,31 @@
         <MenuItem Header="_Equilibrium">
             <MenuItem Header="_Cache Memory"
                       ToolTip="This can significantly increase performance at a heavy memory cost"
-                      IsCheckable="True"
-                      Checked="CacheDataChecked" Unchecked="CacheDataUnchecked" x:Name="CacheData" />
+                      IsCheckable="True" Click="ToggleCacheData" x:Name="CacheData" />
             <MenuItem Header="_Cache LZMA Memory"
                       ToolTip="This always significantly increases performance at a gigantic memory cost"
-                      IsCheckable="True"
-                      Checked="CacheDataLZMAChecked" Unchecked="CacheDataLZMAUnchecked" x:Name="CacheDataIfLZMA" />
+                      IsCheckable="True" Click="ToggleCacheDataLZMA" x:Name="CacheDataIfLZMA" />
             <MenuItem Header="_Game" x:Name="UnityGameList" />
         </MenuItem>
         <MenuItem Header="_Entropy">
             <MenuItem Header="_Write Native Textures"
                       ToolTip="Writes Native 3D textures such as DDS instead of converting them to PNG or TIF"
-                      IsCheckable="True"
-                      Checked="WriteNativeTexturesChecked" Unchecked="WriteNativeTexturesUnchecked"
-                      x:Name="WriteNativeTextures" />
+                      IsCheckable="True" Click="ToggleWriteNativeTextures" x:Name="WriteNativeTextures" />
             <MenuItem Header="_Use Container Paths"
                       ToolTip="Uses CAB container paths"
-                      IsCheckable="True"
-                      Checked="UseContainerPathsChecked" Unchecked="UseContainerPathsUnchecked"
-                      x:Name="UseContainerPaths" />
+                      IsCheckable="True" Click="ToggleUseContainerPaths" x:Name="UseContainerPaths" />
             <MenuItem Header="_Group By Class Id"
                       ToolTip="Groups Extraction paths by Class Id"
-                      IsCheckable="True"
-                      Checked="GroupByTypeChecked" Unchecked="GroupByTypeUnchecked" x:Name="GroupByType" />
+                      IsCheckable="True" Click="ToggleGroupByType" x:Name="GroupByType" />
             <Separator />
             <MenuItem Header="Open _Debug Log" Click="OpenLog" />
             <MenuItem Header="Open GameObject Tree" />
         </MenuItem>
+        <MenuItem Header="_Filter" x:Name="Filters" />
         <MenuItem>
             <MenuItem.Header>
-                <TextBox Grid.Column="1" KeyDown="Search" Width="300" materialDesign:HintAssist.Hint="Search" />
+                <TextBox Grid.Column="1" KeyDown="Search" Width="300" materialDesign:HintAssist.Hint="Search"
+                         x:Name="SearchBox" />
             </MenuItem.Header>
         </MenuItem>
     </Menu>

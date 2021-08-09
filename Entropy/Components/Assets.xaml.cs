@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -11,19 +12,22 @@ namespace Entropy.Components {
         public Assets() {
             InitializeComponent();
             EntropyCore.Instance.PropertyChanged += (_, args) => {
+                Debug.WriteLine(args.PropertyName);
                 switch (args.PropertyName) {
-                    case nameof(EntropyCore.Collection): {
+                    case nameof(EntropyCore.Objects): {
                         LastHeaderClicked = null;
                         LastDirection = ListSortDirection.Ascending;
                         var dataView = CollectionViewSource.GetDefaultView(Entries.ItemsSource);
+                        using var defer = dataView.DeferRefresh();
                         dataView.SortDescriptions.Clear();
-                        dataView.Refresh();
-                        Search(EntropyCore.Instance.Search);
                         break;
                     }
-                    case nameof(EntropyCore.Search):
-                        Search(EntropyCore.Instance.Search);
+                    case nameof(EntropyCore.Filters): {
+                        var dataView = CollectionViewSource.GetDefaultView(Entries.ItemsSource);
+                        using var defer = dataView.DeferRefresh();
+                        dataView.Filter = Filter;
                         break;
+                    }
                 }
             };
         }
@@ -39,7 +43,9 @@ namespace Entropy.Components {
                     if (headerClicked != LastHeaderClicked) {
                         direction = ListSortDirection.Ascending;
                     } else {
-                        direction = LastDirection == ListSortDirection.Ascending ? ListSortDirection.Descending : ListSortDirection.Ascending;
+                        direction = LastDirection == ListSortDirection.Ascending
+                            ? ListSortDirection.Descending
+                            : ListSortDirection.Ascending;
                     }
 
                     var columnBinding = headerClicked.Column.DisplayMemberBinding as Binding;
@@ -55,32 +61,44 @@ namespace Entropy.Components {
             }
         }
 
+        private void Sort() {
+            if (LastHeaderClicked == null) {
+                return;
+            }
+            
+            Sort((string) LastHeaderClicked.Column.Header, LastDirection);
+        }
+
         private void Sort(string sortBy, ListSortDirection direction) {
             var dataView = CollectionViewSource.GetDefaultView(Entries.ItemsSource);
+            using var defer = dataView.DeferRefresh();
             dataView.SortDescriptions.Clear();
             var sd = new SortDescription(sortBy, direction);
             dataView.SortDescriptions.Add(sd);
-            dataView.Refresh();
         }
 
-        private void Search(string? value) {
-            var dataView = CollectionViewSource.GetDefaultView(Entries.ItemsSource);
-            if (string.IsNullOrEmpty(value)) {
-                dataView.Filter = null;
-                return;
+        private static bool Filter(object o) {
+            if (o is not EntropyObject entropyObject) {
+                return false;
             }
 
-            dataView.Filter = o => {
-                if (o is not EntropyObject entropyObject) {
+            if (EntropyCore.Instance.Filters.Count > 0 &&
+                !EntropyCore.Instance.Filters.Contains(entropyObject.ClassId)) {
+                return false;
+            }
+
+            if (!string.IsNullOrWhiteSpace(EntropyCore.Instance.Search)) {
+                var value = EntropyCore.Instance.Search;
+                if (!(entropyObject.PathId.ToString().Contains(value, StringComparison.InvariantCultureIgnoreCase) ||
+                    entropyObject.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase) ||
+                    entropyObject.Container.Contains(value, StringComparison.InvariantCultureIgnoreCase) ||
+                    entropyObject.SerializedName.Contains(value, StringComparison.InvariantCultureIgnoreCase) ||
+                    entropyObject.ClassId.ToString()?.Contains(value, StringComparison.InvariantCultureIgnoreCase) == true)) {
                     return false;
                 }
+            }
 
-                return entropyObject.PathId.ToString().Contains(value, StringComparison.InvariantCultureIgnoreCase) ||
-                       entropyObject.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase) ||
-                       entropyObject.Container.Contains(value, StringComparison.InvariantCultureIgnoreCase) ||
-                       entropyObject.SerializedName.Contains(value, StringComparison.InvariantCultureIgnoreCase) ||
-                       entropyObject.ClassId.ToString()?.Contains(value, StringComparison.InvariantCultureIgnoreCase) == true;
-            };
+            return true;
         }
 
         private void UpdateSelected(object sender, RoutedEventArgs e) {

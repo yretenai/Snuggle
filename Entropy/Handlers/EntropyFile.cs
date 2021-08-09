@@ -59,6 +59,7 @@ namespace Entropy.Handlers {
                 instance.Collection.FindAssetContainerNames();
                 instance.Status.SetStatus($"Loaded {instance.Collection.Files.Count} files");
                 instance.OnPropertyChanged(nameof(EntropyCore.Objects));
+                instance.OnPropertyChanged(nameof(EntropyCore.Filters));
             });
         }
 
@@ -106,6 +107,7 @@ namespace Entropy.Handlers {
                 instance.Collection.FindAssetContainerNames();
                 instance.Status.SetStatus($"Loaded  {instance.Collection.Files.Count} files");
                 instance.OnPropertyChanged(nameof(EntropyCore.Objects));
+                instance.OnPropertyChanged(nameof(EntropyCore.Filters));
             });
         }
 
