@@ -18,6 +18,7 @@ namespace Entropy.Components {
                         var dataView = CollectionViewSource.GetDefaultView(Entries.ItemsSource);
                         dataView.SortDescriptions.Clear();
                         dataView.Refresh();
+                        Search(EntropyCore.Instance.Search);
                         break;
                     }
                     case nameof(EntropyCore.Search):

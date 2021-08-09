@@ -9,7 +9,7 @@ namespace Equilibrium.Models.Objects {
         object ClassId,
         PPtr<Component> Ptr) {
         public static ComponentPair FromReader(BiEndianBinaryReader reader, SerializedFile file) {
-            object classId = default(UnityClassId);
+            object classId = UnityClassId.Unknown;
             if (file.Version < UnityVersionRegister.Unity5_5) {
                 classId = ObjectFactory.GetClassIdForGame(file.Options.Game, reader.ReadInt32());
             }

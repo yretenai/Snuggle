@@ -32,6 +32,8 @@ namespace Equilibrium {
 
         public static Dictionary<UnityGame, Type> ClassIdExtensions { get; set; } = new();
 
+        private static HashSet<object> ParserNotFoundWarningSet { get; } = new();
+
         public static Type GetClassIdForGame(UnityGame game) => ClassIdExtensions.TryGetValue(game, out var t) ? t : BaseClassIdType;
 
         public static object GetClassIdForGame(UnityGame game, int classId) {
@@ -119,6 +121,9 @@ namespace Equilibrium {
                 }
 
                 type = BaseType;
+                if (ParserNotFoundWarningSet.Add(overrideType ?? info.ClassId)) {
+                    serializedFile.Options.Logger.Warning($"Can't find parser for type {overrideType ?? info.ClassId:G}");
+                }
             }
 
             return false;

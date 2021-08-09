@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Linq;
+using Equilibrium.Implementations;
 using Equilibrium.Interfaces;
 using Equilibrium.IO;
 using Equilibrium.Meta;
@@ -206,6 +208,12 @@ namespace Equilibrium {
         public void FindAssetContainerNames() {
             foreach (var file in Files.Values) {
                 file.FindAssetContainerNames(default);
+            }
+        }
+
+        public void CacheGameObjectClassIds() {
+            foreach (var serializedObject in Files.SelectMany(pair => pair.Value.GetAllObjects().OfType<GameObject>())) {
+                serializedObject.CacheClassIds();
             }
         }
     }

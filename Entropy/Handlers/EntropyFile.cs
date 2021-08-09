@@ -52,6 +52,8 @@ namespace Entropy.Handlers {
                     instance.Collection.LoadFile(file, instance.Settings.Options);
                 }
 
+                instance.Collection.CacheGameObjectClassIds();
+
                 instance.Status.Reset();
                 instance.Status.SetStatus("Finding container paths...");
                 instance.Collection.FindAssetContainerNames();
@@ -96,6 +98,8 @@ namespace Entropy.Handlers {
                     instance.Status.SetProgress(instance.Status.Value + 1);
                     instance.Collection.LoadFile(file, instance.Settings.Options);
                 }
+
+                instance.Collection.CacheGameObjectClassIds();
 
                 instance.Status.Reset();
                 instance.Status.SetStatus("Finding container paths...");
