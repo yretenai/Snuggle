@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -12,7 +11,6 @@ namespace Entropy.Components {
         public Assets() {
             InitializeComponent();
             EntropyCore.Instance.PropertyChanged += (_, args) => {
-                Debug.WriteLine(args.PropertyName);
                 switch (args.PropertyName) {
                     case nameof(EntropyCore.Objects): {
                         LastHeaderClicked = null;
@@ -59,14 +57,6 @@ namespace Entropy.Components {
                     LastDirection = direction;
                 }
             }
-        }
-
-        private void Sort() {
-            if (LastHeaderClicked == null) {
-                return;
-            }
-            
-            Sort((string) LastHeaderClicked.Column.Header, LastDirection);
         }
 
         private void Sort(string sortBy, ListSortDirection direction) {

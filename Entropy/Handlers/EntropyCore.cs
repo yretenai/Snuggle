@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Threading;
 using DragonLib;
 using Equilibrium;
@@ -35,6 +36,7 @@ namespace Entropy.Handlers {
                 },
             };
             SetOptions(File.Exists(SettingsFile) ? EntropySettings.FromJson(File.ReadAllText(SettingsFile)) : EntropySettings.Default);
+            UpdateColors();
         }
 
         public Dispatcher Dispatcher { get; set; }
@@ -59,6 +61,20 @@ namespace Entropy.Handlers {
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
+
+        public void UpdateColors() {
+            var resources = Application.Current.Resources.MergedDictionaries;
+            foreach (var resource in resources) {
+                if (resource.Source != null) {
+                    if (resource.Source.AbsolutePath.EndsWith("MaterialDesignTheme.Dark.xaml") ||
+                        resource.Source.AbsolutePath.EndsWith("MaterialDesignTheme.Light.xaml")) {
+                        resource.Source = new Uri($"pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.{(Settings.LightMode ? "Light" : "Dark")}.xaml");
+                    } else if (resource.Source.AbsolutePath.Contains("Primary/MaterialDesignColor.")) {
+                        resource.Source = new Uri($"pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Primary/MaterialDesignColor.{Settings.Color:G}.xaml");
+                    }
+                }
+            }
+        }
 
         ~EntropyCore() {
             Dispose(false);
@@ -136,9 +152,7 @@ namespace Entropy.Handlers {
 
         [NotifyPropertyChangedInvocator]
         public virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null) {
-            Dispatcher.Invoke(() => {
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-            });
+            Dispatcher.Invoke(() => { PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)); });
         }
 
         public void SaveOptions() {

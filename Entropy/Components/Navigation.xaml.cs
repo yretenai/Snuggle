@@ -12,6 +12,7 @@ using Equilibrium.Meta;
 
 namespace Entropy.Components {
     public partial class Navigation {
+        private readonly Dictionary<MaterialPrimaryColor, MenuItem> PrimaryColorItems = new();
         private readonly Dictionary<UnityGame, MenuItem> UnityGameItems = new();
 
         public Navigation() {
@@ -23,16 +24,10 @@ namespace Entropy.Components {
             WriteNativeTextures.IsChecked = instance.Settings.WriteNativeTextures;
             UseContainerPaths.IsChecked = instance.Settings.UseContainerPaths;
             GroupByType.IsChecked = instance.Settings.GroupByType;
+            LightMode.IsChecked = instance.Settings.LightMode;
 
-            var descriptions = typeof(UnityGame).GetFields(BindingFlags.Static | BindingFlags.Public).ToDictionary(x => (UnityGame) x.GetValue(null)!, x => x.GetCustomAttribute<DescriptionAttribute>()?.Description ?? x.Name);
-            foreach (var game in Enum.GetValues<UnityGame>()) {
-                var item = new MenuItem { Tag = game, Header = "_" + descriptions[game], IsChecked = instance.Settings.Options.Game == game, IsCheckable = true };
-                item.Checked += UpdateGame;
-                item.Unchecked += CancelEvent;
-                UnityGameList.Items.Add(item);
-                UnityGameItems[game] = item;
-            }
-
+            BuildEnumMenu(UnityGameList, UnityGameItems, instance.Settings.Options.Game, UpdateGame, CancelGameEvent);
+            BuildEnumMenu(PrimaryColor, PrimaryColorItems, instance.Settings.Color, UpdatePrimaryColor, CancelPrimaryEvent);
             PopulateRecentItems();
 
             instance.PropertyChanged += (_, args) => {
@@ -48,6 +43,24 @@ namespace Entropy.Components {
                         break;
                 }
             };
+        }
+
+        private static void BuildEnumMenu<T>(ItemsControl menu, IDictionary<T, MenuItem> items, T currentValue, RoutedEventHandler @checked, RoutedEventHandler @unchecked) where T : struct, Enum {
+            var descriptions = typeof(T).GetFields(BindingFlags.Static | BindingFlags.Public)
+                .ToDictionary(x => (T) x.GetValue(null)!,
+                    x => x.GetCustomAttribute<DescriptionAttribute>()?.Description ?? x.Name);
+            foreach (var value in Enum.GetValues<T>()) {
+                var item = new MenuItem {
+                    Tag = value,
+                    Header = "_" + descriptions[value],
+                    IsChecked = value.Equals(currentValue),
+                    IsCheckable = true,
+                };
+                item.Checked += @checked;
+                item.Unchecked += @unchecked;
+                menu.Items.Add(item);
+                items[value] = item;
+            }
         }
 
         private void PopulateItemTypes() {
@@ -103,7 +116,7 @@ namespace Entropy.Components {
             EntropyFile.LoadDirectoriesAndFiles(directory);
         }
 
-        private static void CancelEvent(object sender, RoutedEventArgs e) {
+        private static void CancelGameEvent(object sender, RoutedEventArgs e) {
             if (sender is not MenuItem menuItem) {
                 return;
             }
@@ -129,6 +142,35 @@ namespace Entropy.Components {
             EntropyCore.Instance.SetOptions(EntropyCore.Instance.Settings.Options with { Game = tag });
             UnityGameItems[game].IsChecked = false;
             e.Handled = true;
+        }
+
+        private static void CancelPrimaryEvent(object sender, RoutedEventArgs e) {
+            if (sender is not MenuItem menuItem) {
+                return;
+            }
+
+            if ((MaterialPrimaryColor) menuItem.Tag == EntropyCore.Instance.Settings.Color) {
+                menuItem.IsChecked = true;
+            }
+
+            e.Handled = true;
+        }
+
+        private void UpdatePrimaryColor(object sender, RoutedEventArgs e) {
+            if (sender is not MenuItem menuItem) {
+                return;
+            }
+
+            var primary = EntropyCore.Instance.Settings.Color;
+            var tag = (MaterialPrimaryColor) menuItem.Tag;
+            if (tag == primary) {
+                return;
+            }
+
+            EntropyCore.Instance.SetOptions(EntropyCore.Instance.Settings with { Color = tag });
+            PrimaryColorItems[primary].IsChecked = false;
+            e.Handled = true;
+            EntropyCore.Instance.UpdateColors();
         }
 
         private void ToggleCacheData(object sender, RoutedEventArgs e) {
@@ -159,6 +201,13 @@ namespace Entropy.Components {
             var enabled = ((MenuItem) sender).IsChecked;
             var instance = EntropyCore.Instance;
             instance.SetOptions(instance.Settings with { GroupByType = enabled });
+        }
+
+        private void ToggleLightMode(object sender, RoutedEventArgs e) {
+            var enabled = ((MenuItem) sender).IsChecked;
+            var instance = EntropyCore.Instance;
+            instance.SetOptions(instance.Settings with { LightMode = enabled });
+            instance.UpdateColors();
         }
 
         private void LoadDirectories(object sender, RoutedEventArgs e) {

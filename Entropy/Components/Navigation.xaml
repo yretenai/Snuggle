@@ -57,6 +57,10 @@
             <MenuItem Header="_Group By Class Id"
                       ToolTip="Groups Extraction paths by Class Id"
                       IsCheckable="True" Click="ToggleGroupByType" x:Name="GroupByType" />
+            <MenuItem Header="_Theme">
+                <MenuItem Header="_Light Mode" IsCheckable="True" Click="ToggleLightMode" x:Name="LightMode" />
+                <MenuItem Header="_Color" x:Name="PrimaryColor" />
+            </MenuItem>
             <Separator />
             <MenuItem Header="Open _Debug Log" Click="OpenLog" />
             <MenuItem Header="Open GameObject Tree" />

@@ -27,7 +27,6 @@ namespace Equilibrium.Options {
             WriteIndented = true,
             DefaultIgnoreCondition = JsonIgnoreCondition.Never,
             AllowTrailingCommas = true,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             NumberHandling = JsonNumberHandling.AllowReadingFromString,
             Converters = {
                 new JsonStringEnumConverter(),

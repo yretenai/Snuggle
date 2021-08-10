@@ -11,8 +11,10 @@ namespace Entropy.Handlers {
         bool WriteNativeTextures,
         bool UseContainerPaths,
         bool GroupByType,
-        string NameTemplate) {
-        private const int LatestVersion = 2;
+        string NameTemplate,
+        MaterialPrimaryColor Color,
+        bool LightMode) {
+        private const int LatestVersion = 3;
 
         public List<string> RecentFiles { get; set; } = new();
         public List<string> RecentDirectories { get; set; } = new();
@@ -26,7 +28,9 @@ namespace Entropy.Handlers {
                 true,
                 true,
                 true,
-                "{0}.{1:G}_{2:G}.bytes"); // 0 = Name, 1 = PathId, 2 = Type
+                "{0}.{1:G}_{2:G}.bytes", // 0 = Name, 1 = PathId, 2 = Type
+                MaterialPrimaryColor.Red,
+                false);
 
         public int Version { get; set; } = LatestVersion;
 
@@ -65,6 +69,10 @@ namespace Entropy.Handlers {
 
             if (settings.Version < 2) {
                 settings = settings with { RecentDirectories = new List<string>(), RecentFiles = new List<string>(), LastSaveDirectory = string.Empty, Version = 2 };
+            }
+
+            if (settings.Version < 3) {
+                settings = settings with { Color = MaterialPrimaryColor.Red, LightMode = false, Version = 3 };
             }
 
             return settings with { Version = LatestVersion };
