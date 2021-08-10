@@ -13,10 +13,17 @@ namespace Entropy.Components.Renderers {
         public MeshGeometryRenderer() {
             InitializeComponent();
             Refresh(this, new DependencyPropertyChangedEventArgs());
+            Viewport3D.Camera.Changed += (_, _) => {
+                if (Viewport3D.Items.FirstOrDefault(x => x is PointLight3D) is not PointLight3D light) {
+                    return;
+                }
+
+                light.Position = Viewport3D.Camera.Position;
+            };
         }
 
         private void Refresh(object sender, DependencyPropertyChangedEventArgs e) {
-            MeshToHelixConverter.ConvertMesh((Mesh) DataContext, Dispatcher.CurrentDispatcher, Viewport3D.Items);
+            MeshToHelixConverter.ConvertMesh((Mesh) DataContext, Dispatcher.CurrentDispatcher, Viewport3D.Items, null);
         }
 
         private void ToggleWireframe(object sender, ExecutedRoutedEventArgs e) {

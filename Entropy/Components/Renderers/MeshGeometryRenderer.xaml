@@ -17,18 +17,25 @@
                         CanExecute="CanToggleWireframe" />
     </UserControl.CommandBindings>
     <Grid>
-        <helix:Viewport3DX ZoomExtentsWhenLoaded="True"
-                           x:Name="Viewport3D"
-                           ShowFrameDetails="True"
-                           Background="DimGray"
-                           BackgroundColor="DimGray"
+        <helix:Viewport3DX x:Name="Viewport3D"
+                           Title="{Binding Name}"
+                           InfoForeground="White"
+                           InfoBackground="Transparent"
+                           MSAA="Maximum"
+                           CameraRotationMode="Turnball"
+                           Background="Black"
+                           BackgroundColor="Black"
                            CoordinateSystemLabelForeground="White"
-                           EnableDesignModeRendering="False"
-                           EnableSwapChainRendering="False"
-                           IsShadowMappingEnabled="True"
-                           ShowCoordinateSystem="False"
                            TextBrush="White"
-                           Title="{Binding Name}">
+                           AllowLeftRightRotation="True"
+                           AllowUpDownRotation="True"
+                           ShowViewCube="True"
+                           ShowTriangleCountInfo="True"
+                           ZoomExtentsWhenLoaded="True"
+                           EnableDesignModeRendering="False"
+                           EnableSwapChainRendering="True"
+                           IsShadowMappingEnabled="True"
+                           ShowCoordinateSystem="True">
             <helix:Viewport3DX.InputBindings>
                 <KeyBinding Key="NumPad2" Command="helix:ViewportCommands.BackView" />
                 <KeyBinding Key="NumPad8" Command="helix:ViewportCommands.FrontView" />
@@ -46,6 +53,7 @@
                 <KeyBinding Key="Q" Command="{x:Static local:MeshGeometryRenderer.ToggleWireframeCommand}" />
                 <MouseBinding Command="helix:ViewportCommands.Rotate" Gesture="RightClick" />
                 <MouseBinding Command="helix:ViewportCommands.Zoom" Gesture="MiddleClick" />
+                <MouseBinding Command="helix:ViewportCommands.ChangeFieldOfView" Gesture="Shift+MiddleClick" />
                 <MouseBinding Command="helix:ViewportCommands.Pan" Gesture="LeftClick" />
             </helix:Viewport3DX.InputBindings>
             <helix:Viewport3DX.Camera>
