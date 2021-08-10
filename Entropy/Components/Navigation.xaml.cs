@@ -65,7 +65,7 @@ namespace Entropy.Components {
             RecentItems.Items.Clear();
             foreach (var item in instance.Settings.RecentFiles.Select(recentFile =>
                 new MenuItem { Tag = recentFile, Header = "_" + recentFile })) {
-                item.Click += LoadFile;
+                item.Click += LoadDirectoryOrFile;
                 RecentItems.Items.Add(item);
             }
 
@@ -76,7 +76,7 @@ namespace Entropy.Components {
 
             foreach (var item in instance.Settings.RecentDirectories.Select(recentDirectory =>
                 new MenuItem { Tag = recentDirectory, Header = "_" + recentDirectory })) {
-                item.Click += LoadDirectory;
+                item.Click += LoadDirectoryOrFile;
                 RecentItems.Items.Add(item);
             }
 
@@ -95,20 +95,12 @@ namespace Entropy.Components {
             instance.OnPropertyChanged(nameof(EntropyCore.Filters));
         }
 
-        private static void LoadDirectory(object sender, RoutedEventArgs e) {
+        private static void LoadDirectoryOrFile(object sender, RoutedEventArgs e) {
             if (sender is not MenuItem { Tag: string directory }) {
                 return;
             }
 
-            EntropyFile.LoadDirectory(directory);
-        }
-
-        private static void LoadFile(object sender, RoutedEventArgs e) {
-            if (sender is not MenuItem { Tag: string file }) {
-                return;
-            }
-
-            EntropyFile.LoadFile(file);
+            EntropyFile.LoadDirectoriesAndFiles(directory);
         }
 
         private static void CancelEvent(object sender, RoutedEventArgs e) {

@@ -15,8 +15,9 @@
         Background="{DynamicResource MaterialDesignPaper}"
         FontFamily="{DynamicResource MaterialDesignFont}"
         DataContext="{x:Static Member=viewModel:EntropyCore.Instance}"
-        Closing="ClearMemory"
-        Closed="Exit"
+        Closing="ClearMemory" Closed="Exit"
+        Drop="DropFile" GiveFeedback="TestDrag"
+        AllowDrop="True"
         Title="Entropy" Height="800" Width="1200">
     <Grid>
         <Grid.ColumnDefinitions>

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
@@ -32,35 +33,7 @@ namespace Entropy.Handlers {
             recent.AddRange(directories);
             EntropyCore.Instance.Settings.RecentDirectories = recent.Distinct().TakeLast(5).ToList();
             EntropyCore.Instance.SaveOptions();
-            LoadDirectory(directories);
-        }
-
-        public static void LoadDirectory(params string[] directories) {
-            var instance = EntropyCore.Instance;
-            instance.WorkerAction(token => {
-                // TODO: Split files.
-                var files = directories.SelectMany(x => Directory.EnumerateFiles(x, "*", SearchOption.AllDirectories))
-                    .ToArray();
-                instance.Status.SetProgressMax(files.Length);
-                foreach (var file in files) {
-                    if (token.IsCancellationRequested) {
-                        return;
-                    }
-
-                    instance.Status.SetStatus($"Loading {file}");
-                    instance.Status.SetProgress(instance.Status.Value + 1);
-                    instance.Collection.LoadFile(file, instance.Settings.Options);
-                }
-
-                instance.Collection.CacheGameObjectClassIds();
-
-                instance.Status.Reset();
-                instance.Status.SetStatus("Finding container paths...");
-                instance.Collection.FindAssetContainerNames();
-                instance.Status.SetStatus($"Loaded {instance.Collection.Files.Count} files");
-                instance.OnPropertyChanged(nameof(EntropyCore.Objects));
-                instance.OnPropertyChanged(nameof(EntropyCore.Filters));
-            });
+            LoadDirectoriesAndFiles(directories);
         }
 
         public static void LoadFiles() {
@@ -82,15 +55,25 @@ namespace Entropy.Handlers {
             recent.AddRange(files);
             EntropyCore.Instance.Settings.RecentFiles = recent.Distinct().TakeLast(5).ToList();
             EntropyCore.Instance.SaveOptions();
-            LoadFile(files);
+            LoadDirectoriesAndFiles(files);
         }
 
-        public static void LoadFile(params string[] files) {
+        public static void LoadDirectoriesAndFiles(params string[] entries) {
             var instance = EntropyCore.Instance;
             instance.WorkerAction(token => {
                 // TODO: Split files.
-                instance.Status.SetProgressMax(files.Length);
-                foreach (var file in files) {
+                var files = new List<string>();
+                foreach (var entry in entries) {
+                    if (Directory.Exists(entry)) {
+                        files.AddRange(Directory.EnumerateFiles(entry, "*", SearchOption.AllDirectories));
+                    } else if (File.Exists(entry)) {
+                        files.Add(entry);
+                    }
+                }
+
+                var fileSet = files.ToImmutableHashSet();
+                instance.Status.SetProgressMax(fileSet.Count);
+                foreach (var file in fileSet) {
                     if (token.IsCancellationRequested) {
                         return;
                     }
@@ -105,7 +88,7 @@ namespace Entropy.Handlers {
                 instance.Status.Reset();
                 instance.Status.SetStatus("Finding container paths...");
                 instance.Collection.FindAssetContainerNames();
-                instance.Status.SetStatus($"Loaded  {instance.Collection.Files.Count} files");
+                instance.Status.SetStatus($"Loaded {instance.Collection.Files.Count} files");
                 instance.OnPropertyChanged(nameof(EntropyCore.Objects));
                 instance.OnPropertyChanged(nameof(EntropyCore.Filters));
             });
