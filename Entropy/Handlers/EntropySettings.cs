@@ -29,7 +29,7 @@ namespace Entropy.Handlers {
                 true,
                 true,
                 "{0}.{1:G}_{2:G}.bytes", // 0 = Name, 1 = PathId, 2 = Type
-                MaterialPrimaryColor.Red,
+                MaterialPrimaryColor.Grey,
                 false);
 
         public int Version { get; set; } = LatestVersion;
