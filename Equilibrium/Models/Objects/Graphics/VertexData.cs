@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.Json.Serialization;
 using Equilibrium.Exceptions;
 using Equilibrium.IO;
@@ -10,16 +11,34 @@ using JetBrains.Annotations;
 
 namespace Equilibrium.Models.Objects.Graphics {
     [PublicAPI]
+    public enum VertexChannel {
+        Vertex = 0,
+        Normal = 1,
+        Tangent = 2,
+        Color = 3,
+        UV0 = 4,
+        UV1 = 5,
+        UV2 = 6,
+        UV3 = 7,
+        UV4 = 8,
+        UV5 = 9,
+        UV6 = 10,
+        UV7 = 11,
+        SkinWeight = 12,
+        SkinBoneIndex = 13,
+    }
+
+    [PublicAPI]
     public record VertexData(
         uint CurrentChannels,
         uint VertexCount,
-        List<ChannelInfo> Channels) {
+        Dictionary<VertexChannel, ChannelInfo> Channels) {
         private long DataStart { get; init; } = -1;
 
         [JsonIgnore]
         public Memory<byte>? Data { get; set; }
 
-        public static VertexData Default { get; } = new(0, 0, new List<ChannelInfo>());
+        public static VertexData Default { get; } = new(0, 0, new Dictionary<VertexChannel, ChannelInfo>());
 
         [JsonIgnore]
         public bool ShouldDeserialize => Data == null;
@@ -33,11 +52,21 @@ namespace Equilibrium.Models.Objects.Graphics {
             var vertexCount = reader.ReadUInt32();
 
             var channelCount = reader.ReadInt32();
-            var channels = new List<ChannelInfo>();
+            var channels = new Dictionary<VertexChannel, ChannelInfo>();
             channels.EnsureCapacity(channelCount);
 
             for (var i = 0; i < channelCount; ++i) {
-                channels.Add(ChannelInfo.FromReader(reader, file));
+                var channel = (VertexChannel) i;
+                if (i is >= 2 and <= 7 &&
+                    file.Version < UnityVersionRegister.Unity2018) {
+                    if (i == 7) {
+                        channel = VertexChannel.Tangent;
+                    } else {
+                        channel += 1;
+                    }
+                }
+
+                channels.Add(channel, ChannelInfo.FromReader(reader, file));
             }
 
             var dataStart = reader.BaseStream.Position;
@@ -60,7 +89,7 @@ namespace Equilibrium.Models.Objects.Graphics {
             writer.Write(VertexCount);
             writer.Write(Channels.Count);
 
-            foreach (var channel in Channels) {
+            foreach (var (_, channel) in Channels) {
                 channel.ToWriter(writer, serializedFile, targetVersion);
             }
 
@@ -72,6 +101,12 @@ namespace Equilibrium.Models.Objects.Graphics {
             reader.BaseStream.Seek(DataStart, SeekOrigin.Begin);
             var dataCount = reader.ReadInt32();
             Data = reader.ReadMemory(dataCount);
+        }
+
+        public int GetStride() {
+            var last = Channels.Values.Max(x => x.Offset);
+            var lastInfo = Channels.Values.First(x => x.Offset == last);
+            return last + lastInfo.GetSize();
         }
     }
 }

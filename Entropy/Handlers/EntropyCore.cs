@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -47,7 +48,7 @@ namespace Entropy.Handlers {
         public EntropySettings Settings { get; private set; } = EntropySettings.Default;
         public Thread WorkerThread { get; private set; }
         public CancellationTokenSource TokenSource { get; private set; } = new();
-        private BlockingCollection<Action<CancellationToken>> Tasks { get; set; } = new();
+        private BlockingCollection<(string Name, Action<CancellationToken> Work)> Tasks { get; set; } = new();
         public List<EntropyObject> Objects => Collection.Files.SelectMany(x => x.Value.GetAllObjects()).Select(x => new EntropyObject(x)).ToList();
         public EntropyObject? SelectedObject { get; set; }
         public HashSet<object> Filters { get; set; } = new();
@@ -93,12 +94,20 @@ namespace Entropy.Handlers {
         private void WorkLoop() {
             try {
                 var tasks = Tasks;
-                foreach (var task in tasks.GetConsumingEnumerable(TokenSource.Token)) {
+                var sw = new Stopwatch();
+                foreach (var (name, task) in tasks.GetConsumingEnumerable(TokenSource.Token)) {
                     try {
+                        sw.Start();
                         task(TokenSource.Token);
+                        sw.Stop();
+                        var elapsed = sw.Elapsed;
+                        LogTarget.Info("Worker", $"Spent {elapsed} working on {name} task");
+                        sw.Reset();
                     } catch (Exception e) {
-                        LogTarget.Error("Worker", "Failed to perform task", e);
+                        LogTarget.Error("Worker", $"Failed to perform {name} task", e);
                     }
+
+                    LogTarget.Info("Worker", $"Memory Tension: {GC.GetTotalMemory(false).GetHumanReadableBytes()}");
                 }
             } catch (TaskCanceledException) {
                 // ignored
@@ -111,7 +120,7 @@ namespace Entropy.Handlers {
 
         public void Reset(bool respawn = true) {
             Tasks.CompleteAdding();
-            Tasks = new BlockingCollection<Action<CancellationToken>>();
+            Tasks = new BlockingCollection<(string Name, Action<CancellationToken> Work)>();
             TokenSource.Cancel();
             TokenSource.Dispose();
             WorkerThread.Join();
@@ -132,13 +141,13 @@ namespace Entropy.Handlers {
             }
         }
 
-        public void WorkerAction(Action<CancellationToken> action) {
-            Tasks.Add(action);
+        public void WorkerAction(string name, Action<CancellationToken> action) {
+            Tasks.Add((name, action));
         }
 
-        public Task<T> WorkerAction<T>(Func<CancellationToken, T> task) {
+        public Task<T> WorkerAction<T>(string name, Func<CancellationToken, T> task) {
             var tcs = new TaskCompletionSource<T>();
-            Tasks.Add(token => {
+            Tasks.Add((name, token => {
                 try {
                     tcs.SetResult(task(token));
                 } catch (TaskCanceledException) {
@@ -146,7 +155,7 @@ namespace Entropy.Handlers {
                 } catch (Exception e) {
                     tcs.SetException(e);
                 }
-            });
+            }));
             return tcs.Task;
         }
 

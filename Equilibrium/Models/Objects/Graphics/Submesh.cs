@@ -9,9 +9,9 @@ namespace Equilibrium.Models.Objects.Graphics {
         uint FirstByte,
         uint IndexCount,
         GfxPrimitiveType Topology,
-        uint BaseVertex,
-        uint FirstVertex,
-        uint VertexCount,
+        int BaseVertex,
+        int FirstVertex,
+        int VertexCount,
         AABB LocalAABB) {
         public static Submesh Default { get; } = new(0, 0, GfxPrimitiveType.Triangles, 0, 0, 0, AABB.Default);
 
@@ -19,13 +19,13 @@ namespace Equilibrium.Models.Objects.Graphics {
             var firstByte = reader.ReadUInt32();
             var indexCount = reader.ReadUInt32();
             var topo = (GfxPrimitiveType) reader.ReadInt32();
-            var baseVertex = 0u;
+            var baseVertex = 0;
             if (file.Version >= UnityVersionRegister.Unity2017_3) {
-                baseVertex = reader.ReadUInt32();
+                baseVertex = reader.ReadInt32();
             }
 
-            var firstVertex = reader.ReadUInt32();
-            var vertexCount = reader.ReadUInt32();
+            var firstVertex = reader.ReadInt32();
+            var vertexCount = reader.ReadInt32();
             var aabb = AABB.FromReader(reader, file);
             return new Submesh(firstByte, indexCount, topo, baseVertex, firstVertex, vertexCount, aabb);
         }

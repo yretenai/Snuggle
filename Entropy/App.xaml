@@ -18,6 +18,9 @@
                 <ResourceDictionary
                     Source="pack://application:,,,/Dragablz;component/Themes/materialdesign.xaml" />
                 <ResourceDictionary>
+                    <DataTemplate x:Key="EntropyMeshGeometryRenderer" DataType="{x:Type implementations:Mesh}">
+                        <renderers:MeshGeometryRenderer />
+                    </DataTemplate>
                     <DataTemplate x:Key="EntropyTexture2DRenderer" DataType="{x:Type implementations:Texture2D}">
                         <renderers:Texture2DRenderer />
                     </DataTemplate>

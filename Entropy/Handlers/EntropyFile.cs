@@ -60,38 +60,39 @@ namespace Entropy.Handlers {
 
         public static void LoadDirectoriesAndFiles(params string[] entries) {
             var instance = EntropyCore.Instance;
-            instance.WorkerAction(token => {
-                // TODO: Split files.
-                var files = new List<string>();
-                foreach (var entry in entries) {
-                    if (Directory.Exists(entry)) {
-                        files.AddRange(Directory.EnumerateFiles(entry, "*", SearchOption.AllDirectories));
-                    } else if (File.Exists(entry)) {
-                        files.Add(entry);
-                    }
-                }
-
-                var fileSet = files.ToImmutableHashSet();
-                instance.Status.SetProgressMax(fileSet.Count);
-                foreach (var file in fileSet) {
-                    if (token.IsCancellationRequested) {
-                        return;
+            instance.WorkerAction("LoadDirectoriesAndFiles",
+                token => {
+                    // TODO: Split files.
+                    var files = new List<string>();
+                    foreach (var entry in entries) {
+                        if (Directory.Exists(entry)) {
+                            files.AddRange(Directory.EnumerateFiles(entry, "*", SearchOption.AllDirectories));
+                        } else if (File.Exists(entry)) {
+                            files.Add(entry);
+                        }
                     }
 
-                    instance.Status.SetStatus($"Loading {file}");
-                    instance.Status.SetProgress(instance.Status.Value + 1);
-                    instance.Collection.LoadFile(file, instance.Settings.Options);
-                }
+                    var fileSet = files.ToImmutableHashSet();
+                    instance.Status.SetProgressMax(fileSet.Count);
+                    foreach (var file in fileSet) {
+                        if (token.IsCancellationRequested) {
+                            return;
+                        }
 
-                instance.Collection.CacheGameObjectClassIds();
+                        instance.Status.SetStatus($"Loading {file}");
+                        instance.Status.SetProgress(instance.Status.Value + 1);
+                        instance.Collection.LoadFile(file, instance.Settings.Options);
+                    }
 
-                instance.Status.Reset();
-                instance.Status.SetStatus("Finding container paths...");
-                instance.Collection.FindAssetContainerNames();
-                instance.Status.SetStatus($"Loaded {instance.Collection.Files.Count} files");
-                instance.OnPropertyChanged(nameof(EntropyCore.Objects));
-                instance.OnPropertyChanged(nameof(EntropyCore.Filters));
-            });
+                    instance.Collection.CacheGameObjectClassIds();
+
+                    instance.Status.Reset();
+                    instance.Status.SetStatus("Finding container paths...");
+                    instance.Collection.FindAssetContainerNames();
+                    instance.Status.SetStatus($"Loaded {instance.Collection.Files.Count} files");
+                    instance.OnPropertyChanged(nameof(EntropyCore.Objects));
+                    instance.OnPropertyChanged(nameof(EntropyCore.Filters));
+                });
         }
 
         public static void Extract(ExtractMode mode, bool selected) {
@@ -116,7 +117,7 @@ namespace Entropy.Handlers {
             var instance = EntropyCore.Instance;
             instance.Settings.LastSaveDirectory = outputDirectory;
             instance.SaveOptions();
-            instance.WorkerAction(token => { ExtractOperation((selected ? instance.SelectedObjects : instance.Objects).ToImmutableArray(), outputDirectory, mode, token); });
+            instance.WorkerAction("Extract", token => { ExtractOperation((selected ? instance.SelectedObjects : instance.Objects).ToImmutableArray(), outputDirectory, mode, token); });
         }
 
         private static void ExtractOperation(ImmutableArray<EntropyObject> items, string outputDirectory, ExtractMode mode, CancellationToken token) {

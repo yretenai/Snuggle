@@ -228,17 +228,18 @@ namespace Entropy.Components {
 
         private void FreeMemory(object sender, RoutedEventArgs e) {
             var instance = EntropyCore.Instance;
-            instance.WorkerAction(_ => {
-                foreach (var bundle in instance.Collection.Bundles) {
-                    bundle.ClearCache();
-                }
+            instance.WorkerAction("FreeMemory",
+                _ => {
+                    foreach (var bundle in instance.Collection.Bundles) {
+                        bundle.ClearCache();
+                    }
 
-                foreach (var (_, file) in instance.Collection.Files) {
-                    file.Free();
-                }
+                    foreach (var (_, file) in instance.Collection.Files) {
+                        file.Free();
+                    }
 
-                GC.Collect();
-            });
+                    GC.Collect();
+                });
         }
 
         private void Search(object sender, KeyEventArgs e) {

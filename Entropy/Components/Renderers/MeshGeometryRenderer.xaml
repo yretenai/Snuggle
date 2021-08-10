@@ -1,0 +1,59 @@
+<UserControl x:Class="Entropy.Components.Renderers.MeshGeometryRenderer"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:implementations="clr-namespace:Equilibrium.Implementations;assembly=Equilibrium"
+             xmlns:helix="http://helix-toolkit.org/wpf/SharpDX"
+             xmlns:helixCore="clr-namespace:HelixToolkit.SharpDX.Core;assembly=HelixToolkit.SharpDX.Core"
+             xmlns:local="clr-namespace:Entropy.Components.Renderers"
+             d:DataContext="{d:DesignInstance implementations:Mesh}"
+             mc:Ignorable="d"
+             DataContextChanged="Refresh"
+             d:DesignHeight="300" d:DesignWidth="300">
+    <UserControl.CommandBindings>
+        <CommandBinding Command="{x:Static local:MeshGeometryRenderer.ToggleWireframeCommand}"
+                        Executed="ToggleWireframe"
+                        CanExecute="CanToggleWireframe" />
+    </UserControl.CommandBindings>
+    <Grid>
+        <helix:Viewport3DX ZoomExtentsWhenLoaded="True"
+                           x:Name="Viewport3D"
+                           ShowFrameDetails="True"
+                           Background="DimGray"
+                           BackgroundColor="DimGray"
+                           CoordinateSystemLabelForeground="White"
+                           EnableDesignModeRendering="False"
+                           EnableSwapChainRendering="False"
+                           IsShadowMappingEnabled="True"
+                           ShowCoordinateSystem="False"
+                           TextBrush="White"
+                           Title="{Binding Name}">
+            <helix:Viewport3DX.InputBindings>
+                <KeyBinding Key="NumPad2" Command="helix:ViewportCommands.BackView" />
+                <KeyBinding Key="NumPad8" Command="helix:ViewportCommands.FrontView" />
+                <KeyBinding Key="NumPad5" Command="helix:ViewportCommands.TopView" />
+                <KeyBinding Key="NumPad0" Command="helix:ViewportCommands.BottomView" />
+                <KeyBinding Key="NumPad4" Command="helix:ViewportCommands.LeftView" />
+                <KeyBinding Key="NumPad6" Command="helix:ViewportCommands.RightView" />
+                <KeyBinding Key="U" Command="helix:ViewportCommands.BackView" />
+                <KeyBinding Key="N" Command="helix:ViewportCommands.FrontView" />
+                <KeyBinding Key="J" Command="helix:ViewportCommands.TopView" />
+                <KeyBinding Key="I" Command="helix:ViewportCommands.BottomView" />
+                <KeyBinding Key="H" Command="helix:ViewportCommands.LeftView" />
+                <KeyBinding Key="K" Command="helix:ViewportCommands.RightView" />
+                <KeyBinding Key="R" Command="helix:ViewportCommands.ZoomExtents" />
+                <KeyBinding Key="Q" Command="{x:Static local:MeshGeometryRenderer.ToggleWireframeCommand}" />
+                <MouseBinding Command="helix:ViewportCommands.Rotate" Gesture="RightClick" />
+                <MouseBinding Command="helix:ViewportCommands.Zoom" Gesture="MiddleClick" />
+                <MouseBinding Command="helix:ViewportCommands.Pan" Gesture="LeftClick" />
+            </helix:Viewport3DX.InputBindings>
+            <helix:Viewport3DX.Camera>
+                <helix:PerspectiveCamera FieldOfView="72" />
+            </helix:Viewport3DX.Camera>
+            <helix:Viewport3DX.EffectsManager>
+                <helixCore:DefaultEffectsManager />
+            </helix:Viewport3DX.EffectsManager>
+        </helix:Viewport3DX>
+    </Grid>
+</UserControl>

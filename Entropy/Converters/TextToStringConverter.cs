@@ -13,13 +13,14 @@ namespace Entropy.Converters {
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotSupportedException($"{nameof(TextToStringConverter)} only supports converting to string");
 
         private static async Task<string?> ConvertText(Text text) {
-            return await EntropyCore.Instance.WorkerAction(_ => {
-                if (text.ShouldDeserialize) {
-                    text.Deserialize(EntropyCore.Instance.Settings.ObjectOptions);
-                }
+            return await EntropyCore.Instance.WorkerAction("DecodeText",
+                _ => {
+                    if (text.ShouldDeserialize) {
+                        text.Deserialize(EntropyCore.Instance.Settings.ObjectOptions);
+                    }
 
-                return text.String;
-            });
+                    return text.String;
+                });
         }
 
         public override object ProvideValue(IServiceProvider serviceProvider) => this;

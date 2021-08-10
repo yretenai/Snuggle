@@ -16,14 +16,15 @@ namespace Entropy.Converters {
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotSupportedException($"{nameof(Texture2DToBitmapConverter)} only supports converting to BitmapSource");
 
         private static async Task<BitmapSource?> ConvertTexture(Texture2D texture, Dispatcher dispatcher) {
-            return await EntropyCore.Instance.WorkerAction(_ => {
-                if (texture.ShouldDeserialize) {
-                    texture.Deserialize(EntropyCore.Instance.Settings.ObjectOptions);
-                }
+            return await EntropyCore.Instance.WorkerAction("DecodeTexture",
+                _ => {
+                    if (texture.ShouldDeserialize) {
+                        texture.Deserialize(EntropyCore.Instance.Settings.ObjectOptions);
+                    }
 
-                var span = Texture2DConverter.ToRGB(texture).ToArray();
-                return span.Length == 0 ? null : dispatcher.Invoke(() => new RGBABitmapSource(span, texture.Width, texture.Height));
-            });
+                    var span = Texture2DConverter.ToRGB(texture).ToArray();
+                    return span.Length == 0 ? null : dispatcher.Invoke(() => new RGBABitmapSource(span, texture.Width, texture.Height));
+                });
         }
 
         public override object ProvideValue(IServiceProvider serviceProvider) => this;
