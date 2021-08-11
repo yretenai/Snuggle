@@ -22,7 +22,7 @@ namespace Entropy.Converters {
                         texture.Deserialize(EntropyCore.Instance.Settings.ObjectOptions);
                     }
 
-                    var span = Texture2DConverter.ToRGB(texture).ToArray();
+                    var span = Texture2DConverter.ToRGBA(texture).ToArray();
                     return span.Length == 0 ? null : dispatcher.Invoke(() => new RGBABitmapSource(span, texture.Width, texture.Height));
                 });
         }

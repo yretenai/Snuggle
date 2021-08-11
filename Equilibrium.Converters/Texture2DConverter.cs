@@ -17,7 +17,7 @@ namespace Equilibrium.Converters {
         public static bool SupportsDDS(Texture2D texture) => texture.TextureFormat.CanSupportDDS();
         public static bool SupportsDDSConversion(Texture2D texture) => Environment.OSVersion.Platform == PlatformID.Win32NT && SupportsDDS(texture);
 
-        public static unsafe Span<byte> ToRGB(Texture2D texture2D) {
+        public static unsafe Span<byte> ToRGBA(Texture2D texture2D) {
             if (SupportsDDSConversion(texture2D)) {
                 ScratchImage? scratch = null;
                 try {

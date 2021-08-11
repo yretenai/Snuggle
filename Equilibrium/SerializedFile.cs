@@ -26,7 +26,7 @@ namespace Equilibrium {
                 ObjectInfos = UnityObjectInfo.ArrayFromReader(reader, ref header, Types, Options).ToDictionary(x => x.PathId);
                 ScriptInfos = UnityScriptInfo.ArrayFromReader(reader, header, Options);
                 ExternalInfos = UnityExternalInfo.ArrayFromReader(reader, header, Options);
-                if (header.FileVersion < UnitySerializedFileVersion.RefObject) {
+                if (header.FileVersion >= UnitySerializedFileVersion.RefObject) {
                     ReferenceTypes = UnitySerializedType.ArrayFromReader(reader, header, Options, true);
                 }
 

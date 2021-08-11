@@ -35,7 +35,7 @@ namespace Equilibrium.Models {
             get {
                 if (IsNull ||
                     File == null ||
-                    FileId >= File.ExternalInfos.Length ||
+                    FileId > File.ExternalInfos.Length ||
                     File.Assets == null) {
                     return null;
                 }
@@ -64,7 +64,7 @@ namespace Equilibrium.Models {
             get {
                 if (IsNull ||
                     File == null ||
-                    FileId >= File.ExternalInfos.Length ||
+                    FileId > File.ExternalInfos.Length ||
                     File.Assets == null) {
                     return null;
                 }

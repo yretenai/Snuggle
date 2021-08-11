@@ -2,14 +2,37 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using DragonLib;
 using Equilibrium.Exceptions;
 using Equilibrium.Implementations;
 using Equilibrium.Models.Objects.Graphics;
 using HelixToolkit.SharpDX.Core;
+using JetBrains.Annotations;
 using SharpDX;
 
 namespace Equilibrium.Converters {
+    [PublicAPI]
     public static class MeshConverter {
+        public readonly record struct StrideInfo(int Offset, int Stride);
+
+        public static List<StrideInfo> GetStrides(Mesh mesh, Dictionary<VertexChannel, ChannelInfo> descriptors) {
+            var strideInfos = new List<StrideInfo>();
+            var streamCount = descriptors.Max(x => x.Value.Stream) + 1;
+            strideInfos.EnsureCapacity(streamCount);
+
+            var offset = 0;
+            for (var i = 0; i < streamCount; ++i) {
+                var channels = descriptors.Values.Where(x => x.Stream == (byte) i && x.Dimension != VertexDimension.None).ToArray();
+                var last = channels.Max(x => x.Offset);
+                var lastInfo = channels.First(x => x.Offset == last);
+                var stride = last + lastInfo.GetSize();
+                strideInfos.Add(new StrideInfo(offset, stride));
+                offset = (int) (offset + mesh.VertexData.VertexCount * stride).Align(16);
+            }
+
+            return strideInfos;
+        }
+        
         public static List<Object3D> GetSubmeshes(Mesh mesh) {
             if (mesh.ShouldDeserialize) {
                 throw new IncompleteDeserializationException();
@@ -17,15 +40,14 @@ namespace Equilibrium.Converters {
 
             var vertexStream = GetVBO(mesh, out var descriptors);
             var indexStream = GetIBO(mesh);
+            var strides = GetStrides(mesh, descriptors);
 
             var objects = new List<Object3D>();
             for (var index = 0; index < mesh.Submeshes.Count; index++) {
                 var submesh = mesh.Submeshes[index];
                 var geometry = new MeshGeometry3D();
-                var span = indexStream.Span.Slice((int) submesh.FirstByte, (int) (submesh.IndexCount * (mesh.IndexFormat == 0 ? 2 : 4)));
-                geometry.Indices = new IntCollection(mesh.IndexFormat == 0 ? MemoryMarshal.Cast<byte, short>(span).ToArray().Select(x => (int) x) : MemoryMarshal.Cast<byte, int>(span).ToArray());
-                var stride = mesh.VertexData.GetStride();
-                var offset = submesh.FirstVertex * stride;
+                var span = indexStream.Span.Slice((int) submesh.FirstByte, (int) (submesh.IndexCount * (mesh.IndexFormat == IndexFormat.UInt16 ? 2 : 4)));
+                geometry.Indices = new IntCollection(mesh.IndexFormat == IndexFormat.UInt16 ? MemoryMarshal.Cast<byte, short>(span).ToArray().Select(x => (int) x) : MemoryMarshal.Cast<byte, int>(span).ToArray());
                 geometry.Positions = new Vector3Collection();
                 geometry.Positions.EnsureCapacity(submesh.VertexCount);
                 geometry.Normals = new Vector3Collection();
@@ -38,6 +60,8 @@ namespace Equilibrium.Converters {
                 geometry.TextureCoordinates.EnsureCapacity(submesh.VertexCount);
                 for (var i = 0; i < submesh.VertexCount; ++i) {
                     foreach (var (channel, info) in descriptors) {
+                        var (streamOffset, stride) = strides[info.Stream];
+                        var offset = (submesh.FirstVertex + i) * stride + streamOffset;
                         var data = vertexStream[(offset + info.Offset)..].Span;
                         if (info.Dimension == VertexDimension.None) {
                             continue;
@@ -74,8 +98,6 @@ namespace Equilibrium.Converters {
                                 throw new NotSupportedException();
                         }
                     }
-
-                    offset += stride;
                 }
 
                 var object3D = new Object3D { Name = $"{mesh.Name}_Submesh{index}", Geometry = geometry };

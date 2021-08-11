@@ -40,7 +40,10 @@ namespace Entropy.Converters {
                                 texture.Deserialize(EntropyCore.Instance.Settings.ObjectOptions);
                             }
 
-                            textureData = Texture2DConverter.ToRGB(texture).ToArray();
+                            textureData = Texture2DConverter.ToRGBA(texture).ToArray();
+                            for (var i = 0; i < textureData.Length / 4; ++i) { // strip alpha
+                                textureData[i * 4 + 3] = 0xFF;
+                            }
                         }
 
                         textures.Add((texture, textureData));

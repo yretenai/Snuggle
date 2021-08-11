@@ -62,7 +62,7 @@ namespace Equilibrium.Implementations {
             if (serializedFile.Version >= UnityVersionRegister.Unity2017_4 ||
                 serializedFile.Version == UnityVersionRegister.Unity2017_3_1_P ||
                 serializedFile.Version >= UnityVersionRegister.Unity2017_3 && MeshCompression == 0) {
-                IndexFormat = reader.ReadInt32();
+                IndexFormat = (IndexFormat) reader.ReadInt32();
             }
 
             IndicesStart = reader.BaseStream.Position;
@@ -142,7 +142,7 @@ namespace Equilibrium.Implementations {
         public bool IsReadable { get; set; }
         public bool KeepVertices { get; set; }
         public bool KeepIndices { get; set; }
-        public int IndexFormat { get; set; }
+        public IndexFormat IndexFormat { get; set; }
 
         [JsonIgnore]
         public Memory<byte>? Indices { get; set; }

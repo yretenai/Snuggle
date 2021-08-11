@@ -102,11 +102,5 @@ namespace Equilibrium.Models.Objects.Graphics {
             var dataCount = reader.ReadInt32();
             Data = reader.ReadMemory(dataCount);
         }
-
-        public int GetStride() {
-            var last = Channels.Values.Max(x => x.Offset);
-            var lastInfo = Channels.Values.First(x => x.Offset == last);
-            return last + lastInfo.GetSize();
-        }
     }
 }
