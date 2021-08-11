@@ -45,9 +45,17 @@ namespace Equilibrium.Converters {
             var objects = new List<Object3D>();
             for (var index = 0; index < mesh.Submeshes.Count; index++) {
                 var submesh = mesh.Submeshes[index];
-                var geometry = new MeshGeometry3D();
+                var geometry = new MeshGeometry3D(); // use batching probably lol
                 var span = indexStream.Span.Slice((int) submesh.FirstByte, (int) (submesh.IndexCount * (mesh.IndexFormat == IndexFormat.UInt16 ? 2 : 4)));
-                geometry.Indices = new IntCollection(mesh.IndexFormat == IndexFormat.UInt16 ? MemoryMarshal.Cast<byte, short>(span).ToArray().Select(x => (int) x) : MemoryMarshal.Cast<byte, int>(span).ToArray());
+                var indices = mesh.IndexFormat == IndexFormat.UInt16 ? MemoryMarshal.Cast<byte, ushort>(span).ToArray().Select(x => (int) x).ToArray() : MemoryMarshal.Cast<byte, int>(span).ToArray();
+                if (submesh.FirstByte > 0) {
+                    var baseIndex = indices.Min();
+                    for (var indiceIndex = 0; indiceIndex < submesh.IndexCount; ++indiceIndex) {
+                        indices[indiceIndex] -= baseIndex;
+                    }
+                }
+
+                geometry.Indices = new IntCollection(indices);
                 geometry.Positions = new Vector3Collection();
                 geometry.Positions.EnsureCapacity(submesh.VertexCount);
                 geometry.Normals = new Vector3Collection();

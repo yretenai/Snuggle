@@ -14,7 +14,10 @@
     <UserControl.CommandBindings>
         <CommandBinding Command="{x:Static local:MeshGeometryRenderer.ToggleWireframeCommand}"
                         Executed="ToggleWireframe"
-                        CanExecute="CanToggleWireframe" />
+                        CanExecute="HasMeshes" />
+        <CommandBinding Command="{x:Static local:MeshGeometryRenderer.CycleSubmeshesCommand}"
+                        Executed="CycleSubmeshes"
+                        CanExecute="HasMeshes" />
     </UserControl.CommandBindings>
     <Grid>
         <helix:Viewport3DX x:Name="Viewport3D"
@@ -51,6 +54,7 @@
                 <KeyBinding Key="K" Command="helix:ViewportCommands.RightView" />
                 <KeyBinding Key="R" Command="helix:ViewportCommands.ZoomExtents" />
                 <KeyBinding Key="Q" Command="{x:Static local:MeshGeometryRenderer.ToggleWireframeCommand}" />
+                <KeyBinding Key="E" Command="{x:Static local:MeshGeometryRenderer.CycleSubmeshesCommand}" />
                 <MouseBinding Command="helix:ViewportCommands.Rotate" Gesture="RightClick" />
                 <MouseBinding Command="helix:ViewportCommands.Zoom" Gesture="MiddleClick" />
                 <MouseBinding Command="helix:ViewportCommands.ChangeFieldOfView" Gesture="Shift+MiddleClick" />

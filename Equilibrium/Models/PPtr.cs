@@ -77,6 +77,7 @@ namespace Equilibrium.Models {
                 if (FileId == 0) {
                     referencedFile = File;
                 } else if (!File.Assets.Files.TryGetValue(File.ExternalInfos[FileId - 1].Name, out referencedFile)) {
+                    File.Options.Logger.Warning("PPtr", $"Cannot find External File {File.ExternalInfos[FileId - 1].Name}");
                     return null;
                 }
 

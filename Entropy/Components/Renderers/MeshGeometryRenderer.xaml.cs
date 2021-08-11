@@ -25,6 +25,7 @@ namespace Entropy.Components.Renderers {
         }
 
         public static RoutedCommand ToggleWireframeCommand { get; } = new();
+        public static RoutedCommand CycleSubmeshesCommand { get; } = new();
 
         private void Refresh(object sender, DependencyPropertyChangedEventArgs e) {
             List<Material?> materials = new();
@@ -65,6 +66,11 @@ namespace Entropy.Components.Renderers {
             }
 
             if (mesh == null) {
+                var existingPointLight = Viewport3D.Items.FirstOrDefault(x => x is PointLight3D);
+                Viewport3D.Items.Clear();
+                if (existingPointLight != null) {
+                    Viewport3D.Items.Add(existingPointLight);
+                }
                 return;
             }
 
@@ -83,7 +89,45 @@ namespace Entropy.Components.Renderers {
             }
         }
 
-        private void CanToggleWireframe(object sender, CanExecuteRoutedEventArgs e) {
+        private void CycleSubmeshes(object sender, ExecutedRoutedEventArgs e) {
+            if (DataContext is not (Mesh or Renderer or MeshFilter or GameObject)) {
+                return;
+            }
+
+            var meshes = Viewport3D.Items.OfType<MeshGeometryModel3D>().ToArray();
+            if (meshes.Length == 0) {
+                return;
+            }
+            
+            if (meshes.All(x => x.IsRendering)) {
+                foreach (var mesh in meshes) {
+                    mesh.IsRendering = false;
+                }
+
+                meshes[0].IsRendering = true;
+                return;
+            }
+
+            var toggleNext = false;
+            foreach (var mesh in meshes) {
+                if (mesh.IsRendering) {
+                    mesh.IsRendering = false;
+                    toggleNext = true;
+                    continue;
+                }
+
+                if (toggleNext) {
+                    mesh.IsRendering = true;
+                    return;
+                }
+            }
+            
+            foreach (var mesh in meshes) {
+                mesh.IsRendering = true;
+            }
+        }
+
+        private void HasMeshes(object sender, CanExecuteRoutedEventArgs e) {
             e.CanExecute = DataContext is Mesh or Renderer or MeshFilter or GameObject && Viewport3D.Items.Any(x => x is MeshGeometryModel3D);
         }
     }
