@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using Equilibrium.IO;
 using Equilibrium.Options;
@@ -21,7 +22,7 @@ namespace Equilibrium.Models.Serialization {
                 reader.Align();
             }
 
-            var pathId = header.BigIdEnabled ? reader.ReadInt64() : reader.ReadInt32();
+            var pathId = reader.ReadInt64();
             var offset = header.FileVersion >= UnitySerializedFileVersion.LargeFiles ? reader.ReadInt64() : reader.ReadInt32();
             var size = reader.ReadUInt32();
             var typeId = reader.ReadInt32();
@@ -55,9 +56,8 @@ namespace Equilibrium.Models.Serialization {
         public static UnityObjectInfo[] ArrayFromReader(BiEndianBinaryReader reader, ref UnitySerializedFile header, UnitySerializedType[] types, EquilibriumOptions options) {
             if (header.FileVersion is >= UnitySerializedFileVersion.BigId and < UnitySerializedFileVersion.BigIdAlwaysEnabled) {
                 var value = reader.ReadInt32();
-                Debug.Assert(value is 0 or 1, "value is 0 or 1"); // i'm not sure if this is a flag or not. booleans are not aligned, so why is this one?
-                if (value == 1) {
-                    header = header with { BigIdEnabled = true };
+                if (value != 1) {
+                    throw new NotSupportedException("Legacy PathIds are not supported");
                 }
             }
 

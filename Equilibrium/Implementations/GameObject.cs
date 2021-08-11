@@ -13,7 +13,6 @@ namespace Equilibrium.Implementations {
     public class GameObject : SerializedObject {
         public GameObject(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) {
             var componentCount = reader.ReadInt32();
-            Components = new List<ComponentPair>();
             Components.EnsureCapacity(componentCount);
             for (var i = 0; i < componentCount; ++i) {
                 Components.Add(ComponentPair.FromReader(reader, serializedFile));
@@ -26,12 +25,9 @@ namespace Equilibrium.Implementations {
             reader.Align();
         }
 
-        public GameObject(UnityObjectInfo info, SerializedFile serializedFile) : base(info, serializedFile) {
-            Components = new List<ComponentPair>();
-            Name = string.Empty;
-        }
+        public GameObject(UnityObjectInfo info, SerializedFile serializedFile) : base(info, serializedFile) => Name = string.Empty;
 
-        public List<ComponentPair> Components { get; set; }
+        public List<ComponentPair> Components { get; set; } = new();
         public uint Layer { get; set; }
         public string Name { get; set; }
         public ushort Tag { get; set; }

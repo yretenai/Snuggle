@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text.Json.Serialization;
 using Equilibrium.Implementations;
 using Equilibrium.IO;
@@ -11,6 +14,8 @@ namespace Equilibrium.Models {
     public record PPtr<T>(
         int FileId,
         long PathId) where T : SerializedObject {
+        private PPtr(PPtrEnclosure enclosure) : this(enclosure.FileId, enclosure.PathId) { }
+
         public static PPtr<T> Null => new(0, 0);
 
         [JsonIgnore]
@@ -88,17 +93,20 @@ namespace Equilibrium.Models {
 
         public void ToWriter(BiEndianBinaryWriter writer, SerializedFile file, UnityVersion targetVersion) {
             writer.Write(FileId);
-            if (File == null ||
-                file.Header.BigIdEnabled) {
-                writer.Write(PathId);
-            } else {
-                writer.Write((uint) PathId);
-            }
+            writer.Write(PathId);
         }
 
-        public static PPtr<T> FromReader(BiEndianBinaryReader reader, SerializedFile file) => new(reader.ReadInt32(), file.Header.BigIdEnabled ? reader.ReadInt64() : reader.ReadInt32()) { File = file };
+        public static PPtr<T> FromReader(BiEndianBinaryReader reader, SerializedFile file) => new(reader.ReadStruct<PPtrEnclosure>()) { File = file };
+
+        public static IEnumerable<PPtr<T>> ArrayFromReader(BiEndianBinaryReader reader, SerializedFile file, int count) {
+            return count == 0 ? Array.Empty<PPtr<T>>() : reader.ReadArray<PPtrEnclosure>(count).ToArray().Select(x => new PPtr<T>(x) { File = file });
+        }
+
         public static implicit operator T?(PPtr<T> ptr) => ptr.Value;
         public override int GetHashCode() => HashCode.Combine(FileId, PathId);
         public override string ToString() => $"PPtr<{typeof(T).Name}> {{ FileId = {FileId}, PathId = {PathId} }}";
+
+        [StructLayout(LayoutKind.Sequential, Size = 12, Pack = 1)]
+        private record struct PPtrEnclosure(int FileId, long PathId);
     }
 }

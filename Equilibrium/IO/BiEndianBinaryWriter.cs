@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Buffers.Binary;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -145,10 +147,12 @@ namespace Equilibrium.IO {
             Write((byte) 0);
         }
 
-        public void WriteArray<T>(T[] array) where T : struct {
+        public void WriteArray<T>(IEnumerable<T> enumerable) where T : struct {
             if (ShouldInvertEndianness) {
                 throw new NotSupportedException("Cannot invert endianness of arrays");
             }
+
+            var array = enumerable as T[] ?? enumerable.ToArray();
 
             Write(MemoryMarshal.Cast<T, byte>(array));
         }

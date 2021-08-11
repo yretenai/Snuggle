@@ -15,8 +15,7 @@ namespace Equilibrium.Models.Serialization {
         ulong LargeAddressableFlags,
         string EngineVersion,
         UnityPlatform Platform,
-        bool TypeTreeEnabled,
-        bool BigIdEnabled) {
+        bool TypeTreeEnabled) {
         public UnityVersion? Version { get; } = UnityVersion.ParseSafe(EngineVersion);
 
         public static UnitySerializedFile FromReader(BiEndianBinaryReader reader, EquilibriumOptions options) {
@@ -57,7 +56,7 @@ namespace Equilibrium.Models.Serialization {
                 typeTreeEnabled = reader.ReadBoolean();
             }
 
-            return new UnitySerializedFile(headerSize, size, version, offset, isBigEndian, laf, engineVersion, targetPlatform, typeTreeEnabled, version >= UnitySerializedFileVersion.BigIdAlwaysEnabled);
+            return new UnitySerializedFile(headerSize, size, version, offset, isBigEndian, laf, engineVersion, targetPlatform, typeTreeEnabled);
         }
     }
 }

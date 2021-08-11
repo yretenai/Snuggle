@@ -26,7 +26,7 @@ namespace Equilibrium.Models.Objects.Graphics {
 
             var firstVertex = reader.ReadInt32();
             var vertexCount = reader.ReadInt32();
-            var aabb = AABB.FromReader(reader, file);
+            var aabb = reader.ReadStruct<AABB>();
             return new Submesh(firstByte, indexCount, topo, baseVertex, firstVertex, vertexCount, aabb);
         }
 
@@ -40,7 +40,7 @@ namespace Equilibrium.Models.Objects.Graphics {
 
             writer.Write(FirstVertex);
             writer.Write(VertexCount);
-            LocalAABB.ToWriter(writer, serializedFile, targetVersion);
+            writer.WriteStruct(LocalAABB);
         }
     }
 }

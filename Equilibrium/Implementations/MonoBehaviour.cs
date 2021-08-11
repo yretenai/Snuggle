@@ -13,6 +13,8 @@ namespace Equilibrium.Implementations {
     [PublicAPI, UsedImplicitly, ObjectImplementation(UnityClassId.MonoBehaviour)]
     public class MonoBehaviour : Behaviour {
         public MonoBehaviour(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) {
+            reader.Align();
+
             Script = PPtr<MonoScript>.FromReader(reader, serializedFile);
             Name = reader.ReadString32();
             DataStart = reader.BaseStream.Position;

@@ -16,24 +16,16 @@ namespace Equilibrium.Implementations {
             Translation = reader.ReadStruct<Vector3>();
             Scale = reader.ReadStruct<Vector3>();
             var childCount = reader.ReadInt32();
-            Children = new List<PPtr<Transform>>();
-            Children.EnsureCapacity(childCount);
-            for (var i = 0; i < childCount; ++i) {
-                Children.Add(PPtr<Transform>.FromReader(reader, SerializedFile));
-            }
-
+            Children.AddRange(PPtr<Transform>.ArrayFromReader(reader, SerializedFile, childCount));
             Parent = PPtr<Transform>.FromReader(reader, SerializedFile);
         }
 
-        public Transform(UnityObjectInfo info, SerializedFile serializedFile) : base(info, serializedFile) {
-            Children = new List<PPtr<Transform>>();
-            Parent = PPtr<Transform>.Null;
-        }
+        public Transform(UnityObjectInfo info, SerializedFile serializedFile) : base(info, serializedFile) => Parent = PPtr<Transform>.Null;
 
         public Quaternion Rotation { get; set; }
         public Vector3 Translation { get; set; }
         public Vector3 Scale { get; set; }
-        public List<PPtr<Transform>> Children { get; set; }
+        public List<PPtr<Transform>> Children { get; set; } = new();
         public PPtr<Transform> Parent { get; set; }
 
         public override void Serialize(BiEndianBinaryWriter writer, AssetSerializationOptions options) {

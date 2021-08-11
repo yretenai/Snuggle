@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json.Serialization;
+using Equilibrium.Extensions;
 using Equilibrium.Game.Unite;
 using Equilibrium.Interfaces;
 using Equilibrium.IO;
@@ -20,7 +21,6 @@ namespace Equilibrium.Implementations {
     public class Mesh : NamedObject, ISerializedResource {
         public Mesh(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) {
             var submeshCount = reader.ReadInt32();
-            Submeshes = new List<Submesh>();
             Submeshes.EnsureCapacity(submeshCount);
             for (var i = 0; i < submeshCount; ++i) {
                 Submeshes.Add(Submesh.FromReader(reader, serializedFile));
@@ -38,17 +38,12 @@ namespace Equilibrium.Implementations {
 
             if (serializedFile.Version >= UnityVersionRegister.Unity2019) {
                 var bonesAABBCount = reader.ReadInt32();
-                BonesAABB = new List<AABB>();
-                BonesAABB.EnsureCapacity(bonesAABBCount);
-                for (var i = 0; i < bonesAABBCount; ++i) {
-                    BonesAABB.Add(AABB.FromReader(reader, serializedFile));
-                }
+                BonesAABB.AddRange(reader.ReadArray<AABB>(bonesAABBCount));
 
                 VariableBoneCountWeightsStart = reader.BaseStream.Position;
                 var variableBoneCountWeightsCount = reader.ReadInt32();
                 reader.BaseStream.Seek(4 * variableBoneCountWeightsCount, SeekOrigin.Current);
             } else {
-                BonesAABB = new List<AABB>();
                 VariableBoneCountWeights = Memory<uint>.Empty;
             }
 
@@ -85,7 +80,7 @@ namespace Equilibrium.Implementations {
 
             VertexData = VertexData.FromReader(reader, serializedFile);
             CompressedMesh = CompressedMesh.FromReader(reader, serializedFile);
-            LocalAABB = AABB.FromReader(reader, serializedFile);
+            LocalAABB = reader.ReadStruct<AABB>();
             MeshUsageFlags = reader.ReadInt32();
 
             BakedConvexCollisionMeshStart = reader.BaseStream.Position;
@@ -114,10 +109,7 @@ namespace Equilibrium.Implementations {
         }
 
         public Mesh(UnityObjectInfo info, SerializedFile serializedFile) : base(info, serializedFile) {
-            Submeshes = new List<Submesh>();
             BlendShapeData = BlendShapeData.Default;
-            BoneNameHashes = new List<uint>();
-            BonesAABB = new List<AABB>();
             VertexData = VertexData.Default;
             CompressedMesh = CompressedMesh.Default;
             LocalAABB = AABB.Default;
@@ -133,15 +125,15 @@ namespace Equilibrium.Implementations {
         private long BakedConvexCollisionMeshStart { get; init; } = -1;
         private long BakedTriangleCollisionMeshStart { get; init; } = -1;
 
-        public List<Submesh> Submeshes { get; set; }
+        public List<Submesh> Submeshes { get; set; } = new();
         public BlendShapeData BlendShapeData { get; set; }
 
         [JsonIgnore]
         public Memory<Matrix4X4>? BindPose { get; set; }
 
-        public List<uint> BoneNameHashes { get; set; }
+        public List<uint> BoneNameHashes { get; set; } = new();
         public uint RootBoneNameHash { get; set; }
-        public List<AABB> BonesAABB { get; set; }
+        public List<AABB> BonesAABB { get; set; } = new();
 
         [JsonIgnore]
         public Memory<uint>? VariableBoneCountWeights { get; set; }
@@ -156,7 +148,7 @@ namespace Equilibrium.Implementations {
         public Memory<byte>? Indices { get; set; }
 
         [JsonIgnore]
-        public List<BoneWeight>? Skin { get; set; }
+        public List<BoneWeight> Skin { get; set; } = new();
 
         public VertexData VertexData { get; set; }
         public CompressedMesh CompressedMesh { get; set; }
@@ -177,7 +169,6 @@ namespace Equilibrium.Implementations {
             BindPose == null ||
             VariableBoneCountWeights == null ||
             Indices == null ||
-            Skin == null ||
             BakedConvexCollisionMesh == null ||
             BakedTriangleCollisionMesh == null ||
             VertexData.ShouldDeserialize ||
@@ -218,13 +209,10 @@ namespace Equilibrium.Implementations {
             if (SkinStart > -1) {
                 reader.BaseStream.Seek(SkinStart, SeekOrigin.Begin);
                 var boneWeightsCount = reader.ReadInt32();
-                Skin = new List<BoneWeight>();
                 Skin.EnsureCapacity(boneWeightsCount);
                 for (var i = 0; i < boneWeightsCount; ++i) {
                     Skin.Add(BoneWeight.FromReader(reader, SerializedFile));
                 }
-            } else {
-                Skin = new List<BoneWeight>();
             }
 
             VertexData.Deserialize(reader, SerializedFile, options);

@@ -359,10 +359,7 @@ namespace Equilibrium.Implementations {
             BundleVersion = reader.ReadString32();
 
             var preloadAssetCount = reader.ReadInt32();
-            PreloadedAssets.EnsureCapacity(preloadAssetCount);
-            for (var i = 0; i < preloadAssetCount; ++i) {
-                PreloadedAssets.Add(PPtr<SerializedObject>.FromReader(reader, SerializedFile));
-            }
+            PreloadedAssets.AddRange(PPtr<SerializedObject>.ArrayFromReader(reader, SerializedFile, preloadAssetCount));
 
             if (SerializedFile.Version < UnityVersionRegister.Unity5_5) {
                 MetroEnableIndependentInputSource = reader.ReadBoolean();
@@ -506,11 +503,9 @@ namespace Equilibrium.Implementations {
             SupportedAspectRatios = AspectRatios.Default;
             BundleIdentifier = string.Empty;
             BundleVersion = string.Empty;
-            PreloadedAssets = new List<PPtr<SerializedObject>>();
             VRSettings = VRSettings.Default;
             ColorGamuts = Array.Empty<int>();
             CloudProjectId = string.Empty;
-            QualitySettingsNames = new List<string>();
             ProjectId = string.Empty;
             ProjectName = string.Empty;
             OrganizationId = string.Empty;
@@ -645,7 +640,7 @@ namespace Equilibrium.Implementations {
         public AspectRatios SupportedAspectRatios { get; set; }
         public string BundleIdentifier { get; set; }
         public string BundleVersion { get; set; }
-        public List<PPtr<SerializedObject>> PreloadedAssets { get; set; }
+        public List<PPtr<SerializedObject>> PreloadedAssets { get; set; } = new();
         public bool MetroEnableIndependentInputSource { get; set; }
         public int MetroInputSource { get; set; }
         public bool WSATransparentSwapChain { get; set; }
@@ -670,7 +665,7 @@ namespace Equilibrium.Implementations {
         public string CloudProjectId { get; set; }
         public string ProjectId { get; set; }
         public int FramebufferDepthMemorylessMode { get; set; }
-        public List<string> QualitySettingsNames { get; set; }
+        public List<string> QualitySettingsNames { get; set; } = new();
         public string ProjectName { get; set; }
         public string OrganizationId { get; set; }
         public bool CloudEnabled { get; set; }

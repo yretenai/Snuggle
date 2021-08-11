@@ -14,7 +14,7 @@ namespace Equilibrium.Models.Serialization {
             }
 
             var index = reader.ReadInt32();
-            var identifier = header.BigIdEnabled ? reader.ReadInt64() : reader.ReadInt32();
+            var identifier = reader.ReadInt64();
             return new UnityScriptInfo(index, identifier);
         }
 
