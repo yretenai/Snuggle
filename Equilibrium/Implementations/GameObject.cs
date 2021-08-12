@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Equilibrium.IO;
 using Equilibrium.Meta;
 using Equilibrium.Models;
@@ -32,6 +33,30 @@ namespace Equilibrium.Implementations {
         public string Name { get; set; }
         public ushort Tag { get; set; }
         public bool Active { get; set; }
+
+        public IEnumerable<PPtr<Component>> FindComponents(params object[] classIds) {
+            return Components.Where(x => classIds.Any(y => x.ClassId.Equals(y))).Select(x => x.Ptr);
+        }
+
+        public IEnumerable<PPtr<Component>> FindComponents(object classId) {
+            return Components.Where(x => x.ClassId.Equals(classId)).Select(x => x.Ptr);
+        }
+
+        public PPtr<Component> FindComponent(params object[] classIds) {
+            return Components.FirstOrDefault(x => classIds.Any(y => x.ClassId.Equals(y)))?.Ptr ?? PPtr<Component>.Null;
+        }
+
+        public PPtr<Component> FindComponent(object classId) {
+            return Components.FirstOrDefault(x => x.ClassId.Equals(classId))?.Ptr ?? PPtr<Component>.Null;
+        }
+
+        public bool HasComponent(params object[] classIds) {
+            return Components.Any(x => classIds.Any(y => x.ClassId.Equals(y)));
+        }
+
+        public bool HasComponent(object classId) {
+            return Components.Any(x => x.ClassId.Equals(classId));
+        }
 
         public void CacheClassIds() {
             var components = new List<ComponentPair>();

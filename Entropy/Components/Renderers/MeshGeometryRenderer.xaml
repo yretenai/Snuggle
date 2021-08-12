@@ -18,6 +18,12 @@
         <CommandBinding Command="{x:Static local:MeshGeometryRenderer.CycleSubmeshesCommand}"
                         Executed="CycleSubmeshes"
                         CanExecute="HasMeshes" />
+        <CommandBinding Command="{x:Static local:MeshGeometryRenderer.ToggleLabelsCommand}"
+                        Executed="ToggleLabels"
+                        CanExecute="HasMeshes" />
+        <CommandBinding Command="{x:Static local:MeshGeometryRenderer.ZoomExtentsCommand}"
+                        Executed="ZoomExtents"
+                        CanExecute="HasMeshes" />
     </UserControl.CommandBindings>
     <Grid>
         <helix:Viewport3DX x:Name="Viewport3D"
@@ -34,11 +40,12 @@
                            AllowUpDownRotation="True"
                            ShowViewCube="True"
                            ShowTriangleCountInfo="True"
-                           ZoomExtentsWhenLoaded="True"
+                           ZoomExtentsWhenLoaded="False"
                            EnableDesignModeRendering="False"
                            EnableSwapChainRendering="True"
                            IsShadowMappingEnabled="True"
-                           ShowCoordinateSystem="True">
+                           ShowCoordinateSystem="True"
+                           Loaded="ZoomExtents">
             <helix:Viewport3DX.InputBindings>
                 <KeyBinding Key="NumPad2" Command="helix:ViewportCommands.BackView" />
                 <KeyBinding Key="NumPad8" Command="helix:ViewportCommands.FrontView" />
@@ -52,9 +59,10 @@
                 <KeyBinding Key="I" Command="helix:ViewportCommands.BottomView" />
                 <KeyBinding Key="H" Command="helix:ViewportCommands.LeftView" />
                 <KeyBinding Key="K" Command="helix:ViewportCommands.RightView" />
-                <KeyBinding Key="R" Command="helix:ViewportCommands.ZoomExtents" />
+                <KeyBinding Key="R" Command="{x:Static local:MeshGeometryRenderer.ZoomExtentsCommand}" />
                 <KeyBinding Key="Q" Command="{x:Static local:MeshGeometryRenderer.ToggleWireframeCommand}" />
                 <KeyBinding Key="E" Command="{x:Static local:MeshGeometryRenderer.CycleSubmeshesCommand}" />
+                <KeyBinding Key="F" Command="{x:Static local:MeshGeometryRenderer.ToggleLabelsCommand}" />
                 <MouseBinding Command="helix:ViewportCommands.Rotate" Gesture="RightClick" />
                 <MouseBinding Command="helix:ViewportCommands.Zoom" Gesture="MiddleClick" />
                 <MouseBinding Command="helix:ViewportCommands.ChangeFieldOfView" Gesture="Shift+MiddleClick" />

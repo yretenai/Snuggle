@@ -1,14 +1,12 @@
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
 using Entropy.Converters;
 using Equilibrium.Implementations;
-using Equilibrium.Models;
-using Equilibrium.Models.Objects.Graphics;
 using HelixToolkit.Wpf.SharpDX;
-using Material = Equilibrium.Implementations.Material;
 
 namespace Entropy.Components.Renderers {
     public partial class MeshGeometryRenderer {
@@ -25,56 +23,28 @@ namespace Entropy.Components.Renderers {
         }
 
         public static RoutedCommand ToggleWireframeCommand { get; } = new();
+        public static RoutedCommand ToggleLabelsCommand { get; } = new();
         public static RoutedCommand CycleSubmeshesCommand { get; } = new();
+        public static RoutedCommand ZoomExtentsCommand { get; } = new();
 
         private void Refresh(object sender, DependencyPropertyChangedEventArgs e) {
-            List<Material?> materials = new();
-            Mesh? mesh = null;
-            StaticBatchInfo batch;
-            if (DataContext is not Mesh meshObject) {
-                var gameObject = DataContext as GameObject;
-                if (DataContext is Component component) {
-                    gameObject = component.GameObject.Value;
-                }
-
-                if (gameObject == null) {
-                    return;
-                }
-
-                var renderer = gameObject.Components.FirstOrDefault(x => x.ClassId.Equals(UnityClassId.MeshRenderer) || x.ClassId.Equals(UnityClassId.SkinnedMeshRenderer))?.Ptr.Value as Renderer;
-                switch (renderer) {
-                    case null:
-                        return;
-                    case SkinnedMeshRenderer skinnedMeshRenderer:
-                        mesh = skinnedMeshRenderer.Mesh.Value;
-                        break;
-                    case MeshRenderer: {
-                        var meshFilter = gameObject.Components.FirstOrDefault(x => x.ClassId.Equals(UnityClassId.MeshFilter))?.Ptr.Value as MeshFilter;
-                        if (meshFilter != null) {
-                            mesh = meshFilter.Mesh.Value;
-                        }
-
-                        break;
-                    }
-                }
-
-                materials.AddRange(renderer.Materials.Select(x => x.Value));
-                batch = renderer.StaticBatchInfo.SubmeshCount > 0 ? renderer.StaticBatchInfo : new StaticBatchInfo(0, (ushort) (mesh?.Submeshes.Count ?? 0));
-            } else {
-                mesh = meshObject;
-                batch = new StaticBatchInfo(0, (ushort) mesh.Submeshes.Count);
+            var existingPointLight = Viewport3D.Items.FirstOrDefault(x => x is PointLight3D);
+            Viewport3D.Items.Clear();
+            if (existingPointLight != null) {
+                Viewport3D.Items.Add(existingPointLight);
             }
 
-            if (mesh == null) {
-                var existingPointLight = Viewport3D.Items.FirstOrDefault(x => x is PointLight3D);
-                Viewport3D.Items.Clear();
-                if (existingPointLight != null) {
-                    Viewport3D.Items.Add(existingPointLight);
-                }
-                return;
+            switch (DataContext) {
+                case Mesh meshObject:
+                    MeshToHelixConverter.ConvertMesh(meshObject, Dispatcher.CurrentDispatcher, Viewport3D.Items);
+                    break;
+                case Component component:
+                    DataContext = component.GameObject.Value;
+                    break;
+                case GameObject gameObject:
+                    MeshToHelixConverter.ConvertGameObjectTree(gameObject, Dispatcher.CurrentDispatcher, Viewport3D.Items);
+                    break;
             }
-
-            MeshToHelixConverter.ConvertMesh(mesh, Dispatcher.CurrentDispatcher, Viewport3D.Items, materials, batch);
         }
 
         private void ToggleWireframe(object sender, ExecutedRoutedEventArgs e) {
@@ -82,10 +52,9 @@ namespace Entropy.Components.Renderers {
                 return;
             }
 
-            foreach (var item in Viewport3D.Items) {
-                if (item is MeshGeometryModel3D mesh) {
-                    mesh.RenderWireframe = !mesh.RenderWireframe;
-                }
+            var meshes = CollectMeshes(Viewport3D.Items);
+            foreach (var mesh in meshes) {
+                mesh.RenderWireframe = !mesh.RenderWireframe;
             }
         }
 
@@ -94,11 +63,11 @@ namespace Entropy.Components.Renderers {
                 return;
             }
 
-            var meshes = Viewport3D.Items.OfType<MeshGeometryModel3D>().ToArray();
-            if (meshes.Length == 0) {
+            var meshes = CollectMeshes(Viewport3D.Items);
+            if (meshes.Count == 0) {
                 return;
             }
-            
+
             if (meshes.All(x => x.IsRendering)) {
                 foreach (var mesh in meshes) {
                     mesh.IsRendering = false;
@@ -121,14 +90,61 @@ namespace Entropy.Components.Renderers {
                     return;
                 }
             }
-            
+
             foreach (var mesh in meshes) {
                 mesh.IsRendering = true;
             }
         }
 
+        private void ToggleLabels(object sender, ExecutedRoutedEventArgs e) {
+            foreach (var item in Viewport3D.Items) {
+                if (item is TopMostGroup3D topMostGroup3D) {
+                    topMostGroup3D.IsRendering = !topMostGroup3D.IsRendering;
+                }
+            }
+        }
+
+        private static List<MeshGeometryModel3D> CollectMeshes(Collection<Element3D> collection) {
+            var entries = new List<MeshGeometryModel3D>();
+            foreach (var element in collection) {
+                switch (element) {
+                    case GroupElement3D group:
+                        entries.AddRange(CollectMeshes(group.Children));
+                        break;
+                    case MeshGeometryModel3D model:
+                        entries.Add(model);
+                        break;
+                }
+            }
+
+            return entries;
+        }
+
         private void HasMeshes(object sender, CanExecuteRoutedEventArgs e) {
-            e.CanExecute = DataContext is Mesh or Renderer or MeshFilter or GameObject && Viewport3D.Items.Any(x => x is MeshGeometryModel3D);
+            e.CanExecute = DataContext is Mesh or Renderer or MeshFilter or GameObject;
+        }
+
+        private void ZoomExtents(object sender, RoutedEventArgs e) {
+            var cache = new Dictionary<TopMostGroup3D, bool>();
+            foreach (var item in Viewport3D.Items) {
+                if (item is TopMostGroup3D topMostGroup3D) {
+                    cache[topMostGroup3D] = topMostGroup3D.IsRendering;
+                    topMostGroup3D.IsRendering = false;
+                }
+            }
+
+            Viewport3D.InvalidateRender();
+            Viewport3D.ZoomExtents();
+
+            foreach (var (item, enabled) in cache) {
+                item.IsRendering = enabled;
+            }
+
+            if (Viewport3D.Items.FirstOrDefault(x => x is PointLight3D) is not PointLight3D light) {
+                return;
+            }
+
+            light.Position = Viewport3D.Camera.Position;
         }
     }
 }
