@@ -87,7 +87,7 @@ namespace Equilibrium.Converters {
                                 geometry.Tangents.Add(new Vector3(value.Select(x => (float) x).Take(3).ToArray()));
                                 break;
                             case VertexChannel.Color:
-                                geometry.Colors.Add(new Color4((uint) value[0]));
+                                geometry.Colors.Add(new Color4((uint) (int) value[0]));
                                 break;
                             case VertexChannel.UV0:
                                 geometry.TextureCoordinates.Add(new Vector2(value.Select(x => (float) x).Take(2).ToArray()));
