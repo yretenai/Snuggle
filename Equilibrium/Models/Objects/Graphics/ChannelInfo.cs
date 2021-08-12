@@ -55,7 +55,7 @@ namespace Equilibrium.Models.Objects.Graphics {
                 VertexFormat.UInt16 => 2,
                 VertexFormat.SInt16 => 2,
                 VertexFormat.Single => 4,
-                VertexFormat.Color => 4,
+                VertexFormat.Color => 1,
                 VertexFormat.UInt32 => 4,
                 VertexFormat.SInt32 => 4,
                 _ => 0,

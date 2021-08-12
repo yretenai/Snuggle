@@ -35,7 +35,7 @@ namespace Equilibrium.Models.Objects.Graphics {
             var shapeCount = reader.ReadInt32();
             var shapes = new List<MeshBlendShape>();
             shapes.EnsureCapacity(shapeCount);
-            for (var i = 0; i < shapes.Count; ++i) {
+            for (var i = 0; i < shapeCount; ++i) {
                 shapes.Add(MeshBlendShape.FromReader(reader, file));
             }
 
