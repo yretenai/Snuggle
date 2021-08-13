@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Windows;
@@ -17,11 +18,12 @@ namespace Entropy.Handlers {
 
         public void Log(LogLevel level, string? category, string message, Exception? exception) {
             Context.Post(m => {
-                    if (m is not string msg) {
-                        return;
-                    }
+                    Messages.Add((string) m!);
 
-                    Messages.Add(msg);
+                    while(Messages.Count > 100) {
+                        Messages.RemoveAt(0);
+                    }
+                    
                     OnPropertyChanged();
                 },
                 message);

@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using DragonLib;
+using Equilibrium;
 using Equilibrium.Implementations;
 using Equilibrium.Interfaces;
 using Equilibrium.Options;
@@ -85,11 +86,11 @@ namespace Entropy.Handlers {
                     }
 
                     instance.Collection.CacheGameObjectClassIds();
-
                     instance.Status.Reset();
                     instance.Status.SetStatus("Finding container paths...");
                     instance.Collection.FindAssetContainerNames();
                     instance.Status.SetStatus($"Loaded {instance.Collection.Files.Count} files");
+                    instance.WorkerAction("Collect", _ => AssetCollection.Collect());
                     instance.OnPropertyChanged(nameof(EntropyCore.Objects));
                     instance.OnPropertyChanged(nameof(EntropyCore.Filters));
                 });
@@ -122,9 +123,14 @@ namespace Entropy.Handlers {
 
         private static void ExtractOperation(ImmutableArray<EntropyObject> items, string outputDirectory, ExtractMode mode, CancellationToken token) {
             var instance = EntropyCore.Instance;
+            var done = new HashSet<long>();
             foreach (var entropyObject in items) {
                 if (token.IsCancellationRequested) {
                     break;
+                }
+
+                if (!done.Add(entropyObject.PathId)) {
+                    continue;
                 }
 
                 var serializedObject = entropyObject.GetObject();
@@ -137,19 +143,46 @@ namespace Entropy.Handlers {
                 var resultDir = Path.GetDirectoryName(resultPath) ?? "./";
 
                 switch (mode) {
-                    case ExtractMode.Raw: {
+                    case ExtractMode.Raw:
                         ExtractRaw(serializedObject, resultDir, resultPath);
                         break;
-                    }
                     case ExtractMode.Convert:
-                        throw new NotImplementedException();
-                    case ExtractMode.Serialize: {
+                        ExtractConvert(serializedObject, resultDir, resultPath, done);
+                        break;
+                    case ExtractMode.Serialize:
                         ExtractJson(serializedObject, resultDir, resultPath);
                         break;
-                    }
                     default:
                         throw new NotSupportedException();
                 }
+            }
+        }
+
+        private static void ExtractConvert(SerializedObject serializedObject, string resultDir, string resultPath, HashSet<long> done) {
+            if (serializedObject.ShouldDeserialize) {
+                serializedObject.Deserialize(EntropyCore.Instance.Settings.ObjectOptions);
+            }
+
+            switch (serializedObject) {
+                case Texture2D texture2d: {
+                    if (!Directory.Exists(resultDir)) {
+                        Directory.CreateDirectory(resultDir);
+                    }
+                    EntropyTextureFile.Save(texture2d, resultPath);
+                    return;
+                }
+                // case Mesh mesh: //export mesh
+                //     break;
+                // case MeshFilter filter: // export mesh
+                //     break;
+                // case MeshRenderer renderer: // export mesh
+                //     break;
+                // case SkinnedMeshRenderer skinnedMeshRenderer: // export skeleton
+                //     break;
+                // case Component component: // export game object
+                //     break;
+                // case GameObject gameObject: // export game object
+                //     break;
             }
         }
 

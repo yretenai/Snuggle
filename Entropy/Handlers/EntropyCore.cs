@@ -33,7 +33,7 @@ namespace Entropy.Handlers {
                 Loggers = {
                     new ConsoleLogger(),
                     new DebugLogger(),
-                    Log,
+                    // Log,
                 },
             };
             SetOptions(File.Exists(SettingsFile) ? EntropySettings.FromJson(File.ReadAllText(SettingsFile)) : EntropySettings.Default);
@@ -43,7 +43,7 @@ namespace Entropy.Handlers {
         public Dispatcher Dispatcher { get; set; }
         public AssetCollection Collection { get; } = new();
         public EntropyStatus Status { get; } = new();
-        public EntropyLog Log { get; set; } = new();
+        // public EntropyLog Log { get; set; } = new();
         public ILogger LogTarget { get; }
         public EntropySettings Settings { get; private set; } = EntropySettings.Default;
         public Thread WorkerThread { get; private set; }
@@ -127,9 +127,10 @@ namespace Entropy.Handlers {
             SelectedObject = null;
             Collection.Reset();
             Status.Reset();
-            Log.Clear();
+            // Log.Clear();
             Search = string.Empty;
             Filters.Clear();
+            EntropyTextureFile.ClearMemory();
             if (respawn) {
                 TokenSource = new CancellationTokenSource();
                 WorkerThread = new Thread(WorkLoop);

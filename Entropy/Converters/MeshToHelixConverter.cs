@@ -116,7 +116,7 @@ namespace Entropy.Converters {
                         return;
                     }
 
-                    var meshData = new Dictionary<long, (List<Object3D> submeshes, List<(Texture2D? texture, byte[]? textureData)>)>();
+                    var meshData = new Dictionary<long, (List<Object3D> submeshes, List<(Texture2D? texture, Memory<byte> textureData)>)>();
                     FindGeometryMeshData(gameObject, meshData);
 
                     dispatcher.Invoke(() => {
@@ -142,7 +142,7 @@ namespace Entropy.Converters {
         }
 
         private static void FindGeometryMeshData(GameObject gameObject,
-            IDictionary<long, (List<Object3D> submeshes, List<(Texture2D? texture, byte[]? textureData)>)> meshData) {
+            IDictionary<long, (List<Object3D> submeshes, List<(Texture2D? texture, Memory<byte> textureData)>)> meshData) {
             if (gameObject.FindComponent(UnityClassId.Transform).Value is not Transform transform) {
                 return;
             }
@@ -157,7 +157,7 @@ namespace Entropy.Converters {
                 submeshes = GetSubmeshes(filter.Mesh.Value);
             }
 
-            var textureData = new List<(Texture2D? texture, byte[]? textureData)>();
+            var textureData = new List<(Texture2D? texture, Memory<byte> textureData)>();
             if (gameObject.FindComponent(UnityClassId.MeshRenderer, UnityClassId.SkinnedMeshRenderer).Value is Renderer renderer) {
                 textureData = FindTextureData(renderer.Materials.Select(x => x.Value));
 
@@ -184,7 +184,7 @@ namespace Entropy.Converters {
             }
         }
 
-        private static void AddGameObjectNode(GameObject gameObject, Collection<Element3D> collection, Matrix? parentMatrix, LineBuilder builder, BillboardText3D labels, Dictionary<long, (List<Object3D> submeshes, List<(Texture2D? texture, byte[]? textureData)>)> meshData) {
+        private static void AddGameObjectNode(GameObject gameObject, Collection<Element3D> collection, Matrix? parentMatrix, LineBuilder builder, BillboardText3D labels, Dictionary<long, (List<Object3D> submeshes, List<(Texture2D? texture, Memory<byte> textureData)>)> meshData) {
             if (gameObject.FindComponent(UnityClassId.Transform).Value is not Transform transform) {
                 return;
             }
@@ -258,8 +258,8 @@ namespace Entropy.Converters {
                 });
         }
 
-        private static void BuildSubmeshes(ICollection<Element3D> collection, IReadOnlyList<Object3D> submeshes, IReadOnlyCollection<(Texture2D? texture, byte[]? textureData)>? textures = null) {
-            textures ??= new List<(Texture2D? texture, byte[]? textureData)>();
+        private static unsafe void BuildSubmeshes(ICollection<Element3D> collection, IReadOnlyList<Object3D> submeshes, IReadOnlyCollection<(Texture2D? texture, Memory<byte> textureData)>? textures = null) {
+            textures ??= new List<(Texture2D? texture, Memory<byte> textureData)>();
             for (var index = 0; index < submeshes.Count; index++) {
                 if (index >= submeshes.Count) {
                     break;
@@ -269,8 +269,8 @@ namespace Entropy.Converters {
                 var material3d = new PBRMaterial { AlbedoColor = Color4.White };
                 var (texture, textureData) = textures.ElementAtOrDefault(index);
                 if (texture != null &&
-                    textureData?.Length > 0) {
-                    material3d.AlbedoMap = new TextureModel(textureData, Format.R8G8B8A8_UNorm, texture.Width, texture.Height);
+                    !textureData.IsEmpty) {
+                    material3d.AlbedoMap = new TextureModel((IntPtr) textureData.Pin().Pointer, Format.R8G8B8A8_UNorm, texture.Width, texture.Height);
                 }
 
                 collection.Add(new MeshGeometryModel3D {
@@ -284,8 +284,8 @@ namespace Entropy.Converters {
             }
         }
 
-        private static List<(Texture2D? texture, byte[]? textureData)> FindTextureData(IEnumerable<Material?> materials) {
-            List<(Texture2D? texture, byte[]? textureData)> textures = new();
+        private static List<(Texture2D? texture, Memory<byte> textureData)> FindTextureData(IEnumerable<Material?> materials) {
+            List<(Texture2D? texture, Memory<byte> textureData)> textures = new();
             foreach (var material in materials) {
                 UnityTexEnv? mainTexPtr = null;
                 if (material?.SavedProperties.Textures.TryGetValue("_MainTex", out mainTexPtr) == false) {
@@ -293,15 +293,15 @@ namespace Entropy.Converters {
                 }
 
                 var texture = mainTexPtr?.Texture.Value as Texture2D;
-                byte[]? textureData = null;
+                var textureData = Memory<byte>.Empty;
                 if (texture != null) {
                     if (texture.ShouldDeserialize) {
                         texture.Deserialize(EntropyCore.Instance.Settings.ObjectOptions);
                     }
 
-                    textureData = Texture2DConverter.ToRGBA(texture).ToArray();
+                    textureData = EntropyTextureFile.LoadCachedTexture(texture);
                     for (var i = 0; i < textureData.Length / 4; ++i) { // strip alpha
-                        textureData[i * 4 + 3] = 0xFF;
+                        textureData.Span[i * 4 + 3] = 0xFF;
                     }
                 }
 

@@ -8,6 +8,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using Entropy.Handlers;
 using Entropy.Windows;
+using Equilibrium;
 using Equilibrium.Meta;
 
 namespace Entropy.Components {
@@ -238,7 +239,7 @@ namespace Entropy.Components {
                         file.Free();
                     }
 
-                    GC.Collect();
+                    AssetCollection.Collect();
                 });
         }
 

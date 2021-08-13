@@ -17,7 +17,7 @@ namespace Equilibrium.Converters {
         public static bool SupportsDDS(Texture2D texture) => texture.TextureFormat.CanSupportDDS();
         public static bool SupportsDDSConversion(Texture2D texture) => Environment.OSVersion.Platform == PlatformID.Win32NT && SupportsDDS(texture);
 
-        public static unsafe Span<byte> ToRGBA(Texture2D texture2D) {
+        public static unsafe Memory<byte> ToRGBA(Texture2D texture2D) {
             if (SupportsDDSConversion(texture2D)) {
                 ScratchImage? scratch = null;
                 try {
@@ -40,11 +40,8 @@ namespace Equilibrium.Converters {
                         }
 
                         var image = scratch.GetImage(0);
-                        Span<byte> tex = new byte[image.Width * image.Height * 4];
-                        fixed (byte* texPin = &tex.GetPinnableReference()) {
-                            Buffer.MemoryCopy((void*) image.Pixels, texPin, tex.Length, tex.Length);
-                        }
-
+                        Memory<byte> tex = new byte[image.Width * image.Height * 4];
+                        Buffer.MemoryCopy((void*) image.Pixels, tex.Pin().Pointer, tex.Length, tex.Length);
                         return tex;
                     }
                 } finally {
@@ -54,7 +51,7 @@ namespace Equilibrium.Converters {
                 }
             }
 
-            var textureData = texture2D.TextureData!.Value.Span;
+            var textureData = texture2D.TextureData!.Value.Span.ToArray();
             switch (texture2D.TextureFormat) {
                 case TextureFormat.DXT1Crunched when UnpackCrunch(texture2D.SerializedFile.Version, texture2D.TextureFormat, textureData, out var data): {
                     return DecodeDXT1(texture2D.Width, texture2D.Height, data);
@@ -122,88 +119,88 @@ namespace Equilibrium.Converters {
                 }
             }
 
-            return Span<byte>.Empty;
+            return Memory<byte>.Empty;
         }
 
-        private static bool UnpackCrunch(UnityVersion unityVersion, TextureFormat textureFormat, Span<byte> crunchedData, out Span<byte> data) {
+        private static bool UnpackCrunch(UnityVersion unityVersion, TextureFormat textureFormat, byte[] crunchedData, out byte[] data) {
             if (unityVersion >= UnityVersionRegister.Unity2017_3 ||
                 textureFormat is TextureFormat.ETC_RGB4Crunched or TextureFormat.ETC2_RGBA8Crunched) {
-                data = TextureDecoder.UnpackUnityCrunch(crunchedData.ToArray());
+                data = TextureDecoder.UnpackUnityCrunch(crunchedData);
             } else {
-                data = TextureDecoder.UnpackCrunch(crunchedData.ToArray());
+                data = TextureDecoder.UnpackCrunch(crunchedData);
             }
 
             return data != null;
         }
 
-        private static Span<byte> DecodeDXT1(int width, int height, Span<byte> data) {
+        private static Memory<byte> DecodeDXT1(int width, int height, byte[] data) {
             var buff = new byte[width * height * 4];
-            return !TextureDecoder.DecodeDXT1(data.ToArray(), width, height, buff) ? Span<byte>.Empty : buff;
+            return !TextureDecoder.DecodeDXT1(data, width, height, buff) ? Memory<byte>.Empty : buff;
         }
 
-        private static Span<byte> DecodeDXT5(int width, int height, Span<byte> data) {
+        private static Memory<byte> DecodeDXT5(int width, int height, byte[] data) {
             var buff = new byte[width * height * 4];
-            return !TextureDecoder.DecodeDXT5(data.ToArray(), width, height, buff) ? Span<byte>.Empty : buff;
+            return !TextureDecoder.DecodeDXT5(data, width, height, buff) ? Memory<byte>.Empty : buff;
         }
 
-        private static Span<byte> DecodePVRTC(bool is2bpp, int width, int height, Span<byte> data) {
+        private static Memory<byte> DecodePVRTC(bool is2bpp, int width, int height, byte[] data) {
             var buff = new byte[width * height * 4];
-            return !TextureDecoder.DecodePVRTC(data.ToArray(), width, height, buff, is2bpp) ? Span<byte>.Empty : buff;
+            return !TextureDecoder.DecodePVRTC(data, width, height, buff, is2bpp) ? Memory<byte>.Empty : buff;
         }
 
-        private static Span<byte> DecodeETC1(int width, int height, Span<byte> data) {
+        private static Memory<byte> DecodeETC1(int width, int height, byte[] data) {
             var buff = new byte[width * height * 4];
-            return !TextureDecoder.DecodeETC1(data.ToArray(), width, height, buff) ? Span<byte>.Empty : buff;
+            return !TextureDecoder.DecodeETC1(data, width, height, buff) ? Memory<byte>.Empty : buff;
         }
 
-        private static Span<byte> DecodeATCRGB4(int width, int height, Span<byte> data) {
+        private static Memory<byte> DecodeATCRGB4(int width, int height, byte[] data) {
             var buff = new byte[width * height * 4];
-            return !TextureDecoder.DecodeATCRGB4(data.ToArray(), width, height, buff) ? Span<byte>.Empty : buff;
+            return !TextureDecoder.DecodeATCRGB4(data, width, height, buff) ? Memory<byte>.Empty : buff;
         }
 
-        private static Span<byte> DecodeATCRGBA8(int width, int height, Span<byte> data) {
+        private static Memory<byte> DecodeATCRGBA8(int width, int height, byte[] data) {
             var buff = new byte[width * height * 4];
-            return !TextureDecoder.DecodeATCRGBA8(data.ToArray(), width, height, buff) ? Span<byte>.Empty : buff;
+            return !TextureDecoder.DecodeATCRGBA8(data, width, height, buff) ? Memory<byte>.Empty : buff;
         }
 
-        private static Span<byte> DecodeEACR(int width, int height, Span<byte> data) {
+        private static Memory<byte> DecodeEACR(int width, int height, byte[] data) {
             var buff = new byte[width * height * 4];
-            return !TextureDecoder.DecodeEACR(data.ToArray(), width, height, buff) ? Span<byte>.Empty : buff;
+            return !TextureDecoder.DecodeEACR(data, width, height, buff) ? Memory<byte>.Empty : buff;
         }
 
-        private static Span<byte> DecodeEACRSigned(int width, int height, Span<byte> data) {
+        private static Memory<byte> DecodeEACRSigned(int width, int height, byte[] data) {
             var buff = new byte[width * height * 4];
-            return !TextureDecoder.DecodeEACRSigned(data.ToArray(), width, height, buff) ? Span<byte>.Empty : buff;
+            return !TextureDecoder.DecodeEACRSigned(data, width, height, buff) ? Memory<byte>.Empty : buff;
         }
 
-        private static Span<byte> DecodeEACRG(int width, int height, Span<byte> data) {
+        private static Memory<byte> DecodeEACRG(int width, int height, byte[] data) {
             var buff = new byte[width * height * 4];
-            return !TextureDecoder.DecodeEACRG(data.ToArray(), width, height, buff) ? Span<byte>.Empty : buff;
+            return !TextureDecoder.DecodeEACRG(data, width, height, buff) ? Memory<byte>.Empty : buff;
         }
 
-        private static Span<byte> DecodeEACRGSigned(int width, int height, Span<byte> data) {
+        private static Memory<byte> DecodeEACRGSigned(int width, int height, byte[] data) {
             var buff = new byte[width * height * 4];
-            return !TextureDecoder.DecodeEACRGSigned(data.ToArray(), width, height, buff) ? Span<byte>.Empty : buff;
+            return !TextureDecoder.DecodeEACRGSigned(data, width, height, buff) ? Memory<byte>.Empty : buff;
         }
 
-        private static Span<byte> DecodeETC2(int width, int height, Span<byte> data) {
+        private static Memory<byte> DecodeETC2(int width, int height, byte[] data) {
             var buff = new byte[width * height * 4];
-            return !TextureDecoder.DecodeETC2(data.ToArray(), width, height, buff) ? Span<byte>.Empty : buff;
+            return !TextureDecoder.DecodeETC2(data, width, height, buff) ? Memory<byte>.Empty : buff;
         }
 
-        private static Span<byte> DecodeETC2A1(int width, int height, Span<byte> data) {
+        private static Memory<byte> DecodeETC2A1(int width, int height, byte[] data) {
             var buff = new byte[width * height * 4];
-            return !TextureDecoder.DecodeETC2A1(data.ToArray(), width, height, buff) ? Span<byte>.Empty : buff;
+            return !TextureDecoder.DecodeETC2A1(data, width, height, buff) ? Memory<byte>.Empty : buff;
         }
 
-        private static Span<byte> DecodeETC2A8(int width, int height, Span<byte> data) {
+        private static Memory<byte> DecodeETC2A8(int width, int height, byte[] data) {
             var buff = new byte[width * height * 4];
-            return !TextureDecoder.DecodeETC2A8(data.ToArray(), width, height, buff) ? Span<byte>.Empty : buff;
+            return !TextureDecoder.DecodeETC2A8(data, width, height, buff) ? Memory<byte>.Empty : buff;
         }
 
-        private static Span<byte> DecodeASTC(int blocksize, int width, int height, Span<byte> data) {
+        private static Memory<byte> DecodeASTC(int blocksize, int width, int height, byte[] data) {
             var buff = new byte[width * height * 4];
-            return !TextureDecoder.DecodeASTC(data.ToArray(), width, height, blocksize, blocksize, buff) ? Span<byte>.Empty : buff;
+            return !TextureDecoder.DecodeASTC(data, width, height, blocksize, blocksize, buff) ? Memory<byte>.Empty : buff;
         }
 
         public static Span<byte> ToDDS(Texture2D texture) {

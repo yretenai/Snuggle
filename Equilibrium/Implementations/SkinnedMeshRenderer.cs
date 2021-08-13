@@ -31,7 +31,9 @@ namespace Equilibrium.Implementations {
 
             RootBone = PPtr<Transform>.FromReader(reader, SerializedFile);
             AABB = reader.ReadStruct<AABB>();
+            
             DirtyAABB = reader.ReadBoolean();
+            reader.Align();
         }
 
         public SkinnedMeshRenderer(UnityObjectInfo info, SerializedFile serializedFile) : base(info, serializedFile) {

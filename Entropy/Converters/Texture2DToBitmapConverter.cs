@@ -22,8 +22,8 @@ namespace Entropy.Converters {
                         texture.Deserialize(EntropyCore.Instance.Settings.ObjectOptions);
                     }
 
-                    var span = Texture2DConverter.ToRGBA(texture).ToArray();
-                    return span.Length == 0 ? null : dispatcher.Invoke(() => new RGBABitmapSource(span, texture.Width, texture.Height));
+                    var memory = EntropyTextureFile.LoadCachedTexture(texture);
+                    return memory.IsEmpty ? null : dispatcher.Invoke(() => new RGBABitmapSource(memory, texture.Width, texture.Height));
                 });
         }
 

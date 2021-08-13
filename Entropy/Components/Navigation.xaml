@@ -61,9 +61,9 @@
                 <MenuItem Header="_Light Mode" IsCheckable="True" Click="ToggleLightMode" x:Name="LightMode" />
                 <MenuItem Header="_Color" x:Name="PrimaryColor" />
             </MenuItem>
-            <Separator />
-            <MenuItem Header="Open _Debug Log" Click="OpenLog" />
-            <MenuItem Header="Open GameObject Tree" />
+            <!-- <Separator /> -->
+            <!-- <MenuItem Header="Open _Debug Log" Click="OpenLog" /> -->
+            <!-- <MenuItem Header="Open GameObject Tree" /> -->
         </MenuItem>
         <MenuItem Header="_Filter" x:Name="Filters" />
         <MenuItem>

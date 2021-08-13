@@ -8,8 +8,8 @@ namespace Entropy {
         private readonly int BackingPixelHeight;
         private readonly int BackingPixelWidth;
 
-        public RGBABitmapSource(Span<byte> rgbaBuffer, int pixelWidth, int pixelHeight) {
-            Buffer = rgbaBuffer.ToArray();
+        public RGBABitmapSource(Memory<byte> rgbaBuffer, int pixelWidth, int pixelHeight) {
+            Buffer = rgbaBuffer;
             BackingPixelWidth = pixelWidth;
             BackingPixelHeight = pixelHeight;
         }
@@ -24,7 +24,7 @@ namespace Entropy {
             HideAlpha = rgba.HideAlpha;
         }
 
-        private byte[] Buffer { get; }
+        private Memory<byte> Buffer { get; }
 
         public bool HideRed { get; set; }
         public bool HideGreen { get; set; }
@@ -46,13 +46,14 @@ namespace Entropy {
         public override double Height => BackingPixelHeight;
 
         public override void CopyPixels(Int32Rect sourceRect, Array pixels, int stride, int offset) {
+            var span = Buffer.Span;
             for (var y = sourceRect.Y; y < sourceRect.Y + sourceRect.Height; y++) {
                 for (var x = sourceRect.X; x < sourceRect.X + sourceRect.Width; x++) {
                     var i = stride * y + 4 * x;
-                    var a = HideAlpha ? (byte) 0xFF : Buffer[i + 3];
-                    var r = HideRed ? (byte) 0 : (byte) (Buffer[i] * a / 0xFF);
-                    var g = HideGreen ? (byte) 0 : (byte) (Buffer[i + 1] * a / 0xFF);
-                    var b = HideBlue ? (byte) 0 : (byte) (Buffer[i + 2] * a / 0xFF);
+                    var a = HideAlpha ? (byte) 0xFF : span[i + 3];
+                    var r = HideRed ? (byte) 0 : (byte) (span[i] * a / 0xFF);
+                    var g = HideGreen ? (byte) 0 : (byte) (span[i + 1] * a / 0xFF);
+                    var b = HideBlue ? (byte) 0 : (byte) (span[i + 2] * a / 0xFF);
 
                     pixels.SetValue(b, i + offset);
                     pixels.SetValue(g, i + offset + 1);

@@ -39,7 +39,7 @@ namespace Entropy.Components.Renderers {
                     MeshToHelixConverter.ConvertMesh(meshObject, Dispatcher.CurrentDispatcher, Viewport3D.Items);
                     break;
                 case Component component:
-                    DataContext = component.GameObject.Value;
+                    MeshToHelixConverter.ConvertGameObjectTree(component.GameObject.Value, Dispatcher.CurrentDispatcher, Viewport3D.Items);
                     break;
                 case GameObject gameObject:
                     MeshToHelixConverter.ConvertGameObjectTree(gameObject, Dispatcher.CurrentDispatcher, Viewport3D.Items);

@@ -44,9 +44,7 @@ namespace Equilibrium {
             Assemblies.Clear();
             Files.Clear();
             Resources.Clear();
-
-            Utils.ClearPool();
-            GC.Collect();
+            Collect();
         }
 
         public void LoadBundle(Bundle bundle) {
@@ -156,10 +154,12 @@ namespace Equilibrium {
                 if (!leaveOpen) {
                     dataStream.Close();
                 }
-
-                Utils.ClearPool();
-                GC.Collect();
             }
+        }
+
+        public static void Collect() {
+            Utils.ClearPool();
+            GC.Collect();
         }
 
         public void LoadAssembly(Stream dataStream, string assemblyLocation, EquilibriumOptions options, bool leaveOpen = false) {
