@@ -91,8 +91,8 @@ namespace Equilibrium.Converters {
 
                 var last = streamChannels.Max(x => x.Offset);
                 var lastInfo = streamChannels.First(x => x.Offset == last);
-                var stride = last + lastInfo.GetSize();
-                var length = mesh.VertexData.VertexCount * stride;
+                strides[index] = last + lastInfo.GetSize();
+                var length = mesh.VertexData.VertexCount * strides[index];
                 vbos[index] = fullBuffer.Slice(offset, (int) length);
                 offset = (int) (offset + length).Align(16);
             }
