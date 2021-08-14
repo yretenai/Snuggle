@@ -30,10 +30,9 @@ namespace Entropy.Converters {
                 throw new IncompleteDeserializationException();
             }
 
-            var vertexStream = MeshConverter.GetVBO(mesh, out var descriptors);
+            var vertexStream = MeshConverter.GetVBO(mesh, out var descriptors, out var strides);
             var indexStream = MeshConverter.GetIBO(mesh);
-            var strides = MeshConverter.GetStrides(mesh, descriptors);
-
+            
             var objects = new List<Object3D>();
             for (var index = 0; index < mesh.Submeshes.Count; index++) {
                 var submesh = mesh.Submeshes[index];
@@ -60,9 +59,9 @@ namespace Entropy.Converters {
                 geometry.TextureCoordinates.EnsureCapacity(submesh.VertexCount);
                 for (var i = 0; i < submesh.VertexCount; ++i) {
                     foreach (var (channel, info) in descriptors) {
-                        var (streamOffset, stride) = strides[info.Stream];
-                        var offset = (submesh.FirstVertex + i) * stride + streamOffset;
-                        var data = vertexStream[(offset + info.Offset)..].Span;
+                        var stride = strides[info.Stream];
+                        var offset = (submesh.FirstVertex + i) * stride;
+                        var data = vertexStream[info.Stream][(offset + info.Offset)..].Span;
                         if (info.Dimension == VertexDimension.None) {
                             continue;
                         }

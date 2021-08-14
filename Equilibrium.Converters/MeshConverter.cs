@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -8,30 +7,11 @@ using DragonLib;
 using Equilibrium.Exceptions;
 using Equilibrium.Implementations;
 using Equilibrium.Models.Objects.Graphics;
-using Equilibrium.Models.Objects.Math;
 using JetBrains.Annotations;
 
 namespace Equilibrium.Converters {
     [PublicAPI]
     public static class MeshConverter {
-        public static List<StrideInfo> GetStrides(Mesh mesh, Dictionary<VertexChannel, ChannelInfo> descriptors) {
-            var strideInfos = new List<StrideInfo>();
-            var streamCount = descriptors.Max(x => x.Value.Stream) + 1;
-            strideInfos.EnsureCapacity(streamCount);
-
-            var offset = 0;
-            for (var i = 0; i < streamCount; ++i) {
-                var channels = descriptors.Values.Where(x => x.Stream == i && x.Dimension != VertexDimension.None).ToArray();
-                var last = channels.Max(x => x.Offset);
-                var lastInfo = channels.First(x => x.Offset == last);
-                var stride = last + lastInfo.GetSize();
-                strideInfos.Add(new StrideInfo(offset, stride));
-                offset = (int) (offset + mesh.VertexData.VertexCount * stride).Align(16);
-            }
-
-            return strideInfos;
-        }
-
         private static Dictionary<int, int> CreateBoneHierarchy(Mesh mesh, Renderer? renderer) {
             var bones = new Dictionary<int, int>();
             if (renderer == null) {
@@ -86,17 +66,38 @@ namespace Equilibrium.Converters {
             return bones;
         }
 
-        public static Memory<byte> GetVBO(Mesh mesh, out Dictionary<VertexChannel, ChannelInfo> channels) {
+        public static Memory<byte>[] GetVBO(Mesh mesh, out Dictionary<VertexChannel, ChannelInfo> channels, out int[] strides) {
             if (mesh.ShouldDeserialize) {
                 throw new IncompleteDeserializationException();
             }
 
+            Memory<byte> fullBuffer;
             if (mesh.MeshCompression == 0) {
                 channels = mesh.VertexData.Channels;
-                return mesh.VertexData.Data!.Value;
+                fullBuffer = mesh.VertexData.Data!.Value;
+            } else {
+                fullBuffer = mesh.CompressedMesh.Decompress(mesh.VertexData.VertexCount, out channels);
             }
 
-            return mesh.CompressedMesh.Decompress(mesh.VertexData.VertexCount, out channels);
+            var streamCount = channels.Max(x => x.Value.Stream) + 1;
+            strides = new int[streamCount];
+            var vbos = new Memory<byte>[streamCount];
+            var offset = 0;
+            for (var index = 0; index < streamCount; index++) {
+                var streamChannels = channels.Values.Where(x => x.Stream == index && x.Dimension != VertexDimension.None).ToArray();
+                if (streamChannels.Length == 0) {
+                    continue;
+                }
+
+                var last = streamChannels.Max(x => x.Offset);
+                var lastInfo = streamChannels.First(x => x.Offset == last);
+                var stride = last + lastInfo.GetSize();
+                var length = mesh.VertexData.VertexCount * stride;
+                vbos[index] = fullBuffer.Slice(offset, (int) length);
+                offset = (int) (offset + length).Align(16);
+            }
+
+            return vbos;
         }
 
         public static Memory<byte> GetIBO(Mesh mesh) {
@@ -113,7 +114,5 @@ namespace Equilibrium.Converters {
             var triangles = mesh.CompressedMesh.Triangles.Decompress();
             return MemoryMarshal.Cast<int, byte>(triangles).ToArray();
         }
-
-        public readonly record struct StrideInfo(int Offset, int Stride);
     }
 }
