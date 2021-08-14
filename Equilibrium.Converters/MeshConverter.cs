@@ -1,11 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using DragonLib;
 using Equilibrium.Exceptions;
 using Equilibrium.Implementations;
 using Equilibrium.Models.Objects.Graphics;
+using Equilibrium.Models.Objects.Math;
 using JetBrains.Annotations;
 
 namespace Equilibrium.Converters {
@@ -18,7 +21,7 @@ namespace Equilibrium.Converters {
 
             var offset = 0;
             for (var i = 0; i < streamCount; ++i) {
-                var channels = descriptors.Values.Where(x => x.Stream == (byte) i && x.Dimension != VertexDimension.None).ToArray();
+                var channels = descriptors.Values.Where(x => x.Stream == i && x.Dimension != VertexDimension.None).ToArray();
                 var last = channels.Max(x => x.Offset);
                 var lastInfo = channels.First(x => x.Offset == last);
                 var stride = last + lastInfo.GetSize();
@@ -93,8 +96,7 @@ namespace Equilibrium.Converters {
                 return mesh.VertexData.Data!.Value;
             }
 
-            // TODO: Decompress mesh?
-            throw new NotImplementedException();
+            return mesh.CompressedMesh.Decompress(mesh.VertexData.VertexCount, out channels);
         }
 
         public static Memory<byte> GetIBO(Mesh mesh) {
@@ -106,8 +108,10 @@ namespace Equilibrium.Converters {
                 return mesh.Indices!.Value;
             }
 
-            // TODO: Decompress mesh?
-            throw new NotImplementedException();
+            mesh.IndexFormat = IndexFormat.Uint32;
+
+            var triangles = mesh.CompressedMesh.Triangles.Decompress();
+            return MemoryMarshal.Cast<int, byte>(triangles).ToArray();
         }
 
         public readonly record struct StrideInfo(int Offset, int Stride);

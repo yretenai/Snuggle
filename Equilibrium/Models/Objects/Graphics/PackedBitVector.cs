@@ -13,7 +13,7 @@ namespace Equilibrium.Models.Objects.Graphics {
         uint Count,
         byte BitSize) {
         private long DataStart { get; init; } = -1;
-        public float Range { get; init; }
+        public float Range { get; init; } = 1.0f;
         public float Start { get; init; }
         public bool HasRange { get; init; }
 
@@ -64,6 +64,88 @@ namespace Equilibrium.Models.Objects.Graphics {
             reader.BaseStream.Seek(DataStart, SeekOrigin.Begin);
             var dataCount = reader.ReadInt32();
             Data = reader.ReadMemory(dataCount);
+        }
+
+        // code taken from AssetStudio, with some edits
+        public Span<int> Decompress(uint? count = null, int offset = 0) {
+            count ??= Count;
+            if (count > Count) {
+                throw new ArgumentOutOfRangeException(nameof(count));
+            }
+
+            if (offset < 0 || count + offset > Count) {
+                throw new ArgumentOutOfRangeException(nameof(offset));
+            }
+
+            if (count == 0) {
+                return Span<int>.Empty;
+            }
+
+            var data = new int[count.Value];
+            var bitPos = BitSize * offset;
+            var indexPos = bitPos / 8;
+            var memory = Data!.Value.Span;
+            for (var i = offset; i < count + offset; i++) {
+                var bits = 0;
+                data[i] = 0;
+                while (bits < BitSize) {
+                    data[i] |= (memory[indexPos] >> bitPos) << bits;
+
+                    var num = System.Math.Min(BitSize - bits, 8 - bitPos);
+                    bitPos += num;
+                    bits += num;
+
+                    if (bitPos == 8) {
+                        indexPos++;
+                        bitPos = 0;
+                    }
+                }
+
+                data[i] &= (1 << BitSize) - 1;
+            }
+
+            return data;
+        }
+
+        // same as Decompress
+        public Span<float> DecompressSingle(uint? count, int offset = 0) {
+            count ??= Count;
+            if (count > Count) {
+                throw new ArgumentOutOfRangeException(nameof(count));
+            }
+
+            if (offset < 0 || count + offset > Count) {
+                throw new ArgumentOutOfRangeException(nameof(offset));
+            }
+
+            if (count == 0) {
+                return Span<float>.Empty;
+            }
+
+            var data = new float[count.Value];
+            var bitPos = BitSize * offset;
+            var indexPos = bitPos / 8;
+            var memory = Data!.Value.Span;
+            var scale = 1.0f / Range;
+            for (var i = offset; i < count + offset; i++) {
+                var x = 0u;
+                var bits = 0;
+                while (bits < BitSize) {
+                    x |= (uint) ((memory[indexPos] >> bitPos) << bits);
+                    var num = System.Math.Min(BitSize - bits, 8 - bitPos);
+                    bitPos += num;
+                    bits += num;
+                    if (bitPos == 8) {
+                        indexPos++;
+                        bitPos = 0;
+                    }
+                }
+
+                x &= (uint) (1 << BitSize) - 1u;
+                data[i] = (x / (scale * ((1 << BitSize) - 1)) + Start);
+            }
+
+            return data;
         }
     }
 }

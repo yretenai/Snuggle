@@ -8,11 +8,11 @@ using JetBrains.Annotations;
 namespace Equilibrium.Models.Objects.Graphics {
     [PublicAPI]
     public record ChannelInfo(
-        byte Stream,
-        byte Offset,
+        int Stream,
+        int Offset,
         VertexFormat Format,
         VertexDimension Dimension,
-        byte ExtraData) {
+        int ExtraData) {
         public static ChannelInfo Default { get; } = new(0, 0, VertexFormat.Single, VertexDimension.None, 0);
 
         public static ChannelInfo FromReader(BiEndianBinaryReader reader, SerializedFile file) {
@@ -33,14 +33,14 @@ namespace Equilibrium.Models.Objects.Graphics {
             }
 
             var dimension = reader.ReadByte();
-            return new ChannelInfo(stream, offset, format, (VertexDimension) (dimension & 0xF), (byte) (dimension & 0xF0));
+            return new ChannelInfo(stream, offset, format, (VertexDimension) (dimension & 0xF), dimension & ~0xF);
         }
 
         public void ToWriter(BiEndianBinaryWriter writer, SerializedFile serializedFile, UnityVersion targetVersion) {
-            writer.Write(Stream);
-            writer.Write(Offset);
+            writer.Write((byte) Stream);
+            writer.Write((byte) Offset);
             writer.Write((byte) Format);
-            writer.Write((byte) (((byte) Dimension | ExtraData) & 0xFF));
+            writer.Write((byte) (((int) Dimension | ExtraData) & 0xFF));
         }
 
         public int GetSize() {
