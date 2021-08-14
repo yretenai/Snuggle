@@ -23,7 +23,7 @@ namespace Equilibrium.Implementations {
             }
 
             reader.Align();
-            
+
             CustomRenderQueue = reader.ReadInt32();
 
             if (SerializedFile.Version >= UnityVersionRegister.Unity5_1) {
@@ -58,7 +58,7 @@ namespace Equilibrium.Implementations {
             ShaderKeywords = string.Empty;
             SavedProperties = UnityPropertySheet.Default;
         }
-        
+
         public PPtr<SerializedObject> Shader { get; set; }
         public string ShaderKeywords { get; set; }
         public uint LightmapFlags { get; set; }

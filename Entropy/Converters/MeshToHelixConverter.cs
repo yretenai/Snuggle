@@ -32,7 +32,7 @@ namespace Entropy.Converters {
 
             var vertexStream = MeshConverter.GetVBO(mesh, out var descriptors, out var strides);
             var indexStream = MeshConverter.GetIBO(mesh);
-            
+
             var objects = new List<Object3D>();
             for (var index = 0; index < mesh.Submeshes.Count; index++) {
                 var submesh = mesh.Submeshes[index];

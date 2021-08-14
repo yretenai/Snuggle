@@ -42,7 +42,9 @@ namespace Entropy.Handlers {
 
         public Dispatcher Dispatcher { get; set; }
         public AssetCollection Collection { get; } = new();
+
         public EntropyStatus Status { get; } = new();
+
         // public EntropyLog Log { get; set; } = new();
         public ILogger LogTarget { get; }
         public EntropySettings Settings { get; private set; } = EntropySettings.Default;

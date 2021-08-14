@@ -80,10 +80,10 @@ namespace Entropy.Components {
             if (!string.IsNullOrWhiteSpace(EntropyCore.Instance.Search)) {
                 var value = EntropyCore.Instance.Search;
                 if (!(entropyObject.PathId.ToString().Contains(value, StringComparison.InvariantCultureIgnoreCase) ||
-                    entropyObject.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase) ||
-                    entropyObject.Container.Contains(value, StringComparison.InvariantCultureIgnoreCase) ||
-                    entropyObject.SerializedName.Contains(value, StringComparison.InvariantCultureIgnoreCase) ||
-                    entropyObject.ClassId.ToString()?.Contains(value, StringComparison.InvariantCultureIgnoreCase) == true)) {
+                      entropyObject.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase) ||
+                      entropyObject.Container.Contains(value, StringComparison.InvariantCultureIgnoreCase) ||
+                      entropyObject.SerializedName.Contains(value, StringComparison.InvariantCultureIgnoreCase) ||
+                      entropyObject.ClassId.ToString()?.Contains(value, StringComparison.InvariantCultureIgnoreCase) == true)) {
                     return false;
                 }
             }

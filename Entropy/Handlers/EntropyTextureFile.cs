@@ -19,7 +19,8 @@ namespace Entropy.Handlers {
         }
 
         public static void Save(Texture2D texture, string path) {
-            if (!EntropyCore.Instance.Settings.WriteNativeTextures || !SaveNative(texture, path)) {
+            if (!EntropyCore.Instance.Settings.WriteNativeTextures ||
+                !SaveNative(texture, path)) {
                 SavePNG(texture, path);
             }
         }

@@ -31,7 +31,7 @@ namespace Equilibrium.Implementations {
 
             RootBone = PPtr<Transform>.FromReader(reader, SerializedFile);
             AABB = reader.ReadStruct<AABB>();
-            
+
             DirtyAABB = reader.ReadBoolean();
             reader.Align();
         }

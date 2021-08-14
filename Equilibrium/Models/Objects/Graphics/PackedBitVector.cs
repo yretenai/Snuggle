@@ -73,7 +73,8 @@ namespace Equilibrium.Models.Objects.Graphics {
                 throw new ArgumentOutOfRangeException(nameof(count));
             }
 
-            if (offset < 0 || count + offset > Count) {
+            if (offset < 0 ||
+                count + offset > Count) {
                 throw new ArgumentOutOfRangeException(nameof(offset));
             }
 
@@ -114,7 +115,8 @@ namespace Equilibrium.Models.Objects.Graphics {
                 throw new ArgumentOutOfRangeException(nameof(count));
             }
 
-            if (offset < 0 || count + offset > Count) {
+            if (offset < 0 ||
+                count + offset > Count) {
                 throw new ArgumentOutOfRangeException(nameof(offset));
             }
 
@@ -142,7 +144,7 @@ namespace Equilibrium.Models.Objects.Graphics {
                 }
 
                 x &= (uint) (1 << BitSize) - 1u;
-                data[i] = (x / (scale * ((1 << BitSize) - 1)) + Start);
+                data[i] = x / (scale * ((1 << BitSize) - 1)) + Start;
             }
 
             return data;

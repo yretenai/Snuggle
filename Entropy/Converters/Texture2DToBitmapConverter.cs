@@ -6,7 +6,6 @@ using System.Windows.Markup;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using Entropy.Handlers;
-using Equilibrium.Converters;
 using Equilibrium.Implementations;
 
 namespace Entropy.Converters {

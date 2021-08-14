@@ -168,6 +168,7 @@ namespace Entropy.Handlers {
                     if (!Directory.Exists(resultDir)) {
                         Directory.CreateDirectory(resultDir);
                     }
+
                     EntropyTextureFile.Save(texture2d, resultPath);
                     return;
                 }
