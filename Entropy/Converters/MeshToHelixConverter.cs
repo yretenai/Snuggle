@@ -25,7 +25,7 @@ using Transform = Equilibrium.Implementations.Transform;
 
 namespace Entropy.Converters {
     public static class MeshToHelixConverter {
-        public static List<Object3D> GetSubmeshes(Mesh mesh) {
+        private static List<Object3D> GetSubmeshes(Mesh mesh) {
             if (mesh.ShouldDeserialize) {
                 throw new IncompleteDeserializationException();
             }
@@ -68,7 +68,6 @@ namespace Entropy.Converters {
 
                         var value = info.Unpack(ref data);
                         var floatValues = value.Select(Convert.ToSingle).Concat(new float[4]);
-                        var uintValues = value.Select(Convert.ToUInt32).Concat(new uint[4]);
                         switch (channel) {
                             case VertexChannel.Vertex:
                                 geometry.Positions.Add(new Vector3(floatValues.Take(3).ToArray()));
@@ -80,7 +79,7 @@ namespace Entropy.Converters {
                                 geometry.Tangents.Add(new Vector3(floatValues.Take(3).ToArray()));
                                 break;
                             case VertexChannel.Color:
-                                geometry.Colors.Add(new Color4(uintValues.ElementAt(0)));
+                                geometry.Colors.Add(new Color4(floatValues.Take(4).ToArray()));
                                 break;
                             case VertexChannel.UV0:
                                 geometry.TextureCoordinates.Add(new Vector2(floatValues.Take(2).ToArray()));
@@ -110,7 +109,7 @@ namespace Entropy.Converters {
         public static void ConvertGameObjectTree(GameObject? gameObject, Dispatcher dispatcher, Collection<Element3D> collection) {
             EntropyCore.Instance.WorkerAction("DecodeGeometryHelix",
                 _ => {
-                    gameObject = FindTopGeometry(gameObject);
+                    gameObject = EntropyMeshFile.FindTopGeometry(gameObject);
                     if (gameObject == null) {
                         return;
                     }
@@ -215,20 +214,6 @@ namespace Entropy.Converters {
                 }
 
                 AddGameObjectNode(child.Value.GameObject.Value, collection, matrix, builder, labels, meshData);
-            }
-        }
-
-        private static GameObject? FindTopGeometry(GameObject? gameObject) {
-            while (true) {
-                if (gameObject?.FindComponent(UnityClassId.Transform).Value is not Transform transform) {
-                    return null;
-                }
-
-                if (transform.Parent.Value?.GameObject.Value == null) {
-                    return gameObject;
-                }
-
-                gameObject = transform.Parent.Value.GameObject.Value;
             }
         }
 

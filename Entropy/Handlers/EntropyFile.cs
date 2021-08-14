@@ -123,14 +123,9 @@ namespace Entropy.Handlers {
 
         private static void ExtractOperation(ImmutableArray<EntropyObject> items, string outputDirectory, ExtractMode mode, CancellationToken token) {
             var instance = EntropyCore.Instance;
-            var done = new HashSet<long>();
             foreach (var entropyObject in items) {
                 if (token.IsCancellationRequested) {
                     break;
-                }
-
-                if (!done.Add(entropyObject.PathId)) {
-                    continue;
                 }
 
                 var serializedObject = entropyObject.GetObject();
@@ -147,7 +142,7 @@ namespace Entropy.Handlers {
                         ExtractRaw(serializedObject, resultDir, resultPath);
                         break;
                     case ExtractMode.Convert:
-                        ExtractConvert(serializedObject, resultDir, resultPath, done);
+                        ExtractConvert(serializedObject, resultDir, resultPath);
                         break;
                     case ExtractMode.Serialize:
                         ExtractJson(serializedObject, resultDir, resultPath);
@@ -158,7 +153,7 @@ namespace Entropy.Handlers {
             }
         }
 
-        private static void ExtractConvert(SerializedObject serializedObject, string resultDir, string resultPath, HashSet<long> done) {
+        private static void ExtractConvert(SerializedObject serializedObject, string resultDir, string resultPath) {
             if (serializedObject.ShouldDeserialize) {
                 serializedObject.Deserialize(EntropyCore.Instance.Settings.ObjectOptions);
             }
@@ -172,18 +167,30 @@ namespace Entropy.Handlers {
                     EntropyTextureFile.Save(texture2d, resultPath);
                     return;
                 }
-                // case Mesh mesh: //export mesh
-                //     break;
-                // case MeshFilter filter: // export mesh
-                //     break;
-                // case MeshRenderer renderer: // export mesh
-                //     break;
-                // case SkinnedMeshRenderer skinnedMeshRenderer: // export skeleton
-                //     break;
-                // case Component component: // export game object
-                //     break;
-                // case GameObject gameObject: // export game object
-                //     break;
+                case Mesh mesh: {
+                    if (!Directory.Exists(resultDir)) {
+                        Directory.CreateDirectory(resultDir);
+                    }
+
+                    EntropyMeshFile.Save(mesh, resultPath);
+                    return;
+                }
+                case Component component: {
+                    if (!Directory.Exists(resultDir)) {
+                        Directory.CreateDirectory(resultDir);
+                    }
+
+                    EntropyMeshFile.Save(component, resultPath);
+                    return;
+                }
+                case GameObject gameObject: {
+                    if (!Directory.Exists(resultDir)) {
+                        Directory.CreateDirectory(resultDir);
+                    }
+
+                    EntropyMeshFile.Save(gameObject, resultPath);
+                    return;
+                }
             }
         }
 

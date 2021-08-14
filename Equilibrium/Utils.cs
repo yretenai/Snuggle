@@ -88,5 +88,14 @@ namespace Equilibrium {
                 BytePool.Return(inPool);
             }
         }
+
+        public static float[] UnwrapRGBA(uint rgba) {
+            return new[] {
+                (rgba & 0xFF) / (float) 0xFF,
+                ((rgba >> 8) & 0xFF) / (float) 0xFF,
+                ((rgba >> 16) & 0xFF) / (float) 0xFF,
+                ((rgba >> 24) & 0xFF) / (float) 0xFF,
+            };
+        }
     }
 }

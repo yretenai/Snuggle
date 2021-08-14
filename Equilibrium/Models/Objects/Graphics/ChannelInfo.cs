@@ -66,19 +66,19 @@ namespace Equilibrium.Models.Objects.Graphics {
         public object[] Unpack(ref Span<byte> dataSpan) {
             var data = dataSpan[..GetSize()];
             return Format switch {
-                VertexFormat.Single => MemoryMarshal.Cast<byte, float>(data).ToArray().Select(x => (object) x).ToArray(),
-                VertexFormat.Half => MemoryMarshal.Cast<byte, Half>(data).ToArray().Select(x => (object) (float) x).ToArray(),
-                VertexFormat.Color => MemoryMarshal.Cast<byte, uint>(data).ToArray().Select(x => (object) x).ToArray(),
-                VertexFormat.UNorm8 => data.ToArray().Select(x => (object) (x / byte.MaxValue)).ToArray(),
-                VertexFormat.SNorm8 => data.ToArray().Select(x => (object) ((sbyte) x / sbyte.MaxValue)).ToArray(),
-                VertexFormat.UNorm16 => MemoryMarshal.Cast<byte, ushort>(data).ToArray().Select(x => (object) (x / ushort.MaxValue)).ToArray(),
-                VertexFormat.SNorm16 => MemoryMarshal.Cast<byte, short>(data).ToArray().Select(x => (object) (x / short.MaxValue)).ToArray(),
-                VertexFormat.UInt8 => data.ToArray().Select(x => (object) x).ToArray(),
-                VertexFormat.SInt8 => data.ToArray().Select(x => (object) (sbyte) x).ToArray(),
-                VertexFormat.UInt16 => MemoryMarshal.Cast<byte, ushort>(data).ToArray().Select(x => (object) x).ToArray(),
-                VertexFormat.SInt16 => MemoryMarshal.Cast<byte, short>(data).ToArray().Select(x => (object) x).ToArray(),
-                VertexFormat.UInt32 => MemoryMarshal.Cast<byte, uint>(data).ToArray().Select(x => (object) x).ToArray(),
-                VertexFormat.SInt32 => MemoryMarshal.Cast<byte, int>(data).ToArray().Select(x => (object) x).ToArray(),
+                VertexFormat.Single => MemoryMarshal.Cast<byte, float>(data).ToArray().Cast<object>().ToArray(),
+                VertexFormat.Half => MemoryMarshal.Cast<byte, Half>(data).ToArray().Select(x => (float) x).Cast<object>().ToArray(),
+                VertexFormat.Color => MemoryMarshal.Cast<byte, uint>(data).ToArray().Select(Utils.UnwrapRGBA).Cast<object>().ToArray(),
+                VertexFormat.UNorm8 => data.ToArray().Select(x => x / (float) byte.MaxValue).Cast<object>().ToArray(),
+                VertexFormat.SNorm8 => data.ToArray().Select(x => (sbyte) x / (float) sbyte.MaxValue).Cast<object>().ToArray(),
+                VertexFormat.UNorm16 => MemoryMarshal.Cast<byte, ushort>(data).ToArray().Select(x => x / (float) ushort.MaxValue).Cast<object>().ToArray(),
+                VertexFormat.SNorm16 => MemoryMarshal.Cast<byte, short>(data).ToArray().Select(x => x / (float) short.MaxValue).Cast<object>().ToArray(),
+                VertexFormat.UInt8 => data.ToArray().Cast<object>().ToArray(),
+                VertexFormat.SInt8 => data.ToArray().Select(x => (sbyte) x).Cast<object>().ToArray(),
+                VertexFormat.UInt16 => MemoryMarshal.Cast<byte, ushort>(data).ToArray().Cast<object>().ToArray(),
+                VertexFormat.SInt16 => MemoryMarshal.Cast<byte, short>(data).ToArray().Cast<object>().ToArray(),
+                VertexFormat.UInt32 => MemoryMarshal.Cast<byte, uint>(data).ToArray().Cast<object>().ToArray(),
+                VertexFormat.SInt32 => MemoryMarshal.Cast<byte, int>(data).ToArray().Cast<object>().ToArray(),
                 _ => throw new NotSupportedException(),
             };
         }

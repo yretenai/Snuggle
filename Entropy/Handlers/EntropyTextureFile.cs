@@ -18,29 +18,34 @@ namespace Entropy.Handlers {
             CachedData.Clear();
         }
 
-        public static void Save(Texture2D texture, string path) {
+        public static string Save(Texture2D texture, string path) {
             if (!EntropyCore.Instance.Settings.WriteNativeTextures ||
-                !SaveNative(texture, path)) {
-                SavePNG(texture, path);
+                !SaveNative(texture, path, out var resultPath)) {
+                return SavePNG(texture, path);
             }
+
+            return resultPath;
         }
 
-        private static void SavePNG(Texture2D texture, string path) {
+        private static string SavePNG(Texture2D texture, string path) {
             var data = LoadCachedTexture(texture);
+            path = Path.ChangeExtension(path, ".png");
             if (data.IsEmpty) {
-                return;
+                return path;
             }
 
             var image = Image.WrapMemory<Rgba32>(data, texture.Width, texture.Height);
-            image.SaveAsPng(Path.ChangeExtension(path, ".png"));
+            image.SaveAsPng(path);
+            return path;
         }
 
-        private static bool SaveNative(Texture2D texture, string path) {
+        private static bool SaveNative(Texture2D texture, string path, out string destinationPath) {
+            destinationPath = Path.ChangeExtension(path, ".dds");
             if (!texture.TextureFormat.CanSupportDDS()) {
                 return false;
             }
 
-            using var fs = File.OpenWrite(Path.ChangeExtension(path, ".dds"));
+            using var fs = File.OpenWrite(destinationPath);
             fs.SetLength(0);
             fs.Write(Texture2DConverter.ToDDS(texture));
             return true;
