@@ -12,6 +12,7 @@ using Equilibrium.Models.Objects.Graphics;
 using Equilibrium.Options;
 using SharpGLTF.Geometry;
 using SharpGLTF.Geometry.VertexTypes;
+using SharpGLTF.IO;
 using SharpGLTF.Materials;
 using SharpGLTF.Scenes;
 using SharpGLTF.Schema2;
@@ -77,6 +78,7 @@ namespace Entropy.Handlers {
             var hashTree = new Dictionary<uint, NodeBuilder>();
             BuildGameObject(gameObject, scene, node, nodeTree, skinnedMeshes, path);
             BuildHashTree(nodeTree, hashTree, gameObject.FindComponent(UnityClassId.Transform).Value as Transform);
+            var saved = new Dictionary<long, string>();
             foreach (var (skinnedMesh, materials) in skinnedMeshes) {
                 var skin = new (NodeBuilder, Matrix4x4)[skinnedMesh.BoneNameHashes.Count];
                 for (var i = 0; i < skin.Length; ++i) {
@@ -86,7 +88,7 @@ namespace Entropy.Handlers {
                     skin[i] = (hashNode, matrix);
                 }
 
-                scene.AddSkinnedMesh(CreateMesh(skinnedMesh, materials, path), skin);
+                scene.AddSkinnedMesh(CreateMesh(skinnedMesh, materials, path, saved), skin);
             }
 
             var gltf = scene.ToGltf2();
@@ -189,17 +191,93 @@ namespace Entropy.Handlers {
             }
         }
 
-        private static IMeshBuilder<MaterialBuilder> CreateMesh(Mesh mesh, List<Material?>? materials = null, string? path = null) {
+        private static IMeshBuilder<MaterialBuilder> CreateMesh(Mesh mesh, List<Material?>? materials = null, string? path = null, Dictionary<long, string>? saved = null) {
             var meshBuilder = new MeshBuilder<VertexPositionNormalTangent, VertexColor1Texture2, VertexJoints4>(mesh.Name);
 
             var vertexStream = MeshConverter.GetVBO(mesh, out var descriptors, out var strides);
             var indexStream = MeshConverter.GetIBO(mesh);
             var indices = mesh.IndexFormat == IndexFormat.UInt16 ? MemoryMarshal.Cast<byte, ushort>(indexStream.Span).ToArray().Select(x => (int) x).ToArray() : MemoryMarshal.Cast<byte, int>(indexStream.Span);
 
+            var xyvnt = new VertexPositionNormalTangent[mesh.VertexData.VertexCount];
+            Array.Fill(xyvnt, new VertexPositionNormalTangent());
+            var cuv = new VertexColor1Texture2[mesh.VertexData.VertexCount];
+            Array.Fill(cuv, new VertexColor1Texture2());
+            var joint = new VertexJoints4[mesh.VertexData.VertexCount];
+            for (var i = 0; i < mesh.VertexData.VertexCount; ++i) {
+                var joints = Span<int>.Empty;
+                var weights = Span<float>.Empty;
+
+                xyvnt[i].Id = i;
+                cuv[i].Id = i;
+                joint[i].Id = i;
+
+                foreach (var (channel, info) in descriptors) {
+                    var stride = strides[info.Stream];
+                    var offset = i * stride;
+                    var data = vertexStream[info.Stream][(offset + info.Offset)..].Span;
+                    if (info.Dimension == VertexDimension.None) {
+                        continue;
+                    }
+
+                    var value = info.Unpack(ref data);
+                    var floatValues = value.Select(x => (float) Convert.ChangeType(x, TypeCode.Single)).Concat(new float[4]);
+                    var uintValues = value.Select(x => (int) Convert.ChangeType(x, TypeCode.Int32)).Concat(new int[4]);
+                    switch (channel) {
+                        case VertexChannel.Vertex:
+                            xyvnt[i].Position = new Vector3(floatValues.Take(3).ToArray());
+                            break;
+                        case VertexChannel.Normal:
+                            xyvnt[i].Normal = new Vector3(floatValues.Take(3).ToArray());
+                            break;
+                        case VertexChannel.Tangent:
+                            xyvnt[i].Tangent = new Vector4(floatValues.Take(4).ToArray());
+                            break;
+                        case VertexChannel.Color:
+                            cuv[i].Color = new Vector4(floatValues.Take(4).ToArray());
+                            break;
+                        case VertexChannel.UV0:
+                            cuv[i].TexCoord0 = new Vector2(floatValues.Take(2).ToArray());
+                            break;
+                        case VertexChannel.UV1:
+                            cuv[i].TexCoord1 = new Vector2(floatValues.Take(2).ToArray());
+                            break;
+                        case VertexChannel.UV2:
+                        case VertexChannel.UV3:
+                        case VertexChannel.UV4:
+                        case VertexChannel.UV5:
+                        case VertexChannel.UV6:
+                        case VertexChannel.UV7:
+                            break;
+                        case VertexChannel.SkinWeight:
+                            weights = floatValues.Take(4).ToArray();
+                            break;
+                        case VertexChannel.SkinBoneIndex:
+                            joints = uintValues.Take(4).ToArray();
+                            break;
+                        default:
+                            throw new NotSupportedException();
+                    }
+                }
+
+                if (joints.IsEmpty &&
+                    mesh.Skin.Count > 0) {
+                    joints = mesh.Skin[i].Indices;
+                    weights = mesh.Skin[i].Weights;
+                }
+
+                if (weights.IsEmpty) {
+                    var fullWeights = new float[joints.Length];
+                    Array.Fill(fullWeights, 1.0f);
+                    weights = fullWeights;
+                }
+
+                joint[i] = new VertexJoints4(joints.ToArray().Zip(weights.ToArray()).ToArray());
+            }
+
             for (var submeshIndex = 0; submeshIndex < mesh.Submeshes.Count; submeshIndex++) {
                 var submesh = mesh.Submeshes[submeshIndex];
                 var material = new MaterialBuilder($"Submesh{submeshIndex}");
-                CreateMaterial(material, materials?.ElementAtOrDefault(submeshIndex), path);
+                CreateMaterial(material, materials?.ElementAtOrDefault(submeshIndex), path, saved ?? new Dictionary<long, string>());
 
                 var primitive = meshBuilder.UsePrimitive(material);
 
@@ -213,86 +291,8 @@ namespace Entropy.Handlers {
                     _ => throw new NotSupportedException(),
                 };
 
-                var xyvnt = new VertexPositionNormalTangent[submesh.VertexCount];
-                Array.Fill(xyvnt, new VertexPositionNormalTangent());
-                var cuv = new VertexColor1Texture2[submesh.VertexCount];
-                Array.Fill(cuv, new VertexColor1Texture2());
-                var joint = new VertexJoints4[submesh.VertexCount];
-                for (var i = 0; i < submesh.VertexCount; ++i) {
-                    var joints = Span<int>.Empty;
-                    var weights = Span<float>.Empty;
-
-                    foreach (var (channel, info) in descriptors) {
-                        var stride = strides[info.Stream];
-                        var offset = (submesh.FirstVertex + i) * stride;
-                        var data = vertexStream[info.Stream][(offset + info.Offset)..].Span;
-                        if (info.Dimension == VertexDimension.None) {
-                            continue;
-                        }
-
-                        var value = info.Unpack(ref data);
-                        var floatValues = value.Select(x => (float) Convert.ChangeType(x, TypeCode.Single)).Concat(new float[4]);
-                        var uintValues = value.Select(x => (int) Convert.ChangeType(x, TypeCode.Int32)).Concat(new int[4]);
-                        switch (channel) {
-                            case VertexChannel.Vertex:
-                                xyvnt[i].Position = new Vector3(floatValues.Take(3).ToArray());
-                                break;
-                            case VertexChannel.Normal:
-                                xyvnt[i].Normal = new Vector3(floatValues.Take(3).ToArray());
-                                break;
-                            case VertexChannel.Tangent:
-                                xyvnt[i].Tangent = new Vector4(floatValues.Take(4).ToArray());
-                                break;
-                            case VertexChannel.Color:
-                                cuv[i].Color = new Vector4(floatValues.Take(4).ToArray());
-                                break;
-                            case VertexChannel.UV0:
-                                cuv[i].TexCoord0 = new Vector2(floatValues.Take(2).ToArray());
-                                break;
-                            case VertexChannel.UV1:
-                                cuv[i].TexCoord1 = new Vector2(floatValues.Take(2).ToArray());
-                                break;
-                            case VertexChannel.UV2:
-                            case VertexChannel.UV3:
-                            case VertexChannel.UV4:
-                            case VertexChannel.UV5:
-                            case VertexChannel.UV6:
-                            case VertexChannel.UV7:
-                                break;
-                            case VertexChannel.SkinWeight:
-                                weights = floatValues.Take(4).ToArray();
-                                break;
-                            case VertexChannel.SkinBoneIndex:
-                                joints = uintValues.Take(4).ToArray();
-                                break;
-                            default:
-                                throw new NotSupportedException();
-                        }
-                    }
-
-                    if (joints.IsEmpty &&
-                        mesh.Skin.Count > 0) {
-                        joints = mesh.Skin[submesh.FirstVertex + i].Indices;
-                        weights = mesh.Skin[submesh.FirstVertex + i].Weights;
-                    }
-
-                    if (weights.IsEmpty) {
-                        var fullWeights = new float[joints.Length];
-                        Array.Fill(fullWeights, 1.0f);
-                        weights = fullWeights;
-                    }
-
-                    joint[i] = new VertexJoints4(joints.ToArray().Zip(weights.ToArray()).ToArray());
-                }
-
                 var baseOffset = (int) (submesh.FirstByte / (mesh.IndexFormat == IndexFormat.UInt16 ? 2 : 4));
                 var submeshIndices = indices.Slice(baseOffset, (int) submesh.IndexCount).ToArray();
-                if (submesh.FirstByte > 0) {
-                    var baseIndex = submeshIndices.Min();
-                    for (var indiceIndex = 0; indiceIndex < submesh.IndexCount; ++indiceIndex) {
-                        submeshIndices[indiceIndex] -= baseIndex;
-                    }
-                }
 
                 for (var i = 0; i < submesh.IndexCount / indicesPerSurface; ++i) {
                     var index = submeshIndices.Skip(i * indicesPerSurface).Take(indicesPerSurface).Select(x => (xyvnt[x], cuv[x], joint[x])).ToArray();
@@ -319,10 +319,45 @@ namespace Entropy.Handlers {
                 }
             }
 
+            var morphNames = new List<string>();
+            for (var blendIndex = 0; blendIndex < mesh.BlendShapeData.Channels.Count; blendIndex++) {
+                var channel = mesh.BlendShapeData.Channels[blendIndex];
+                var morph = meshBuilder.UseMorphTarget(blendIndex);
+                morphNames.Add(channel.Name);
+                for (var frameIndex = 0; frameIndex < channel.Count; frameIndex++) {
+                    var fullIndex = channel.Index + frameIndex;
+                    var shape = mesh.BlendShapeData.Shapes[fullIndex];
+
+                    for (var vertexIndex = 0; vertexIndex < shape.VertexCount; vertexIndex++) {
+                        var vertex = mesh.BlendShapeData.Vertices![(int) (shape.FirstVertex + vertexIndex)];
+                        
+                        var geometryData = new VertexGeometryDelta {
+                            PositionDelta = new Vector3(vertex.Vertex.X, vertex.Vertex.Y, vertex.Vertex.Z),
+                        };
+
+                        if (shape.HasNormals) {
+                            geometryData.NormalDelta = new Vector3(vertex.Normal.X, vertex.Normal.Y, vertex.Normal.Z);
+                        }
+
+                        if (shape.HasTangents) {
+                            geometryData.TangentDelta = new Vector3(vertex.Tangent.X, vertex.Tangent.Y, vertex.Tangent.Z);
+                        }
+
+                        morph.SetVertexDelta(xyvnt[vertex.Index], geometryData);
+                    }
+                }
+            }
+
+            if (morphNames.Count > 0) {
+                meshBuilder.Extras = JsonContent.CreateFrom(new Dictionary<string, List<string>> {
+                    { "targetNames", morphNames },
+                });
+            }
+
             return meshBuilder;
         }
 
-        private static void CreateMaterial(MaterialBuilder materialBuilder, Material? material, string? path) {
+        private static void CreateMaterial(MaterialBuilder materialBuilder, Material? material, string? path, Dictionary<long, string> saved) {
             if (material == null ||
                 path == null) {
                 return;
@@ -339,7 +374,9 @@ namespace Entropy.Handlers {
                     texture.Deserialize(EntropyCore.Instance.Settings.ObjectOptions);
                 }
 
-                var texPath = EntropyTextureFile.Save(texture, Path.Combine(path, texture.Name + ".bin"));
+                if (!saved.TryGetValue(texture.PathId, out var texPath)) {
+                    texPath = EntropyTextureFile.Save(texture, Path.Combine(path, texture.Name + "_" + texture.PathId + ".bin"));
+                }
 
                 if (name == "_MainTex") {
                     materialBuilder.WithBaseColor(texPath);

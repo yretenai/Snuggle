@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Text.Json.Serialization;
 using Equilibrium.Exceptions;
@@ -12,20 +11,17 @@ namespace Equilibrium.Models.Objects.Graphics {
     [PublicAPI]
     public record BlendShapeData(
         List<MeshBlendShape> Shapes,
-        List<MeshBlendShapeChannel> Channels) {
+        List<MeshBlendShapeChannel> Channels,
+        List<float> Weights) {
         private long VerticesOffset { get; init; } = -1;
-        private long WeightsOffset { get; init; } = -1;
 
         [JsonIgnore]
         public List<BlendShapeVertex>? Vertices { get; set; }
 
-        [JsonIgnore]
-        public Memory<float>? Weights { get; set; }
-
-        public static BlendShapeData Default { get; } = new(new List<MeshBlendShape>(), new List<MeshBlendShapeChannel>());
+        public static BlendShapeData Default { get; } = new(new List<MeshBlendShape>(), new List<MeshBlendShapeChannel>(), new List<float>());
 
         [JsonIgnore]
-        public bool ShouldDeserialize => Vertices == null || Weights == null;
+        public bool ShouldDeserialize => Vertices == null;
 
         public static BlendShapeData FromReader(BiEndianBinaryReader reader, SerializedFile file) {
             var verticesOffset = reader.BaseStream.Position;
@@ -46,11 +42,11 @@ namespace Equilibrium.Models.Objects.Graphics {
                 channels.Add(MeshBlendShapeChannel.FromReader(reader, file));
             }
 
-            var weightsOffset = reader.BaseStream.Position;
             var weightsCount = reader.ReadInt32();
-            reader.BaseStream.Seek(weightsCount * 4, SeekOrigin.Current);
+            var weights = new List<float>();
+            weights.AddRange(reader.ReadArray<float>(weightsCount).ToArray());
 
-            return new BlendShapeData(shapes, channels) { VerticesOffset = verticesOffset, WeightsOffset = weightsOffset };
+            return new BlendShapeData(shapes, channels, weights) { VerticesOffset = verticesOffset };
         }
 
         public void ToWriter(BiEndianBinaryWriter writer, SerializedFile serializedFile, UnityVersion targetVersion) {
@@ -73,8 +69,8 @@ namespace Equilibrium.Models.Objects.Graphics {
                 channel.ToWriter(writer, serializedFile, targetVersion);
             }
 
-            writer.Write(Weights!.Value.Length);
-            writer.WriteMemory(Weights);
+            writer.Write(Weights.Count);
+            writer.WriteArray(Weights);
         }
 
         public void Deserialize(BiEndianBinaryReader reader, SerializedFile serializedFile, ObjectDeserializationOptions options) {
@@ -85,10 +81,6 @@ namespace Equilibrium.Models.Objects.Graphics {
             for (var i = 0; i < verticesCount; ++i) {
                 Vertices.Add(BlendShapeVertex.FromReader(reader, serializedFile));
             }
-
-            reader.BaseStream.Seek(WeightsOffset, SeekOrigin.Begin);
-            var weightsCount = reader.ReadInt32();
-            Weights = reader.ReadMemory<float>(weightsCount);
         }
     }
 }
