@@ -328,6 +328,8 @@ namespace Entropy.Handlers {
                 return;
             }
 
+            materialBuilder.Name = material.Name;
+
             foreach (var (name, texEnv) in material.SavedProperties.Textures) {
                 if (texEnv.Texture.Value is not Texture2D texture) {
                     continue;
