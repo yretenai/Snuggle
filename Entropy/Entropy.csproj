@@ -10,25 +10,25 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Equilibrium.Converters\Equilibrium.Converters.csproj"/>
-        <ProjectReference Include="..\Equilibrium\Equilibrium.csproj"/>
-        <ProjectReference Include="..\Library\SharpGLTF\src\SharpGLTF.Core\SharpGLTF.Core.csproj"/>
-        <ProjectReference Include="..\Library\SharpGLTF\src\SharpGLTF.Toolkit\SharpGLTF.Toolkit.csproj"/>
+        <ProjectReference Include="..\Equilibrium.Converters\Equilibrium.Converters.csproj" />
+        <ProjectReference Include="..\Equilibrium\Equilibrium.csproj" />
+        <ProjectReference Include="..\Library\SharpGLTF\src\SharpGLTF.Core\SharpGLTF.Core.csproj" />
+        <ProjectReference Include="..\Library\SharpGLTF\src\SharpGLTF.Toolkit\SharpGLTF.Toolkit.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Dragablz" Version="0.0.3.223"/>
-        <PackageReference Include="HelixToolkit.Core.Wpf" Version="2.17.0"/>
-        <PackageReference Include="HelixToolkit.SharpDX.Core.Wpf" Version="2.17.0"/>
-        <PackageReference Include="MaterialDesignColors" Version="2.0.1"/>
-        <PackageReference Include="MaterialDesignThemes" Version="4.1.0"/>
-        <PackageReference Include="SixLabors.ImageSharp" Version="1.0.3"/>
-        <PackageReference Include="WindowsAPICodePack-Core" Version="1.1.1" NoWarn="NU1701"/>
-        <PackageReference Include="WindowsAPICodePack-Shell" Version="1.1.1" NoWarn="NU1701"/>
+        <PackageReference Include="Dragablz" Version="0.0.3.223" />
+        <PackageReference Include="HelixToolkit.Core.Wpf" Version="2.17.0" />
+        <PackageReference Include="HelixToolkit.SharpDX.Core.Wpf" Version="2.17.0" />
+        <PackageReference Include="MaterialDesignColors" Version="2.0.1" />
+        <PackageReference Include="MaterialDesignThemes" Version="4.1.0" />
+        <PackageReference Include="SixLabors.ImageSharp" Version="1.0.3" />
+        <PackageReference Include="WindowsAPICodePack-Core" Version="1.1.2" NoWarn="NU1701" />
+        <PackageReference Include="WindowsAPICodePack-Shell" Version="1.1.1" NoWarn="NU1701" />
     </ItemGroup>
 
     <Target Name="CustomAfterBuild" AfterTargets="AfterBuild">
-        <Copy SourceFiles="$(SolutionDir)Library\AssetStudio\Texture2DDecoderNative\bin\Win32\$(Configuration)\Texture2DDecoderNative.dll" DestinationFolder="$(TargetDir)runtimes\win-x86\native" ContinueOnError="true"/>
-        <Copy SourceFiles="$(SolutionDir)Library\AssetStudio\Texture2DDecoderNative\bin\x64\$(Configuration)\Texture2DDecoderNative.dll" DestinationFolder="$(TargetDir)runtimes\win-x64\native" ContinueOnError="true"/>
+        <Copy SourceFiles="$(SolutionDir)Library\AssetStudio\Texture2DDecoderNative\bin\Win32\$(Configuration)\Texture2DDecoderNative.dll" DestinationFolder="$(TargetDir)runtimes\win-x86\native" ContinueOnError="true" />
+        <Copy SourceFiles="$(SolutionDir)Library\AssetStudio\Texture2DDecoderNative\bin\x64\$(Configuration)\Texture2DDecoderNative.dll" DestinationFolder="$(TargetDir)runtimes\win-x64\native" ContinueOnError="true" />
     </Target>
 </Project>
