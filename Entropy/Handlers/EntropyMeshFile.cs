@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using System.Text;
 using Equilibrium.Converters;
 using Equilibrium.Implementations;
 using Equilibrium.Models;
@@ -57,24 +58,86 @@ namespace Entropy.Handlers {
 
             var node = new NodeBuilder();
             scene.AddNode(node);
-            BuildGameObject(gameObject, scene, node, Path.GetDirectoryName(path));
+
+            path = Path.Combine(Path.GetDirectoryName(path)!, Path.GetFileNameWithoutExtension(path));
+            if (!Directory.Exists(path)) {
+                Directory.CreateDirectory(path);
+            }
+
+            var nodeTree = new Dictionary<long, NodeBuilder>();
+            var skinnedMeshes = new List<(Mesh mesh, List<Material?>)>();
+            var hashTree = new Dictionary<uint, NodeBuilder>();
+            BuildGameObject(gameObject, scene, node, nodeTree, skinnedMeshes, path);
+            BuildHashTree(nodeTree, hashTree, gameObject.FindComponent(UnityClassId.Transform).Value as Transform);
+            foreach (var (skinnedMesh, materials) in skinnedMeshes) {
+                var skin = new (NodeBuilder, Matrix4x4)[skinnedMesh.BoneNameHashes.Count];
+                for (var i = 0; i < skin.Length; ++i) {
+                    var hash = skinnedMesh.BoneNameHashes[i];
+                    var hashNode = hashTree[hash];
+                    var matrix = skinnedMesh.BindPose!.Value.Span[i].GetNumerics();
+                    skin[i] = (hashNode, matrix);
+                }
+
+                scene.AddSkinnedMesh(CreateMesh(skinnedMesh, materials, path), skin);
+            }
+
             var gltf = scene.ToGltf2();
-            gltf.SaveGLB(Path.ChangeExtension(path, ".glb"), new WriteSettings { JsonIndented = true });
+            gltf.SaveGLB(Path.Combine(path, Path.GetFileName(path), ".glb"), new WriteSettings { JsonIndented = true });
         }
 
-        private static void BuildGameObject(GameObject gameObject, SceneBuilder scene, NodeBuilder node, string? path) {
+        private static void BuildHashTree(IReadOnlyDictionary<long, NodeBuilder> nodeTree, IDictionary<uint, NodeBuilder> hashTree, Transform? transform) {
+            if (transform == null) {
+                return;
+            }
+
+            var name = GetTransformPath(transform);
+            var crc = new CRC();
+            var bytes = Encoding.UTF8.GetBytes(name);
+            crc.Update(bytes, 0, (uint) bytes.Length);
+            var node = nodeTree[transform.PathId];
+            hashTree[crc.GetDigest()] = node;
+            int index;
+            while ((index = name.IndexOf("/", StringComparison.Ordinal)) >= 0) {
+                name = name[(index + 1)..];
+                crc = new CRC();
+                bytes = Encoding.UTF8.GetBytes(name);
+                crc.Update(bytes, 0, (uint) bytes.Length);
+                hashTree[crc.GetDigest()] = node;
+            }
+
+            foreach (var child in transform.Children) {
+                BuildHashTree(nodeTree, hashTree, child.Value);
+            }
+        }
+
+        private static string GetTransformPath(Transform transform) {
+            if (transform.GameObject.Value == null) {
+                throw new InvalidOperationException();
+            }
+
+            var name = transform.GameObject.Value.Name;
+
+            if (transform.Parent.Value != null) {
+                return GetTransformPath(transform.Parent.Value) + "/" + name;
+            }
+
+            return name;
+        }
+
+        private static void BuildGameObject(GameObject gameObject, SceneBuilder scene, NodeBuilder node, Dictionary<long, NodeBuilder> nodeTree, ICollection<(Mesh, List<Material?>)> skinnedMeshes, string? path) {
             if (gameObject.FindComponent(UnityClassId.Transform).Value is not Transform transform) {
                 return;
             }
 
             node.Name = gameObject.Name;
+            nodeTree[transform.PathId] = node;
 
             var (rX, rY, rZ, rW) = transform.Rotation;
-            var (sX, sY, sZ) = transform.Scale;
+            node.WithLocalRotation(new Quaternion(rX, rY, rZ, rW));
             var (tX, tY, tZ) = transform.Translation;
-
-            var localMatrix = Matrix4x4.CreateScale(sX, sY, sZ) * Matrix4x4.CreateFromQuaternion(new Quaternion(rX, -rY, -rZ, rW)) * Matrix4x4.CreateTranslation(new Vector3(-tX, tY, tZ));
-            node.LocalMatrix = localMatrix;
+            node.WithLocalTranslation(new Vector3(tX, tY, tZ));
+            var (sX, sY, sZ) = transform.Scale;
+            node.WithLocalScale(new Vector3(sX, sY, sZ));
 
             var materials = new List<Material?>();
             if (gameObject.FindComponent(UnityClassId.MeshRenderer, UnityClassId.SkinnedMeshRenderer).Value is Renderer renderer) {
@@ -85,8 +148,7 @@ namespace Entropy.Handlers {
                         skinnedMeshRenderer.Mesh.Value.Deserialize(ObjectDeserializationOptions.Default);
                     }
 
-                    scene.AddRigidMesh(CreateMesh(skinnedMeshRenderer.Mesh.Value, materials, path), node);
-                    // TODO: BindPose and stuff I gues
+                    skinnedMeshes.Add((skinnedMeshRenderer.Mesh.Value, materials));
                 }
             }
 
@@ -106,12 +168,12 @@ namespace Entropy.Handlers {
 
                 var childNode = node.CreateNode();
                 scene.AddNode(childNode);
-                BuildGameObject(child.Value.GameObject.Value, scene, childNode, path);
+                BuildGameObject(child.Value.GameObject.Value, scene, childNode, nodeTree, skinnedMeshes, path);
             }
         }
 
         private static IMeshBuilder<MaterialBuilder> CreateMesh(Mesh mesh, List<Material?>? materials = null, string? path = null) {
-            var meshBuilder = new MeshBuilder<VertexPositionNormalTangent, VertexColor1Texture2, VertexEmpty>(mesh.Name);
+            var meshBuilder = new MeshBuilder<VertexPositionNormalTangent, VertexColor1Texture2, VertexJoints4>(mesh.Name);
 
             var vertexStream = MeshConverter.GetVBO(mesh, out var descriptors, out var strides);
             var indexStream = MeshConverter.GetIBO(mesh);
@@ -138,7 +200,11 @@ namespace Entropy.Handlers {
                 Array.Fill(xyvnt, new VertexPositionNormalTangent());
                 var cuv = new VertexColor1Texture2[submesh.VertexCount];
                 Array.Fill(cuv, new VertexColor1Texture2());
+                var joint = new VertexJoints4[submesh.VertexCount];
                 for (var i = 0; i < submesh.VertexCount; ++i) {
+                    var joints = Span<int>.Empty;
+                    var weights = Span<float>.Empty;
+
                     foreach (var (channel, info) in descriptors) {
                         var stride = strides[info.Stream];
                         var offset = (submesh.FirstVertex + i) * stride;
@@ -148,25 +214,26 @@ namespace Entropy.Handlers {
                         }
 
                         var value = info.Unpack(ref data);
-                        var floatValues = value.Select(Convert.ToSingle).Concat(new float[4]);
+                        var floatValues = value.Select(x => (float) Convert.ChangeType(x, TypeCode.Single)).Concat(new float[4]);
+                        var uintValues = value.Select(x => (int) Convert.ChangeType(x, TypeCode.Int32)).Concat(new int[4]);
                         switch (channel) {
                             case VertexChannel.Vertex:
-                                xyvnt[i].Position = new Vector3(floatValues.ToArray());
+                                xyvnt[i].Position = new Vector3(floatValues.Take(3).ToArray());
                                 break;
                             case VertexChannel.Normal:
-                                xyvnt[i].Normal = new Vector3(floatValues.ToArray());
+                                xyvnt[i].Normal = new Vector3(floatValues.Take(3).ToArray());
                                 break;
                             case VertexChannel.Tangent:
-                                xyvnt[i].Tangent = new Vector4(floatValues.ToArray());
+                                xyvnt[i].Tangent = new Vector4(floatValues.Take(4).ToArray());
                                 break;
                             case VertexChannel.Color:
-                                cuv[i].Color = new Vector4(floatValues.ToArray());
+                                cuv[i].Color = new Vector4(floatValues.Take(4).ToArray());
                                 break;
                             case VertexChannel.UV0:
-                                cuv[i].TexCoord0 = new Vector2(floatValues.ToArray());
+                                cuv[i].TexCoord0 = new Vector2(floatValues.Take(2).ToArray());
                                 break;
                             case VertexChannel.UV1:
-                                cuv[i].TexCoord1 = new Vector2(floatValues.ToArray());
+                                cuv[i].TexCoord1 = new Vector2(floatValues.Take(2).ToArray());
                                 break;
                             case VertexChannel.UV2:
                             case VertexChannel.UV3:
@@ -174,20 +241,38 @@ namespace Entropy.Handlers {
                             case VertexChannel.UV5:
                             case VertexChannel.UV6:
                             case VertexChannel.UV7:
+                                break;
                             case VertexChannel.SkinWeight:
+                                weights = floatValues.Take(4).ToArray();
+                                break;
                             case VertexChannel.SkinBoneIndex:
+                                joints = uintValues.Take(4).ToArray();
                                 break;
                             default:
                                 throw new NotSupportedException();
                         }
                     }
+
+                    if (joints.IsEmpty &&
+                        mesh.Skin.Count > 0) {
+                        joints = mesh.Skin[submesh.FirstVertex + i].Indices;
+                        weights = mesh.Skin[submesh.FirstVertex + i].Weights;
+                    }
+
+                    if (weights.IsEmpty) {
+                        var fullWeights = new float[joints.Length];
+                        Array.Fill(fullWeights, 1.0f);
+                        weights = fullWeights;
+                    }
+
+                    joint[i] = new VertexJoints4(joints.ToArray().Zip(weights.ToArray()).ToArray());
                 }
 
                 var baseOffset = (int) (submesh.FirstByte / (mesh.IndexFormat == IndexFormat.UInt16 ? 2 : 4));
 
                 for (var i = 0; i < submesh.IndexCount / indicesPerSurface; ++i) {
                     var indexOffset = baseOffset + i * indicesPerSurface;
-                    var index = indices.Slice(indexOffset, indicesPerSurface).ToArray().Select(x => (xyvnt[x], cuv[x], default(VertexEmpty))).ToArray();
+                    var index = indices.Slice(indexOffset, indicesPerSurface).ToArray().Select(x => (xyvnt[x], cuv[x], joint[x])).ToArray();
 
                     switch (submesh.Topology) {
                         case GfxPrimitiveType.Triangles:

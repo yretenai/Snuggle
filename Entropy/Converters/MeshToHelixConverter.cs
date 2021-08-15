@@ -191,7 +191,7 @@ namespace Entropy.Converters {
             var (sX, sY, sZ) = transform.Scale;
             var (tX, tY, tZ) = transform.Translation;
 
-            var localMatrix = Matrix.Scaling(sX, sY, sZ) * Matrix.RotationQuaternion(new Quaternion(rX, -rY, -rZ, rW)) * Matrix.Translation(new Vector3(-tX, tY, tZ));
+            var localMatrix = Matrix.Scaling(sX, sY, sZ) * Matrix.RotationQuaternion(new Quaternion(rX, rY, rZ, rW)) * Matrix.Translation(new Vector3(tX, tY, tZ));
             var matrix = localMatrix * (parentMatrix ?? Matrix.Identity);
 
             if (parentMatrix.HasValue) {
