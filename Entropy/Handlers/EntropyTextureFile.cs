@@ -10,8 +10,8 @@ namespace Entropy.Handlers {
     public static class EntropyTextureFile {
         private static ConcurrentDictionary<long, Memory<byte>> CachedData { get; } = new();
 
-        public static Memory<byte> LoadCachedTexture(Texture2D texture) {
-            return CachedData.GetOrAdd(texture.PathId, (_, arg) => Texture2DConverter.ToRGBA(arg), texture);
+        public static byte[] LoadCachedTexture(Texture2D texture) {
+            return CachedData.GetOrAdd(texture.PathId, (_, arg) => Texture2DConverter.ToRGBA(arg), texture).ToArray();
         }
 
         public static void ClearMemory() {
@@ -20,10 +20,11 @@ namespace Entropy.Handlers {
 
         public static string Save(Texture2D texture, string path) {
             var dir = Path.GetDirectoryName(path);
-            if (!string.IsNullOrWhiteSpace(dir) && !Directory.Exists(dir)) {
+            if (!string.IsNullOrWhiteSpace(dir) &&
+                !Directory.Exists(dir)) {
                 Directory.CreateDirectory(dir);
             }
-            
+
             if (!EntropyCore.Instance.Settings.WriteNativeTextures ||
                 !SaveNative(texture, path, out var resultPath)) {
                 return SavePNG(texture, path);
@@ -33,7 +34,7 @@ namespace Entropy.Handlers {
         }
 
         private static string SavePNG(Texture2D texture, string path) {
-            var data = LoadCachedTexture(texture);
+            var data = new Memory<byte>(LoadCachedTexture(texture));
             path = Path.ChangeExtension(path, ".png");
             if (data.IsEmpty) {
                 return path;

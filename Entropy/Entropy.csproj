@@ -12,6 +12,8 @@
     <ItemGroup>
         <ProjectReference Include="..\Equilibrium.Converters\Equilibrium.Converters.csproj"/>
         <ProjectReference Include="..\Equilibrium\Equilibrium.csproj"/>
+        <ProjectReference Include="..\Library\SharpGLTF\src\SharpGLTF.Core\SharpGLTF.Core.csproj"/>
+        <ProjectReference Include="..\Library\SharpGLTF\src\SharpGLTF.Toolkit\SharpGLTF.Toolkit.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -20,8 +22,6 @@
         <PackageReference Include="HelixToolkit.SharpDX.Core.Wpf" Version="2.17.0"/>
         <PackageReference Include="MaterialDesignColors" Version="2.0.1"/>
         <PackageReference Include="MaterialDesignThemes" Version="4.1.0"/>
-        <PackageReference Include="SharpGLTF.Core" Version="1.0.0-alpha0023"/>
-        <PackageReference Include="SharpGLTF.Toolkit" Version="1.0.0-alpha0023"/>
         <PackageReference Include="SixLabors.ImageSharp" Version="1.0.3"/>
         <PackageReference Include="WindowsAPICodePack-Core" Version="1.1.1" NoWarn="NU1701"/>
         <PackageReference Include="WindowsAPICodePack-Shell" Version="1.1.1" NoWarn="NU1701"/>

@@ -68,7 +68,7 @@ namespace Equilibrium.Models.Objects.Graphics {
             return Format switch {
                 VertexFormat.Single => MemoryMarshal.Cast<byte, float>(data).ToArray().Cast<object>().ToArray(),
                 VertexFormat.Half => MemoryMarshal.Cast<byte, Half>(data).ToArray().Select(x => (float) x).Cast<object>().ToArray(),
-                VertexFormat.Color => MemoryMarshal.Cast<byte, uint>(data).ToArray().Select(Utils.UnwrapRGBA).Cast<object>().ToArray(),
+                VertexFormat.Color => MemoryMarshal.Cast<byte, uint>(data).ToArray().SelectMany(Utils.UnwrapRGBA).Cast<object>().ToArray(),
                 VertexFormat.UNorm8 => data.ToArray().Select(x => x / (float) byte.MaxValue).Cast<object>().ToArray(),
                 VertexFormat.SNorm8 => data.ToArray().Select(x => (sbyte) x / (float) sbyte.MaxValue).Cast<object>().ToArray(),
                 VertexFormat.UNorm16 => MemoryMarshal.Cast<byte, ushort>(data).ToArray().Select(x => x / (float) ushort.MaxValue).Cast<object>().ToArray(),

@@ -1,3 +1,6 @@
 [submodule "Library/AssetStudio"]
 	path = Library/AssetStudio
 	url = https://github.com/yretenai/AssetStudio.git
+[submodule "Library/SharpGLTF"]
+	path = Library/SharpGLTF
+	url = https://github.com/yretenai/SharpGLTF

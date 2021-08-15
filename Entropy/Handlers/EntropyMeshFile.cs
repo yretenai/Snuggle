@@ -26,7 +26,7 @@ namespace Entropy.Handlers {
             var meshNode = CreateMesh(mesh);
             scene.AddRigidMesh(meshNode, AffineTransform.Identity);
             var gltf = scene.ToGltf2();
-            
+
             if (gltf.LogicalImages.Any()) {
                 path = Path.Combine(path, Path.GetFileName(path));
             }
@@ -90,7 +90,7 @@ namespace Entropy.Handlers {
             }
 
             var gltf = scene.ToGltf2();
-            
+
             if (gltf.LogicalImages.Any()) {
                 path = Path.Combine(path, Path.GetFileName(path));
             }
@@ -286,10 +286,16 @@ namespace Entropy.Handlers {
                 }
 
                 var baseOffset = (int) (submesh.FirstByte / (mesh.IndexFormat == IndexFormat.UInt16 ? 2 : 4));
+                var submeshIndices = indices.Slice(baseOffset, (int) submesh.IndexCount).ToArray();
+                if (submesh.FirstByte > 0) {
+                    var baseIndex = submeshIndices.Min();
+                    for (var indiceIndex = 0; indiceIndex < submesh.IndexCount; ++indiceIndex) {
+                        submeshIndices[indiceIndex] -= baseIndex;
+                    }
+                }
 
                 for (var i = 0; i < submesh.IndexCount / indicesPerSurface; ++i) {
-                    var indexOffset = baseOffset + i * indicesPerSurface;
-                    var index = indices.Slice(indexOffset, indicesPerSurface).ToArray().Select(x => (xyvnt[x], cuv[x], joint[x])).ToArray();
+                    var index = submeshIndices.Skip(i * indicesPerSurface).Take(indicesPerSurface).Select(x => (xyvnt[x], cuv[x], joint[x])).ToArray();
 
                     switch (submesh.Topology) {
                         case GfxPrimitiveType.Triangles:
@@ -325,6 +331,10 @@ namespace Entropy.Handlers {
             foreach (var (name, texEnv) in material.SavedProperties.Textures) {
                 if (texEnv.Texture.Value is not Texture2D texture) {
                     continue;
+                }
+
+                if (texture.ShouldDeserialize) {
+                    texture.Deserialize(EntropyCore.Instance.Settings.ObjectOptions);
                 }
 
                 var texPath = EntropyTextureFile.Save(texture, Path.Combine(path, texture.Name + ".bin"));

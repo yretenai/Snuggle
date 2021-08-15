@@ -22,7 +22,7 @@ namespace Entropy.Converters {
                     }
 
                     var memory = EntropyTextureFile.LoadCachedTexture(texture);
-                    return memory.IsEmpty ? null : dispatcher.Invoke(() => new RGBABitmapSource(memory, texture.Width, texture.Height));
+                    return memory.Length == 0 ? null : dispatcher.Invoke(() => new RGBABitmapSource(memory, texture.Width, texture.Height));
                 });
         }
 
