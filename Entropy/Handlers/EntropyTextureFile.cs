@@ -19,6 +19,11 @@ namespace Entropy.Handlers {
         }
 
         public static string Save(Texture2D texture, string path) {
+            var dir = Path.GetDirectoryName(path);
+            if (!string.IsNullOrWhiteSpace(dir) && !Directory.Exists(dir)) {
+                Directory.CreateDirectory(dir);
+            }
+            
             if (!EntropyCore.Instance.Settings.WriteNativeTextures ||
                 !SaveNative(texture, path, out var resultPath)) {
                 return SavePNG(texture, path);

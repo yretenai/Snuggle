@@ -26,6 +26,17 @@ namespace Entropy.Handlers {
             var meshNode = CreateMesh(mesh);
             scene.AddRigidMesh(meshNode, AffineTransform.Identity);
             var gltf = scene.ToGltf2();
+            
+            if (gltf.LogicalImages.Any()) {
+                path = Path.Combine(path, Path.GetFileName(path));
+            }
+
+            var dir = Path.GetDirectoryName(path);
+            if (!string.IsNullOrWhiteSpace(dir) &&
+                !Directory.Exists(dir)) {
+                Directory.CreateDirectory(dir);
+            }
+
             gltf.SaveGLB(Path.ChangeExtension(path, ".glb"), new WriteSettings { JsonIndented = true });
         }
 
@@ -35,7 +46,7 @@ namespace Entropy.Handlers {
                 return;
             }
 
-            Save(gameObject, path);
+            Save(gameObject, EntropyFile.GetResultPath(path, gameObject));
         }
 
         public static GameObject? FindTopGeometry(GameObject? gameObject) {
@@ -60,9 +71,6 @@ namespace Entropy.Handlers {
             scene.AddNode(node);
 
             path = Path.Combine(Path.GetDirectoryName(path)!, Path.GetFileNameWithoutExtension(path));
-            if (!Directory.Exists(path)) {
-                Directory.CreateDirectory(path);
-            }
 
             var nodeTree = new Dictionary<long, NodeBuilder>();
             var skinnedMeshes = new List<(Mesh mesh, List<Material?>)>();
@@ -82,7 +90,18 @@ namespace Entropy.Handlers {
             }
 
             var gltf = scene.ToGltf2();
-            gltf.SaveGLB(Path.Combine(path, Path.GetFileName(path), ".glb"), new WriteSettings { JsonIndented = true });
+            
+            if (gltf.LogicalImages.Any()) {
+                path = Path.Combine(path, Path.GetFileName(path));
+            }
+
+            var dir = Path.GetDirectoryName(path);
+            if (!string.IsNullOrWhiteSpace(dir) &&
+                !Directory.Exists(dir)) {
+                Directory.CreateDirectory(dir);
+            }
+
+            gltf.SaveGLB(path + ".glb", new WriteSettings { JsonIndented = true });
         }
 
         private static void BuildHashTree(IReadOnlyDictionary<long, NodeBuilder> nodeTree, IDictionary<uint, NodeBuilder> hashTree, Transform? transform) {
@@ -133,11 +152,9 @@ namespace Entropy.Handlers {
             nodeTree[transform.PathId] = node;
 
             var (rX, rY, rZ, rW) = transform.Rotation;
-            node.WithLocalRotation(new Quaternion(rX, rY, rZ, rW));
             var (tX, tY, tZ) = transform.Translation;
-            node.WithLocalTranslation(new Vector3(tX, tY, tZ));
             var (sX, sY, sZ) = transform.Scale;
-            node.WithLocalScale(new Vector3(sX, sY, sZ));
+            node.LocalMatrix = Matrix4x4.CreateScale(sX, sY, sZ) * Matrix4x4.CreateFromQuaternion(new Quaternion(rX, rY, rZ, rW)) * Matrix4x4.CreateTranslation(new Vector3(tX, tY, tZ));
 
             var materials = new List<Material?>();
             if (gameObject.FindComponent(UnityClassId.MeshRenderer, UnityClassId.SkinnedMeshRenderer).Value is Renderer renderer) {

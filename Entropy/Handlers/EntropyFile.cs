@@ -122,7 +122,6 @@ namespace Entropy.Handlers {
         }
 
         private static void ExtractOperation(ImmutableArray<EntropyObject> items, string outputDirectory, ExtractMode mode, CancellationToken token) {
-            var instance = EntropyCore.Instance;
             foreach (var entropyObject in items) {
                 if (token.IsCancellationRequested) {
                     break;
@@ -134,7 +133,6 @@ namespace Entropy.Handlers {
                 }
 
                 var resultPath = GetResultPath(outputDirectory, serializedObject);
-                resultPath = Path.Combine(resultPath, string.Format(instance.Settings.NameTemplate, serializedObject, serializedObject.PathId, serializedObject.ClassId));
                 var resultDir = Path.GetDirectoryName(resultPath) ?? "./";
 
                 switch (mode) {
@@ -142,7 +140,7 @@ namespace Entropy.Handlers {
                         ExtractRaw(serializedObject, resultDir, resultPath);
                         break;
                     case ExtractMode.Convert:
-                        ExtractConvert(serializedObject, resultDir, resultPath);
+                        ExtractConvert(serializedObject, resultDir, resultPath, outputDirectory);
                         break;
                     case ExtractMode.Serialize:
                         ExtractJson(serializedObject, resultDir, resultPath);
@@ -153,41 +151,25 @@ namespace Entropy.Handlers {
             }
         }
 
-        private static void ExtractConvert(SerializedObject serializedObject, string resultDir, string resultPath) {
+        private static void ExtractConvert(SerializedObject serializedObject, string resultDir, string resultPath, string outputDirectory) {
             if (serializedObject.ShouldDeserialize) {
                 serializedObject.Deserialize(EntropyCore.Instance.Settings.ObjectOptions);
             }
 
             switch (serializedObject) {
                 case Texture2D texture2d: {
-                    if (!Directory.Exists(resultDir)) {
-                        Directory.CreateDirectory(resultDir);
-                    }
-
                     EntropyTextureFile.Save(texture2d, resultPath);
                     return;
                 }
                 case Mesh mesh: {
-                    if (!Directory.Exists(resultDir)) {
-                        Directory.CreateDirectory(resultDir);
-                    }
-
                     EntropyMeshFile.Save(mesh, resultPath);
                     return;
                 }
                 case Component component: {
-                    if (!Directory.Exists(resultDir)) {
-                        Directory.CreateDirectory(resultDir);
-                    }
-
-                    EntropyMeshFile.Save(component, resultPath);
+                    EntropyMeshFile.Save(component, outputDirectory);
                     return;
                 }
                 case GameObject gameObject: {
-                    if (!Directory.Exists(resultDir)) {
-                        Directory.CreateDirectory(resultDir);
-                    }
-
                     EntropyMeshFile.Save(gameObject, resultPath);
                     return;
                 }
@@ -228,7 +210,7 @@ namespace Entropy.Handlers {
             }
         }
 
-        private static string GetResultPath(string outputDirectory, SerializedObject serializedObject) {
+        public static string GetResultPath(string outputDirectory, SerializedObject serializedObject) {
             var path = outputDirectory;
             if (EntropyCore.Instance.Settings.GroupByType) {
                 path = Path.Combine(path, ((Enum) serializedObject.ClassId).ToString("G"));
@@ -238,6 +220,8 @@ namespace Entropy.Handlers {
                 !string.IsNullOrWhiteSpace(serializedObject.ObjectContainerPath)) {
                 path = Path.Combine(path, "./" + serializedObject.ObjectContainerPath.SanitizeDirname());
             }
+
+            path = Path.Combine(path, string.Format(EntropyCore.Instance.Settings.NameTemplate, serializedObject, serializedObject.PathId, serializedObject.ClassId));
 
             return path;
         }
