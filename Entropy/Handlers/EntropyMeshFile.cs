@@ -37,7 +37,7 @@ namespace Entropy.Handlers {
                 Directory.CreateDirectory(dir);
             }
 
-            gltf.SaveGLB(Path.ChangeExtension(path, ".glb"), new WriteSettings { JsonIndented = true });
+            gltf.SaveGLTF(Path.ChangeExtension(path, ".gltf"), new WriteSettings { JsonIndented = true });
         }
 
         public static void Save(Component component, string path) {
@@ -101,7 +101,7 @@ namespace Entropy.Handlers {
                 Directory.CreateDirectory(dir);
             }
 
-            gltf.SaveGLB(path + ".glb", new WriteSettings { JsonIndented = true });
+            gltf.SaveGLTF(path + ".gltf", new WriteSettings { JsonIndented = true });
         }
 
         private static void BuildHashTree(IReadOnlyDictionary<long, NodeBuilder> nodeTree, IDictionary<uint, NodeBuilder> hashTree, Transform? transform) {
