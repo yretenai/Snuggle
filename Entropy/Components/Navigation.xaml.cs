@@ -239,6 +239,8 @@ namespace Entropy.Components {
                         file.Free();
                     }
 
+                    EntropyTextureFile.ClearMemory();
+
                     AssetCollection.Collect();
                 });
         }

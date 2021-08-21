@@ -11,7 +11,37 @@ namespace Entropy.Handlers {
         private static ConcurrentDictionary<long, Memory<byte>> CachedData { get; } = new();
 
         public static byte[] LoadCachedTexture(Texture2D texture) {
-            return CachedData.GetOrAdd(texture.PathId, (_, arg) => Texture2DConverter.ToRGBA(arg), texture).ToArray();
+            return CachedData.GetOrAdd(texture.PathId,
+                    (_, arg) => {
+                        var data = Texture2DConverter.ToRGBA(arg);
+                        if (texture.TextureFormat.IsAlphaFirst()) {
+                            for (var i = 0; i < data.Length; i += 4) {
+                                var a = data.Span[i];
+                                var r = data.Span[i + 1];
+                                var g = data.Span[i + 2];
+                                var b = data.Span[i + 3];
+                                data.Span[i] = r;
+                                data.Span[i + 1] = g;
+                                data.Span[i + 2] = b;
+                                data.Span[i + 3] = a;
+                            }
+                        }
+
+                        if (texture.TextureFormat.IsBGRA()) {
+                            for (var i = 0; i < data.Length; i += 4) {
+                                var b = data.Span[i];
+                                var g = data.Span[i + 1];
+                                var r = data.Span[i + 2];
+                                data.Span[i] = r;
+                                data.Span[i + 1] = g;
+                                data.Span[i + 2] = b;
+                            }
+                        }
+
+                        return data;
+                    },
+                    texture)
+                .ToArray();
         }
 
         public static void ClearMemory() {

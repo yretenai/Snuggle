@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using DragonLib;
 using Equilibrium.Exceptions;
 using Equilibrium.Extensions;
 using Equilibrium.Implementations;
@@ -137,17 +138,23 @@ namespace Equilibrium {
             bool hasImplementation,
             object? overrideType,
             UnityGame? overrideGame) {
+#if DEBUG
             var currentMemory = GC.GetTotalMemory(false);
+#endif
             var instance = Activator.CreateInstance(type, reader, info, serializedFile);
+#if DEBUG
             var memoryUse = GC.GetTotalMemory(false) - currentMemory;
+#endif
             if (instance is not SerializedObject serializedObject) {
                 throw new InvalidTypeImplementation(overrideType ?? info.ClassId);
             }
 
+#if DEBUG
             if (memoryUse >= 1.ToMebiByte()) {
                 serializedFile.Options.Logger.Warning("Object",
-                    $"Using more than 1 MiB of memory to load object {info.PathId} ({overrideType ?? info.ClassId:G}, {overrideGame ?? UnityGame.Default:G}), consider moving some things to ToSerialize()");
+                    $"Using {memoryUse.GetHumanReadableBytes()} of memory to load object {info.PathId} ({overrideType ?? info.ClassId:G}, {overrideGame ?? UnityGame.Default:G}), consider moving some things to ToSerialize()");
             }
+#endif
 
             if (overrideType == null &&
                 hasImplementation &&

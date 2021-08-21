@@ -261,7 +261,7 @@ namespace Entropy.Converters {
                     RenderWireframe = false,
                     WireframeColor = Colors.Orange,
                     Geometry = submesh.Geometry,
-                    Name = submesh.Name,
+                    Name = submesh.Name.Replace('.', '_'),
                     Material = material3d,
                     Transform = Transform3D.Identity,
                 });

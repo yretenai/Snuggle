@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using Equilibrium.Exceptions;
 using Equilibrium.Interfaces;
 using Equilibrium.IO;
 using Equilibrium.Meta;
@@ -14,8 +16,9 @@ namespace Equilibrium.Implementations {
     [PublicAPI, UsedImplicitly, ObjectImplementation(UnityClassId.AssetBundle)]
     public class AssetBundle : NamedObject, ICABPathProvider {
         public AssetBundle(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) {
+            PreloadStart = reader.BaseStream.Position;
             var preloadCount = reader.ReadInt32();
-            PreloadTable.AddRange(PPtr<SerializedObject>.ArrayFromReader(reader, serializedFile, preloadCount));
+            reader.BaseStream.Seek(PPtr<SerializedObject>.Size * preloadCount, SeekOrigin.Current);
 
             var containerCount = reader.ReadInt32();
             Container.EnsureCapacity(containerCount);
@@ -67,7 +70,8 @@ namespace Equilibrium.Implementations {
             MainAsset = new AssetInfo(0, 0, PPtr<SerializedObject>.Null);
         }
 
-        public List<PPtr<SerializedObject>> PreloadTable { get; set; } = new();
+        private long PreloadStart { get; set; }
+        public Memory<PPtr<SerializedObject>>? PreloadTable { get; set; }
         public List<KeyValuePair<string, AssetInfo>> Container { get; set; } = new();
         public Dictionary<int, uint> ClassInfos { get; set; } = new();
         public AssetInfo MainAsset { get; set; }
@@ -79,15 +83,29 @@ namespace Equilibrium.Implementations {
         public int PathFlags { get; set; }
         public Dictionary<string, string> SceneHashes { get; set; } = new();
 
+        public override bool ShouldDeserialize => PreloadTable == null;
+
         public Dictionary<PPtr<SerializedObject>, string> GetCABPaths() {
             return Container.DistinctBy(x => x.Value.Asset).ToDictionary(x => x.Value.Asset, x => x.Key);
         }
 
+        public override void Deserialize(BiEndianBinaryReader reader, ObjectDeserializationOptions options) {
+            base.Deserialize(reader, options);
+
+            reader.BaseStream.Seek(PreloadStart, SeekOrigin.Begin);
+            var preloadCount = reader.ReadInt32();
+            PreloadTable = PPtr<SerializedObject>.ArrayFromReader(reader, SerializedFile, preloadCount).ToArray();
+        }
+
         public override void Serialize(BiEndianBinaryWriter writer, AssetSerializationOptions options) {
+            if (ShouldDeserialize) {
+                throw new IncompleteDeserializationException();
+            }
+
             base.Serialize(writer, options);
 
-            writer.Write(PreloadTable.Count);
-            foreach (var ptr in PreloadTable) {
+            writer.Write(PreloadTable!.Value.Length);
+            foreach (var ptr in PreloadTable.Value.Span) {
                 ptr.ToWriter(writer, SerializedFile, options.TargetVersion);
             }
 

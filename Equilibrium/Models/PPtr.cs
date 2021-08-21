@@ -17,6 +17,7 @@ namespace Equilibrium.Models {
         private PPtr(PPtrEnclosure enclosure) : this(enclosure.FileId, enclosure.PathId) { }
 
         public static PPtr<T> Null => new(0, 0);
+        public static int Size => 12;
 
         [JsonIgnore]
         private T? UnderlyingValue { get; set; }

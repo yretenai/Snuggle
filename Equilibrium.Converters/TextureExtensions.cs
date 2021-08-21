@@ -8,6 +8,10 @@ namespace Equilibrium.Converters {
     public static class TextureExtensions {
         public static bool CanSupportDDS(this TextureFormat format) => format != TextureFormat.RGB24 && format is >= TextureFormat.RG16 and <= TextureFormat.R8 or < TextureFormat.DXT1Crunched;
 
+        public static bool IsBGRA(this TextureFormat format) => format is TextureFormat.ARGB4444 or TextureFormat.RGBA4444 || format.IsASTC(); // BGRA32 is swapped by B8G8R8A8_UNORM
+
+        public static bool IsAlphaFirst(this TextureFormat format) => format is TextureFormat.ARGB4444 or TextureFormat.ARGB32;
+
         public static TextureFormat ToTextureFormat(this DXGIPixelFormat format) {
             // ReSharper disable once SwitchExpressionHandlesSomeKnownEnumValuesWithExceptionInDefault
             return format switch {
