@@ -12,8 +12,9 @@ namespace Equilibrium.Options {
         bool CacheDataIfLZMA, // this literally takes two years, you want it to be enabled.
         bool LoadOnDemand,
         UnityGame Game) {
-        private const int LatestVersion = 3;
+        private const int LatestVersion = 4;
         public int Version { get; set; } = LatestVersion;
+        public UnityGameOptions GameOptions { get; set; } = UnityGameOptions.Default;
 
         [JsonIgnore]
         public IStatusReporter? Reporter { get; set; }
@@ -55,6 +56,13 @@ namespace Equilibrium.Options {
             if (options.Version == 2) {
                 options = options with { LoadOnDemand = false, Version = 3 };
             }
+
+            if (options.Version == 3) {
+                options = options with { GameOptions = UnityGameOptions.Default, Version = 4 };
+            }
+
+            options.GameOptions = options.GameOptions.Migrate();
+
 
             return options;
         }

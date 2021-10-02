@@ -46,6 +46,7 @@
                       ToolTip="This always significantly increases performance at a gigantic memory cost"
                       IsCheckable="True" Click="ToggleCacheDataLZMA" x:Name="CacheDataIfLZMA" />
             <MenuItem Header="_Game" x:Name="UnityGameList" />
+            <MenuItem Header="Game _Options" x:Name="GameOptions" Visibility="Collapsed"/>
         </MenuItem>
         <MenuItem Header="_Entropy">
             <MenuItem Header="_Write Native Textures"

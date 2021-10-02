@@ -15,6 +15,7 @@ using DragonLib;
 using Equilibrium;
 using Equilibrium.Interfaces;
 using Equilibrium.Logging;
+using Equilibrium.Meta;
 using Equilibrium.Options;
 using JetBrains.Annotations;
 
@@ -182,6 +183,11 @@ namespace Entropy.Handlers {
 
         public void SetOptions(EquilibriumOptions options) {
             Settings = Settings with { Options = options with { Reporter = Status, Logger = LogTarget } };
+            SaveOptions();
+        }
+
+        public void SetOptions(UnityGame game, IUnityGameOptions options) {
+            Settings.Options.GameOptions.SetOptions(game, options);
             SaveOptions();
         }
     }

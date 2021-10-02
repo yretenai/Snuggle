@@ -10,11 +10,13 @@ using Entropy.Handlers;
 using Entropy.Windows;
 using Equilibrium;
 using Equilibrium.Meta;
+using Equilibrium.Options;
 
 namespace Entropy.Components {
     public partial class Navigation {
         private readonly Dictionary<MaterialPrimaryColor, MenuItem> PrimaryColorItems = new();
         private readonly Dictionary<UnityGame, MenuItem> UnityGameItems = new();
+        private readonly Dictionary<UniteVersion, MenuItem> PokemonUniteVersionItems = new();
 
         public Navigation() {
             InitializeComponent();
@@ -29,6 +31,7 @@ namespace Entropy.Components {
 
             BuildEnumMenu(UnityGameList, UnityGameItems, instance.Settings.Options.Game, UpdateGame, CancelGameEvent);
             BuildEnumMenu(PrimaryColor, PrimaryColorItems, instance.Settings.Color, UpdatePrimaryColor, CancelPrimaryEvent);
+            PopulateGameOptions();
             PopulateRecentItems();
 
             instance.PropertyChanged += (_, args) => {
@@ -44,6 +47,35 @@ namespace Entropy.Components {
                         break;
                 }
             };
+        }
+
+        private void PopulateGameOptions() {
+            var selected = EntropyCore.Instance.Settings.Options.Game;
+
+            GameOptions.Visibility = Visibility.Collapsed;
+            
+            if (selected == UnityGame.PokemonUnite) {
+                SetPokemonUniteOptionValues();
+            } else {
+                GameOptions.Items.Clear();
+            }
+        }
+        
+        private void SetPokemonUniteOptionValues() {
+            GameOptions.Visibility = Visibility.Visible;
+            GameOptions.Header = UnityGameItems[UnityGame.PokemonUnite].Header + " Options";
+            
+            var instance = EntropyCore.Instance;
+            if (!instance.Settings.Options.GameOptions.TryGetOptionsObject<UniteOptions>(UnityGame.PokemonUnite, out var uniteOptions)) {
+                uniteOptions = UniteOptions.Default;
+            }
+            
+            var optionsMenuItem = new MenuItem {
+                Tag = "PokemonUnite_Version",
+                Header = "_Version",
+            };
+            GameOptions.Items.Add(optionsMenuItem);
+            BuildEnumMenu(optionsMenuItem, PokemonUniteVersionItems, uniteOptions.GameVersion, UpdatePokemonUniteVersion, CancelPokemonUniteVersionEvent);
         }
 
         private static void BuildEnumMenu<T>(ItemsControl menu, IDictionary<T, MenuItem> items, T currentValue, RoutedEventHandler @checked, RoutedEventHandler @unchecked) where T : struct, Enum {
@@ -142,6 +174,7 @@ namespace Entropy.Components {
 
             EntropyCore.Instance.SetOptions(EntropyCore.Instance.Settings.Options with { Game = tag });
             UnityGameItems[game].IsChecked = false;
+            PopulateGameOptions();
             e.Handled = true;
         }
 
@@ -269,6 +302,43 @@ namespace Entropy.Components {
 
         private void ExtractSerialize(object sender, RoutedEventArgs e) {
             EntropyFile.Extract(ExtractMode.Serialize, (sender as MenuItem)?.Tag == null);
+        }
+
+        private void UpdatePokemonUniteVersion(object sender, RoutedEventArgs e) {
+            var version = (UniteVersion) ((MenuItem) sender).Tag;
+            var instance = EntropyCore.Instance;
+            if (!instance.Settings.Options.GameOptions.TryGetOptionsObject<UniteOptions>(UnityGame.PokemonUnite, out var uniteOptions)) {
+                uniteOptions = UniteOptions.Default;
+            }
+
+            instance.SetOptions(UnityGame.PokemonUnite, uniteOptions with { GameVersion = version });
+            
+            foreach (var (itemVersion, item) in PokemonUniteVersionItems) {
+                if (itemVersion == version) {
+                    continue;
+                }
+
+                item.IsChecked = false;
+            }
+            
+            e.Handled = true;
+        }
+
+        private void CancelPokemonUniteVersionEvent(object sender, RoutedEventArgs e) {
+            if (sender is not MenuItem menuItem) {
+                return;
+            }
+            
+            var instance = EntropyCore.Instance;
+            if (!instance.Settings.Options.GameOptions.TryGetOptionsObject<UniteOptions>(UnityGame.PokemonUnite, out var uniteOptions)) {
+                uniteOptions = UniteOptions.Default;
+            }
+
+            if (menuItem.Tag?.Equals(uniteOptions.Version) == true) {
+                menuItem.IsChecked = true;
+            }
+
+            e.Handled = true;
         }
     }
 }

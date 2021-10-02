@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Equilibrium.Exceptions;
+using Equilibrium.Game.Unite;
 using Equilibrium.Interfaces;
 using Equilibrium.IO;
 using Equilibrium.Meta;
@@ -37,6 +38,14 @@ namespace Equilibrium.Implementations {
 
             MainAsset = AssetInfo.FromReader(reader, serializedFile);
             RuntimeCompatibility = reader.ReadUInt32();
+
+            if (serializedFile.Options.Game == UnityGame.PokemonUnite && 
+                SerializedFile.Options.GameOptions.TryGetOptionsObject<UniteOptions>(UnityGame.PokemonUnite, out var uniteOptions) && 
+                uniteOptions.GameVersion >= UniteVersion.Version1_2) {
+                var container = GetExtraContainer<UniteAssetBundleExtension>(UnityClassId.AssetBundle);
+                container.Unknown1 = reader.ReadUInt32();
+            }
+            
             AssetBundleName = reader.ReadString32();
 
             var dependencyCount = reader.ReadInt32();

@@ -100,6 +100,10 @@ namespace Entropy.Components {
             }
 
             EntropyCore.Instance.SelectedObject = (EntropyObject) selectedItems[^1]!;
+            var serializedObject = EntropyCore.Instance.SelectedObject.GetObject();
+            if (serializedObject is { ShouldDeserialize: true }) {
+                serializedObject.Deserialize(EntropyCore.Instance.Settings.ObjectOptions);
+            }
             EntropyCore.Instance.OnPropertyChanged(nameof(EntropyCore.SelectedObject));
             EntropyCore.Instance.SelectedObjects = selectedItems.Cast<EntropyObject>().ToList();
             EntropyCore.Instance.OnPropertyChanged(nameof(EntropyCore.SelectedObjects));
