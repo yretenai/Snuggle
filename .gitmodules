@@ -4,6 +4,6 @@
 [submodule "Library/SharpGLTF"]
 	path = Library/SharpGLTF
 	url = https://github.com/yretenai/SharpGLTF
-[submodule ".\\Library\\DragonLib"]
-	path = .\\Library\\DragonLib
+[submodule "Library/DragonLib"]
+	path = Library/DragonLib
 	url = https://github.com/yretenai/DragonLib.git
