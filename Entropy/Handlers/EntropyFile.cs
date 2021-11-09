@@ -88,11 +88,12 @@ namespace Entropy.Handlers {
                     instance.Collection.CacheGameObjectClassIds();
                     instance.Status.Reset();
                     instance.Status.SetStatus("Finding container paths...");
-                    instance.Collection.FindAssetContainerNames();
+                    instance.Collection.FindResources();
                     instance.Status.SetStatus($"Loaded {instance.Collection.Files.Count} files");
                     instance.WorkerAction("Collect", _ => AssetCollection.Collect(), false);
                     instance.OnPropertyChanged(nameof(EntropyCore.Objects));
                     instance.OnPropertyChanged(nameof(EntropyCore.Filters));
+                    instance.OnPropertyChanged(nameof(EntropyCore.Title));
                 }, false);
         }
 

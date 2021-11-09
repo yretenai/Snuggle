@@ -295,7 +295,9 @@ namespace Equilibrium.Implementations {
                             }
 
                             if (SerializedFile.Version >= UnityVersionRegister.Unity2019_4) {
-                                if (SerializedFile.Options.Game != UnityGame.PokemonUnite) {
+                                if (SerializedFile.Options.Game != UnityGame.PokemonUnite || 
+                                    SerializedFile.Options.GameOptions.TryGetOptionsObject<UniteOptions>(UnityGame.PokemonUnite, out var uniteOptions) && 
+                                    uniteOptions.GameVersion >= UniteVersion.Version1_2) {
                                     StadiaPresentMode = reader.ReadInt32();
                                     StadiaTargetFramerate = reader.ReadInt32();
                                 }
@@ -673,6 +675,25 @@ namespace Equilibrium.Implementations {
         public bool DisableOldInputManagerSupport { get; set; }
         public bool LegacyClampBlendShapeWeights { get; set; }
         public bool VirtualTexturingSupportEnabled { get; set; }
+
+        public string CombinedName {
+            get {
+                var name = ProjectName;
+                if (string.IsNullOrEmpty(name)) {
+                    name = ProductName;
+                }
+
+                if (string.IsNullOrEmpty(name)) {
+                    return string.Empty;
+                }
+
+                if (string.IsNullOrEmpty(BundleVersion)) {
+                    return name;
+                }
+
+                return $"{name} Version {BundleVersion}";
+            }
+        }
 
         public override void Serialize(BiEndianBinaryWriter writer, AssetSerializationOptions options) {
             base.Serialize(writer, options);

@@ -20,6 +20,7 @@ namespace Equilibrium {
         public Dictionary<string, ObjectNode> Types { get; } = new();
         public Dictionary<string, SerializedFile> Files { get; } = new(StringComparer.InvariantCultureIgnoreCase);
         public Dictionary<string, (object Tag, IFileHandler Handler)> Resources { get; } = new(StringComparer.InvariantCultureIgnoreCase);
+        public PlayerSettings? PlayerSettings { get; internal set; }
 
         public void Dispose() {
             Reset();
@@ -39,6 +40,8 @@ namespace Equilibrium {
             foreach (var (_, file) in Files) {
                 file.Free();
             }
+
+            PlayerSettings = null;
 
             Bundles.Clear();
             Assemblies.Clear();
@@ -205,9 +208,9 @@ namespace Equilibrium {
             return true;
         }
 
-        public void FindAssetContainerNames() {
+        public void FindResources() {
             foreach (var file in Files.Values) {
-                file.FindAssetContainerNames(default);
+                file.FindResources(default);
             }
         }
 

@@ -57,6 +57,9 @@ namespace Entropy.Handlers {
         public HashSet<object> Filters { get; set; } = new();
         public IReadOnlyList<EntropyObject> SelectedObjects { get; set; } = Array.Empty<EntropyObject>();
         public string? Search { get; set; }
+        public string Title => string.IsNullOrEmpty(Collection.PlayerSettings?.CombinedName) ? BaseTitle : $"{BaseTitle} | {Collection.PlayerSettings.CombinedName}";
+
+        private const string BaseTitle = "Entropy";
         private string SettingsFile { get; }
 
 #if DEBUG
@@ -145,6 +148,7 @@ namespace Entropy.Handlers {
                 WorkerThread = new Thread(WorkLoop);
                 WorkerThread.Start();
                 OnPropertyChanged(nameof(Objects));
+                OnPropertyChanged(nameof(Title));
                 OnPropertyChanged(nameof(Filters));
                 OnPropertyChanged(nameof(SelectedObject));
                 OnPropertyChanged(nameof(SelectedObjects));

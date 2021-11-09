@@ -136,10 +136,18 @@ namespace Equilibrium {
             }
         }
 
-        public void FindAssetContainerNames(SerializedObject? resourceManager) {
-            foreach (var (pPtr, path) in Objects.Values.OfType<ICABPathProvider>().SelectMany(x => x.GetCABPaths())) {
-                if (pPtr.Value != null) {
-                    pPtr.Value.ObjectContainerPath = path;
+        public void FindResources(SerializedObject? resourceManager) {
+            foreach (var serializedObject in Objects.Values) {
+                if (serializedObject is ICABPathProvider cab) {
+                    foreach (var (pPtr, path) in cab.GetCABPaths()) {
+                        if (pPtr.Value != null) {
+                            pPtr.Value.ObjectContainerPath = path;
+                        }
+                    }
+                }
+
+                if (serializedObject is PlayerSettings settings && Assets != null) {
+                    Assets.PlayerSettings = settings;
                 }
             }
         }
