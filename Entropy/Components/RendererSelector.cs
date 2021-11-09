@@ -11,13 +11,13 @@ namespace Entropy.Components {
             }
 
             return item switch {
-                Mesh => (DataTemplate) Application.Current.Resources["EntropyMeshGeometryRenderer"],
-                GameObject => (DataTemplate) Application.Current.Resources["EntropyMeshGeometryRenderer"],
-                MeshFilter => (DataTemplate) Application.Current.Resources["EntropyMeshGeometryRenderer"],
-                MeshRenderer => (DataTemplate) Application.Current.Resources["EntropyMeshGeometryRenderer"],
-                SkinnedMeshRenderer => (DataTemplate) Application.Current.Resources["EntropyMeshGeometryRenderer"],
-                Texture2D => (DataTemplate) Application.Current.Resources["EntropyTexture2DRenderer"],
-                Text => (DataTemplate) Application.Current.Resources["EntropyTextRenderer"],
+                Mesh when EntropyCore.Instance.Settings.EnabledRenders.Contains(RendererType.Geometry) => (DataTemplate) Application.Current.Resources["EntropyMeshGeometryRenderer"],
+                GameObject when EntropyCore.Instance.Settings.EnabledRenders.Contains(RendererType.Geometry) => (DataTemplate) Application.Current.Resources["EntropyMeshGeometryRenderer"],
+                MeshFilter when EntropyCore.Instance.Settings.EnabledRenders.Contains(RendererType.Geometry) => (DataTemplate) Application.Current.Resources["EntropyMeshGeometryRenderer"],
+                MeshRenderer when EntropyCore.Instance.Settings.EnabledRenders.Contains(RendererType.Geometry) => (DataTemplate) Application.Current.Resources["EntropyMeshGeometryRenderer"],
+                SkinnedMeshRenderer when EntropyCore.Instance.Settings.EnabledRenders.Contains(RendererType.Geometry) => (DataTemplate) Application.Current.Resources["EntropyMeshGeometryRenderer"],
+                Texture2D when EntropyCore.Instance.Settings.EnabledRenders.Contains(RendererType.Texture) => (DataTemplate) Application.Current.Resources["EntropyTexture2DRenderer"],
+                Text when EntropyCore.Instance.Settings.EnabledRenders.Contains(RendererType.Text) => (DataTemplate) Application.Current.Resources["EntropyTextRenderer"],
                 _ => (DataTemplate) Application.Current.Resources["EntropyNullRenderer"],
             };
         }

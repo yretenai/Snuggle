@@ -20,7 +20,7 @@ namespace Entropy.Converters {
                     }
 
                     return text.String;
-                });
+                }, true);
         }
 
         public override object ProvideValue(IServiceProvider serviceProvider) => this;

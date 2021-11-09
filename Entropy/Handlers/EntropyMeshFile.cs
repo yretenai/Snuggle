@@ -17,12 +17,18 @@ using SharpGLTF.Materials;
 using SharpGLTF.Scenes;
 using SharpGLTF.Schema2;
 using SharpGLTF.Transforms;
+using SharpGLTF.Validation;
 using Material = Equilibrium.Implementations.Material;
 using Mesh = Equilibrium.Implementations.Mesh;
 
 namespace Entropy.Handlers {
     public static class EntropyMeshFile {
         public static void Save(Mesh mesh, string path) {
+            var targetPath = Path.ChangeExtension(path, ".gltf");
+            if (File.Exists(targetPath)) {
+                return;
+            }
+
             var scene = new SceneBuilder();
             var meshNode = CreateMesh(mesh);
             scene.AddRigidMesh(meshNode, AffineTransform.Identity);
@@ -38,7 +44,7 @@ namespace Entropy.Handlers {
                 Directory.CreateDirectory(dir);
             }
 
-            gltf.SaveGLTF(Path.ChangeExtension(path, ".gltf"), new WriteSettings { JsonIndented = true });
+            gltf.SaveGLTF(targetPath, new WriteSettings { JsonIndented = true, ImageWriting = ResourceWriteMode.SatelliteFile, Validation = ValidationMode.TryFix, ImageWriteCallback = (_, _, memoryFile) => Path.GetFileName(memoryFile.SourcePath) });
         }
 
         public static void Save(Component component, string path) {
@@ -56,7 +62,7 @@ namespace Entropy.Handlers {
                     return null;
                 }
 
-                if (transform.Parent.Value?.GameObject.Value == null) {
+                if (transform.Parent.Value?.GameObject.Value == null || EntropyCore.Instance.Settings.BubbleGameObjectsUp) {
                     return gameObject;
                 }
 
@@ -65,13 +71,18 @@ namespace Entropy.Handlers {
         }
 
         public static void Save(GameObject gameObject, string path) {
+            path = Path.Combine(Path.GetDirectoryName(path)!, Path.GetFileNameWithoutExtension(path));
+
+            if (File.Exists(path + ".gltf") ||
+                File.Exists(Path.Combine(path, Path.GetFileName(path)) + ".gltf")) {
+                return;
+            }
+
             var scene = new SceneBuilder();
             gameObject = FindTopGeometry(gameObject) ?? gameObject;
 
             var node = new NodeBuilder();
             scene.AddNode(node);
-
-            path = Path.Combine(Path.GetDirectoryName(path)!, Path.GetFileNameWithoutExtension(path));
 
             var nodeTree = new Dictionary<long, NodeBuilder>();
             var skinnedMeshes = new List<(Mesh mesh, List<Material?>)>();
@@ -103,7 +114,7 @@ namespace Entropy.Handlers {
                 Directory.CreateDirectory(dir);
             }
 
-            gltf.SaveGLTF(path + ".gltf", new WriteSettings { JsonIndented = true });
+            gltf.SaveGLTF(path + ".gltf", new WriteSettings { JsonIndented = true, ImageWriting = ResourceWriteMode.SatelliteFile, Validation = ValidationMode.TryFix, ImageWriteCallback = (_, _, memoryFile) => Path.GetFileName(memoryFile.SourcePath) });
         }
 
         private static void BuildHashTree(IReadOnlyDictionary<long, NodeBuilder> nodeTree, IDictionary<uint, NodeBuilder> hashTree, Transform? transform) {
@@ -180,20 +191,20 @@ namespace Entropy.Handlers {
                 scene.AddRigidMesh(CreateMesh(filter.Mesh.Value, materials, path), node);
             }
 
-            foreach (var child in transform.Children) {
-                if (child.Value?.GameObject.Value == null) {
-                    continue;
-                }
+            if (EntropyCore.Instance.Settings.BubbleGameObjectsDown) {
+                foreach (var child in transform.Children) {
+                    if (child.Value?.GameObject.Value == null) {
+                        continue;
+                    }
 
-                var childNode = node.CreateNode();
-                scene.AddNode(childNode);
-                BuildGameObject(child.Value.GameObject.Value, scene, childNode, nodeTree, skinnedMeshes, path);
+                    var childNode = node.CreateNode();
+                    scene.AddNode(childNode);
+                    BuildGameObject(child.Value.GameObject.Value, scene, childNode, nodeTree, skinnedMeshes, path);
+                }
             }
         }
 
         private static IMeshBuilder<MaterialBuilder> CreateMesh(Mesh mesh, List<Material?>? materials = null, string? path = null, Dictionary<long, string>? saved = null) {
-            var meshBuilder = new MeshBuilder<VertexPositionNormalTangent, VertexColor1Texture2, VertexJoints4>(mesh.Name);
-
             var vertexStream = MeshConverter.GetVBO(mesh, out var descriptors, out var strides);
             var indexStream = MeshConverter.GetIBO(mesh);
             var indices = mesh.IndexFormat == IndexFormat.UInt16 ? MemoryMarshal.Cast<byte, ushort>(indexStream.Span).ToArray().Select(x => (int) x).ToArray() : MemoryMarshal.Cast<byte, int>(indexStream.Span);
@@ -203,6 +214,7 @@ namespace Entropy.Handlers {
             var cuv = new VertexColor1Texture2[mesh.VertexData.VertexCount];
             Array.Fill(cuv, new VertexColor1Texture2());
             var joint = new VertexJoints4[mesh.VertexData.VertexCount];
+            var hasWeights = false;
             for (var i = 0; i < mesh.VertexData.VertexCount; ++i) {
                 var joints = Span<int>.Empty;
                 var weights = Span<float>.Empty;
@@ -271,50 +283,108 @@ namespace Entropy.Handlers {
                     weights = fullWeights;
                 }
 
-                joint[i] = new VertexJoints4(joints.ToArray().Zip(weights.ToArray()).ToArray());
+                var jointsArray = joints.ToArray();
+                var weightsArray = weights.ToArray();
+                if (!hasWeights) {
+                    hasWeights = weightsArray.Any(x => x != 0);
+                }
+
+                joint[i] = new VertexJoints4(jointsArray.Zip(weightsArray).ToArray());
             }
 
-            for (var submeshIndex = 0; submeshIndex < mesh.Submeshes.Count; submeshIndex++) {
-                var submesh = mesh.Submeshes[submeshIndex];
-                var material = new MaterialBuilder($"Submesh{submeshIndex}");
-                CreateMaterial(material, materials?.ElementAtOrDefault(submeshIndex), path, saved ?? new Dictionary<long, string>());
+            IMeshBuilder<MaterialBuilder> meshBuilder;
+            if (hasWeights) {
+                var meshBuilderAbs = new MeshBuilder<VertexPositionNormalTangent, VertexColor1Texture2, VertexJoints4>(mesh.Name);
+                meshBuilder = meshBuilderAbs;
+                for (var submeshIndex = 0; submeshIndex < mesh.Submeshes.Count; submeshIndex++) {
+                    var submesh = mesh.Submeshes[submeshIndex];
+                    var material = new MaterialBuilder($"Submesh{submeshIndex}");
+                    CreateMaterial(material, materials?.ElementAtOrDefault(submeshIndex), path, saved ?? new Dictionary<long, string>());
 
-                var primitive = meshBuilder.UsePrimitive(material);
+                    var primitive = meshBuilderAbs.UsePrimitive(material);
 
-                var indicesPerSurface = submesh.Topology switch {
-                    GfxPrimitiveType.Points => 1,
-                    GfxPrimitiveType.Lines => 2,
-                    GfxPrimitiveType.Triangles => 3,
-                    GfxPrimitiveType.Quads => 4,
-                    GfxPrimitiveType.Strip => throw new NotSupportedException(),
-                    GfxPrimitiveType.TriangleStrip => throw new NotSupportedException(),
-                    _ => throw new NotSupportedException(),
-                };
+                    var indicesPerSurface = submesh.Topology switch {
+                        GfxPrimitiveType.Points => 1,
+                        GfxPrimitiveType.Lines => 2,
+                        GfxPrimitiveType.Triangles => 3,
+                        GfxPrimitiveType.Quads => 4,
+                        GfxPrimitiveType.Strip => throw new NotSupportedException(),
+                        GfxPrimitiveType.TriangleStrip => throw new NotSupportedException(),
+                        _ => throw new NotSupportedException(),
+                    };
 
-                var baseOffset = (int) (submesh.FirstByte / (mesh.IndexFormat == IndexFormat.UInt16 ? 2 : 4));
-                var submeshIndices = indices.Slice(baseOffset, (int) submesh.IndexCount).ToArray();
+                    var baseOffset = (int) (submesh.FirstByte / (mesh.IndexFormat == IndexFormat.UInt16 ? 2 : 4));
+                    var submeshIndices = indices.Slice(baseOffset, (int) submesh.IndexCount).ToArray();
 
-                for (var i = 0; i < submesh.IndexCount / indicesPerSurface; ++i) {
-                    var index = submeshIndices.Skip(i * indicesPerSurface).Take(indicesPerSurface).Select(x => (xyvnt[x], cuv[x], joint[x])).ToArray();
+                    for (var i = 0; i < submesh.IndexCount / indicesPerSurface; ++i) {
+                        var index = submeshIndices.Skip(i * indicesPerSurface).Take(indicesPerSurface).Select(x => (xyvnt[x], cuv[x], joint[x])).ToArray();
 
-                    switch (submesh.Topology) {
-                        case GfxPrimitiveType.Triangles:
-                            primitive.AddTriangle(index[0], index[1], index[2]);
-                            break;
-                        case GfxPrimitiveType.Quads:
-                            primitive.AddQuadrangle(index[0], index[1], index[2], index[3]);
-                            break;
-                        case GfxPrimitiveType.Lines:
-                            primitive.AddLine(index[0], index[1]);
-                            break;
-                        case GfxPrimitiveType.Points:
-                            primitive.AddPoint(index[0]);
-                            break;
-                        case GfxPrimitiveType.TriangleStrip:
-                        case GfxPrimitiveType.Strip:
-                            throw new NotSupportedException();
-                        default:
-                            throw new NotSupportedException();
+                        switch (submesh.Topology) {
+                            case GfxPrimitiveType.Triangles:
+                                primitive.AddTriangle(index[0], index[1], index[2]);
+                                break;
+                            case GfxPrimitiveType.Quads:
+                                primitive.AddQuadrangle(index[0], index[1], index[2], index[3]);
+                                break;
+                            case GfxPrimitiveType.Lines:
+                                primitive.AddLine(index[0], index[1]);
+                                break;
+                            case GfxPrimitiveType.Points:
+                                primitive.AddPoint(index[0]);
+                                break;
+                            case GfxPrimitiveType.TriangleStrip:
+                            case GfxPrimitiveType.Strip:
+                                throw new NotSupportedException();
+                            default:
+                                throw new NotSupportedException();
+                        }
+                    }
+                }
+            } else {
+                var meshBuilderAbs = new MeshBuilder<VertexPositionNormalTangent, VertexColor1Texture2>(mesh.Name);
+                meshBuilder = meshBuilderAbs;
+                for (var submeshIndex = 0; submeshIndex < mesh.Submeshes.Count; submeshIndex++) {
+                    var submesh = mesh.Submeshes[submeshIndex];
+                    var material = new MaterialBuilder($"Submesh{submeshIndex}");
+                    CreateMaterial(material, materials?.ElementAtOrDefault(submeshIndex), path, saved ?? new Dictionary<long, string>());
+
+                    var primitive = meshBuilderAbs.UsePrimitive(material);
+
+                    var indicesPerSurface = submesh.Topology switch {
+                        GfxPrimitiveType.Points => 1,
+                        GfxPrimitiveType.Lines => 2,
+                        GfxPrimitiveType.Triangles => 3,
+                        GfxPrimitiveType.Quads => 4,
+                        GfxPrimitiveType.Strip => throw new NotSupportedException(),
+                        GfxPrimitiveType.TriangleStrip => throw new NotSupportedException(),
+                        _ => throw new NotSupportedException(),
+                    };
+
+                    var baseOffset = (int) (submesh.FirstByte / (mesh.IndexFormat == IndexFormat.UInt16 ? 2 : 4));
+                    var submeshIndices = indices.Slice(baseOffset, (int) submesh.IndexCount).ToArray();
+
+                    for (var i = 0; i < submesh.IndexCount / indicesPerSurface; ++i) {
+                        var index = submeshIndices.Skip(i * indicesPerSurface).Take(indicesPerSurface).Select(x => (xyvnt[x], cuv[x])).ToArray();
+
+                        switch (submesh.Topology) {
+                            case GfxPrimitiveType.Triangles:
+                                primitive.AddTriangle(index[0], index[1], index[2]);
+                                break;
+                            case GfxPrimitiveType.Quads:
+                                primitive.AddQuadrangle(index[0], index[1], index[2], index[3]);
+                                break;
+                            case GfxPrimitiveType.Lines:
+                                primitive.AddLine(index[0], index[1]);
+                                break;
+                            case GfxPrimitiveType.Points:
+                                primitive.AddPoint(index[0]);
+                                break;
+                            case GfxPrimitiveType.TriangleStrip:
+                            case GfxPrimitiveType.Strip:
+                                throw new NotSupportedException();
+                            default:
+                                throw new NotSupportedException();
+                        }
                     }
                 }
             }
@@ -330,7 +400,7 @@ namespace Entropy.Handlers {
 
                     for (var vertexIndex = 0; vertexIndex < shape.VertexCount; vertexIndex++) {
                         var vertex = mesh.BlendShapeData.Vertices![(int) (shape.FirstVertex + vertexIndex)];
-                        
+
                         var geometryData = new VertexGeometryDelta {
                             PositionDelta = new Vector3(vertex.Vertex.X, vertex.Vertex.Y, vertex.Vertex.Z),
                         };
@@ -365,6 +435,10 @@ namespace Entropy.Handlers {
 
             materialBuilder.Name = material.Name;
 
+            if (!Directory.Exists(path)) {
+                Directory.CreateDirectory(path);
+            }
+
             foreach (var (name, texEnv) in material.SavedProperties.Textures) {
                 if (texEnv.Texture.Value is not Texture2D texture) {
                     continue;
@@ -394,6 +468,8 @@ namespace Entropy.Handlers {
                     materialBuilder.WithEmissive(texPath);
                 }
             }
+            
+            EntropyMaterialFile.SaveMaterial(material, path);
         }
     }
 }

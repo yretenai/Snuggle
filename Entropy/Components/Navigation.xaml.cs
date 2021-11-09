@@ -17,6 +17,7 @@ namespace Entropy.Components {
         private readonly Dictionary<MaterialPrimaryColor, MenuItem> PrimaryColorItems = new();
         private readonly Dictionary<UnityGame, MenuItem> UnityGameItems = new();
         private readonly Dictionary<UniteVersion, MenuItem> PokemonUniteVersionItems = new();
+        private readonly Dictionary<RendererType, MenuItem> RendererTypeItems = new();
 
         public Navigation() {
             InitializeComponent();
@@ -28,9 +29,12 @@ namespace Entropy.Components {
             UseContainerPaths.IsChecked = instance.Settings.UseContainerPaths;
             GroupByType.IsChecked = instance.Settings.GroupByType;
             LightMode.IsChecked = instance.Settings.LightMode;
+            BubbleGameObjectsDown.IsChecked = instance.Settings.BubbleGameObjectsDown;
+            BubbleGameObjectsUp.IsChecked = instance.Settings.BubbleGameObjectsUp;
 
-            BuildEnumMenu(UnityGameList, UnityGameItems, instance.Settings.Options.Game, UpdateGame, CancelGameEvent);
-            BuildEnumMenu(PrimaryColor, PrimaryColorItems, instance.Settings.Color, UpdatePrimaryColor, CancelPrimaryEvent);
+            BuildEnumMenu(UnityGameList, UnityGameItems, new [] { instance.Settings.Options.Game }, UpdateGame, CancelGameEvent);
+            BuildEnumMenu(PrimaryColor, PrimaryColorItems, new [] { instance.Settings.Color }, UpdatePrimaryColor, CancelPrimaryEvent);
+            BuildEnumMenu(RendererTypes, RendererTypeItems, instance.Settings.EnabledRenders, AddRenderer, RemoveRenderer);
             PopulateGameOptions();
             PopulateRecentItems();
 
@@ -53,32 +57,32 @@ namespace Entropy.Components {
             var selected = EntropyCore.Instance.Settings.Options.Game;
 
             GameOptions.Visibility = Visibility.Collapsed;
-            
+
             if (selected == UnityGame.PokemonUnite) {
                 SetPokemonUniteOptionValues();
             } else {
                 GameOptions.Items.Clear();
             }
         }
-        
+
         private void SetPokemonUniteOptionValues() {
             GameOptions.Visibility = Visibility.Visible;
             GameOptions.Header = UnityGameItems[UnityGame.PokemonUnite].Header + " Options";
-            
+
             var instance = EntropyCore.Instance;
             if (!instance.Settings.Options.GameOptions.TryGetOptionsObject<UniteOptions>(UnityGame.PokemonUnite, out var uniteOptions)) {
                 uniteOptions = UniteOptions.Default;
             }
-            
+
             var optionsMenuItem = new MenuItem {
                 Tag = "PokemonUnite_Version",
                 Header = "_Version",
             };
             GameOptions.Items.Add(optionsMenuItem);
-            BuildEnumMenu(optionsMenuItem, PokemonUniteVersionItems, uniteOptions.GameVersion, UpdatePokemonUniteVersion, CancelPokemonUniteVersionEvent);
+            BuildEnumMenu(optionsMenuItem, PokemonUniteVersionItems, new [] { uniteOptions.GameVersion }, UpdatePokemonUniteVersion, CancelPokemonUniteVersionEvent);
         }
 
-        private static void BuildEnumMenu<T>(ItemsControl menu, IDictionary<T, MenuItem> items, T currentValue, RoutedEventHandler @checked, RoutedEventHandler @unchecked) where T : struct, Enum {
+        private static void BuildEnumMenu<T>(ItemsControl menu, IDictionary<T, MenuItem> items, IReadOnlyCollection<T> currentValue, RoutedEventHandler @checked, RoutedEventHandler @unchecked) where T : struct, Enum {
             var descriptions = typeof(T).GetFields(BindingFlags.Static | BindingFlags.Public)
                 .ToDictionary(x => (T) x.GetValue(null)!,
                     x => x.GetCustomAttribute<DescriptionAttribute>()?.Description ?? x.Name);
@@ -86,7 +90,7 @@ namespace Entropy.Components {
                 var item = new MenuItem {
                     Tag = value,
                     Header = "_" + descriptions[value],
-                    IsChecked = value.Equals(currentValue),
+                    IsChecked = currentValue.Any(x => x.Equals(value)),
                     IsCheckable = true,
                 };
                 item.Checked += @checked;
@@ -110,7 +114,7 @@ namespace Entropy.Components {
             var instance = EntropyCore.Instance;
             RecentItems.Items.Clear();
             foreach (var item in instance.Settings.RecentFiles.Select(recentFile =>
-                new MenuItem { Tag = recentFile, Header = "_" + recentFile })) {
+                         new MenuItem { Tag = recentFile, Header = "_" + recentFile })) {
                 item.Click += LoadDirectoryOrFile;
                 RecentItems.Items.Add(item);
             }
@@ -121,7 +125,7 @@ namespace Entropy.Components {
             }
 
             foreach (var item in instance.Settings.RecentDirectories.Select(recentDirectory =>
-                new MenuItem { Tag = recentDirectory, Header = "_" + recentDirectory })) {
+                         new MenuItem { Tag = recentDirectory, Header = "_" + recentDirectory })) {
                 item.Click += LoadDirectoryOrFile;
                 RecentItems.Items.Add(item);
             }
@@ -207,6 +211,28 @@ namespace Entropy.Components {
             EntropyCore.Instance.UpdateColors();
         }
 
+        private void AddRenderer(object sender, RoutedEventArgs e) {
+            if (sender is not MenuItem menuItem) {
+                return;
+            }
+
+            var tag = (RendererType) menuItem.Tag;
+            EntropyCore.Instance.Settings.EnabledRenders.Add(tag);
+            EntropyCore.Instance.SaveOptions();
+            e.Handled = true;
+        }
+
+        private void RemoveRenderer(object sender, RoutedEventArgs e) {
+            if (sender is not MenuItem menuItem) {
+                return;
+            }
+
+            var tag = (RendererType) menuItem.Tag;
+            EntropyCore.Instance.Settings.EnabledRenders.Remove(tag);
+            EntropyCore.Instance.SaveOptions();
+            e.Handled = true;
+        }
+
         private void ToggleCacheData(object sender, RoutedEventArgs e) {
             var enabled = ((MenuItem) sender).IsChecked;
             var instance = EntropyCore.Instance;
@@ -235,6 +261,18 @@ namespace Entropy.Components {
             var enabled = ((MenuItem) sender).IsChecked;
             var instance = EntropyCore.Instance;
             instance.SetOptions(instance.Settings with { GroupByType = enabled });
+        }
+
+        private void ToggleBubbleGameObjectDown(object sender, RoutedEventArgs e) {
+            var enabled = ((MenuItem) sender).IsChecked;
+            var instance = EntropyCore.Instance;
+            instance.SetOptions(instance.Settings with { BubbleGameObjectsDown = enabled });
+        }
+
+        private void ToggleBubbleGameObjectUp(object sender, RoutedEventArgs e) {
+            var enabled = ((MenuItem) sender).IsChecked;
+            var instance = EntropyCore.Instance;
+            instance.SetOptions(instance.Settings with { BubbleGameObjectsUp = enabled });
         }
 
         private void ToggleLightMode(object sender, RoutedEventArgs e) {
@@ -275,7 +313,7 @@ namespace Entropy.Components {
                     EntropyTextureFile.ClearMemory();
 
                     AssetCollection.Collect();
-                });
+                }, true);
         }
 
         private void Search(object sender, KeyEventArgs e) {
@@ -288,8 +326,8 @@ namespace Entropy.Components {
             }
         }
 
-        private void OpenLog(object sender, RoutedEventArgs e) {
-            App.OpenWindow<DebugLog>();
+        private void OpenGameObjectTree(object sender, RoutedEventArgs e) {
+            App.OpenWindow<GameObjectTree>();
         }
 
         private void ExtractRaw(object sender, RoutedEventArgs e) {
@@ -312,7 +350,7 @@ namespace Entropy.Components {
             }
 
             instance.SetOptions(UnityGame.PokemonUnite, uniteOptions with { GameVersion = version });
-            
+
             foreach (var (itemVersion, item) in PokemonUniteVersionItems) {
                 if (itemVersion == version) {
                     continue;
@@ -320,7 +358,7 @@ namespace Entropy.Components {
 
                 item.IsChecked = false;
             }
-            
+
             e.Handled = true;
         }
 
@@ -328,7 +366,7 @@ namespace Entropy.Components {
             if (sender is not MenuItem menuItem) {
                 return;
             }
-            
+
             var instance = EntropyCore.Instance;
             if (!instance.Settings.Options.GameOptions.TryGetOptionsObject<UniteOptions>(UnityGame.PokemonUnite, out var uniteOptions)) {
                 uniteOptions = UniteOptions.Default;

@@ -90,10 +90,10 @@ namespace Entropy.Handlers {
                     instance.Status.SetStatus("Finding container paths...");
                     instance.Collection.FindAssetContainerNames();
                     instance.Status.SetStatus($"Loaded {instance.Collection.Files.Count} files");
-                    instance.WorkerAction("Collect", _ => AssetCollection.Collect());
+                    instance.WorkerAction("Collect", _ => AssetCollection.Collect(), false);
                     instance.OnPropertyChanged(nameof(EntropyCore.Objects));
                     instance.OnPropertyChanged(nameof(EntropyCore.Filters));
-                });
+                }, false);
         }
 
         public static void Extract(ExtractMode mode, bool selected) {
@@ -118,7 +118,7 @@ namespace Entropy.Handlers {
             var instance = EntropyCore.Instance;
             instance.Settings.LastSaveDirectory = outputDirectory;
             instance.SaveOptions();
-            instance.WorkerAction("Extract", token => { ExtractOperation((selected ? instance.SelectedObjects : instance.Objects).ToImmutableArray(), outputDirectory, mode, token); });
+            instance.WorkerAction("Extract", token => { ExtractOperation((selected ? instance.SelectedObjects : instance.Objects).ToImmutableArray(), outputDirectory, mode, token); }, true);
         }
 
         private static void ExtractOperation(ImmutableArray<EntropyObject> items, string outputDirectory, ExtractMode mode, CancellationToken token) {

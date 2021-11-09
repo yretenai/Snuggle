@@ -64,8 +64,12 @@ namespace Entropy.Handlers {
         }
 
         private static string SavePNG(Texture2D texture, string path) {
-            var data = new Memory<byte>(LoadCachedTexture(texture));
             path = Path.ChangeExtension(path, ".png");
+            if (File.Exists(path)) {
+                return path;
+            }
+
+            var data = new Memory<byte>(LoadCachedTexture(texture));
             if (data.IsEmpty) {
                 return path;
             }
@@ -79,6 +83,10 @@ namespace Entropy.Handlers {
             destinationPath = Path.ChangeExtension(path, ".dds");
             if (!texture.TextureFormat.CanSupportDDS()) {
                 return false;
+            }
+
+            if (File.Exists(destinationPath)) {
+                return true;
             }
 
             using var fs = File.OpenWrite(destinationPath);

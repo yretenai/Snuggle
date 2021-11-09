@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using Equilibrium.Options;
 
@@ -13,12 +15,15 @@ namespace Entropy.Handlers {
         bool GroupByType,
         string NameTemplate,
         MaterialPrimaryColor Color,
-        bool LightMode) {
-        private const int LatestVersion = 3;
+        bool LightMode,
+        bool BubbleGameObjectsDown,
+        bool BubbleGameObjectsUp) {
+        private const int LatestVersion = 4;
 
         public List<string> RecentFiles { get; set; } = new();
         public List<string> RecentDirectories { get; set; } = new();
         public string LastSaveDirectory { get; set; } = string.Empty;
+        public HashSet<RendererType> EnabledRenders { get; set; } = Enum.GetValues<RendererType>().ToHashSet();
 
         public static EntropySettings Default { get; } =
             new(EquilibriumOptions.Default,
@@ -30,7 +35,9 @@ namespace Entropy.Handlers {
                 true,
                 "{0}.{1:G}_{2:G}.bytes", // 0 = Name, 1 = PathId, 2 = Type
                 MaterialPrimaryColor.Grey,
-                false);
+                false,
+                true,
+                true);
 
         public int Version { get; set; } = LatestVersion;
 
@@ -73,6 +80,10 @@ namespace Entropy.Handlers {
 
             if (settings.Version < 3) {
                 settings = settings with { Color = MaterialPrimaryColor.Red, LightMode = false, Version = 3 };
+            }
+
+            if (settings.Version < 4) {
+                settings = settings with { EnabledRenders = Enum.GetValues<RendererType>().ToHashSet(), BubbleGameObjectsDown = true, BubbleGameObjectsUp = true };
             }
 
             return settings with { Version = LatestVersion };

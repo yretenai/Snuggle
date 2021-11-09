@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
@@ -36,13 +37,13 @@ namespace Entropy.Components.Renderers {
 
             switch (DataContext) {
                 case Mesh meshObject:
-                    MeshToHelixConverter.ConvertMesh(meshObject, Dispatcher.CurrentDispatcher, Viewport3D.Items);
+                    MeshToHelixConverter.ConvertMesh(meshObject, Dispatcher.CurrentDispatcher, Viewport3D.Items, CancellationToken.None);
                     break;
                 case Component component:
-                    MeshToHelixConverter.ConvertGameObjectTree(component.GameObject.Value, Dispatcher.CurrentDispatcher, Viewport3D.Items);
+                    MeshToHelixConverter.ConvertGameObjectTree(component.GameObject.Value, Dispatcher.CurrentDispatcher, Viewport3D.Items, CancellationToken.None);
                     break;
                 case GameObject gameObject:
-                    MeshToHelixConverter.ConvertGameObjectTree(gameObject, Dispatcher.CurrentDispatcher, Viewport3D.Items);
+                    MeshToHelixConverter.ConvertGameObjectTree(gameObject, Dispatcher.CurrentDispatcher, Viewport3D.Items, CancellationToken.None);
                     break;
             }
         }

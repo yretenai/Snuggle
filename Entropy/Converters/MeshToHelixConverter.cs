@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
 using System.Windows.Threading;
@@ -25,7 +26,7 @@ using Transform = Equilibrium.Implementations.Transform;
 
 namespace Entropy.Converters {
     public static class MeshToHelixConverter {
-        private static List<Object3D> GetSubmeshes(Mesh mesh) {
+        private static List<Object3D> GetSubmeshes(Mesh mesh, CancellationToken token) {
             if (mesh.ShouldDeserialize) {
                 throw new IncompleteDeserializationException();
             }
@@ -35,6 +36,10 @@ namespace Entropy.Converters {
 
             var objects = new List<Object3D>();
             for (var index = 0; index < mesh.Submeshes.Count; index++) {
+                if (token.IsCancellationRequested) {
+                    return objects;
+                }
+                
                 var submesh = mesh.Submeshes[index];
                 var geometry = new MeshGeometry3D();
                 var span = indexStream.Span.Slice((int) submesh.FirstByte, (int) (submesh.IndexCount * (mesh.IndexFormat == IndexFormat.UInt16 ? 2 : 4)));
@@ -58,7 +63,15 @@ namespace Entropy.Converters {
                 geometry.TextureCoordinates = new Vector2Collection();
                 geometry.TextureCoordinates.EnsureCapacity(submesh.VertexCount);
                 for (var i = 0; i < submesh.VertexCount; ++i) {
+                    if (token.IsCancellationRequested) {
+                        return objects;
+                    }
+                    
                     foreach (var (channel, info) in descriptors) {
+                        if (token.IsCancellationRequested) {
+                            return objects;
+                        }
+                        
                         var stride = strides[info.Stream];
                         var offset = (submesh.FirstVertex + i) * stride;
                         var data = vertexStream[info.Stream][(offset + info.Offset)..].Span;
@@ -106,16 +119,17 @@ namespace Entropy.Converters {
             return objects;
         }
 
-        public static void ConvertGameObjectTree(GameObject? gameObject, Dispatcher dispatcher, Collection<Element3D> collection) {
+        public static void ConvertGameObjectTree(GameObject? gameObject, Dispatcher dispatcher, Collection<Element3D> collection, CancellationToken token1) {
             EntropyCore.Instance.WorkerAction("DecodeGeometryHelix",
-                _ => {
+                token2 => {
+                    var cts = CancellationTokenSource.CreateLinkedTokenSource(token1, token2);
                     gameObject = EntropyMeshFile.FindTopGeometry(gameObject);
                     if (gameObject == null) {
                         return;
                     }
 
                     var meshData = new Dictionary<long, (List<Object3D> submeshes, List<(Texture2D? texture, Memory<byte> textureData)>)>();
-                    FindGeometryMeshData(gameObject, meshData);
+                    FindGeometryMeshData(gameObject, meshData, cts.Token);
 
                     dispatcher.Invoke(() => {
                         var existingPointLight = collection.FirstOrDefault(x => x is PointLight3D);
@@ -130,17 +144,16 @@ namespace Entropy.Converters {
                             EnableTopMost = true,
                         };
                         collection.Add(topMost);
-                        AddGameObjectNode(gameObject, collection, Matrix.Identity, lineBuilder, labelGeometry, meshData);
+                        AddGameObjectNode(gameObject, collection, Matrix.Identity, lineBuilder, labelGeometry, meshData, cts.Token);
                         lines.Geometry = lineBuilder.ToLineGeometry3D();
                         lines.Color = Colors.Crimson;
                         topMost.Children.Add(lines);
                         topMost.Children.Add(labels);
                     });
-                });
+                }, true);
         }
 
-        private static void FindGeometryMeshData(GameObject gameObject,
-            IDictionary<long, (List<Object3D> submeshes, List<(Texture2D? texture, Memory<byte> textureData)>)> meshData) {
+        private static void FindGeometryMeshData(GameObject gameObject, IDictionary<long, (List<Object3D> submeshes, List<(Texture2D? texture, Memory<byte> textureData)>)> meshData, CancellationToken token) {
             if (gameObject.FindComponent(UnityClassId.Transform).Value is not Transform transform) {
                 return;
             }
@@ -152,12 +165,12 @@ namespace Entropy.Converters {
                     filter.Mesh.Value.Deserialize(ObjectDeserializationOptions.Default);
                 }
 
-                submeshes = GetSubmeshes(filter.Mesh.Value);
+                submeshes = GetSubmeshes(filter.Mesh.Value, token);
             }
 
             var textureData = new List<(Texture2D? texture, Memory<byte> textureData)>();
             if (gameObject.FindComponent(UnityClassId.MeshRenderer, UnityClassId.SkinnedMeshRenderer).Value is Renderer renderer) {
-                textureData = FindTextureData(renderer.Materials.Select(x => x.Value));
+                textureData = FindTextureData(renderer.Materials.Select(x => x.Value), token);
 
                 if (renderer is SkinnedMeshRenderer skinnedMeshRenderer &&
                     skinnedMeshRenderer.Mesh.Value != null) {
@@ -165,7 +178,7 @@ namespace Entropy.Converters {
                         skinnedMeshRenderer.Mesh.Value.Deserialize(ObjectDeserializationOptions.Default);
                     }
 
-                    submeshes = GetSubmeshes(skinnedMeshRenderer.Mesh.Value);
+                    submeshes = GetSubmeshes(skinnedMeshRenderer.Mesh.Value, token);
                 }
             }
 
@@ -173,16 +186,22 @@ namespace Entropy.Converters {
                 meshData[gameObject.PathId] = (submeshes, textureData);
             }
 
-            foreach (var child in transform.Children) {
-                if (child.Value?.GameObject.Value == null) {
-                    continue;
-                }
+            if (EntropyCore.Instance.Settings.BubbleGameObjectsDown) {
+                foreach (var child in transform.Children) {
+                    if (child.Value?.GameObject.Value == null) {
+                        continue;
+                    }
 
-                FindGeometryMeshData(child.Value.GameObject.Value, meshData);
+                    if (token.IsCancellationRequested) {
+                        return;
+                    }
+
+                    FindGeometryMeshData(child.Value.GameObject.Value, meshData, token);
+                }
             }
         }
 
-        private static void AddGameObjectNode(GameObject gameObject, Collection<Element3D> collection, Matrix? parentMatrix, LineBuilder builder, BillboardText3D labels, Dictionary<long, (List<Object3D> submeshes, List<(Texture2D? texture, Memory<byte> textureData)>)> meshData) {
+        private static void AddGameObjectNode(GameObject gameObject, Collection<Element3D> collection, Matrix? parentMatrix, LineBuilder builder, BillboardText3D labels, Dictionary<long, (List<Object3D> submeshes, List<(Texture2D? texture, Memory<byte> textureData)>)> meshData, CancellationToken token) {
             if (gameObject.FindComponent(UnityClassId.Transform).Value is not Transform transform) {
                 return;
             }
@@ -204,7 +223,7 @@ namespace Entropy.Converters {
                 group.SceneNode.ModelMatrix = matrix;
                 var (submeshes, textures) = mesh;
 
-                BuildSubmeshes(group.Children, submeshes, textures);
+                BuildSubmeshes(group.Children, submeshes, textures, token);
                 collection.Add(group);
             }
 
@@ -213,11 +232,15 @@ namespace Entropy.Converters {
                     continue;
                 }
 
-                AddGameObjectNode(child.Value.GameObject.Value, collection, matrix, builder, labels, meshData);
+                if (token.IsCancellationRequested) {
+                    return;
+                }
+
+                AddGameObjectNode(child.Value.GameObject.Value, collection, matrix, builder, labels, meshData, token);
             }
         }
 
-        public static void ConvertMesh(Mesh? mesh, Dispatcher dispatcher, Collection<Element3D> collection) {
+        public static void ConvertMesh(Mesh? mesh, Dispatcher dispatcher, Collection<Element3D> collection, CancellationToken token) {
             if (mesh == null) {
                 return;
             }
@@ -228,7 +251,7 @@ namespace Entropy.Converters {
                         mesh.Deserialize(EntropyCore.Instance.Settings.ObjectOptions);
                     }
 
-                    var submeshes = GetSubmeshes(mesh);
+                    var submeshes = GetSubmeshes(mesh, token);
                     dispatcher.Invoke(() => {
                         var existingPointLight = collection.FirstOrDefault(x => x is PointLight3D);
                         collection.Clear();
@@ -237,14 +260,22 @@ namespace Entropy.Converters {
                             return;
                         }
 
-                        BuildSubmeshes(collection, submeshes);
+                        if (token.IsCancellationRequested) {
+                            return;
+                        }
+
+                        BuildSubmeshes(collection, submeshes, null, token);
                     });
-                });
+                }, true);
         }
 
-        private static unsafe void BuildSubmeshes(ICollection<Element3D> collection, IReadOnlyList<Object3D> submeshes, IReadOnlyCollection<(Texture2D? texture, Memory<byte> textureData)>? textures = null) {
+        private static unsafe void BuildSubmeshes(ICollection<Element3D> collection, IReadOnlyList<Object3D> submeshes, IReadOnlyCollection<(Texture2D? texture, Memory<byte> textureData)>? textures, CancellationToken token) {
             textures ??= new List<(Texture2D? texture, Memory<byte> textureData)>();
             for (var index = 0; index < submeshes.Count; index++) {
+                if (token.IsCancellationRequested) {
+                    return;
+                }
+                
                 if (index >= submeshes.Count) {
                     break;
                 }
@@ -268,9 +299,13 @@ namespace Entropy.Converters {
             }
         }
 
-        private static List<(Texture2D? texture, Memory<byte> textureData)> FindTextureData(IEnumerable<Material?> materials) {
+        private static List<(Texture2D? texture, Memory<byte> textureData)> FindTextureData(IEnumerable<Material?> materials, CancellationToken token) {
             List<(Texture2D? texture, Memory<byte> textureData)> textures = new();
             foreach (var material in materials) {
+                if (token.IsCancellationRequested) {
+                    return textures;
+                }
+                
                 UnityTexEnv? mainTexPtr = null;
                 if (material?.SavedProperties.Textures.TryGetValue("_MainTex", out mainTexPtr) == false) {
                     // ignored

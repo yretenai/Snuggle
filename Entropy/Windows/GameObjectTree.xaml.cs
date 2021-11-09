@@ -1,6 +1,6 @@
 ﻿namespace Entropy.Windows {
-    public partial class DebugLog {
-        public DebugLog() {
+    public partial class GameObjectTree {
+        public GameObjectTree() {
             InitializeComponent();
         }
     }

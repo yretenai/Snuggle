@@ -58,13 +58,20 @@
             <MenuItem Header="_Group By Class Id"
                       ToolTip="Groups Extraction paths by Class Id"
                       IsCheckable="True" Click="ToggleGroupByType" x:Name="GroupByType" />
+            <MenuItem Header="_Find GameObject Parents"
+                      ToolTip="Find game objects by following the hierarchy tree upwards"
+                      IsCheckable="True" Click="ToggleBubbleGameObjectUp" x:Name="BubbleGameObjectsUp" />
+            <MenuItem Header="_Find GameObject Descendants"
+                      ToolTip="Find game objects by following the hierarchy tree downwards"
+                      IsCheckable="True" Click="ToggleBubbleGameObjectDown" x:Name="BubbleGameObjectsDown" />
+            <MenuItem Header="_Renderers" x:Name="RendererTypes"/>
             <MenuItem Header="_Theme">
                 <MenuItem Header="_Light Mode" IsCheckable="True" Click="ToggleLightMode" x:Name="LightMode" />
                 <MenuItem Header="_Color" x:Name="PrimaryColor" />
             </MenuItem>
-            <!-- <Separator /> -->
-            <!-- <MenuItem Header="Open _Debug Log" Click="OpenLog" /> -->
-            <!-- <MenuItem Header="Open GameObject Tree" /> -->
+            <Separator />
+            <MenuItem Header="_Game Object Hierarchy" ToolTip="Display game object hierarchy in a separate window"
+                      Click="OpenGameObjectTree" Visibility="{Binding IsDebugVisibility}" />
         </MenuItem>
         <MenuItem Header="_Filter" x:Name="Filters" />
         <MenuItem>

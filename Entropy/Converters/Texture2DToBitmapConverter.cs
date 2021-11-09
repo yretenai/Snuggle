@@ -22,8 +22,8 @@ namespace Entropy.Converters {
                     }
 
                     var memory = EntropyTextureFile.LoadCachedTexture(texture);
-                    return memory.Length == 0 ? null : dispatcher.Invoke(() => new RGBABitmapSource(memory, texture.Width, texture.Height));
-                });
+                    return memory.Length == 0 ? null : (RGBABitmapSource) dispatcher.Invoke(() => new RGBABitmapSource(memory, texture.Width, texture.Height));
+                }, true);
         }
 
         public override object ProvideValue(IServiceProvider serviceProvider) => this;

@@ -59,6 +59,12 @@ namespace Entropy.Handlers {
         public string? Search { get; set; }
         private string SettingsFile { get; }
 
+#if DEBUG
+        public Visibility IsDebugVisibility => Visibility.Visible;
+#else
+        public static Visibility IsDebugVisibility => Debugger.IsAttached ? Visibility.Visible : Visibility.Collapsed;
+#endif
+
         public void Dispose() {
             Dispose(true);
             GC.SuppressFinalize(this);
@@ -145,18 +151,38 @@ namespace Entropy.Handlers {
             }
         }
 
-        public void WorkerAction(string name, Action<CancellationToken> action) {
-            Tasks.Add((name, action));
+        public void WorkerAction(string name, Action<CancellationToken> action, bool report) {
+            Tasks.Add((name, token => {
+                try {
+                    if (report) {
+                        Instance.Status.SetStatus($"Working on {name}...");
+                    }
+                    action(token);
+                    if (report) {
+                        Instance.Status.SetStatus($"{name} done.");
+                    }
+                } catch(Exception e) {
+                    Instance.Status.SetStatus($"{name} failed! {e.Message}");
+                    Debug.WriteLine(e);
+                }
+            }));
         }
 
-        public Task<T> WorkerAction<T>(string name, Func<CancellationToken, T> task) {
+        public Task<T> WorkerAction<T>(string name, Func<CancellationToken, T> task, bool report) {
             var tcs = new TaskCompletionSource<T>();
             Tasks.Add((name, token => {
                 try {
+                    if (report) {
+                        Instance.Status.SetStatus($"Working on {name}...");
+                    }
                     tcs.SetResult(task(token));
+                    if (report) {
+                        Instance.Status.SetStatus($"{name} done.");
+                    }
                 } catch (TaskCanceledException) {
                     tcs.SetCanceled(token);
                 } catch (Exception e) {
+                    Instance.Status.SetStatus($"{name} failed! {e.Message}");
                     tcs.SetException(e);
                 }
             }));
