@@ -147,8 +147,10 @@ namespace Entropy.Converters {
                         AddGameObjectNode(gameObject, collection, Matrix.Identity, lineBuilder, labelGeometry, meshData, cts.Token);
                         lines.Geometry = lineBuilder.ToLineGeometry3D();
                         lines.Color = Colors.Crimson;
-                        topMost.Children.Add(lines);
-                        topMost.Children.Add(labels);
+                        if (EntropyCore.Instance.Settings.DisplayRelationshipLines) {
+                            topMost.Children.Add(lines);
+                            topMost.Children.Add(labels);
+                        }
                     });
                 }, true);
         }

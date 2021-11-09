@@ -31,6 +31,7 @@ namespace Entropy.Components {
             LightMode.IsChecked = instance.Settings.LightMode;
             BubbleGameObjectsDown.IsChecked = instance.Settings.BubbleGameObjectsDown;
             BubbleGameObjectsUp.IsChecked = instance.Settings.BubbleGameObjectsUp;
+            DisplayRelationshipLines.IsChecked = instance.Settings.DisplayRelationshipLines;
 
             BuildEnumMenu(UnityGameList, UnityGameItems, new [] { instance.Settings.Options.Game }, UpdateGame, CancelGameEvent);
             BuildEnumMenu(PrimaryColor, PrimaryColorItems, new [] { instance.Settings.Color }, UpdatePrimaryColor, CancelPrimaryEvent);
@@ -267,6 +268,12 @@ namespace Entropy.Components {
             var enabled = ((MenuItem) sender).IsChecked;
             var instance = EntropyCore.Instance;
             instance.SetOptions(instance.Settings with { BubbleGameObjectsDown = enabled });
+        }
+
+        private void ToggleDisplayRelationshipLines(object sender, RoutedEventArgs e) {
+            var enabled = ((MenuItem) sender).IsChecked;
+            var instance = EntropyCore.Instance;
+            instance.SetOptions(instance.Settings with { DisplayRelationshipLines = enabled });
         }
 
         private void ToggleBubbleGameObjectUp(object sender, RoutedEventArgs e) {

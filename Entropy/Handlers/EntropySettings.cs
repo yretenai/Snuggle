@@ -17,8 +17,9 @@ namespace Entropy.Handlers {
         MaterialPrimaryColor Color,
         bool LightMode,
         bool BubbleGameObjectsDown,
-        bool BubbleGameObjectsUp) {
-        private const int LatestVersion = 4;
+        bool BubbleGameObjectsUp,
+        bool DisplayRelationshipLines) {
+        private const int LatestVersion = 5;
 
         public List<string> RecentFiles { get; set; } = new();
         public List<string> RecentDirectories { get; set; } = new();
@@ -36,6 +37,7 @@ namespace Entropy.Handlers {
                 "{0}.{1:G}_{2:G}.bytes", // 0 = Name, 1 = PathId, 2 = Type
                 MaterialPrimaryColor.Grey,
                 false,
+                true,
                 true,
                 true);
 
@@ -84,6 +86,10 @@ namespace Entropy.Handlers {
 
             if (settings.Version < 4) {
                 settings = settings with { EnabledRenders = Enum.GetValues<RendererType>().ToHashSet(), BubbleGameObjectsDown = true, BubbleGameObjectsUp = true };
+            }
+
+            if (settings.Version < 5) {
+                settings = settings with { DisplayRelationshipLines = true };
             }
 
             return settings with { Version = LatestVersion };
