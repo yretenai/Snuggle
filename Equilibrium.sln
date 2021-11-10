@@ -9,8 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Equilibrium.Tests", "Equili
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Entropy", "Entropy\Entropy.csproj", "{E94BC594-FBF0-41C8-B2BE-06284880E51C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Negentropy", "Negentropy\Negentropy.csproj", "{A2606042-51E9-40BF-B4E0-6A1BCB9958F8}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Equilibrium.Converters", "Equilibrium.Converters\Equilibrium.Converters.csproj", "{1ACEB8FC-F643-4583-9E69-BE38ED00AD5A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Texture2DDecoderWrapper", "Library\Texture2DDecoderWrapper\Texture2DDecoderWrapper.csproj", "{A3BCFC09-5EF9-4485-858F-FFB79AE4EF23}"
@@ -54,10 +52,6 @@ Global
 		{1ACEB8FC-F643-4583-9E69-BE38ED00AD5A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C0EC463C-3BFA-4339-8F27-F961DFBA5B1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C0EC463C-3BFA-4339-8F27-F961DFBA5B1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A2606042-51E9-40BF-B4E0-6A1BCB9958F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A2606042-51E9-40BF-B4E0-6A1BCB9958F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A2606042-51E9-40BF-B4E0-6A1BCB9958F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A2606042-51E9-40BF-B4E0-6A1BCB9958F8}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A3BCFC09-5EF9-4485-858F-FFB79AE4EF23}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A3BCFC09-5EF9-4485-858F-FFB79AE4EF23}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A3BCFC09-5EF9-4485-858F-FFB79AE4EF23}.Release|Any CPU.ActiveCfg = Release|Any CPU
