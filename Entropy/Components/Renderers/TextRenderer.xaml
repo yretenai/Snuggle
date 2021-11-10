@@ -15,8 +15,7 @@
     <Grid DataContext="{Binding Converter={StaticResource TextConverter}, Mode=OneWay}">
         <TextBox TextWrapping="Wrap" AcceptsReturn="True" AcceptsTab="true" VerticalScrollBarVisibility="Auto"
                  HorizontalScrollBarVisibility="Auto" FontFamily="Courier New" FontSize="14" IsReadOnly="True"
-                 Text="{Binding Result, Mode=OneWay}" Margin="5"
-                 Foreground="{StaticResource MaterialDesignBody}" />
+                 Text="{Binding Result, Mode=OneWay}" Margin="5" />
         <TextBlock TextAlignment="Center" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold"
                    Opacity="0.5" FontSize="30" Grid.Row="0" Grid.Column="0" Visibility="{Binding LoadingVisibility}">
             <Span>

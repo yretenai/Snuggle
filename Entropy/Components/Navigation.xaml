@@ -3,20 +3,16 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:handlers="clr-namespace:Entropy.Handlers"
              mc:Ignorable="d"
-             TextElement.Foreground="{DynamicResource MaterialDesignBody}"
              TextElement.FontWeight="Regular"
              TextElement.FontSize="13"
              TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="Auto"
-             Background="{DynamicResource MaterialDesignPaper}"
-             FontFamily="{DynamicResource MaterialDesignFont}"
              d:DataContext="{d:DesignInstance handlers:EntropyCore}"
-             d:DesignHeight="300" d:DesignWidth="300">
-    <Menu>
-        <MenuItem Header="_File">
+             d:DesignHeight="30" d:DesignWidth="500">
+    <Menu Height="30">
+        <MenuItem Header="_File" Height="30">
             <MenuItem Header="Load _Directory" Click="LoadDirectories" />
             <MenuItem Header="Load _File" Click="LoadFiles" />
             <MenuItem Header="_Recent" x:Name="RecentItems" />
@@ -26,7 +22,7 @@
             <MenuItem Header="_Reset" Click="ResetTrampoline" />
             <MenuItem Header="_Exit" Click="ExitTrampoline" />
         </MenuItem>
-        <MenuItem Header="_Extract">
+        <MenuItem Header="_Extract" Height="30">
             <MenuItem Header="_All">
                 <MenuItem Header="_Raw" Click="ExtractRaw" Tag="1" />
                 <MenuItem Header="_Convert" Click="ExtractConvert" Tag="1" />
@@ -38,7 +34,7 @@
                 <MenuItem Header="_Serialize" Click="ExtractSerialize" />
             </MenuItem>
         </MenuItem>
-        <MenuItem Header="_Equilibrium">
+        <MenuItem Header="_Equilibrium" Height="30">
             <MenuItem Header="_Cache Memory"
                       ToolTip="This can significantly increase performance at a heavy memory cost"
                       IsCheckable="True" Click="ToggleCacheData" x:Name="CacheData" />
@@ -46,9 +42,9 @@
                       ToolTip="This always significantly increases performance at a gigantic memory cost"
                       IsCheckable="True" Click="ToggleCacheDataLZMA" x:Name="CacheDataIfLZMA" />
             <MenuItem Header="_Game" x:Name="UnityGameList" />
-            <MenuItem Header="Game _Options" x:Name="GameOptions" Visibility="Collapsed"/>
+            <MenuItem Header="Game _Options" x:Name="GameOptions" Visibility="Collapsed" />
         </MenuItem>
-        <MenuItem Header="_Entropy">
+        <MenuItem Header="_Entropy" Height="30">
             <MenuItem Header="_Serialization">
                 <MenuItem Header="_Write Native Textures"
                           ToolTip="Writes Native 3D textures such as DDS instead of converting them to PNG or TIF"
@@ -70,22 +66,13 @@
                 <MenuItem Header="_Display Lines"
                           ToolTip="Display game object hierarchy lines"
                           IsCheckable="True" Click="ToggleDisplayRelationshipLines" x:Name="DisplayRelationshipLines" />
-                <MenuItem Header="_Enabled Preview Types" x:Name="RendererTypes"/>
+                <MenuItem Header="_Enabled Preview Types" x:Name="RendererTypes" />
             </MenuItem>
-            <MenuItem Header="_Theme">
-                <MenuItem Header="_Light Mode" IsCheckable="True" Click="ToggleLightMode" x:Name="LightMode" />
-                <MenuItem Header="_Color" x:Name="PrimaryColor" />
-            </MenuItem>
+            <MenuItem Header="_Light Mode" IsCheckable="True" Click="ToggleLightMode" x:Name="LightMode" />
             <Separator />
             <MenuItem Header="_Game Object Hierarchy" ToolTip="Display game object hierarchy in a separate window"
                       Click="OpenGameObjectTree" Visibility="{Binding IsDebugVisibility}" />
         </MenuItem>
-        <MenuItem Header="_Filter" x:Name="Filters" />
-        <MenuItem>
-            <MenuItem.Header>
-                <TextBox Grid.Column="1" KeyDown="Search" Width="300" materialDesign:HintAssist.Hint="Search"
-                         x:Name="SearchBox" />
-            </MenuItem.Header>
-        </MenuItem>
+        <MenuItem Header="_Filter" Height="30" x:Name="Filters" Visibility="{Binding HasAssetsVisibility}" />
     </Menu>
 </UserControl>

@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
+using AdonisUI;
 using DragonLib;
 using Equilibrium;
 using Equilibrium.Interfaces;
@@ -19,206 +20,197 @@ using Equilibrium.Meta;
 using Equilibrium.Options;
 using JetBrains.Annotations;
 
-namespace Entropy.Handlers {
-    [PublicAPI]
-    public class EntropyCore : Singleton<EntropyCore>, INotifyPropertyChanged, IDisposable {
-        private object SaveLock = new();
+namespace Entropy.Handlers; 
 
-        public EntropyCore() {
-            Dispatcher = Dispatcher.CurrentDispatcher;
-            var workDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            SettingsFile = Path.Combine(workDir ?? "./", "Entropy.json");
-            WorkerThread = new Thread(WorkLoop);
-            WorkerThread.Start();
-            LogTarget = new MultiLogger {
-                Loggers = {
-                    new ConsoleLogger(),
-                    new DebugLogger(),
-                    // Log,
-                },
-            };
-            SetOptions(File.Exists(SettingsFile) ? EntropySettings.FromJson(File.ReadAllText(SettingsFile)) : EntropySettings.Default);
-            UpdateColors();
-        }
+[PublicAPI]
+public class EntropyCore : Singleton<EntropyCore>, INotifyPropertyChanged, IDisposable {
+    private object SaveLock = new();
 
-        public Dispatcher Dispatcher { get; set; }
-        public AssetCollection Collection { get; } = new();
+    public EntropyCore() {
+        Dispatcher = Dispatcher.CurrentDispatcher;
+        var workDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        SettingsFile = Path.Combine(workDir ?? "./", "Entropy.json");
+        WorkerThread = new Thread(WorkLoop);
+        WorkerThread.Start();
+        LogTarget = new MultiLogger {
+            Loggers = {
+                new ConsoleLogger(),
+                new DebugLogger(),
+                // Log,
+            },
+        };
+        SetOptions(File.Exists(SettingsFile) ? EntropySettings.FromJson(File.ReadAllText(SettingsFile)) : EntropySettings.Default);
+        ResourceLocator.SetColorScheme(Application.Current.Resources, Settings.LightMode ? ResourceLocator.LightColorScheme : ResourceLocator.DarkColorScheme);
+    }
 
-        public EntropyStatus Status { get; } = new();
+    public Dispatcher Dispatcher { get; set; }
+    public AssetCollection Collection { get; } = new();
 
-        // public EntropyLog Log { get; set; } = new();
-        public ILogger LogTarget { get; }
-        public EntropySettings Settings { get; private set; } = EntropySettings.Default;
-        public Thread WorkerThread { get; private set; }
-        public CancellationTokenSource TokenSource { get; private set; } = new();
-        private BlockingCollection<(string Name, Action<CancellationToken> Work)> Tasks { get; set; } = new();
-        public List<EntropyObject> Objects => Collection.Files.SelectMany(x => x.Value.GetAllObjects()).Select(x => new EntropyObject(x)).ToList();
-        public EntropyObject? SelectedObject { get; set; }
-        public HashSet<object> Filters { get; set; } = new();
-        public IReadOnlyList<EntropyObject> SelectedObjects { get; set; } = Array.Empty<EntropyObject>();
-        public string? Search { get; set; }
-        public string Title => string.IsNullOrEmpty(Collection.PlayerSettings?.CombinedName) ? BaseTitle : $"{BaseTitle} | {Collection.PlayerSettings.CombinedName}";
+    public EntropyStatus Status { get; } = new();
 
-        private const string BaseTitle = "Entropy";
-        private string SettingsFile { get; }
+    // public EntropyLog Log { get; set; } = new();
+    public ILogger LogTarget { get; }
+    public EntropySettings Settings { get; private set; } = EntropySettings.Default;
+    public Thread WorkerThread { get; private set; }
+    public CancellationTokenSource TokenSource { get; private set; } = new();
+    private BlockingCollection<(string Name, Action<CancellationToken> Work)> Tasks { get; set; } = new();
+    public List<EntropyObject> Objects => Collection.Files.SelectMany(x => x.Value.GetAllObjects()).Select(x => new EntropyObject(x)).ToList();
+    public EntropyObject? SelectedObject { get; set; }
+    public HashSet<object> Filters { get; set; } = new();
+    public IReadOnlyList<EntropyObject> SelectedObjects { get; set; } = Array.Empty<EntropyObject>();
+    public string? Search { get; set; }
+    public string Title => string.IsNullOrEmpty(Collection.PlayerSettings?.CombinedName) ? BaseTitle : $"{BaseTitle} | {Collection.PlayerSettings.CombinedName}";
+
+    private const string BaseTitle = "Entropy";
+    private string SettingsFile { get; }
 
 #if DEBUG
-        public Visibility IsDebugVisibility => Visibility.Visible;
+    public Visibility IsDebugVisibility => Visibility.Visible;
 #else
         public static Visibility IsDebugVisibility => Debugger.IsAttached ? Visibility.Visible : Visibility.Collapsed;
 #endif
 
-        public void Dispose() {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+    public Visibility HasAssetsVisibility => Collection.Files.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+
+    public void Dispose() {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    ~EntropyCore() {
+        Dispose(false);
+    }
+
+    protected void Dispose(bool disposing) {
+        Reset(false);
+
+        if (disposing) {
+            Collection.Dispose();
         }
 
-        public event PropertyChangedEventHandler? PropertyChanged;
+        Environment.Exit(0);
+    }
 
-        public void UpdateColors() {
-            var resources = Application.Current.Resources.MergedDictionaries;
-            foreach (var resource in resources) {
-                if (resource.Source != null) {
-                    if (resource.Source.AbsolutePath.EndsWith("MaterialDesignTheme.Dark.xaml") ||
-                        resource.Source.AbsolutePath.EndsWith("MaterialDesignTheme.Light.xaml")) {
-                        resource.Source = new Uri($"pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.{(Settings.LightMode ? "Light" : "Dark")}.xaml");
-                    } else if (resource.Source.AbsolutePath.Contains("Primary/MaterialDesignColor.")) {
-                        resource.Source = new Uri($"pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Primary/MaterialDesignColor.{Settings.Color:G}.xaml");
-                    }
+    private void WorkLoop() {
+        try {
+            var tasks = Tasks;
+            var sw = new Stopwatch();
+            foreach (var (name, task) in tasks.GetConsumingEnumerable(TokenSource.Token)) {
+                try {
+                    sw.Start();
+                    task(TokenSource.Token);
+                    sw.Stop();
+                    var elapsed = sw.Elapsed;
+                    LogTarget.Info("Worker", $"Spent {elapsed} working on {name} task");
+                    sw.Reset();
+                } catch (Exception e) {
+                    LogTarget.Error("Worker", $"Failed to perform {name} task", e);
                 }
+
+                LogTarget.Info("Worker", $"Memory Tension: {GC.GetTotalMemory(false).GetHumanReadableBytes()}");
             }
+        } catch (TaskCanceledException) {
+            // ignored
+        } catch (OperationCanceledException) {
+            // ignored
+        } catch (Exception e) {
+            LogTarget.Error("Worker", "Failed to get tasks", e);
         }
+    }
 
-        ~EntropyCore() {
-            Dispose(false);
+    public void Reset(bool respawn = true) {
+        Tasks.CompleteAdding();
+        Tasks = new BlockingCollection<(string Name, Action<CancellationToken> Work)>();
+        TokenSource.Cancel();
+        TokenSource.Dispose();
+        WorkerThread.Join();
+        SelectedObject = null;
+        Collection.Reset();
+        Status.Reset();
+        // Log.Clear();
+        Search = string.Empty;
+        Filters.Clear();
+        EntropyTextureFile.ClearMemory();
+        if (respawn) {
+            TokenSource = new CancellationTokenSource();
+            WorkerThread = new Thread(WorkLoop);
+            WorkerThread.Start();
+            OnPropertyChanged(nameof(Objects));
+            OnPropertyChanged(nameof(HasAssetsVisibility));
+            OnPropertyChanged(nameof(Title));
+            OnPropertyChanged(nameof(Filters));
+            OnPropertyChanged(nameof(SelectedObject));
+            OnPropertyChanged(nameof(SelectedObjects));
         }
+    }
 
-        protected void Dispose(bool disposing) {
-            Reset(false);
-
-            if (disposing) {
-                Collection.Dispose();
-            }
-
-            Environment.Exit(0);
-        }
-
-        private void WorkLoop() {
+    public void WorkerAction(string name, Action<CancellationToken> action, bool report) {
+        Tasks.Add((name, token => {
             try {
-                var tasks = Tasks;
-                var sw = new Stopwatch();
-                foreach (var (name, task) in tasks.GetConsumingEnumerable(TokenSource.Token)) {
-                    try {
-                        sw.Start();
-                        task(TokenSource.Token);
-                        sw.Stop();
-                        var elapsed = sw.Elapsed;
-                        LogTarget.Info("Worker", $"Spent {elapsed} working on {name} task");
-                        sw.Reset();
-                    } catch (Exception e) {
-                        LogTarget.Error("Worker", $"Failed to perform {name} task", e);
-                    }
+                if (report) {
+                    Instance.Status.SetStatus($"Working on {name}...");
+                }
 
-                    LogTarget.Info("Worker", $"Memory Tension: {GC.GetTotalMemory(false).GetHumanReadableBytes()}");
+                action(token);
+                if (report) {
+                    Instance.Status.SetStatus($"{name} done.");
+                }
+            } catch (Exception e) {
+                Instance.Status.SetStatus($"{name} failed! {e.Message}");
+                Debug.WriteLine(e);
+            }
+        }));
+    }
+
+    public Task<T> WorkerAction<T>(string name, Func<CancellationToken, T> task, bool report) {
+        var tcs = new TaskCompletionSource<T>();
+        Tasks.Add((name, token => {
+            try {
+                if (report) {
+                    Instance.Status.SetStatus($"Working on {name}...");
+                }
+
+                tcs.SetResult(task(token));
+                if (report) {
+                    Instance.Status.SetStatus($"{name} done.");
                 }
             } catch (TaskCanceledException) {
-                // ignored
-            } catch (OperationCanceledException) {
-                // ignored
+                tcs.SetCanceled(token);
             } catch (Exception e) {
-                LogTarget.Error("Worker", "Failed to get tasks", e);
+                Instance.Status.SetStatus($"{name} failed! {e.Message}");
+                tcs.SetException(e);
             }
+        }));
+        return tcs.Task;
+    }
+
+    [NotifyPropertyChangedInvocator]
+    public virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null) {
+        Dispatcher.Invoke(() => { PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)); });
+    }
+
+    public void SaveOptions() {
+        lock (SaveLock) {
+            File.WriteAllText(SettingsFile, Settings.ToJson());
         }
 
-        public void Reset(bool respawn = true) {
-            Tasks.CompleteAdding();
-            Tasks = new BlockingCollection<(string Name, Action<CancellationToken> Work)>();
-            TokenSource.Cancel();
-            TokenSource.Dispose();
-            WorkerThread.Join();
-            SelectedObject = null;
-            Collection.Reset();
-            Status.Reset();
-            // Log.Clear();
-            Search = string.Empty;
-            Filters.Clear();
-            EntropyTextureFile.ClearMemory();
-            if (respawn) {
-                TokenSource = new CancellationTokenSource();
-                WorkerThread = new Thread(WorkLoop);
-                WorkerThread.Start();
-                OnPropertyChanged(nameof(Objects));
-                OnPropertyChanged(nameof(Title));
-                OnPropertyChanged(nameof(Filters));
-                OnPropertyChanged(nameof(SelectedObject));
-                OnPropertyChanged(nameof(SelectedObjects));
-            }
-        }
+        OnPropertyChanged(nameof(Settings));
+    }
 
-        public void WorkerAction(string name, Action<CancellationToken> action, bool report) {
-            Tasks.Add((name, token => {
-                try {
-                    if (report) {
-                        Instance.Status.SetStatus($"Working on {name}...");
-                    }
-                    action(token);
-                    if (report) {
-                        Instance.Status.SetStatus($"{name} done.");
-                    }
-                } catch(Exception e) {
-                    Instance.Status.SetStatus($"{name} failed! {e.Message}");
-                    Debug.WriteLine(e);
-                }
-            }));
-        }
+    public void SetOptions(EntropySettings options) {
+        Settings = options with { Options = options.Options with { Reporter = Status, Logger = LogTarget } };
+        SaveOptions();
+    }
 
-        public Task<T> WorkerAction<T>(string name, Func<CancellationToken, T> task, bool report) {
-            var tcs = new TaskCompletionSource<T>();
-            Tasks.Add((name, token => {
-                try {
-                    if (report) {
-                        Instance.Status.SetStatus($"Working on {name}...");
-                    }
-                    tcs.SetResult(task(token));
-                    if (report) {
-                        Instance.Status.SetStatus($"{name} done.");
-                    }
-                } catch (TaskCanceledException) {
-                    tcs.SetCanceled(token);
-                } catch (Exception e) {
-                    Instance.Status.SetStatus($"{name} failed! {e.Message}");
-                    tcs.SetException(e);
-                }
-            }));
-            return tcs.Task;
-        }
+    public void SetOptions(EquilibriumOptions options) {
+        Settings = Settings with { Options = options with { Reporter = Status, Logger = LogTarget } };
+        SaveOptions();
+    }
 
-        [NotifyPropertyChangedInvocator]
-        public virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null) {
-            Dispatcher.Invoke(() => { PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)); });
-        }
-
-        public void SaveOptions() {
-            lock (SaveLock) {
-                File.WriteAllText(SettingsFile, Settings.ToJson());
-            }
-
-            OnPropertyChanged(nameof(Settings));
-        }
-
-        public void SetOptions(EntropySettings options) {
-            Settings = options with { Options = options.Options with { Reporter = Status, Logger = LogTarget } };
-            SaveOptions();
-        }
-
-        public void SetOptions(EquilibriumOptions options) {
-            Settings = Settings with { Options = options with { Reporter = Status, Logger = LogTarget } };
-            SaveOptions();
-        }
-
-        public void SetOptions(UnityGame game, IUnityGameOptions options) {
-            Settings.Options.GameOptions.SetOptions(game, options);
-            SaveOptions();
-        }
+    public void SetOptions(UnityGame game, IUnityGameOptions options) {
+        Settings.Options.GameOptions.SetOptions(game, options);
+        SaveOptions();
     }
 }

@@ -19,7 +19,7 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="50" />
         </Grid.RowDefinitions>
-        <Grid Background="{Binding CanvasBackground, ElementName=Renderer}">
+        <Grid Background="{Binding CanvasBackground, ElementName=Renderer}" ClipToBounds="True">
             <Canvas x:Name="Root" Width="{Binding Carried.Width}" Height="{Binding Carried.Height}">
                 <Image Width="{Binding Carried.Width}" Height="{Binding Carried.Height}"
                        MouseWheel="Zoom" MouseLeftButtonDown="CapturePan" MouseMove="Pan"
@@ -43,7 +43,7 @@
                 </Span>
             </TextBlock>
         </Grid>
-        <Grid Grid.Row="1" Background="{StaticResource MaterialDesignPaper}">
+        <Grid Grid.Row="1">
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                 <Button Margin="7.5,0" Click="Reset">Reset</Button>
                 <ToggleButton Margin="7.5,0" IsChecked="True" Click="ToggleBg">BG</ToggleButton>
