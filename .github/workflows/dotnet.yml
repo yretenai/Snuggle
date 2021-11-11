@@ -1,4 +1,4 @@
-name: Equilibrium
+name: Snuggle
 on:
     push:
         branches: [ develop ]
@@ -31,7 +31,7 @@ jobs:
             -   name: Restore project
                 run: dotnet restore
             -   name: Run tests
-                run: dotnet test Equilibrium.Tests
+                run: dotnet test Snuggle.Tests
             -   name: Build Release
                 run: dotnet build -c Release -o dist/release
             -   name: Build Debug
@@ -47,10 +47,10 @@ jobs:
             -   name: Upload Release
                 uses: actions/upload-artifact@v2
                 with:
-                    name: Equilibrium Release
+                    name: Release
                     path: dist/release
             -   name: Upload Debug
                 uses: actions/upload-artifact@v2
                 with:
-                    name: Equilibrium Debug
+                    name: Debug
                     path: dist/debug
