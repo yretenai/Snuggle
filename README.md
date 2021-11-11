@@ -1,4 +1,4 @@
-# Snuggle [![Equilibrium](https://github.com/yretenai/Snuggle/actions/workflows/dotnet.yml/badge.svg)](https://github.com/yretenai/Snuggle/actions/workflows/dotnet.yml)
+# Snuggle [![Snuggle](https://github.com/yretenai/Snuggle/actions/workflows/dotnet.yml/badge.svg)](https://github.com/yretenai/Snuggle/actions/workflows/dotnet.yml)
 Unity Processor
 
 ## Special Thanks
