@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <LangVersion>preview</LangVersion>
+        <Nullable>enable</Nullable>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="DirectXTexNet" Version="1.0.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Snuggle.Core\Snuggle.Core.csproj" />
+        <ProjectReference Include="..\Library\Texture2DDecoderWrapper\Texture2DDecoderWrapper.csproj" />
+    </ItemGroup>
+</Project>

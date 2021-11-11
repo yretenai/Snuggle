@@ -1,0 +1,78 @@
+﻿<UserControl x:Class="Snuggle.Components.Navigation"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:handlers="clr-namespace:Snuggle.Handlers"
+             mc:Ignorable="d"
+             TextElement.FontWeight="Regular"
+             TextElement.FontSize="13"
+             TextOptions.TextFormattingMode="Ideal"
+             TextOptions.TextRenderingMode="Auto"
+             d:DataContext="{d:DesignInstance handlers:SnuggleCore}"
+             d:DesignHeight="30" d:DesignWidth="500">
+    <Menu Height="30">
+        <MenuItem Header="_File" Height="30">
+            <MenuItem Header="Load _Directory" Click="LoadDirectories" />
+            <MenuItem Header="Load _File" Click="LoadFiles" />
+            <MenuItem Header="_Recent" x:Name="RecentItems" />
+            <Separator />
+            <MenuItem Header="_Clear Memory" ToolTip="This will try to unload all large data blocks"
+                      Click="FreeMemory" />
+            <MenuItem Header="_Reset" Click="ResetTrampoline" />
+            <MenuItem Header="_Exit" Click="ExitTrampoline" />
+        </MenuItem>
+        <MenuItem Header="_Extract" Height="30">
+            <MenuItem Header="_All">
+                <MenuItem Header="_Raw" Click="ExtractRaw" Tag="1" />
+                <MenuItem Header="_Convert" Click="ExtractConvert" Tag="1" />
+                <MenuItem Header="_Serialize" Click="ExtractSerialize" Tag="1" />
+            </MenuItem>
+            <MenuItem Header="_Selected">
+                <MenuItem Header="_Raw" Click="ExtractRaw" />
+                <MenuItem Header="_Convert" Click="ExtractConvert" />
+                <MenuItem Header="_Serialize" Click="ExtractSerialize" />
+            </MenuItem>
+        </MenuItem>
+        <MenuItem Header="_Snuggle" Height="30">
+            <MenuItem Header="_Cache Memory"
+                      ToolTip="This can significantly increase performance at a heavy memory cost"
+                      IsCheckable="True" Click="ToggleCacheData" x:Name="CacheData" />
+            <MenuItem Header="_Cache LZMA Memory"
+                      ToolTip="This always significantly increases performance at a gigantic memory cost"
+                      IsCheckable="True" Click="ToggleCacheDataLZMA" x:Name="CacheDataIfLZMA" />
+            <MenuItem Header="_Game" x:Name="UnityGameList" />
+            <MenuItem Header="Game _Options" x:Name="GameOptions" Visibility="Collapsed" />
+        </MenuItem>
+        <MenuItem Header="_Snuggle" Height="30">
+            <MenuItem Header="_Serialization">
+                <MenuItem Header="_Write Native Textures"
+                          ToolTip="Writes Native 3D textures such as DDS instead of converting them to PNG or TIF"
+                          IsCheckable="True" Click="ToggleWriteNativeTextures" x:Name="WriteNativeTextures" />
+                <MenuItem Header="_Use Container Paths"
+                          ToolTip="Uses CAB container paths"
+                          IsCheckable="True" Click="ToggleUseContainerPaths" x:Name="UseContainerPaths" />
+                <MenuItem Header="_Group By Class Id"
+                          ToolTip="Groups Extraction paths by Class Id"
+                          IsCheckable="True" Click="ToggleGroupByType" x:Name="GroupByType" />
+            </MenuItem>
+            <MenuItem Header="_Renderer">
+                <MenuItem Header="_Find GameObject Parents"
+                          ToolTip="Find game objects by following the hierarchy tree upwards"
+                          IsCheckable="True" Click="ToggleBubbleGameObjectUp" x:Name="BubbleGameObjectsUp" />
+                <MenuItem Header="_Find GameObject Descendants"
+                          ToolTip="Find game objects by following the hierarchy tree downwards"
+                          IsCheckable="True" Click="ToggleBubbleGameObjectDown" x:Name="BubbleGameObjectsDown" />
+                <MenuItem Header="_Display Lines"
+                          ToolTip="Display game object hierarchy lines"
+                          IsCheckable="True" Click="ToggleDisplayRelationshipLines" x:Name="DisplayRelationshipLines" />
+                <MenuItem Header="_Enabled Preview Types" x:Name="RendererTypes" />
+            </MenuItem>
+            <MenuItem Header="_Light Mode" IsCheckable="True" Click="ToggleLightMode" x:Name="LightMode" />
+            <Separator />
+            <MenuItem Header="_Game Object Hierarchy" ToolTip="Display game object hierarchy in a separate window"
+                      Click="OpenGameObjectTree" Visibility="{Binding IsDebugVisibility}" />
+        </MenuItem>
+        <MenuItem Header="_Filter" Height="30" x:Name="Filters" Visibility="{Binding HasAssetsVisibility}" />
+    </Menu>
+</UserControl>

@@ -1,0 +1,39 @@
+﻿<UserControl x:Class="Snuggle.Components.Assets"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:handlers="clr-namespace:Snuggle.Handlers"
+             mc:Ignorable="d"
+             TextElement.FontWeight="Regular"
+             TextElement.FontSize="13"
+             TextOptions.TextFormattingMode="Ideal"
+             TextOptions.TextRenderingMode="Auto"
+             d:DataContext="{d:DesignInstance handlers:SnuggleCore}"
+             d:DesignHeight="300" d:DesignWidth="300">
+    <Grid>
+        <ListView ItemsSource="{Binding Objects, Mode=OneWay}" GridViewColumnHeader.Click="SortColumn"
+                  x:Name="Entries" SelectionChanged="UpdateSelected" SelectionMode="Extended"
+                  VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.CacheLength="1,1"
+                  VirtualizingPanel.ScrollUnit="Item" VirtualizingPanel.VirtualizationMode="Recycling"
+                  VirtualizingPanel.CacheLengthUnit="Page" VirtualizingPanel.IsContainerVirtualizable="True"
+                  VirtualizingPanel.IsVirtualizingWhenGrouping="True" ScrollViewer.CanContentScroll="True"
+                  ScrollViewer.IsDeferredScrollingEnabled="True">
+            <ListView.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <VirtualizingStackPanel />
+                </ItemsPanelTemplate>
+            </ListView.ItemsPanel>
+            <ListView.View>
+                <GridView d:DataContext="{d:DesignInstance handlers:SnuggleObject}">
+                    <GridViewColumn Header="Id" DisplayMemberBinding="{Binding PathId, Mode=OneWay}" />
+                    <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Name, Mode=OneWay}" />
+                    <GridViewColumn Header="Type" DisplayMemberBinding="{Binding ClassId, Mode=OneWay}" />
+                    <GridViewColumn Header="Container" DisplayMemberBinding="{Binding Container, Mode=OneWay}" />
+                    <GridViewColumn Header="Asset" DisplayMemberBinding="{Binding SerializedName, Mode=OneWay}" />
+                    <GridViewColumn Header="Size" DisplayMemberBinding="{Binding Size, Mode=OneWay}" />
+                </GridView>
+            </ListView.View>
+        </ListView>
+    </Grid>
+</UserControl>
