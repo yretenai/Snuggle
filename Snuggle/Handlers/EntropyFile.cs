@@ -7,11 +7,11 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using DragonLib;
+using Microsoft.WindowsAPICodePack.Dialogs;
 using Snuggle.Core;
 using Snuggle.Core.Implementations;
 using Snuggle.Core.Interfaces;
 using Snuggle.Core.Options;
-using Microsoft.WindowsAPICodePack.Dialogs;
 
 namespace Snuggle.Handlers; 
 
@@ -74,7 +74,7 @@ public static class SnuggleFile {
                     }
                 }
 
-                var fileSet = files.ToImmutableHashSet();
+                var fileSet = files.ToHashSet();
                 instance.Status.SetProgressMax(fileSet.Count);
                 foreach (var file in fileSet) {
                     if (token.IsCancellationRequested) {
