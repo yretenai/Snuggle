@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Concurrent;
 using System.IO;
-using Snuggle.Core.Implementations;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using Snuggle.Converters;
+using Snuggle.Core.Implementations;
 
 namespace Snuggle.Handlers {
     public static class SnuggleTextureFile {

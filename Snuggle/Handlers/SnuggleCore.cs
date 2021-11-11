@@ -13,12 +13,12 @@ using System.Windows;
 using System.Windows.Threading;
 using AdonisUI;
 using DragonLib;
+using JetBrains.Annotations;
 using Snuggle.Core;
 using Snuggle.Core.Interfaces;
 using Snuggle.Core.Logging;
 using Snuggle.Core.Meta;
 using Snuggle.Core.Options;
-using JetBrains.Annotations;
 
 namespace Snuggle.Handlers; 
 

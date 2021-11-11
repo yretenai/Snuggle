@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using Snuggle.Core.Interfaces;
 using JetBrains.Annotations;
+using Snuggle.Core.Interfaces;
 
 namespace Snuggle.Handlers {
     [PublicAPI]

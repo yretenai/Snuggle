@@ -4,9 +4,9 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Windows;
+using JetBrains.Annotations;
 using Snuggle.Core.Interfaces;
 using Snuggle.Core.Meta;
-using JetBrains.Annotations;
 
 namespace Snuggle.Handlers {
     public sealed class SnuggleLog : ILogger, INotifyPropertyChanged {
