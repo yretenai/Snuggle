@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.IO;
+using DragonLib;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using Snuggle.Converters;
 using Snuggle.Core.Implementations;
+using Snuggle.Core.Interfaces;
 using Snuggle.Core.Options;
 
 namespace Snuggle.Headless;
@@ -12,7 +14,7 @@ namespace Snuggle.Headless;
 public static partial class ConvertCore {
     private static ConcurrentDictionary<long, Memory<byte>> CachedData { get; } = new();
 
-    public static void ConvertTexture(SnuggleFlags flags, Texture2D texture) {
+    public static void ConvertTexture(SnuggleFlags flags, ILogger logger, Texture2D texture) {
         var path = PathFormatter.Format(flags.OutputFormat, "png", texture);
         if (File.Exists(path)) {
             return;
@@ -24,7 +26,10 @@ public static partial class ConvertCore {
         }
 
         var image = Image.WrapMemory<Rgba32>(data, texture.Width, texture.Height);
-        image.SaveAsPng(path);
+        var fullPath = Path.Combine(flags.OutputPath, path);
+        fullPath.EnsureDirectoryExists();
+        image.SaveAsPng(fullPath);
+        logger.Info($"Saved {path}");
     }
 
     public static byte[] LoadCachedTexture(Texture2D texture) {

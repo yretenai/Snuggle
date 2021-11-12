@@ -7,6 +7,7 @@ using DragonLib;
 using DragonLib.CLI;
 using Snuggle.Core;
 using Snuggle.Core.Implementations;
+using Snuggle.Core.Interfaces;
 using Snuggle.Core.Logging;
 using Snuggle.Core.Meta;
 using Snuggle.Core.Options;
@@ -19,6 +20,9 @@ public static class Program {
         if (flags == null) {
             return 1;
         }
+        ILogger logger = ConsoleLogger.Instance;
+        
+        logger.Debug(flags.ToString());
 
         var files = new List<string>();
         foreach (var entry in flags.Paths) {
@@ -36,7 +40,7 @@ public static class Program {
         }
 
         var collection = new AssetCollection();
-        var options = SnuggleOptions.Default with { Game = flags.Game, Logger = new ConsoleLogger(), CacheDataIfLZMA = true };
+        var options = SnuggleOptions.Default with { Game = flags.Game, Logger = logger, CacheDataIfLZMA = true };
         if (options.Game != UnityGame.Default && !string.IsNullOrEmpty(flags.GameOptions)) {
             options.GameOptions.StorageMap[options.Game] = JsonSerializer.Deserialize<JsonElement>(File.Exists(flags.GameOptions) ? File.ReadAllText(flags.GameOptions) : flags.GameOptions, SnuggleOptions.JsonOptions);
         }
@@ -44,15 +48,15 @@ public static class Program {
         options.GameOptions.Migrate();
 
         foreach (var file in fileSet) {
-            Console.WriteLine($"Loading {file}");
-            collection.LoadFile(file, SnuggleOptions.Default);
+            logger.Info($"Loading {file}");
+            collection.LoadFile(file, options);
         }
 
         collection.CacheGameObjectClassIds();
-        Console.WriteLine("Finding container paths...");
+        logger.Info("Finding container paths...");
         collection.FindResources();
         AssetCollection.Collect();
-        Console.WriteLine($"Memory Tension: {GC.GetTotalMemory(false).GetHumanReadableBytes()}");
+        logger.Info($"Memory Tension: {GC.GetTotalMemory(false).GetHumanReadableBytes()}");
 
         var processed = new HashSet<long>();
 
@@ -63,29 +67,34 @@ public static class Program {
                 continue;
             }
 
-            Console.WriteLine($"Processing {asset}");
-
             switch (asset) {
                 case Texture2D texture when !flags.NoTexture && flags.LooseTextures:
-                    ConvertCore.ConvertTexture(flags, texture);
+                    logger.Info($"Processing Texture {asset}");
+                    ConvertCore.ConvertTexture(flags, logger, texture);
                     break;
                 case Mesh mesh when !flags.NoMesh && flags.LooseMeshes:
-                    ConvertCore.ConvertMesh(flags, mesh);
+                    logger.Info($"Processing Mesh {asset}");
+                    ConvertCore.ConvertMesh(flags, logger, mesh);
                     break;
                 case GameObject gameObject when !flags.NoSkinnedMesh:
-                    ConvertCore.ConvertGameObject(flags, gameObject, processed);
+                    logger.Info($"Processing GameObject {asset}");
+                    ConvertCore.ConvertGameObject(flags, logger, gameObject, processed);
                     break;
                 case MeshRenderer renderer when !flags.NoMesh && renderer.GameObject.Value is not null:
-                    ConvertCore.ConvertGameObject(flags, renderer.GameObject.Value, processed);
+                    logger.Info($"Processing GameObject {renderer.GameObject.Value}");
+                    ConvertCore.ConvertGameObject(flags, logger, renderer.GameObject.Value, processed);
                     break;
                 case SkinnedMeshRenderer renderer when !flags.NoSkinnedMesh && renderer.GameObject.Value is not null:
-                    ConvertCore.ConvertGameObject(flags, renderer.GameObject.Value, processed);
+                    logger.Info($"Processing GameObject {renderer.GameObject.Value}");
+                    ConvertCore.ConvertGameObject(flags, logger, renderer.GameObject.Value, processed);
                     break;
                 case Material material when !flags.NoMaterials && flags.LooseMaterials:
-                    ConvertCore.ConvertMaterial(flags, material);
+                    logger.Info($"Processing Material {asset}");
+                    ConvertCore.ConvertMaterial(flags, logger, material);
                     break;
                 case Text text when !flags.NoText:
-                    ConvertCore.ConvertText(flags, text);
+                    logger.Info($"Processing Text {asset}");
+                    ConvertCore.ConvertText(flags, logger, text);
                     break;
             }
 
@@ -95,9 +104,9 @@ public static class Program {
         }
 
         if (options.Game != UnityGame.Default && options.GameOptions.StorageMap.ContainsKey(options.Game)) {
-            Console.WriteLine("Game Settings:");
+            logger.Info("Updated Game Settings");
             var jsonOptions = new JsonSerializerOptions(SnuggleOptions.JsonOptions) { WriteIndented = false };
-            Console.WriteLine(JsonSerializer.Serialize(options.GameOptions.StorageMap[options.Game], jsonOptions));
+            logger.Info(JsonSerializer.Serialize(options.GameOptions.StorageMap[options.Game], jsonOptions));
         }
 
         return 0;

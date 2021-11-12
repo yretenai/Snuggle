@@ -5,7 +5,7 @@ using Snuggle.Core.Meta;
 
 namespace Snuggle.Headless;
 
-public class SnuggleFlags : ICLIFlags {
+public record SnuggleFlags : ICLIFlags {
     [CLIFlag("no-mesh", Aliases = new[] { "m" }, Category = "General Options", Default = false, Help = "Don't export meshes")]
     public bool NoMesh { get; set; }
 
@@ -57,10 +57,10 @@ public class SnuggleFlags : ICLIFlags {
     [CLIFlag("output", Aliases = new[] { "o", "out" }, Category = "General Options", Help = "Path to output files to", IsRequired = true)]
     public string OutputPath { get; set; } = null!;
 
-    [CLIFlag("name", Category = "General Options", Help = "Game Object Name/Container Path Filters", IsRequired = true)]
+    [CLIFlag("name", Category = "General Options", Help = "Game Object Name/Container Path Filters")]
     public List<Regex> NameFilters { get; set; } = null!;
 
-    [CLIFlag("id", Category = "General Options", Help = "Path ID Filters", IsRequired = true)]
+    [CLIFlag("id", Category = "General Options", Help = "Path ID Filters")]
     public List<long> PathIdFilters { get; set; } = null!;
 
     [CLIFlag("paths", Category = "General Options", Positional = 0, Help = "Paths to load", IsRequired = true)]
