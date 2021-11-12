@@ -57,7 +57,7 @@ public record SnuggleFlags : ICLIFlags {
     [CLIFlag("output", Aliases = new[] { "o", "out" }, Category = "General Options", Help = "Path to output files to", IsRequired = true)]
     public string OutputPath { get; set; } = null!;
 
-    [CLIFlag("name", Category = "General Options", Help = "Game Object Name/Container Path Filters")]
+    [CLIFlag("name", Category = "General Options", Help = "Game Object Name/Container Path Filters", Extra = RegexOptions.CultureInvariant | RegexOptions.Compiled)]
     public List<Regex> NameFilters { get; set; } = null!;
 
     [CLIFlag("id", Category = "General Options", Help = "Path ID Filters")]
