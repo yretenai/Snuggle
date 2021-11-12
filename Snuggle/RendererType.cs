@@ -1,7 +1,7 @@
-﻿namespace Snuggle {
-    public enum RendererType {
-        Geometry,
-        Text,
-        Texture,
-    }
+﻿namespace Snuggle; 
+
+public enum RendererType {
+    Geometry,
+    Text,
+    Texture,
 }

@@ -8,38 +8,38 @@ using JetBrains.Annotations;
 using Snuggle.Core.Interfaces;
 using Snuggle.Core.Meta;
 
-namespace Snuggle.Handlers {
-    public sealed class SnuggleLog : ILogger, INotifyPropertyChanged {
-        public SnuggleLog() => Context = SynchronizationContext.Current ?? throw new InvalidOperationException("Cannot get syncronization context");
+namespace Snuggle.Handlers; 
 
-        public ObservableCollection<string> Messages { get; } = new();
-        public SynchronizationContext Context { get; }
+public sealed class SnuggleLog : ILogger, INotifyPropertyChanged {
+    public SnuggleLog() => Context = SynchronizationContext.Current ?? throw new InvalidOperationException("Cannot get syncronization context");
 
-        public void Log(LogLevel level, string? category, string message, Exception? exception) {
-            Context.Post(m => {
-                    Messages.Add((string) m!);
+    public ObservableCollection<string> Messages { get; } = new();
+    public SynchronizationContext Context { get; }
 
-                    while (Messages.Count > 100) {
-                        Messages.RemoveAt(0);
-                    }
+    public void Log(LogLevel level, string? category, string message, Exception? exception) {
+        Context.Post(m => {
+                Messages.Add((string) m!);
 
-                    OnPropertyChanged();
-                },
-                message);
-        }
+                while (Messages.Count > 100) {
+                    Messages.RemoveAt(0);
+                }
 
-        public event PropertyChangedEventHandler? PropertyChanged;
-
-        [NotifyPropertyChangedInvocator]
-        private void OnPropertyChanged([CallerMemberName] string propertyName = nameof(Messages)) {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        public void Clear() {
-            Application.Current.Dispatcher.Invoke(() => {
-                Messages.Clear();
                 OnPropertyChanged();
-            });
-        }
+            },
+            message);
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    [NotifyPropertyChangedInvocator]
+    private void OnPropertyChanged([CallerMemberName] string propertyName = nameof(Messages)) {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    public void Clear() {
+        Application.Current.Dispatcher.Invoke(() => {
+            Messages.Clear();
+            OnPropertyChanged();
+        });
     }
 }

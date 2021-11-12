@@ -3,26 +3,26 @@ using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
 using Snuggle.Core.Options;
 
-namespace Snuggle.Core.Models.Bundle {
-    [PublicAPI]
-    public record UnityBundle(
-        string Signature,
-        int FormatVersion,
-        string EngineVersion,
-        string EngineRevision) {
-        public UnityFormat Format { get; } = (UnityFormat) Signature[5];
+namespace Snuggle.Core.Models.Bundle; 
 
-        public UnityVersion? Version { get; } = UnityVersion.ParseSafe(EngineVersion);
-        public UnityVersion? Revision { get; } = UnityVersion.ParseSafe(EngineRevision);
+[PublicAPI]
+public record UnityBundle(
+    string Signature,
+    int FormatVersion,
+    string EngineVersion,
+    string EngineRevision) {
+    public UnityFormat Format { get; } = (UnityFormat) Signature[5];
 
-        public void ToWriter(BiEndianBinaryWriter writer, SnuggleOptions options) {
-            writer.IsBigEndian = true;
-            writer.WriteNullString(Signature);
-            writer.Write(FormatVersion);
-            writer.WriteNullString(EngineVersion);
-            writer.WriteNullString(EngineRevision);
-        }
+    public UnityVersion? Version { get; } = UnityVersion.ParseSafe(EngineVersion);
+    public UnityVersion? Revision { get; } = UnityVersion.ParseSafe(EngineRevision);
 
-        public static UnityBundle FromReader(BiEndianBinaryReader reader, SnuggleOptions options) => new(reader.ReadNullString(), reader.ReadInt32(), reader.ReadNullString(), reader.ReadNullString());
+    public void ToWriter(BiEndianBinaryWriter writer, SnuggleOptions options) {
+        writer.IsBigEndian = true;
+        writer.WriteNullString(Signature);
+        writer.Write(FormatVersion);
+        writer.WriteNullString(EngineVersion);
+        writer.WriteNullString(EngineRevision);
     }
+
+    public static UnityBundle FromReader(BiEndianBinaryReader reader, SnuggleOptions options) => new(reader.ReadNullString(), reader.ReadInt32(), reader.ReadNullString(), reader.ReadNullString());
 }

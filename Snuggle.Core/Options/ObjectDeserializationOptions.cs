@@ -2,30 +2,30 @@
 using System.Text.Json.Serialization;
 using JetBrains.Annotations;
 
-namespace Snuggle.Core.Options {
-    public delegate (string Path, SnuggleOptions Options) RequestAssemblyPath(string assemblyName);
+namespace Snuggle.Core.Options; 
 
-    [PublicAPI]
-    public record ObjectDeserializationOptions {
-        private const int LatestVersion = 1;
+public delegate (string Path, SnuggleOptions Options) RequestAssemblyPath(string assemblyName);
 
-        [JsonIgnore]
-        public RequestAssemblyPath? RequestAssemblyCallback { get; set; }
+[PublicAPI]
+public record ObjectDeserializationOptions {
+    private const int LatestVersion = 1;
 
-        public static ObjectDeserializationOptions Default { get; } = new();
-        public int Version { get; set; } = LatestVersion;
+    [JsonIgnore]
+    public RequestAssemblyPath? RequestAssemblyCallback { get; set; }
 
-        public static ObjectDeserializationOptions FromJson(string json) {
-            try {
-                var options = JsonSerializer.Deserialize<ObjectDeserializationOptions>(json, SnuggleOptions.JsonOptions) ?? Default;
-                return options.NeedsMigration() ? options.Migrate() : options;
-            } catch {
-                return Default;
-            }
+    public static ObjectDeserializationOptions Default { get; } = new();
+    public int Version { get; set; } = LatestVersion;
+
+    public static ObjectDeserializationOptions FromJson(string json) {
+        try {
+            var options = JsonSerializer.Deserialize<ObjectDeserializationOptions>(json, SnuggleOptions.JsonOptions) ?? Default;
+            return options.NeedsMigration() ? options.Migrate() : options;
+        } catch {
+            return Default;
         }
-
-        public bool NeedsMigration() => Version < LatestVersion;
-
-        public ObjectDeserializationOptions Migrate() => this with { Version = LatestVersion };
     }
+
+    public bool NeedsMigration() => Version < LatestVersion;
+
+    public ObjectDeserializationOptions Migrate() => this with { Version = LatestVersion };
 }

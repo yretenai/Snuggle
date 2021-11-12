@@ -6,46 +6,46 @@ using System.Windows;
 using System.Windows.Threading;
 using JetBrains.Annotations;
 
-namespace Snuggle {
-    [PublicAPI]
-    public sealed class TaskCompletionNotifier<T> : INotifyPropertyChanged {
-        public TaskCompletionNotifier(object? carry, Task<T> task) {
-            Task = task;
-            Carried = carry;
-            if (task.IsCompleted) {
-                return;
-            }
+namespace Snuggle; 
 
-            var scheduler = SynchronizationContext.Current != null ? TaskScheduler.FromCurrentSynchronizationContext() : TaskScheduler.Current;
-            var dispatcher = Dispatcher.CurrentDispatcher;
-
-            task.ContinueWith(_ => {
-                    Result = Task.Status != TaskStatus.RanToCompletion ? default : Task.Result;
-                    dispatcher.Invoke(Refresh);
-                },
-                CancellationToken.None,
-                TaskContinuationOptions.None,
-                scheduler);
+[PublicAPI]
+public sealed class TaskCompletionNotifier<T> : INotifyPropertyChanged {
+    public TaskCompletionNotifier(object? carry, Task<T> task) {
+        Task = task;
+        Carried = carry;
+        if (task.IsCompleted) {
+            return;
         }
 
-        public object? Carried { get; }
-        public Task<T> Task { get; }
-        public bool Loading => Task.Status < TaskStatus.RanToCompletion;
-        public Visibility LoadingVisibility => Loading ? Visibility.Visible : Visibility.Hidden;
+        var scheduler = SynchronizationContext.Current != null ? TaskScheduler.FromCurrentSynchronizationContext() : TaskScheduler.Current;
+        var dispatcher = Dispatcher.CurrentDispatcher;
 
-        public T? Result { get; set; }
+        task.ContinueWith(_ => {
+                Result = Task.Status != TaskStatus.RanToCompletion ? default : Task.Result;
+                dispatcher.Invoke(Refresh);
+            },
+            CancellationToken.None,
+            TaskContinuationOptions.None,
+            scheduler);
+    }
 
-        public event PropertyChangedEventHandler? PropertyChanged;
+    public object? Carried { get; }
+    public Task<T> Task { get; }
+    public bool Loading => Task.Status < TaskStatus.RanToCompletion;
+    public Visibility LoadingVisibility => Loading ? Visibility.Visible : Visibility.Hidden;
 
-        [NotifyPropertyChangedInvocator]
-        private void OnPropertyChanged([CallerMemberName] string? propertyName = null) {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+    public T? Result { get; set; }
 
-        public void Refresh() {
-            OnPropertyChanged(nameof(Loading));
-            OnPropertyChanged(nameof(LoadingVisibility));
-            OnPropertyChanged(nameof(Result));
-        }
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    [NotifyPropertyChangedInvocator]
+    private void OnPropertyChanged([CallerMemberName] string? propertyName = null) {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    public void Refresh() {
+        OnPropertyChanged(nameof(Loading));
+        OnPropertyChanged(nameof(LoadingVisibility));
+        OnPropertyChanged(nameof(Result));
     }
 }

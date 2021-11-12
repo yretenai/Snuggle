@@ -5,28 +5,28 @@ using JetBrains.Annotations;
 using Snuggle.Core.Interfaces;
 using Snuggle.Core.Models.Bundle;
 
-namespace Snuggle.Core.IO {
-    [PublicAPI]
-    public class BundleStreamHandler : IFileHandler {
-        public BundleStreamHandler(Bundle bundleFile) => BundleFile = bundleFile;
+namespace Snuggle.Core.IO; 
 
-        public Bundle BundleFile { get; }
+[PublicAPI]
+public class BundleStreamHandler : IFileHandler {
+    public BundleStreamHandler(Bundle bundleFile) => BundleFile = bundleFile;
 
-        public Stream OpenFile(object tag) {
-            var path = tag switch {
-                string str => BundleFile.Container.Blocks.First(x => x.Path.Equals(str, StringComparison.InvariantCultureIgnoreCase)),
-                UnityBundleBlock block => block,
-                _ => throw new NotSupportedException($"{tag.GetType().FullName} is not supported"),
-            };
+    public Bundle BundleFile { get; }
 
-            return BundleFile.OpenFile(path);
-        }
+    public Stream OpenFile(object tag) {
+        var path = tag switch {
+            string str => BundleFile.Container.Blocks.First(x => x.Path.Equals(str, StringComparison.InvariantCultureIgnoreCase)),
+            UnityBundleBlock block => block,
+            _ => throw new NotSupportedException($"{tag.GetType().FullName} is not supported"),
+        };
 
-        public object GetTag(object baseTag, object parent) => baseTag;
+        return BundleFile.OpenFile(path);
+    }
 
-        public void Dispose() {
-            BundleFile.Dispose();
-            GC.SuppressFinalize(this);
-        }
+    public object GetTag(object baseTag, object parent) => baseTag;
+
+    public void Dispose() {
+        BundleFile.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

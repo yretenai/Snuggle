@@ -3,110 +3,110 @@ using System.IO;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 
-namespace Snuggle.Core.IO {
-    [PublicAPI]
-    public class OffsetStream : Stream {
-        public OffsetStream(Stream stream, long? offset = null, long? length = null, bool leaveOpen = false) {
-            BaseStream = stream;
-            Start = offset ?? stream.Position;
-            End = Start + (length ?? stream.Length - Start);
-            BaseStream.Position = Start;
-            LeaveOpen = leaveOpen;
+namespace Snuggle.Core.IO; 
+
+[PublicAPI]
+public class OffsetStream : Stream {
+    public OffsetStream(Stream stream, long? offset = null, long? length = null, bool leaveOpen = false) {
+        BaseStream = stream;
+        Start = offset ?? stream.Position;
+        End = Start + (length ?? stream.Length - Start);
+        BaseStream.Position = Start;
+        LeaveOpen = leaveOpen;
+    }
+
+    private Stream BaseStream { get; }
+    public long Start { get; }
+    public long End { get; }
+    public bool LeaveOpen { get; }
+    public bool Disposed { get; private set; }
+
+    public override bool CanRead => BaseStream.CanRead;
+
+    public override bool CanSeek => BaseStream.CanSeek;
+
+    public override bool CanWrite => false;
+
+    public override long Length => End - Start;
+
+    public override long Position {
+        get => BaseStream.Position - Start;
+        set => Seek(value, SeekOrigin.Begin);
+    }
+
+    public override void Close() {
+        Disposed = true;
+
+        if (LeaveOpen) {
+            return;
         }
 
-        private Stream BaseStream { get; }
-        public long Start { get; }
-        public long End { get; }
-        public bool LeaveOpen { get; }
-        public bool Disposed { get; private set; }
+        BaseStream.Close();
+    }
 
-        public override bool CanRead => BaseStream.CanRead;
+    public override async ValueTask DisposeAsync() {
+        Disposed = true;
 
-        public override bool CanSeek => BaseStream.CanSeek;
-
-        public override bool CanWrite => false;
-
-        public override long Length => End - Start;
-
-        public override long Position {
-            get => BaseStream.Position - Start;
-            set => Seek(value, SeekOrigin.Begin);
+        if (!LeaveOpen) {
+            await BaseStream.DisposeAsync();
         }
 
-        public override void Close() {
-            Disposed = true;
+        GC.SuppressFinalize(this);
+    }
 
-            if (LeaveOpen) {
-                return;
-            }
-
-            BaseStream.Close();
+    public override void Flush() {
+        if (Disposed) {
+            throw new ObjectDisposedException(nameof(OffsetStream));
         }
 
-        public override async ValueTask DisposeAsync() {
-            Disposed = true;
+        BaseStream.Flush();
+    }
 
-            if (!LeaveOpen) {
-                await BaseStream.DisposeAsync();
-            }
-
-            GC.SuppressFinalize(this);
+    public override int Read(byte[] buffer, int offset, int count) {
+        if (Disposed) {
+            throw new ObjectDisposedException(nameof(OffsetStream));
         }
 
-        public override void Flush() {
-            if (Disposed) {
-                throw new ObjectDisposedException(nameof(OffsetStream));
-            }
-
-            BaseStream.Flush();
+        if (Position < 0) { // stream is reused oh no.
+            Seek(0, SeekOrigin.Begin);
         }
 
-        public override int Read(byte[] buffer, int offset, int count) {
-            if (Disposed) {
-                throw new ObjectDisposedException(nameof(OffsetStream));
-            }
-
-            if (Position < 0) { // stream is reused oh no.
-                Seek(0, SeekOrigin.Begin);
-            }
-
-            if (BaseStream.Position + count > End) {
-                count = (int) (End - BaseStream.Position);
-            }
-
-            return count <= 0 ? 0 : BaseStream.Read(buffer, offset, count);
+        if (BaseStream.Position + count > End) {
+            count = (int) (End - BaseStream.Position);
         }
 
-        public override long Seek(long offset, SeekOrigin origin) {
-            if (Disposed) {
-                throw new ObjectDisposedException(nameof(OffsetStream));
-            }
+        return count <= 0 ? 0 : BaseStream.Read(buffer, offset, count);
+    }
 
-            var absolutePosition = origin switch {
-                SeekOrigin.Begin => Start + offset,
-                SeekOrigin.Current => BaseStream.Position + offset,
-                SeekOrigin.End => End - offset,
-                _ => throw new IOException("Unknown seek origin"),
-            };
-
-            if (absolutePosition > End) {
-                throw new IOException("Attempting to seek past the end of the stream");
-            }
-
-            if (absolutePosition < Start) {
-                throw new IOException("Attempting to seek to a negative value");
-            }
-
-            BaseStream.Seek(absolutePosition, SeekOrigin.Begin);
-            return Position;
+    public override long Seek(long offset, SeekOrigin origin) {
+        if (Disposed) {
+            throw new ObjectDisposedException(nameof(OffsetStream));
         }
 
-        public override void SetLength(long value) {
-            throw new IOException("Read only");
+        var absolutePosition = origin switch {
+            SeekOrigin.Begin => Start + offset,
+            SeekOrigin.Current => BaseStream.Position + offset,
+            SeekOrigin.End => End - offset,
+            _ => throw new IOException("Unknown seek origin"),
+        };
+
+        if (absolutePosition > End) {
+            throw new IOException("Attempting to seek past the end of the stream");
         }
 
-        public override void Write(byte[] buffer, int offset, int count) {
-            throw new IOException("Read only");
+        if (absolutePosition < Start) {
+            throw new IOException("Attempting to seek to a negative value");
         }
+
+        BaseStream.Seek(absolutePosition, SeekOrigin.Begin);
+        return Position;
+    }
+
+    public override void SetLength(long value) {
+        throw new IOException("Read only");
+    }
+
+    public override void Write(byte[] buffer, int offset, int count) {
+        throw new IOException("Read only");
     }
 }

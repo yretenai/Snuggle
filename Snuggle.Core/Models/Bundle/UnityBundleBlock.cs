@@ -3,80 +3,80 @@ using JetBrains.Annotations;
 using Snuggle.Core.IO;
 using Snuggle.Core.Options;
 
-namespace Snuggle.Core.Models.Bundle {
-    [PublicAPI]
-    public record UnityBundleBlock(
-        long Offset,
-        long Size,
-        UnityBundleBlockFlags Flags,
-        string Path) {
-        public static UnityBundleBlock FromReader(BiEndianBinaryReader reader, int fsFlags, SnuggleOptions options) {
-            var offset = reader.ReadInt64();
-            var size = reader.ReadInt64();
-            var flags = (UnityBundleBlockFlags) reader.ReadUInt32();
-            var path = reader.ReadNullString();
+namespace Snuggle.Core.Models.Bundle; 
 
-            return new UnityBundleBlock(offset, size, flags, path);
-        }
+[PublicAPI]
+public record UnityBundleBlock(
+    long Offset,
+    long Size,
+    UnityBundleBlockFlags Flags,
+    string Path) {
+    public static UnityBundleBlock FromReader(BiEndianBinaryReader reader, int fsFlags, SnuggleOptions options) {
+        var offset = reader.ReadInt64();
+        var size = reader.ReadInt64();
+        var flags = (UnityBundleBlockFlags) reader.ReadUInt32();
+        var path = reader.ReadNullString();
 
-        public static UnityBundleBlock FromReaderRaw(BiEndianBinaryReader reader, int fsFlags, SnuggleOptions options) {
-            var path = reader.ReadNullString();
-            var offset = reader.ReadUInt32();
-            var size = reader.ReadUInt32();
-            return new UnityBundleBlock(offset, size, UnityBundleBlockFlags.SerializedFile, path);
-        }
+        return new UnityBundleBlock(offset, size, flags, path);
+    }
 
-        public static UnityBundleBlock[] ArrayFromReader(BiEndianBinaryReader reader,
-            UnityBundle header,
-            int fsFlags,
-            int count,
-            SnuggleOptions options) {
-            switch (header.Format) {
-                case UnityFormat.FS: {
-                    var container = new UnityBundleBlock[count];
-                    for (var i = 0; i < count; ++i) {
-                        container[i] = FromReader(reader, fsFlags, options);
-                    }
+    public static UnityBundleBlock FromReaderRaw(BiEndianBinaryReader reader, int fsFlags, SnuggleOptions options) {
+        var path = reader.ReadNullString();
+        var offset = reader.ReadUInt32();
+        var size = reader.ReadUInt32();
+        return new UnityBundleBlock(offset, size, UnityBundleBlockFlags.SerializedFile, path);
+    }
 
-                    return container;
+    public static UnityBundleBlock[] ArrayFromReader(BiEndianBinaryReader reader,
+        UnityBundle header,
+        int fsFlags,
+        int count,
+        SnuggleOptions options) {
+        switch (header.Format) {
+            case UnityFormat.FS: {
+                var container = new UnityBundleBlock[count];
+                for (var i = 0; i < count; ++i) {
+                    container[i] = FromReader(reader, fsFlags, options);
                 }
-                case UnityFormat.Raw:
-                case UnityFormat.Web: {
-                    var container = new UnityBundleBlock[count];
-                    for (var i = 0; i < count; ++i) {
-                        container[i] = FromReaderRaw(reader, fsFlags, options);
-                    }
 
-                    return container;
+                return container;
+            }
+            case UnityFormat.Raw:
+            case UnityFormat.Web: {
+                var container = new UnityBundleBlock[count];
+                for (var i = 0; i < count; ++i) {
+                    container[i] = FromReaderRaw(reader, fsFlags, options);
                 }
-                case UnityFormat.Archive:
-                    throw new NotImplementedException();
-                default:
-                    throw new NotSupportedException($"Unity Bundle format {header.Signature} is not supported");
+
+                return container;
             }
+            case UnityFormat.Archive:
+                throw new NotImplementedException();
+            default:
+                throw new NotSupportedException($"Unity Bundle format {header.Signature} is not supported");
         }
+    }
 
-        public static void ArrayToWriter(BiEndianBinaryWriter writer, UnityBundleBlock[] blocks, UnityBundle header, SnuggleOptions options, BundleSerializationOptions serializationOptions) {
-            writer.Write(blocks.Length);
+    public static void ArrayToWriter(BiEndianBinaryWriter writer, UnityBundleBlock[] blocks, UnityBundle header, SnuggleOptions options, BundleSerializationOptions serializationOptions) {
+        writer.Write(blocks.Length);
 
-            var offset = 0L;
-            foreach (var block in blocks) {
-                block.ToWriter(writer, header, options, serializationOptions, offset);
-                offset += block.Size; // Alignment? ModCheck
-            }
+        var offset = 0L;
+        foreach (var block in blocks) {
+            block.ToWriter(writer, header, options, serializationOptions, offset);
+            offset += block.Size; // Alignment? ModCheck
         }
+    }
 
-        private void ToWriter(BiEndianBinaryWriter writer, UnityBundle header, SnuggleOptions options, BundleSerializationOptions serializationOptions, long offset) {
-            if (header.Format == UnityFormat.FS) {
-                writer.Write(offset);
-                writer.Write(Size);
-                writer.Write((uint) Flags);
-                writer.WriteNullString(Path);
-            } else {
-                writer.WriteNullString(Path);
-                writer.Write(offset);
-                writer.Write(Size);
-            }
+    private void ToWriter(BiEndianBinaryWriter writer, UnityBundle header, SnuggleOptions options, BundleSerializationOptions serializationOptions, long offset) {
+        if (header.Format == UnityFormat.FS) {
+            writer.Write(offset);
+            writer.Write(Size);
+            writer.Write((uint) Flags);
+            writer.WriteNullString(Path);
+        } else {
+            writer.WriteNullString(Path);
+            writer.Write(offset);
+            writer.Write(Size);
         }
     }
 }

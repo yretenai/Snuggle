@@ -7,147 +7,147 @@ using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
 using Snuggle.Core.Options;
 
-namespace Snuggle.Core.Models.Objects.Graphics {
-    [PublicAPI]
-    public record PackedBitVector(
-        uint Count,
-        byte BitSize) {
-        private long DataStart { get; init; } = -1;
-        public float Range { get; init; } = 1.0f;
-        public float Start { get; init; }
-        public bool HasRange { get; init; }
+namespace Snuggle.Core.Models.Objects.Graphics; 
 
-        [JsonIgnore]
-        public Memory<byte>? Data { get; set; }
+[PublicAPI]
+public record PackedBitVector(
+    uint Count,
+    byte BitSize) {
+    private long DataStart { get; init; } = -1;
+    public float Range { get; init; } = 1.0f;
+    public float Start { get; init; }
+    public bool HasRange { get; init; }
 
-        public static PackedBitVector Default { get; } = new(0, 0);
+    [JsonIgnore]
+    public Memory<byte>? Data { get; set; }
 
-        [JsonIgnore]
-        public bool ShouldDeserialize => Data == null;
+    public static PackedBitVector Default { get; } = new(0, 0);
 
-        public static PackedBitVector FromReader(BiEndianBinaryReader reader, SerializedFile file, bool hasRange) {
-            var count = reader.ReadUInt32();
-            var range = 0f;
-            var start = 0f;
-            if (hasRange) {
-                range = reader.ReadSingle();
-                start = reader.ReadSingle();
-            }
+    [JsonIgnore]
+    public bool ShouldDeserialize => Data == null;
 
-            var dataStart = reader.BaseStream.Position;
-            var dataCount = reader.ReadInt32();
-            reader.BaseStream.Seek(dataCount, SeekOrigin.Current);
-            reader.Align();
-            var bitSize = reader.ReadByte();
-            reader.Align();
-            return new PackedBitVector(count, bitSize) { Range = range, Start = start, DataStart = dataStart, HasRange = hasRange };
+    public static PackedBitVector FromReader(BiEndianBinaryReader reader, SerializedFile file, bool hasRange) {
+        var count = reader.ReadUInt32();
+        var range = 0f;
+        var start = 0f;
+        if (hasRange) {
+            range = reader.ReadSingle();
+            start = reader.ReadSingle();
         }
 
-        public void ToWriter(BiEndianBinaryWriter writer, SerializedFile serializedFile, UnityVersion targetVersion) {
-            if (ShouldDeserialize) {
-                throw new IncompleteDeserializationException();
-            }
+        var dataStart = reader.BaseStream.Position;
+        var dataCount = reader.ReadInt32();
+        reader.BaseStream.Seek(dataCount, SeekOrigin.Current);
+        reader.Align();
+        var bitSize = reader.ReadByte();
+        reader.Align();
+        return new PackedBitVector(count, bitSize) { Range = range, Start = start, DataStart = dataStart, HasRange = hasRange };
+    }
 
-            writer.Write(Count);
-            if (HasRange) {
-                writer.Write(Range);
-                writer.Write(Start);
-            }
-
-            writer.Write(Data!.Value.Length);
-            writer.WriteMemory(Data);
-            writer.Align();
-            writer.Write(BitSize);
+    public void ToWriter(BiEndianBinaryWriter writer, SerializedFile serializedFile, UnityVersion targetVersion) {
+        if (ShouldDeserialize) {
+            throw new IncompleteDeserializationException();
         }
 
-        public void Deserialize(BiEndianBinaryReader reader, SerializedFile serializedFile, ObjectDeserializationOptions options) {
-            reader.BaseStream.Seek(DataStart, SeekOrigin.Begin);
-            var dataCount = reader.ReadInt32();
-            Data = reader.ReadMemory(dataCount);
+        writer.Write(Count);
+        if (HasRange) {
+            writer.Write(Range);
+            writer.Write(Start);
         }
 
-        // code taken from AssetStudio, with some edits
-        public Span<int> Decompress(uint? count = null, int offset = 0) {
-            count ??= Count;
-            if (count > Count) {
-                throw new ArgumentOutOfRangeException(nameof(count));
-            }
+        writer.Write(Data!.Value.Length);
+        writer.WriteMemory(Data);
+        writer.Align();
+        writer.Write(BitSize);
+    }
 
-            if (offset < 0 ||
-                count + offset > Count) {
-                throw new ArgumentOutOfRangeException(nameof(offset));
-            }
+    public void Deserialize(BiEndianBinaryReader reader, SerializedFile serializedFile, ObjectDeserializationOptions options) {
+        reader.BaseStream.Seek(DataStart, SeekOrigin.Begin);
+        var dataCount = reader.ReadInt32();
+        Data = reader.ReadMemory(dataCount);
+    }
 
-            if (count == 0) {
-                return Span<int>.Empty;
-            }
+    // code taken from AssetStudio, with some edits
+    public Span<int> Decompress(uint? count = null, int offset = 0) {
+        count ??= Count;
+        if (count > Count) {
+            throw new ArgumentOutOfRangeException(nameof(count));
+        }
 
-            var data = new int[count.Value];
-            var bitPos = BitSize * offset;
-            var indexPos = bitPos / 8;
-            var memory = Data!.Value.Span;
-            for (var i = offset; i < count + offset; i++) {
-                var bits = 0;
-                data[i] = 0;
-                while (bits < BitSize) {
-                    data[i] |= (memory[indexPos] >> bitPos) << bits;
+        if (offset < 0 ||
+            count + offset > Count) {
+            throw new ArgumentOutOfRangeException(nameof(offset));
+        }
 
-                    var num = System.Math.Min(BitSize - bits, 8 - bitPos);
-                    bitPos += num;
-                    bits += num;
+        if (count == 0) {
+            return Span<int>.Empty;
+        }
 
-                    if (bitPos == 8) {
-                        indexPos++;
-                        bitPos = 0;
-                    }
+        var data = new int[count.Value];
+        var bitPos = BitSize * offset;
+        var indexPos = bitPos / 8;
+        var memory = Data!.Value.Span;
+        for (var i = offset; i < count + offset; i++) {
+            var bits = 0;
+            data[i] = 0;
+            while (bits < BitSize) {
+                data[i] |= (memory[indexPos] >> bitPos) << bits;
+
+                var num = System.Math.Min(BitSize - bits, 8 - bitPos);
+                bitPos += num;
+                bits += num;
+
+                if (bitPos == 8) {
+                    indexPos++;
+                    bitPos = 0;
                 }
-
-                data[i] &= (1 << BitSize) - 1;
             }
 
-            return data;
+            data[i] &= (1 << BitSize) - 1;
         }
 
-        // same as Decompress
-        public Span<float> DecompressSingle(uint? count, int offset = 0) {
-            count ??= Count;
-            if (count > Count) {
-                throw new ArgumentOutOfRangeException(nameof(count));
-            }
+        return data;
+    }
 
-            if (offset < 0 ||
-                count + offset > Count) {
-                throw new ArgumentOutOfRangeException(nameof(offset));
-            }
+    // same as Decompress
+    public Span<float> DecompressSingle(uint? count, int offset = 0) {
+        count ??= Count;
+        if (count > Count) {
+            throw new ArgumentOutOfRangeException(nameof(count));
+        }
 
-            if (count == 0) {
-                return Span<float>.Empty;
-            }
+        if (offset < 0 ||
+            count + offset > Count) {
+            throw new ArgumentOutOfRangeException(nameof(offset));
+        }
 
-            var data = new float[count.Value];
-            var bitPos = BitSize * offset;
-            var indexPos = bitPos / 8;
-            var memory = Data!.Value.Span;
-            var scale = 1.0f / Range;
-            for (var i = offset; i < count + offset; i++) {
-                var x = 0u;
-                var bits = 0;
-                while (bits < BitSize) {
-                    x |= (uint) ((memory[indexPos] >> bitPos) << bits);
-                    var num = System.Math.Min(BitSize - bits, 8 - bitPos);
-                    bitPos += num;
-                    bits += num;
-                    if (bitPos == 8) {
-                        indexPos++;
-                        bitPos = 0;
-                    }
+        if (count == 0) {
+            return Span<float>.Empty;
+        }
+
+        var data = new float[count.Value];
+        var bitPos = BitSize * offset;
+        var indexPos = bitPos / 8;
+        var memory = Data!.Value.Span;
+        var scale = 1.0f / Range;
+        for (var i = offset; i < count + offset; i++) {
+            var x = 0u;
+            var bits = 0;
+            while (bits < BitSize) {
+                x |= (uint) ((memory[indexPos] >> bitPos) << bits);
+                var num = System.Math.Min(BitSize - bits, 8 - bitPos);
+                bitPos += num;
+                bits += num;
+                if (bitPos == 8) {
+                    indexPos++;
+                    bitPos = 0;
                 }
-
-                x &= (uint) (1 << BitSize) - 1u;
-                data[i] = x / (scale * ((1 << BitSize) - 1)) + Start;
             }
 
-            return data;
+            x &= (uint) (1 << BitSize) - 1u;
+            data[i] = x / (scale * ((1 << BitSize) - 1)) + Start;
         }
+
+        return data;
     }
 }

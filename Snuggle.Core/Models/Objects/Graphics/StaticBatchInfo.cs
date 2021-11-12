@@ -3,24 +3,24 @@ using System.Linq;
 using JetBrains.Annotations;
 using Snuggle.Core.IO;
 
-namespace Snuggle.Core.Models.Objects.Graphics {
-    [PublicAPI]
-    public record StaticBatchInfo(
-        ushort FirstSubmesh,
-        ushort SubmeshCount) {
-        public static StaticBatchInfo Default { get; } = new(0, 1);
+namespace Snuggle.Core.Models.Objects.Graphics; 
 
-        public static StaticBatchInfo FromReader(BiEndianBinaryReader reader, SerializedFile file) {
-            var first = reader.ReadUInt16();
-            var count = reader.ReadUInt16();
+[PublicAPI]
+public record StaticBatchInfo(
+    ushort FirstSubmesh,
+    ushort SubmeshCount) {
+    public static StaticBatchInfo Default { get; } = new(0, 1);
 
-            return new StaticBatchInfo(first, count);
-        }
+    public static StaticBatchInfo FromReader(BiEndianBinaryReader reader, SerializedFile file) {
+        var first = reader.ReadUInt16();
+        var count = reader.ReadUInt16();
 
-        public static StaticBatchInfo FromSubsetIndices(List<int> subsetIndices) {
-            var min = subsetIndices.Min();
-            var max = subsetIndices.Max();
-            return new StaticBatchInfo((ushort) min, (ushort) (max - min + 1));
-        }
+        return new StaticBatchInfo(first, count);
+    }
+
+    public static StaticBatchInfo FromSubsetIndices(List<int> subsetIndices) {
+        var min = subsetIndices.Min();
+        var max = subsetIndices.Max();
+        return new StaticBatchInfo((ushort) min, (ushort) (max - min + 1));
     }
 }

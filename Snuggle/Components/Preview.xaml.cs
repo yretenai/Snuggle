@@ -1,7 +1,7 @@
-﻿namespace Snuggle.Components {
-    public partial class Preview {
-        public Preview() {
-            InitializeComponent();
-        }
+﻿namespace Snuggle.Components; 
+
+public partial class Preview {
+    public Preview() {
+        InitializeComponent();
     }
 }

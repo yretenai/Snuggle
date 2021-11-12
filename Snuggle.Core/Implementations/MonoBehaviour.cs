@@ -9,90 +9,90 @@ using Snuggle.Core.Models;
 using Snuggle.Core.Models.Serialization;
 using Snuggle.Core.Options;
 
-namespace Snuggle.Core.Implementations {
-    [PublicAPI, UsedImplicitly, ObjectImplementation(UnityClassId.MonoBehaviour)]
-    public class MonoBehaviour : Behaviour {
-        public MonoBehaviour(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) {
-            reader.Align();
+namespace Snuggle.Core.Implementations; 
 
-            Script = PPtr<MonoScript>.FromReader(reader, serializedFile);
-            Name = reader.ReadString32();
-            DataStart = reader.BaseStream.Position;
-        }
+[PublicAPI, UsedImplicitly, ObjectImplementation(UnityClassId.MonoBehaviour)]
+public class MonoBehaviour : Behaviour {
+    public MonoBehaviour(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) {
+        reader.Align();
 
-        public MonoBehaviour(UnityObjectInfo info, SerializedFile serializedFile) : base(info, serializedFile) {
-            Script = PPtr<MonoScript>.Null;
-            Name = string.Empty;
-        }
+        Script = PPtr<MonoScript>.FromReader(reader, serializedFile);
+        Name = reader.ReadString32();
+        DataStart = reader.BaseStream.Position;
+    }
 
-        public PPtr<MonoScript> Script { get; set; }
-        public string Name { get; set; }
-        public object? Data { get; set; }
+    public MonoBehaviour(UnityObjectInfo info, SerializedFile serializedFile) : base(info, serializedFile) {
+        Script = PPtr<MonoScript>.Null;
+        Name = string.Empty;
+    }
 
-        [JsonIgnore]
-        public ObjectNode? ObjectData { get; set; }
+    public PPtr<MonoScript> Script { get; set; }
+    public string Name { get; set; }
+    public object? Data { get; set; }
 
-        private long DataStart { get; init; } = -1;
+    [JsonIgnore]
+    public ObjectNode? ObjectData { get; set; }
 
-        [JsonIgnore]
-        public override bool ShouldDeserialize => base.ShouldDeserialize || Data == null && !Script.IsNull;
+    private long DataStart { get; init; } = -1;
 
-        public override void Deserialize(BiEndianBinaryReader reader, ObjectDeserializationOptions options) {
-            base.Deserialize(reader, options);
+    [JsonIgnore]
+    public override bool ShouldDeserialize => base.ShouldDeserialize || Data == null && !Script.IsNull;
 
-            if (ObjectData == null &&
-                SerializedFile.Assets != null) {
-                var script = Script.Value;
-                if (script == null) {
-                    throw new PPtrNullReferenceException(UnityClassId.MonoScript);
-                }
+    public override void Deserialize(BiEndianBinaryReader reader, ObjectDeserializationOptions options) {
+        base.Deserialize(reader, options);
 
-                var name = script.ToString();
-
-                var info = SerializedFile.ObjectInfos[PathId];
-                if (info.TypeIndex > 0 &&
-                    info.TypeIndex < SerializedFile.Types.Length &&
-                    SerializedFile.Types[info.TypeIndex].TypeTree != null) {
-                    ObjectData = ObjectFactory.FindObjectNode(name, SerializedFile.Types[info.TypeIndex].TypeTree, SerializedFile.Assets);
-                }
-
-                if (ObjectData == null) {
-                    ObjectData = ObjectFactory.FindObjectNode(name, script, SerializedFile.Assets, options.RequestAssemblyCallback);
-                }
-
-                if (ObjectData == null) {
-                    return;
-                }
-
-                reader.BaseStream.Seek(DataStart, SeekOrigin.Begin);
-                Data = ObjectFactory.CreateObject(reader, ObjectData, SerializedFile, "m_Name");
-            }
-        }
-
-        public override void Serialize(BiEndianBinaryWriter writer, AssetSerializationOptions options) {
-            if (ShouldDeserialize) {
-                throw new IncompleteDeserializationException();
+        if (ObjectData == null &&
+            SerializedFile.Assets != null) {
+            var script = Script.Value;
+            if (script == null) {
+                throw new PPtrNullReferenceException(UnityClassId.MonoScript);
             }
 
-            base.Serialize(writer, options);
+            var name = script.ToString();
 
-            Script.ToWriter(writer, SerializedFile, options.TargetVersion);
-            writer.WriteString32(Name);
-            throw new NotImplementedException();
-        }
+            var info = SerializedFile.ObjectInfos[PathId];
+            if (info.TypeIndex > 0 &&
+                info.TypeIndex < SerializedFile.Types.Length &&
+                SerializedFile.Types[info.TypeIndex].TypeTree != null) {
+                ObjectData = ObjectFactory.FindObjectNode(name, SerializedFile.Types[info.TypeIndex].TypeTree, SerializedFile.Assets);
+            }
 
-        public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Script, Name, Data);
+            if (ObjectData == null) {
+                ObjectData = ObjectFactory.FindObjectNode(name, script, SerializedFile.Assets, options.RequestAssemblyCallback);
+            }
 
-        public override string ToString() => string.IsNullOrEmpty(Name) ? base.ToString() : Name;
-
-        public override void Free() {
-            if (IsMutated) {
+            if (ObjectData == null) {
                 return;
             }
 
-            base.Free();
-            ObjectData = null;
-            Data = null;
+            reader.BaseStream.Seek(DataStart, SeekOrigin.Begin);
+            Data = ObjectFactory.CreateObject(reader, ObjectData, SerializedFile, "m_Name");
         }
+    }
+
+    public override void Serialize(BiEndianBinaryWriter writer, AssetSerializationOptions options) {
+        if (ShouldDeserialize) {
+            throw new IncompleteDeserializationException();
+        }
+
+        base.Serialize(writer, options);
+
+        Script.ToWriter(writer, SerializedFile, options.TargetVersion);
+        writer.WriteString32(Name);
+        throw new NotImplementedException();
+    }
+
+    public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Script, Name, Data);
+
+    public override string ToString() => string.IsNullOrEmpty(Name) ? base.ToString() : Name;
+
+    public override void Free() {
+        if (IsMutated) {
+            return;
+        }
+
+        base.Free();
+        ObjectData = null;
+        Data = null;
     }
 }
