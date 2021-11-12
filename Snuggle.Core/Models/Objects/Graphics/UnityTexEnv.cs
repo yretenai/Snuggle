@@ -6,10 +6,7 @@ using Snuggle.Core.Models.Objects.Math;
 namespace Snuggle.Core.Models.Objects.Graphics;
 
 [PublicAPI]
-public record UnityTexEnv(
-    PPtr<Texture> Texture,
-    Vector2 Scale,
-    Vector2 Offset) {
+public record UnityTexEnv(PPtr<Texture> Texture, Vector2 Scale, Vector2 Offset) {
     public static UnityTexEnv Default { get; } = new(PPtr<Texture>.Null, Vector2.Zero, Vector2.Zero);
 
     public static UnityTexEnv FromReader(BiEndianBinaryReader reader, SerializedFile file) {

@@ -30,8 +30,7 @@ public class AssetBundle : NamedObject, ICABPathProvider {
             Container.Add(new KeyValuePair<string, AssetInfo>(reader.ReadString32(), AssetInfo.FromReader(reader, serializedFile)));
         }
 
-        if (serializedFile.Version >= UnityVersionRegister.Unity5_4 &&
-            serializedFile.Version < UnityVersionRegister.Unity5_5) {
+        if (serializedFile.Version >= UnityVersionRegister.Unity5_4 && serializedFile.Version < UnityVersionRegister.Unity5_5) {
             var classInfoCount = reader.ReadInt32();
             ClassInfos.EnsureCapacity(classInfoCount);
             for (var i = 0; i < classInfoCount; ++i) {
@@ -42,9 +41,7 @@ public class AssetBundle : NamedObject, ICABPathProvider {
         MainAsset = AssetInfo.FromReader(reader, serializedFile);
         RuntimeCompatibility = reader.ReadUInt32();
 
-        if (serializedFile.Options.Game == UnityGame.PokemonUnite &&
-            SerializedFile.Options.GameOptions.TryGetOptionsObject<UniteOptions>(UnityGame.PokemonUnite, out var uniteOptions) &&
-            uniteOptions.GameVersion >= UniteVersion.Version1_2) {
+        if (serializedFile.Options.Game == UnityGame.PokemonUnite && SerializedFile.Options.GameOptions.TryGetOptionsObject<UniteOptions>(UnityGame.PokemonUnite, out var uniteOptions) && uniteOptions.GameVersion >= UniteVersion.Version1_2) {
             var container = GetExtraContainer<UniteAssetBundleExtension>(UnityClassId.AssetBundle);
             container.Unknown1 = reader.ReadUInt32();
         }
@@ -127,8 +124,7 @@ public class AssetBundle : NamedObject, ICABPathProvider {
             info.ToWriter(writer, SerializedFile, options.TargetVersion);
         }
 
-        if (options.TargetVersion >= UnityVersionRegister.Unity5_4 &&
-            options.TargetVersion < UnityVersionRegister.Unity5_5) {
+        if (options.TargetVersion >= UnityVersionRegister.Unity5_4 && options.TargetVersion < UnityVersionRegister.Unity5_5) {
             writer.Write(ClassInfos.Count);
             foreach (var (id, flags) in ClassInfos) {
                 writer.Write(id);

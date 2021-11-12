@@ -5,11 +5,7 @@ using Snuggle.Core.Meta;
 namespace Snuggle.Core.Models.Objects.Graphics;
 
 [PublicAPI]
-public record MeshBlendShapeChannel(
-    string Name,
-    uint Hash,
-    int Index,
-    int Count) {
+public record MeshBlendShapeChannel(string Name, uint Hash, int Index, int Count) {
     public static MeshBlendShapeChannel Default { get; } = new(string.Empty, 0, 0, 0);
 
     public static MeshBlendShapeChannel FromReader(BiEndianBinaryReader reader, SerializedFile file) {

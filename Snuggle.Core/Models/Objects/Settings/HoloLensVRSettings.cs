@@ -5,9 +5,7 @@ using Snuggle.Core.Meta;
 namespace Snuggle.Core.Models.Objects.Settings;
 
 [PublicAPI]
-public record HoloLensVRSettings(
-    int DepthFormat,
-    bool DepthBufferSharingEnabled) {
+public record HoloLensVRSettings(int DepthFormat, bool DepthBufferSharingEnabled) {
     public static HoloLensVRSettings Default { get; } = new(0, false);
 
     public static HoloLensVRSettings FromReader(BiEndianBinaryReader reader, SerializedFile file) {

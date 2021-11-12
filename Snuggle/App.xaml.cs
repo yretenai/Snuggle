@@ -5,9 +5,7 @@ using System.Windows;
 
 namespace Snuggle;
 
-/// <summary>
-///     Interaction logic for App.xaml
-/// </summary>
+/// <summary>Interaction logic for App.xaml</summary>
 public partial class App {
     static App() {
         var _ = CoInitializeEx(IntPtr.Zero, CoInit.MultiThreaded);

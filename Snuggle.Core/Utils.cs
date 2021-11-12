@@ -8,27 +8,9 @@ using SevenZip.Compression.LZMA;
 namespace Snuggle.Core;
 
 internal static class Utils {
-    private static readonly CoderPropID[] PropIDs = {
-        CoderPropID.DictionarySize,
-        CoderPropID.PosStateBits,
-        CoderPropID.LitContextBits,
-        CoderPropID.LitPosBits,
-        CoderPropID.Algorithm,
-        CoderPropID.NumFastBytes,
-        CoderPropID.MatchFinder,
-        CoderPropID.EndMarker,
-    };
+    private static readonly CoderPropID[] PropIDs = { CoderPropID.DictionarySize, CoderPropID.PosStateBits, CoderPropID.LitContextBits, CoderPropID.LitPosBits, CoderPropID.Algorithm, CoderPropID.NumFastBytes, CoderPropID.MatchFinder, CoderPropID.EndMarker };
 
-    private static readonly object[] Properties = {
-        1 << 23,
-        2,
-        3,
-        0,
-        2,
-        128,
-        "bt4",
-        false,
-    };
+    private static readonly object[] Properties = { 1 << 23, 2, 3, 0, 2, 128, "bt4", false };
 
     static Utils() => BytePool = ArrayPool<byte>.Create();
 
@@ -91,11 +73,6 @@ internal static class Utils {
     }
 
     public static float[] UnwrapRGBA(uint rgba) {
-        return new[] {
-            (rgba & 0xFF) / (float) 0xFF,
-            ((rgba >> 8) & 0xFF) / (float) 0xFF,
-            ((rgba >> 16) & 0xFF) / (float) 0xFF,
-            ((rgba >> 24) & 0xFF) / (float) 0xFF,
-        };
+        return new[] { (rgba & 0xFF) / (float) 0xFF, ((rgba >> 8) & 0xFF) / (float) 0xFF, ((rgba >> 16) & 0xFF) / (float) 0xFF, ((rgba >> 24) & 0xFF) / (float) 0xFF };
     }
 }

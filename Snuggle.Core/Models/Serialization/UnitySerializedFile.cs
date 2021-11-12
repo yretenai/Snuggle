@@ -57,6 +57,15 @@ public record UnitySerializedFile(
             typeTreeEnabled = reader.ReadBoolean();
         }
 
-        return new UnitySerializedFile(headerSize, size, version, offset, isBigEndian, laf, engineVersion, targetPlatform, typeTreeEnabled);
+        return new UnitySerializedFile(
+            headerSize,
+            size,
+            version,
+            offset,
+            isBigEndian,
+            laf,
+            engineVersion,
+            targetPlatform,
+            typeTreeEnabled);
     }
 }

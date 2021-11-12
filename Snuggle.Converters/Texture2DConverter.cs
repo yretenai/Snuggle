@@ -125,8 +125,7 @@ public static class Texture2DConverter {
     }
 
     private static bool UnpackCrunch(UnityVersion unityVersion, TextureFormat textureFormat, byte[] crunchedData, out byte[] data) {
-        if (unityVersion >= UnityVersionRegister.Unity2017_3 ||
-            textureFormat is TextureFormat.ETC_RGB4Crunched or TextureFormat.ETC2_RGBA8Crunched) {
+        if (unityVersion >= UnityVersionRegister.Unity2017_3 || textureFormat is TextureFormat.ETC_RGB4Crunched or TextureFormat.ETC2_RGBA8Crunched) {
             data = TextureDecoder.UnpackUnityCrunch(crunchedData);
         } else {
             data = TextureDecoder.UnpackCrunch(crunchedData);
@@ -210,12 +209,7 @@ public static class Texture2DConverter {
             throw new IncompleteDeserializationException();
         }
 
-        return DXGI.BuildDDS(texture.TextureFormat.ToD3DPixelFormat(),
-            texture.MipCount,
-            texture.Width,
-            texture.Height,
-            texture.TextureCount,
-            texture.TextureData!.Value.Span);
+        return DXGI.BuildDDS(texture.TextureFormat.ToD3DPixelFormat(), texture.MipCount, texture.Width, texture.Height, texture.TextureCount, texture.TextureData!.Value.Span);
     }
 
     public static void FromDDS(Texture2D texture, Stream stream, bool leaveOpen = false) {
@@ -260,9 +254,7 @@ public static class Texture2DConverter {
     }
 
     public static Texture2D FromDDS(UnityObjectInfo info, SerializedFile file, Stream stream, bool leaveOpen = false) {
-        var texture2D = new Texture2D(info, file) {
-            Name = "Texture2D",
-        };
+        var texture2D = new Texture2D(info, file) { Name = "Texture2D" };
 
         FromDDS(texture2D, stream, leaveOpen);
         if (!leaveOpen) {

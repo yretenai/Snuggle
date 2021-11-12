@@ -26,19 +26,19 @@ public record SnuggleSettings(
     public string LastSaveDirectory { get; set; } = string.Empty;
     public HashSet<RendererType> EnabledRenders { get; set; } = Enum.GetValues<RendererType>().ToHashSet();
 
-    public static SnuggleSettings Default { get; } =
-        new(SnuggleOptions.Default,
-            ObjectDeserializationOptions.Default,
-            BundleSerializationOptions.Default,
-            FileSerializationOptions.Default,
-            true,
-            true,
-            true,
-            "{0}.{1:G}_{2:G}.bytes", // 0 = Name, 1 = PathId, 2 = Type
-            false,
-            true,
-            true,
-            true);
+    public static SnuggleSettings Default { get; } = new(
+        SnuggleOptions.Default,
+        ObjectDeserializationOptions.Default,
+        BundleSerializationOptions.Default,
+        FileSerializationOptions.Default,
+        true,
+        true,
+        true,
+        "{0}.{1:G}_{2:G}.bytes", // 0 = Name, 1 = PathId, 2 = Type
+        false,
+        true,
+        true,
+        true);
 
     public int Version { get; set; } = LatestVersion;
 

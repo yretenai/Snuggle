@@ -6,9 +6,7 @@ using Snuggle.Core.Options;
 namespace Snuggle.Core.Models.Serialization;
 
 [PublicAPI]
-public record UnityScriptInfo(
-    int Index,
-    long PathId) {
+public record UnityScriptInfo(int Index, long PathId) {
     public static UnityScriptInfo FromReader(BiEndianBinaryReader reader, UnitySerializedFile header, SnuggleOptions options) {
         if (header.FileVersion >= UnitySerializedFileVersion.BigIdAlwaysEnabled) {
             reader.Align();

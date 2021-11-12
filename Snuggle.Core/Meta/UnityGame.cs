@@ -3,9 +3,7 @@ using JetBrains.Annotations;
 
 namespace Snuggle.Core.Meta;
 
-/// <summary>
-///     Exists for game specific overrides.
-/// </summary>
+/// <summary>Exists for game specific overrides.</summary>
 [PublicAPI]
 public enum UnityGame {
     Default,

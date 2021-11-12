@@ -62,7 +62,8 @@ public static class SnuggleFile {
 
     public static void LoadDirectoriesAndFiles(params string[] entries) {
         var instance = SnuggleCore.Instance;
-        instance.WorkerAction("LoadDirectoriesAndFiles",
+        instance.WorkerAction(
+            "LoadDirectoriesAndFiles",
             token => {
                 // TODO: Split files.
                 var files = new List<string>();
@@ -156,9 +157,7 @@ public static class SnuggleFile {
     }
 
     private static void ExtractConvert(SerializedObject serializedObject, string resultDir, string resultPath, string outputDirectory) {
-        if (serializedObject.ShouldDeserialize) {
-            serializedObject.Deserialize(SnuggleCore.Instance.Settings.ObjectOptions);
-        }
+        serializedObject.Deserialize(SnuggleCore.Instance.Settings.ObjectOptions);
 
         switch (serializedObject) {
             case Texture2D texture2d: {
@@ -181,9 +180,7 @@ public static class SnuggleFile {
     }
 
     private static void ExtractJson(SerializedObject serializedObject, string resultDir, string resultPath) {
-        if (serializedObject.ShouldDeserialize) {
-            serializedObject.Deserialize(SnuggleCore.Instance.Settings.ObjectOptions);
-        }
+        serializedObject.Deserialize(SnuggleCore.Instance.Settings.ObjectOptions);
 
         var data = JsonSerializer.Serialize<object>(serializedObject, SnuggleOptions.JsonOptions);
         if (!Directory.Exists(resultDir)) {
@@ -204,8 +201,7 @@ public static class SnuggleFile {
         outputStream.SetLength(0);
         dataStream.CopyTo(outputStream);
 
-        if (serializedObject is ISerializedResource serializedResource &&
-            !serializedResource.StreamData.IsNull) {
+        if (serializedObject is ISerializedResource serializedResource && !serializedResource.StreamData.IsNull) {
             var resource = serializedResource.StreamData.GetData(SnuggleCore.Instance.Collection, SnuggleCore.Instance.Settings.ObjectOptions);
             resultPath = Path.ChangeExtension(resultPath, ".resS");
             using var outputResourceStream = File.OpenWrite(resultPath);
@@ -220,8 +216,7 @@ public static class SnuggleFile {
             path = Path.Combine(path, ((Enum) serializedObject.ClassId).ToString("G"));
         }
 
-        if (SnuggleCore.Instance.Settings.UseContainerPaths &&
-            !string.IsNullOrWhiteSpace(serializedObject.ObjectContainerPath)) {
+        if (SnuggleCore.Instance.Settings.UseContainerPaths && !string.IsNullOrWhiteSpace(serializedObject.ObjectContainerPath)) {
             path = Path.Combine(path, "./" + serializedObject.ObjectContainerPath.SanitizeDirname());
         }
 

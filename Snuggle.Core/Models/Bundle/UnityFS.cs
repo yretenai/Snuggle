@@ -12,11 +12,7 @@ using Snuggle.Core.Options;
 namespace Snuggle.Core.Models.Bundle;
 
 [PublicAPI]
-public record UnityFS(
-    long Size,
-    int CompressedBlockInfoSize,
-    int BlockInfoSize,
-    UnityFSFlags Flags) : UnityContainer {
+public record UnityFS(long Size, int CompressedBlockInfoSize, int BlockInfoSize, UnityFSFlags Flags) : UnityContainer {
     public byte[] Hash { get; set; } = new byte[16];
     public override long Length => Size;
     public override long DataStart => -1;
@@ -86,8 +82,7 @@ public record UnityFS(
         var blockSize = reader.ReadInt32();
         var flags = (UnityFSFlags) reader.ReadUInt32();
 
-        if (options.Game == UnityGame.PokemonUnite &&
-            ((UniteFSFlags) flags).HasFlag(UniteFSFlags.Encrypted)) {
+        if (options.Game == UnityGame.PokemonUnite && ((UniteFSFlags) flags).HasFlag(UniteFSFlags.Encrypted)) {
             throw new NotImplementedException("Pokemon Unite bundle is encrypted, use UntieUnite or another decryption tool");
         }
 
@@ -99,7 +94,8 @@ public record UnityFS(
         }
 
         var compressionType = (UnityCompressionType) (fs.Flags & UnityFSFlags.CompressionRange);
-        using var blocksReader = new BiEndianBinaryReader(compressionType switch {
+        using var blocksReader = new BiEndianBinaryReader(
+            compressionType switch {
                 UnityCompressionType.None => new OffsetStream(reader.BaseStream, length: fs.BlockInfoSize),
                 UnityCompressionType.LZMA => Utils.DecodeLZMA(reader.BaseStream, fs.CompressedBlockInfoSize, fs.BlockInfoSize),
                 UnityCompressionType.LZ4 => Utils.DecompressLZ4(reader.BaseStream, fs.CompressedBlockInfoSize, fs.BlockInfoSize),

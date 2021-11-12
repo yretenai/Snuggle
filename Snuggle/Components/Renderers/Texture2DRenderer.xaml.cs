@@ -75,10 +75,7 @@ public sealed partial class Texture2DRenderer {
         }
 
         result.Result = new RGBABitmapSource(rgba) {
-            HideRed = Red.IsChecked == false,
-            HideGreen = Green.IsChecked == false,
-            HideBlue = Blue.IsChecked == false,
-            HideAlpha = Alpha.IsChecked == false,
+            HideRed = Red.IsChecked == false, HideGreen = Green.IsChecked == false, HideBlue = Blue.IsChecked == false, HideAlpha = Alpha.IsChecked == false,
         };
         result.Refresh();
     }

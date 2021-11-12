@@ -5,13 +5,7 @@ using Snuggle.Core.Meta;
 namespace Snuggle.Core.Models.Objects.Settings;
 
 [PublicAPI]
-public record GoogleDaydreamSettings(
-    int DepthFormat,
-    bool UseSustainedPerformanceMode,
-    bool EnableVideoLayer,
-    bool UseProtectedVideoMemory,
-    int MinimumSupportedHeadTracking,
-    int MaximumSupportedHeadTracking) {
+public record GoogleDaydreamSettings(int DepthFormat, bool UseSustainedPerformanceMode, bool EnableVideoLayer, bool UseProtectedVideoMemory, int MinimumSupportedHeadTracking, int MaximumSupportedHeadTracking) {
     public static GoogleDaydreamSettings Default { get; } = new(0, false, false, false, 0, 0);
 
     public static GoogleDaydreamSettings FromReader(BiEndianBinaryReader reader, SerializedFile file) {

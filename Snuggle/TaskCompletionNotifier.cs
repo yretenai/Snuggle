@@ -20,7 +20,8 @@ public sealed class TaskCompletionNotifier<T> : INotifyPropertyChanged {
         var scheduler = SynchronizationContext.Current != null ? TaskScheduler.FromCurrentSynchronizationContext() : TaskScheduler.Current;
         var dispatcher = Dispatcher.CurrentDispatcher;
 
-        task.ContinueWith(_ => {
+        task.ContinueWith(
+            _ => {
                 Result = Task.Status != TaskStatus.RanToCompletion ? default : Task.Result;
                 dispatcher.Invoke(Refresh);
             },

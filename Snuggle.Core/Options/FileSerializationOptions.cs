@@ -7,11 +7,7 @@ using Snuggle.Core.Models.Serialization;
 namespace Snuggle.Core.Options;
 
 [PublicAPI]
-public record FileSerializationOptions(
-    int Alignment,
-    long ResourceDataThreshold,
-    string ResourceSuffix,
-    string BundleTemplate) { // 0 = Name
+public record FileSerializationOptions(int Alignment, long ResourceDataThreshold, string ResourceSuffix, string BundleTemplate) { // 0 = Name
     private const int LatestVersion = 1;
     public static FileSerializationOptions Default { get; } = new(8, 0, ".resS", "archive:/{0}/");
 

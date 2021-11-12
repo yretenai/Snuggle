@@ -12,10 +12,11 @@ public static class SnuggleTextureFile {
     private static ConcurrentDictionary<long, Memory<byte>> CachedData { get; } = new();
 
     public static byte[] LoadCachedTexture(Texture2D texture) {
-        return CachedData.GetOrAdd(texture.PathId,
-                (_, arg) => {
+        return CachedData.GetOrAdd(
+                texture.PathId,
+                static (_, arg) => {
                     var data = Texture2DConverter.ToRGBA(arg);
-                    if (texture.TextureFormat.IsAlphaFirst()) {
+                    if (arg.TextureFormat.IsAlphaFirst()) {
                         for (var i = 0; i < data.Length; i += 4) {
                             var a = data.Span[i];
                             var r = data.Span[i + 1];
@@ -28,7 +29,7 @@ public static class SnuggleTextureFile {
                         }
                     }
 
-                    if (texture.TextureFormat.IsBGRA()) {
+                    if (arg.TextureFormat.IsBGRA()) {
                         for (var i = 0; i < data.Length; i += 4) {
                             var b = data.Span[i];
                             var g = data.Span[i + 1];
@@ -51,13 +52,11 @@ public static class SnuggleTextureFile {
 
     public static string Save(Texture2D texture, string path) {
         var dir = Path.GetDirectoryName(path);
-        if (!string.IsNullOrWhiteSpace(dir) &&
-            !Directory.Exists(dir)) {
+        if (!string.IsNullOrWhiteSpace(dir) && !Directory.Exists(dir)) {
             Directory.CreateDirectory(dir);
         }
 
-        if (!SnuggleCore.Instance.Settings.WriteNativeTextures ||
-            !SaveNative(texture, path, out var resultPath)) {
+        if (!SnuggleCore.Instance.Settings.WriteNativeTextures || !SaveNative(texture, path, out var resultPath)) {
             return SavePNG(texture, path);
         }
 

@@ -6,11 +6,7 @@ using Snuggle.Core.Options;
 namespace Snuggle.Core.Models.Serialization;
 
 [PublicAPI]
-public record UnityExternalInfo(
-    string Path,
-    Guid Guid,
-    int Type,
-    string AssetPath) {
+public record UnityExternalInfo(string Path, Guid Guid, int Type, string AssetPath) {
     public string Name { get; } = System.IO.Path.GetFileName(AssetPath);
     public bool IsArchiveReference { get; } = AssetPath.StartsWith("archive:/", StringComparison.InvariantCultureIgnoreCase);
 

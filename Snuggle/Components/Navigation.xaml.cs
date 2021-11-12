@@ -71,24 +71,16 @@ public partial class Navigation {
             uniteOptions = UniteOptions.Default;
         }
 
-        var optionsMenuItem = new MenuItem {
-            Tag = "PokemonUnite_Version",
-            Header = "_Version",
-        };
+        var optionsMenuItem = new MenuItem { Tag = "PokemonUnite_Version", Header = "_Version" };
         GameOptions.Items.Add(optionsMenuItem);
         BuildEnumMenu(optionsMenuItem, PokemonUniteVersionItems, new[] { uniteOptions.GameVersion }, UpdatePokemonUniteVersion, CancelPokemonUniteVersionEvent);
     }
 
     private static void BuildEnumMenu<T>(ItemsControl menu, IDictionary<T, MenuItem> items, IReadOnlyCollection<T> currentValue, RoutedEventHandler @checked, RoutedEventHandler @unchecked) where T : struct, Enum {
-        var descriptions = typeof(T).GetFields(BindingFlags.Static | BindingFlags.Public)
-            .ToDictionary(x => (T) x.GetValue(null)!,
-                x => x.GetCustomAttribute<DescriptionAttribute>()?.Description ?? x.Name);
+        var descriptions = typeof(T).GetFields(BindingFlags.Static | BindingFlags.Public).ToDictionary(x => (T) x.GetValue(null)!, x => x.GetCustomAttribute<DescriptionAttribute>()?.Description ?? x.Name);
         foreach (var value in Enum.GetValues<T>()) {
             var item = new MenuItem {
-                Tag = value,
-                Header = "_" + descriptions[value],
-                IsChecked = currentValue.Any(x => x.Equals(value)),
-                IsCheckable = true,
+                Tag = value, Header = "_" + descriptions[value], IsChecked = currentValue.Any(x => x.Equals(value)), IsCheckable = true,
             };
             item.Checked += @checked;
             item.Unchecked += @unchecked;
@@ -112,19 +104,16 @@ public partial class Navigation {
     private void PopulateRecentItems() {
         var instance = SnuggleCore.Instance;
         RecentItems.Items.Clear();
-        foreach (var item in instance.Settings.RecentFiles.Select(recentFile =>
-                     new MenuItem { Tag = recentFile, Header = "_" + recentFile })) {
+        foreach (var item in instance.Settings.RecentFiles.Select(recentFile => new MenuItem { Tag = recentFile, Header = "_" + recentFile })) {
             item.Click += LoadDirectoryOrFile;
             RecentItems.Items.Add(item);
         }
 
-        if (!RecentItems.Items.IsEmpty &&
-            instance.Settings.RecentDirectories.Count > 0) {
+        if (!RecentItems.Items.IsEmpty && instance.Settings.RecentDirectories.Count > 0) {
             RecentItems.Items.Add(new Separator());
         }
 
-        foreach (var item in instance.Settings.RecentDirectories.Select(recentDirectory =>
-                     new MenuItem { Tag = recentDirectory, Header = "_" + recentDirectory })) {
+        foreach (var item in instance.Settings.RecentDirectories.Select(recentDirectory => new MenuItem { Tag = recentDirectory, Header = "_" + recentDirectory })) {
             item.Click += LoadDirectoryOrFile;
             RecentItems.Items.Add(item);
         }
@@ -276,7 +265,8 @@ public partial class Navigation {
 
     private void FreeMemory(object sender, RoutedEventArgs e) {
         var instance = SnuggleCore.Instance;
-        instance.WorkerAction("FreeMemory",
+        instance.WorkerAction(
+            "FreeMemory",
             _ => {
                 foreach (var bundle in instance.Collection.Bundles) {
                     bundle.ClearCache();

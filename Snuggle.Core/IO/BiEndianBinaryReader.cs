@@ -10,8 +10,7 @@ namespace Snuggle.Core.IO;
 
 [PublicAPI]
 public class BiEndianBinaryReader : BinaryReader {
-    public BiEndianBinaryReader(Stream input, bool isBigEndian = false, bool leaveOpen = false) :
-        base(input, Encoding.UTF8, leaveOpen) {
+    public BiEndianBinaryReader(Stream input, bool isBigEndian = false, bool leaveOpen = false) : base(input, Encoding.UTF8, leaveOpen) {
         IsBigEndian = isBigEndian;
         Encoding = Encoding.UTF8;
     }
@@ -169,8 +168,7 @@ public class BiEndianBinaryReader : BinaryReader {
         while ((b = ReadByte()) != 0) {
             sb.Append((char) b);
 
-            if (maxLength > 0 &&
-                sb.Length >= maxLength) {
+            if (maxLength > 0 && sb.Length >= maxLength) {
                 break;
             }
         }

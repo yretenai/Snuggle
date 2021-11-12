@@ -14,8 +14,7 @@ namespace Snuggle.Core;
 
 [PublicAPI]
 public class Bundle : IDisposable, IRenewable {
-    public Bundle(string path, SnuggleOptions options) :
-        this(File.OpenRead(path), path, FileStreamHandler.Instance.Value, options) { }
+    public Bundle(string path, SnuggleOptions options) : this(File.OpenRead(path), path, FileStreamHandler.Instance.Value, options) { }
 
     public Bundle(Stream dataStream, object tag, IFileHandler fileHandler, SnuggleOptions options, bool leaveOpen = false) {
         try {
@@ -36,8 +35,7 @@ public class Bundle : IDisposable, IRenewable {
             Handler = fileHandler;
             Tag = fileHandler.GetTag(tag, this);
 
-            if (Options.CacheData ||
-                Options.CacheDataIfLZMA && Container.BlockInfos.Any(x => (UnityCompressionType) (x.Flags & UnityBundleBlockInfoFlags.CompressionMask) == UnityCompressionType.LZMA)) {
+            if (Options.CacheData || Options.CacheDataIfLZMA && Container.BlockInfos.Any(x => (UnityCompressionType) (x.Flags & UnityBundleBlockInfoFlags.CompressionMask) == UnityCompressionType.LZMA)) {
                 CacheData(reader);
             }
         } finally {

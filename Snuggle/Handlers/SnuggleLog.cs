@@ -17,7 +17,8 @@ public sealed class SnuggleLog : ILogger, INotifyPropertyChanged {
     public SynchronizationContext Context { get; }
 
     public void Log(LogLevel level, string? category, string message, Exception? exception) {
-        Context.Post(m => {
+        Context.Post(
+            m => {
                 Messages.Add((string) m!);
 
                 while (Messages.Count > 100) {
@@ -37,9 +38,10 @@ public sealed class SnuggleLog : ILogger, INotifyPropertyChanged {
     }
 
     public void Clear() {
-        Application.Current.Dispatcher.Invoke(() => {
-            Messages.Clear();
-            OnPropertyChanged();
-        });
+        Application.Current.Dispatcher.Invoke(
+            () => {
+                Messages.Clear();
+                OnPropertyChanged();
+            });
     }
 }

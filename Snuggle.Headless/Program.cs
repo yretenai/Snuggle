@@ -37,8 +37,7 @@ public static class Program {
 
         var collection = new AssetCollection();
         var options = SnuggleOptions.Default with { Game = flags.Game, Logger = new ConsoleLogger(), CacheDataIfLZMA = true };
-        if (options.Game != UnityGame.Default &&
-            !string.IsNullOrEmpty(flags.GameOptions)) {
+        if (options.Game != UnityGame.Default && !string.IsNullOrEmpty(flags.GameOptions)) {
             options.GameOptions.StorageMap[options.Game] = JsonSerializer.Deserialize<JsonElement>(File.Exists(flags.GameOptions) ? File.ReadAllText(flags.GameOptions) : flags.GameOptions, SnuggleOptions.JsonOptions);
         }
 
@@ -89,10 +88,13 @@ public static class Program {
                     ConvertCore.ConvertText(flags, text);
                     break;
             }
+
+            if (flags.LowMemory) {
+                ConvertCore.ClearMemory();
+            }
         }
 
-        if (options.Game != UnityGame.Default &&
-            options.GameOptions.StorageMap.ContainsKey(options.Game)) {
+        if (options.Game != UnityGame.Default && options.GameOptions.StorageMap.ContainsKey(options.Game)) {
             Console.WriteLine("Game Settings:");
             var jsonOptions = new JsonSerializerOptions(SnuggleOptions.JsonOptions) { WriteIndented = false };
             Console.WriteLine(JsonSerializer.Serialize(options.GameOptions.StorageMap[options.Game], jsonOptions));

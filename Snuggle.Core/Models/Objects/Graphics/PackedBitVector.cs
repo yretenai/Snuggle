@@ -10,9 +10,7 @@ using Snuggle.Core.Options;
 namespace Snuggle.Core.Models.Objects.Graphics;
 
 [PublicAPI]
-public record PackedBitVector(
-    uint Count,
-    byte BitSize) {
+public record PackedBitVector(uint Count, byte BitSize) {
     private long DataStart { get; init; } = -1;
     public float Range { get; init; } = 1.0f;
     public float Start { get; init; }
@@ -74,8 +72,7 @@ public record PackedBitVector(
             throw new ArgumentOutOfRangeException(nameof(count));
         }
 
-        if (offset < 0 ||
-            count + offset > Count) {
+        if (offset < 0 || count + offset > Count) {
             throw new ArgumentOutOfRangeException(nameof(offset));
         }
 
@@ -116,8 +113,7 @@ public record PackedBitVector(
             throw new ArgumentOutOfRangeException(nameof(count));
         }
 
-        if (offset < 0 ||
-            count + offset > Count) {
+        if (offset < 0 || count + offset > Count) {
             throw new ArgumentOutOfRangeException(nameof(offset));
         }
 

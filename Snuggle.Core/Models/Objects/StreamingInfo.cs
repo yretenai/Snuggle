@@ -9,10 +9,7 @@ using Snuggle.Core.Options;
 namespace Snuggle.Core.Models.Objects;
 
 [PublicAPI]
-public record StreamingInfo(
-    long Offset,
-    long Size,
-    string Path) {
+public record StreamingInfo(long Offset, long Size, string Path) {
     public static StreamingInfo Null { get; } = new(0, 0, string.Empty);
 
     [JsonIgnore]

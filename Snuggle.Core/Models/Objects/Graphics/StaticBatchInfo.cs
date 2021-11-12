@@ -6,9 +6,7 @@ using Snuggle.Core.IO;
 namespace Snuggle.Core.Models.Objects.Graphics;
 
 [PublicAPI]
-public record StaticBatchInfo(
-    ushort FirstSubmesh,
-    ushort SubmeshCount) {
+public record StaticBatchInfo(ushort FirstSubmesh, ushort SubmeshCount) {
     public static StaticBatchInfo Default { get; } = new(0, 1);
 
     public static StaticBatchInfo FromReader(BiEndianBinaryReader reader, SerializedFile file) {

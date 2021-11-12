@@ -6,9 +6,7 @@ using Snuggle.Core.Meta;
 namespace Snuggle.Core.Models.Objects;
 
 [PublicAPI]
-public record ComponentPair(
-    object ClassId,
-    PPtr<Component> Ptr) {
+public record ComponentPair(object ClassId, PPtr<Component> Ptr) {
     public static ComponentPair FromReader(BiEndianBinaryReader reader, SerializedFile file) {
         object classId = UnityClassId.Unknown;
         if (file.Version < UnityVersionRegister.Unity5_5) {

@@ -61,9 +61,7 @@ public class Mesh : NamedObject, ISerializedResource {
 
         reader.Align();
 
-        if (serializedFile.Version >= UnityVersionRegister.Unity2017_4 ||
-            serializedFile.Version == UnityVersionRegister.Unity2017_3_1_P ||
-            serializedFile.Version >= UnityVersionRegister.Unity2017_3 && MeshCompression == 0) {
+        if (serializedFile.Version >= UnityVersionRegister.Unity2017_4 || serializedFile.Version == UnityVersionRegister.Unity2017_3_1_P || serializedFile.Version >= UnityVersionRegister.Unity2017_3 && MeshCompression == 0) {
             IndexFormat = (IndexFormat) reader.ReadInt32();
         }
 
@@ -166,16 +164,7 @@ public class Mesh : NamedObject, ISerializedResource {
     public float[] MeshMetrics { get; set; }
 
     [JsonIgnore]
-    public override bool ShouldDeserialize =>
-        base.ShouldDeserialize ||
-        BindPose == null ||
-        VariableBoneCountWeights == null ||
-        Indices == null ||
-        BakedConvexCollisionMesh == null ||
-        BakedTriangleCollisionMesh == null ||
-        VertexData.ShouldDeserialize ||
-        CompressedMesh.ShouldDeserialize ||
-        BlendShapeData.ShouldDeserialize;
+    public override bool ShouldDeserialize => base.ShouldDeserialize || BindPose == null || VariableBoneCountWeights == null || Indices == null || BakedConvexCollisionMesh == null || BakedTriangleCollisionMesh == null || VertexData.ShouldDeserialize || CompressedMesh.ShouldDeserialize || BlendShapeData.ShouldDeserialize;
 
     public long StreamDataOffset { get; set; }
     public StreamingInfo StreamData { get; set; }

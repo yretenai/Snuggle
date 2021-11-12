@@ -39,15 +39,11 @@ public class GameObjectTreeConverter : IValueConverter {
     }
 
     private static TreeViewItem? GenerateGameObjectNode(GameObject? gameObject, bool rootOnly) {
-        if (gameObject?.FindComponent(UnityClassId.Transform).Value is not Transform parent ||
-            rootOnly && !parent.Parent.IsNull) {
+        if (gameObject?.FindComponent(UnityClassId.Transform).Value is not Transform parent || rootOnly && !parent.Parent.IsNull) {
             return null;
         }
 
-        var item = new TreeViewItem {
-            Header = gameObject.Name,
-            Tag = new SnuggleObject(gameObject),
-        };
+        var item = new TreeViewItem { Header = gameObject.Name, Tag = new SnuggleObject(gameObject) };
 
         foreach (var child in parent.Children) {
             var childNode = GenerateGameObjectNode(child.Value?.GameObject.Value, false);

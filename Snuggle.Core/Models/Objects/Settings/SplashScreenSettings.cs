@@ -27,25 +27,25 @@ public record SplashScreenSettings(
     PPtr<Texture2D> BackgroundPortrait,
     PPtr<Texture2D> VRSplashScreen,
     PPtr<Texture2D> HolographicTrackingLossScreen) {
-    public static SplashScreenSettings Default { get; } =
-        new(ColorRGBA.Zero,
-            true,
-            true,
-            1,
-            1,
-            1,
-            0,
-            1,
-            1,
-            1,
-            1,
-            Rect.Zero,
-            Rect.Zero,
-            new List<SplashScreenLogo>(),
-            PPtr<Texture2D>.Null,
-            PPtr<Texture2D>.Null,
-            PPtr<Texture2D>.Null,
-            PPtr<Texture2D>.Null);
+    public static SplashScreenSettings Default { get; } = new(
+        ColorRGBA.Zero,
+        true,
+        true,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        Rect.Zero,
+        Rect.Zero,
+        new List<SplashScreenLogo>(),
+        PPtr<Texture2D>.Null,
+        PPtr<Texture2D>.Null,
+        PPtr<Texture2D>.Null,
+        PPtr<Texture2D>.Null);
 
     public static SplashScreenSettings FromReader(BiEndianBinaryReader reader, SerializedFile serializedFile) {
         var style = serializedFile.Version >= UnityVersionRegister.Unity5_4 && serializedFile.Version < UnityVersionRegister.Unity5_5 ? reader.ReadInt32() : 0;
@@ -95,6 +95,24 @@ public record SplashScreenSettings(
         var vrSplash = serializedFile.Version >= UnityVersionRegister.Unity5_3 ? PPtr<Texture2D>.FromReader(reader, serializedFile) : PPtr<Texture2D>.Null;
         var arLoss = serializedFile.Version >= UnityVersionRegister.Unity5_5 ? PPtr<Texture2D>.FromReader(reader, serializedFile) : PPtr<Texture2D>.Null;
 
-        return new SplashScreenSettings(color, show, logo, opacity, animate, style, mode, bgZoom, logoZoom, landscapeAspect, portraitAspect, landscapeUv, portraitUv, logos, backgroundLandscape, backgroundPortait, vrSplash, arLoss);
+        return new SplashScreenSettings(
+            color,
+            show,
+            logo,
+            opacity,
+            animate,
+            style,
+            mode,
+            bgZoom,
+            logoZoom,
+            landscapeAspect,
+            portraitAspect,
+            landscapeUv,
+            portraitUv,
+            logos,
+            backgroundLandscape,
+            backgroundPortait,
+            vrSplash,
+            arLoss);
     }
 }

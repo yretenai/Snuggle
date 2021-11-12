@@ -39,7 +39,19 @@ public record UnityTypeTreeNode(
             typeHash = reader.ReadUInt64();
         }
 
-        return new UnityTypeTreeNode(version, level, arrayKind, typeOffset, nameOffset, size, index, flags, 0, typeHash, string.Empty, string.Empty);
+        return new UnityTypeTreeNode(
+            version,
+            level,
+            arrayKind,
+            typeOffset,
+            nameOffset,
+            size,
+            index,
+            flags,
+            0,
+            typeHash,
+            string.Empty,
+            string.Empty);
     }
 
     public static UnityTypeTreeNode FromReaderLegacy(BiEndianBinaryReader reader, UnitySerializedFile header, SnuggleOptions options) {
@@ -63,7 +75,19 @@ public record UnityTypeTreeNode(
             metaFlags = (UnityTypeTreeFlags) reader.ReadInt32();
         }
 
-        return new UnityTypeTreeNode(version, 0, flags, 0, 0, size, index, metaFlags, variableCount, 0, type, name);
+        return new UnityTypeTreeNode(
+            version,
+            0,
+            flags,
+            0,
+            0,
+            size,
+            index,
+            metaFlags,
+            variableCount,
+            0,
+            type,
+            name);
     }
 
     // ReSharper disable once FunctionRecursiveOnAllPaths

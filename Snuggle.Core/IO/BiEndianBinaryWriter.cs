@@ -12,8 +12,7 @@ namespace Snuggle.Core.IO;
 
 [PublicAPI]
 public class BiEndianBinaryWriter : BinaryWriter {
-    public BiEndianBinaryWriter(Stream input, bool isBigEndian = false, bool leaveOpen = false) :
-        base(input, Encoding.UTF8, leaveOpen) {
+    public BiEndianBinaryWriter(Stream input, bool isBigEndian = false, bool leaveOpen = false) : base(input, Encoding.UTF8, leaveOpen) {
         IsBigEndian = isBigEndian;
         Encoding = Encoding.UTF8;
     }

@@ -7,14 +7,7 @@ using Snuggle.Core.Models;
 namespace Snuggle.Core.Meta;
 
 [PublicAPI]
-public record struct UnityVersion(
-    int Major,
-    int Minor = 0,
-    int Build = 0,
-    UnityBuildType Type = UnityBuildType.Release,
-    int Revision = 0,
-    int ExtraVersion = 0
-) : IComparable<UnityVersion>, IComparable<int> {
+public record struct UnityVersion(int Major, int Minor = 0, int Build = 0, UnityBuildType Type = UnityBuildType.Release, int Revision = 0, int ExtraVersion = 0) : IComparable<UnityVersion>, IComparable<int> {
     public static UnityVersion MaxValue { get; } = new(int.MaxValue, int.MaxValue, int.MaxValue);
     public static UnityVersion MinValue { get; } = new(0);
     public static UnityVersion Default { get; } = new(5);
@@ -22,11 +15,7 @@ public record struct UnityVersion(
     public int CompareTo(int value) => Major > value ? 1 : Minor + Build == 0 ? 1 : -1;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int CompareTo(UnityVersion value) =>
-        Major != value.Major ? Major > value.Major ? 1 : -1 :
-        Minor != value.Minor ? Minor > value.Minor ? 1 : -1 :
-        Build != value.Build ? Build > value.Build ? 1 : -1 :
-        0;
+    public int CompareTo(UnityVersion value) => Major != value.Major ? Major > value.Major ? 1 : -1 : Minor != value.Minor ? Minor > value.Minor ? 1 : -1 : Build != value.Build ? Build > value.Build ? 1 : -1 : 0;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int CompareTo(object? version) {

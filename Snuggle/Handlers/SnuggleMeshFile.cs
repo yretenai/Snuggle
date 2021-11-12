@@ -40,8 +40,7 @@ public static class SnuggleMeshFile {
         }
 
         var dir = Path.GetDirectoryName(path);
-        if (!string.IsNullOrWhiteSpace(dir) &&
-            !Directory.Exists(dir)) {
+        if (!string.IsNullOrWhiteSpace(dir) && !Directory.Exists(dir)) {
             Directory.CreateDirectory(dir);
         }
 
@@ -63,8 +62,7 @@ public static class SnuggleMeshFile {
                 return null;
             }
 
-            if (transform.Parent.Value?.GameObject.Value == null ||
-                SnuggleCore.Instance.Settings.BubbleGameObjectsUp) {
+            if (transform.Parent.Value?.GameObject.Value == null || SnuggleCore.Instance.Settings.BubbleGameObjectsUp) {
                 return gameObject;
             }
 
@@ -75,8 +73,7 @@ public static class SnuggleMeshFile {
     public static void Save(GameObject gameObject, string path) {
         path = Path.Combine(Path.GetDirectoryName(path)!, Path.GetFileNameWithoutExtension(path));
 
-        if (File.Exists(path + ".gltf") ||
-            File.Exists(Path.Combine(path, Path.GetFileName(path)) + ".gltf")) {
+        if (File.Exists(path + ".gltf") || File.Exists(Path.Combine(path, Path.GetFileName(path)) + ".gltf")) {
             return;
         }
 
@@ -111,8 +108,7 @@ public static class SnuggleMeshFile {
         }
 
         var dir = Path.GetDirectoryName(path);
-        if (!string.IsNullOrWhiteSpace(dir) &&
-            !Directory.Exists(dir)) {
+        if (!string.IsNullOrWhiteSpace(dir) && !Directory.Exists(dir)) {
             Directory.CreateDirectory(dir);
         }
 
@@ -174,22 +170,14 @@ public static class SnuggleMeshFile {
         var materials = new List<Material?>();
         if (gameObject.FindComponent(UnityClassId.MeshRenderer, UnityClassId.SkinnedMeshRenderer).Value is Renderer renderer) {
             materials = renderer.Materials.Select(x => x.Value).ToList();
-            if (renderer is SkinnedMeshRenderer skinnedMeshRenderer &&
-                skinnedMeshRenderer.Mesh.Value != null) {
-                if (skinnedMeshRenderer.Mesh.Value.ShouldDeserialize) {
-                    skinnedMeshRenderer.Mesh.Value.Deserialize(ObjectDeserializationOptions.Default);
-                }
-
+            if (renderer is SkinnedMeshRenderer skinnedMeshRenderer && skinnedMeshRenderer.Mesh.Value != null) {
+                skinnedMeshRenderer.Mesh.Value.Deserialize(ObjectDeserializationOptions.Default);
                 skinnedMeshes.Add((skinnedMeshRenderer.Mesh.Value, materials));
             }
         }
 
-        if (gameObject.FindComponent(UnityClassId.MeshFilter).Value is MeshFilter filter &&
-            filter.Mesh.Value != null) {
-            if (filter.Mesh.Value.ShouldDeserialize) {
-                filter.Mesh.Value.Deserialize(ObjectDeserializationOptions.Default);
-            }
-
+        if (gameObject.FindComponent(UnityClassId.MeshFilter).Value is MeshFilter filter && filter.Mesh.Value != null) {
+            filter.Mesh.Value.Deserialize(ObjectDeserializationOptions.Default);
             scene.AddRigidMesh(CreateMesh(filter.Mesh.Value, materials, path), node);
         }
 
@@ -273,8 +261,7 @@ public static class SnuggleMeshFile {
                 }
             }
 
-            if (joints.IsEmpty &&
-                mesh.Skin.Count > 0) {
+            if (joints.IsEmpty && mesh.Skin.Count > 0) {
                 joints = mesh.Skin[i].Indices;
                 weights = mesh.Skin[i].Weights;
             }
@@ -403,9 +390,7 @@ public static class SnuggleMeshFile {
                 for (var vertexIndex = 0; vertexIndex < shape.VertexCount; vertexIndex++) {
                     var vertex = mesh.BlendShapeData.Vertices![(int) (shape.FirstVertex + vertexIndex)];
 
-                    var geometryData = new VertexGeometryDelta {
-                        PositionDelta = new Vector3(vertex.Vertex.X, vertex.Vertex.Y, vertex.Vertex.Z),
-                    };
+                    var geometryData = new VertexGeometryDelta { PositionDelta = new Vector3(vertex.Vertex.X, vertex.Vertex.Y, vertex.Vertex.Z) };
 
                     if (shape.HasNormals) {
                         geometryData.NormalDelta = new Vector3(vertex.Normal.X, vertex.Normal.Y, vertex.Normal.Z);
@@ -421,17 +406,14 @@ public static class SnuggleMeshFile {
         }
 
         if (morphNames.Count > 0) {
-            meshBuilder.Extras = JsonContent.CreateFrom(new Dictionary<string, List<string>> {
-                { "targetNames", morphNames },
-            });
+            meshBuilder.Extras = JsonContent.CreateFrom(new Dictionary<string, List<string>> { { "targetNames", morphNames } });
         }
 
         return meshBuilder;
     }
 
     private static void CreateMaterial(MaterialBuilder materialBuilder, Material? material, string? path, Dictionary<long, string> saved) {
-        if (material == null ||
-            path == null) {
+        if (material == null || path == null) {
             return;
         }
 
@@ -446,9 +428,7 @@ public static class SnuggleMeshFile {
                 continue;
             }
 
-            if (texture.ShouldDeserialize) {
-                texture.Deserialize(SnuggleCore.Instance.Settings.ObjectOptions);
-            }
+            texture.Deserialize(SnuggleCore.Instance.Settings.ObjectOptions);
 
             if (!saved.TryGetValue(texture.PathId, out var texPath)) {
                 texPath = SnuggleTextureFile.Save(texture, Path.Combine(path, texture.Name + "_" + texture.PathId + ".bin"));
@@ -456,15 +436,13 @@ public static class SnuggleMeshFile {
 
             if (name == "_MainTex") {
                 materialBuilder.WithBaseColor(texPath);
-            } else if (name == "_BumpMap" ||
-                       name.Contains("Normal")) {
+            } else if (name == "_BumpMap" || name.Contains("Normal")) {
                 materialBuilder.WithNormal(texPath);
             } else if (name.Contains("Spec")) {
                 materialBuilder.WithSpecularGlossiness(texPath);
             } else if (name.Contains("Metal")) {
                 materialBuilder.WithMetallicRoughness(texPath);
-            } else if (name.Contains("Rough") ||
-                       name.Contains("Smooth")) {
+            } else if (name.Contains("Rough") || name.Contains("Smooth")) {
                 materialBuilder.WithMetallicRoughness(texPath);
             } else if (name.Contains("Emis")) {
                 materialBuilder.WithEmissive(texPath);

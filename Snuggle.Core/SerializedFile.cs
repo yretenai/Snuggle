@@ -75,8 +75,7 @@ public class SerializedFile : IRenewable {
         bundleStream = null;
         resourceStream = null;
 
-        if (serializationOptions.TargetVersion < UnityVersionRegister.Unity5 ||
-            serializationOptions.TargetFileVersion < UnitySerializedFileVersion.InitialVersion) {
+        if (serializationOptions.TargetVersion < UnityVersionRegister.Unity5 || serializationOptions.TargetFileVersion < UnitySerializedFileVersion.InitialVersion) {
             serializationOptions = serializationOptions.MutateWithSerializedFile(this);
         }
 

@@ -8,20 +8,14 @@ using Snuggle.Core.Meta;
 namespace Snuggle.Core.Models.Objects.Graphics;
 
 [PublicAPI]
-public record ChannelInfo(
-    int Stream,
-    int Offset,
-    VertexFormat Format,
-    VertexDimension Dimension,
-    int ExtraData) {
+public record ChannelInfo(int Stream, int Offset, VertexFormat Format, VertexDimension Dimension, int ExtraData) {
     public static ChannelInfo Default { get; } = new(0, 0, VertexFormat.Single, VertexDimension.None, 0);
 
     public static ChannelInfo FromReader(BiEndianBinaryReader reader, SerializedFile file) {
         var stream = reader.ReadByte();
         var offset = reader.ReadByte();
         var format = (VertexFormat) reader.ReadByte();
-        if (file.Version >= UnityVersionRegister.Unity2019 &&
-            format >= VertexFormat.Color) { // Color removed in 2019.1
+        if (file.Version >= UnityVersionRegister.Unity2019 && format >= VertexFormat.Color) { // Color removed in 2019.1
             format += 1;
         }
 

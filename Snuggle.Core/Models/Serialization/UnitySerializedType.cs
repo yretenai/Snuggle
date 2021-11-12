@@ -68,7 +68,15 @@ public record UnitySerializedType(
             }
         }
 
-        return new UnitySerializedType(classIdEx, isStrippedType, typeIndex, typeTree, className, nameSpace, assemblyName, dependencies) { Hash = hash, ScriptId = scriptId };
+        return new UnitySerializedType(
+            classIdEx,
+            isStrippedType,
+            typeIndex,
+            typeTree,
+            className,
+            nameSpace,
+            assemblyName,
+            dependencies) { Hash = hash, ScriptId = scriptId };
     }
 
     public static UnitySerializedType[] ArrayFromReader(BiEndianBinaryReader reader, UnitySerializedFile header, SnuggleOptions options, bool isRef = false) {

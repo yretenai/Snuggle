@@ -5,13 +5,7 @@ using Snuggle.Core.Meta;
 namespace Snuggle.Core.Models.Objects.Settings;
 
 [PublicAPI]
-public record VRSettings(
-    GoogleCardboardSettings Cardboard,
-    GoogleDaydreamSettings Daydream,
-    HoloLensVRSettings HoloLens,
-    LuminSettings Lumin,
-    OculusSettings Oculus,
-    bool Enable360StereoCapture) {
+public record VRSettings(GoogleCardboardSettings Cardboard, GoogleDaydreamSettings Daydream, HoloLensVRSettings HoloLens, LuminSettings Lumin, OculusSettings Oculus, bool Enable360StereoCapture) {
     public static VRSettings Default { get; } = new(GoogleCardboardSettings.Default, GoogleDaydreamSettings.Default, HoloLensVRSettings.Default, LuminSettings.Default, OculusSettings.Default, false);
 
     public static VRSettings FromReader(BiEndianBinaryReader reader, SerializedFile file) {
@@ -27,8 +21,7 @@ public record VRSettings(
             daydream = GoogleDaydreamSettings.FromReader(reader, file);
             hololens = HoloLensVRSettings.FromReader(reader, file);
 
-            if (file.Version >= UnityVersionRegister.Unity2018_1 &&
-                file.Version < UnityVersionRegister.Unity2018_2) {
+            if (file.Version >= UnityVersionRegister.Unity2018_1 && file.Version < UnityVersionRegister.Unity2018_2) {
                 enable360StereoCapture = reader.ReadBoolean();
                 reader.Align();
             }

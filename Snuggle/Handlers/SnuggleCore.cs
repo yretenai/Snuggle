@@ -34,8 +34,7 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
         WorkerThread.Start();
         LogTarget = new MultiLogger {
             Loggers = {
-                new ConsoleLogger(),
-                new DebugLogger(),
+                new ConsoleLogger(), new DebugLogger(),
                 // Log,
             },
         };
@@ -147,42 +146,44 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
     }
 
     public void WorkerAction(string name, Action<CancellationToken> action, bool report) {
-        Tasks.Add((name, token => {
-            try {
-                if (report) {
-                    Instance.Status.SetStatus($"Working on {name}...");
-                }
+        Tasks.Add(
+            (name, token => {
+                try {
+                    if (report) {
+                        Instance.Status.SetStatus($"Working on {name}...");
+                    }
 
-                action(token);
-                if (report) {
-                    Instance.Status.SetStatus($"{name} done.");
+                    action(token);
+                    if (report) {
+                        Instance.Status.SetStatus($"{name} done.");
+                    }
+                } catch (Exception e) {
+                    Instance.Status.SetStatus($"{name} failed! {e.Message}");
+                    Debug.WriteLine(e);
                 }
-            } catch (Exception e) {
-                Instance.Status.SetStatus($"{name} failed! {e.Message}");
-                Debug.WriteLine(e);
-            }
-        }));
+            }));
     }
 
     public Task<T> WorkerAction<T>(string name, Func<CancellationToken, T> task, bool report) {
         var tcs = new TaskCompletionSource<T>();
-        Tasks.Add((name, token => {
-            try {
-                if (report) {
-                    Instance.Status.SetStatus($"Working on {name}...");
-                }
+        Tasks.Add(
+            (name, token => {
+                try {
+                    if (report) {
+                        Instance.Status.SetStatus($"Working on {name}...");
+                    }
 
-                tcs.SetResult(task(token));
-                if (report) {
-                    Instance.Status.SetStatus($"{name} done.");
+                    tcs.SetResult(task(token));
+                    if (report) {
+                        Instance.Status.SetStatus($"{name} done.");
+                    }
+                } catch (TaskCanceledException) {
+                    tcs.SetCanceled(token);
+                } catch (Exception e) {
+                    Instance.Status.SetStatus($"{name} failed! {e.Message}");
+                    tcs.SetException(e);
                 }
-            } catch (TaskCanceledException) {
-                tcs.SetCanceled(token);
-            } catch (Exception e) {
-                Instance.Status.SetStatus($"{name} failed! {e.Message}");
-                tcs.SetException(e);
-            }
-        }));
+            }));
         return tcs.Task;
     }
 

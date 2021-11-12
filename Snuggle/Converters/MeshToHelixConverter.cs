@@ -120,7 +120,8 @@ public static class MeshToHelixConverter {
     }
 
     public static void ConvertGameObjectTree(GameObject? gameObject, Dispatcher dispatcher, Collection<Element3D> collection, CancellationToken token1) {
-        SnuggleCore.Instance.WorkerAction("DecodeGeometryHelix",
+        SnuggleCore.Instance.WorkerAction(
+            "DecodeGeometryHelix",
             token2 => {
                 var cts = CancellationTokenSource.CreateLinkedTokenSource(token1, token2);
                 gameObject = SnuggleMeshFile.FindTopGeometry(gameObject);
@@ -131,27 +132,33 @@ public static class MeshToHelixConverter {
                 var meshData = new Dictionary<long, (List<Object3D> submeshes, List<(Texture2D? texture, Memory<byte> textureData)>)>();
                 FindGeometryMeshData(gameObject, meshData, cts.Token);
 
-                dispatcher.Invoke(() => {
-                    var existingPointLight = collection.FirstOrDefault(x => x is PointLight3D);
-                    collection.Clear();
-                    collection.Add(existingPointLight ?? new PointLight3D { Color = Colors.White, Attenuation = new Vector3D(0.8, 0.01, 0), Position = new Point3D(0, 0, 0) });
-                    var lines = new LineGeometryModel3D { EnableViewFrustumCheck = false };
-                    var lineBuilder = new LineBuilder();
-                    var labels = new BillboardTextModel3D { EnableViewFrustumCheck = false };
-                    var labelGeometry = new BillboardText3D();
-                    labels.Geometry = labelGeometry;
-                    var topMost = new TopMostGroup3D {
-                        EnableTopMost = true,
-                    };
-                    collection.Add(topMost);
-                    AddGameObjectNode(gameObject, collection, Matrix.Identity, lineBuilder, labelGeometry, meshData, cts.Token);
-                    lines.Geometry = lineBuilder.ToLineGeometry3D();
-                    lines.Color = Colors.Crimson;
-                    if (SnuggleCore.Instance.Settings.DisplayRelationshipLines) {
-                        topMost.Children.Add(lines);
-                        topMost.Children.Add(labels);
-                    }
-                });
+                dispatcher.Invoke(
+                    () => {
+                        var existingPointLight = collection.FirstOrDefault(x => x is PointLight3D);
+                        collection.Clear();
+                        collection.Add(existingPointLight ?? new PointLight3D { Color = Colors.White, Attenuation = new Vector3D(0.8, 0.01, 0), Position = new Point3D(0, 0, 0) });
+                        var lines = new LineGeometryModel3D { EnableViewFrustumCheck = false };
+                        var lineBuilder = new LineBuilder();
+                        var labels = new BillboardTextModel3D { EnableViewFrustumCheck = false };
+                        var labelGeometry = new BillboardText3D();
+                        labels.Geometry = labelGeometry;
+                        var topMost = new TopMostGroup3D { EnableTopMost = true };
+                        collection.Add(topMost);
+                        AddGameObjectNode(
+                            gameObject,
+                            collection,
+                            Matrix.Identity,
+                            lineBuilder,
+                            labelGeometry,
+                            meshData,
+                            cts.Token);
+                        lines.Geometry = lineBuilder.ToLineGeometry3D();
+                        lines.Color = Colors.Crimson;
+                        if (SnuggleCore.Instance.Settings.DisplayRelationshipLines) {
+                            topMost.Children.Add(lines);
+                            topMost.Children.Add(labels);
+                        }
+                    });
             },
             true);
     }
@@ -162,12 +169,8 @@ public static class MeshToHelixConverter {
         }
 
         var submeshes = new List<Object3D>();
-        if (gameObject.FindComponent(UnityClassId.MeshFilter).Value is MeshFilter filter &&
-            filter.Mesh.Value != null) {
-            if (filter.Mesh.Value.ShouldDeserialize) {
-                filter.Mesh.Value.Deserialize(ObjectDeserializationOptions.Default);
-            }
-
+        if (gameObject.FindComponent(UnityClassId.MeshFilter).Value is MeshFilter filter && filter.Mesh.Value != null) {
+            filter.Mesh.Value.Deserialize(ObjectDeserializationOptions.Default);
             submeshes = GetSubmeshes(filter.Mesh.Value, token);
         }
 
@@ -175,12 +178,8 @@ public static class MeshToHelixConverter {
         if (gameObject.FindComponent(UnityClassId.MeshRenderer, UnityClassId.SkinnedMeshRenderer).Value is Renderer renderer) {
             textureData = FindTextureData(renderer.Materials.Select(x => x.Value), token);
 
-            if (renderer is SkinnedMeshRenderer skinnedMeshRenderer &&
-                skinnedMeshRenderer.Mesh.Value != null) {
-                if (skinnedMeshRenderer.Mesh.Value.ShouldDeserialize) {
-                    skinnedMeshRenderer.Mesh.Value.Deserialize(ObjectDeserializationOptions.Default);
-                }
-
+            if (renderer is SkinnedMeshRenderer skinnedMeshRenderer && skinnedMeshRenderer.Mesh.Value != null) {
+                skinnedMeshRenderer.Mesh.Value.Deserialize(ObjectDeserializationOptions.Default);
                 submeshes = GetSubmeshes(skinnedMeshRenderer.Mesh.Value, token);
             }
         }
@@ -204,7 +203,14 @@ public static class MeshToHelixConverter {
         }
     }
 
-    private static void AddGameObjectNode(GameObject gameObject, Collection<Element3D> collection, Matrix? parentMatrix, LineBuilder builder, BillboardText3D labels, Dictionary<long, (List<Object3D> submeshes, List<(Texture2D? texture, Memory<byte> textureData)>)> meshData, CancellationToken token) {
+    private static void AddGameObjectNode(
+        GameObject gameObject,
+        Collection<Element3D> collection,
+        Matrix? parentMatrix,
+        LineBuilder builder,
+        BillboardText3D labels,
+        Dictionary<long, (List<Object3D> submeshes, List<(Texture2D? texture, Memory<byte> textureData)>)> meshData,
+        CancellationToken token) {
         if (gameObject.FindComponent(UnityClassId.Transform).Value is not Transform transform) {
             return;
         }
@@ -239,7 +245,14 @@ public static class MeshToHelixConverter {
                 return;
             }
 
-            AddGameObjectNode(child.Value.GameObject.Value, collection, matrix, builder, labels, meshData, token);
+            AddGameObjectNode(
+                child.Value.GameObject.Value,
+                collection,
+                matrix,
+                builder,
+                labels,
+                meshData,
+                token);
         }
     }
 
@@ -248,27 +261,26 @@ public static class MeshToHelixConverter {
             return;
         }
 
-        SnuggleCore.Instance.WorkerAction("DecodeMeshHelix",
+        SnuggleCore.Instance.WorkerAction(
+            "DecodeMeshHelix",
             _ => {
-                if (mesh.ShouldDeserialize) {
-                    mesh.Deserialize(SnuggleCore.Instance.Settings.ObjectOptions);
-                }
-
+                mesh.Deserialize(SnuggleCore.Instance.Settings.ObjectOptions);
                 var submeshes = GetSubmeshes(mesh, token);
-                dispatcher.Invoke(() => {
-                    var existingPointLight = collection.FirstOrDefault(x => x is PointLight3D);
-                    collection.Clear();
-                    collection.Add(existingPointLight ?? new PointLight3D { Color = Colors.White, Attenuation = new Vector3D(0.8, 0.01, 0), Position = new Point3D(0, 0, 0) });
-                    if (submeshes.Count == 0) {
-                        return;
-                    }
+                dispatcher.Invoke(
+                    () => {
+                        var existingPointLight = collection.FirstOrDefault(x => x is PointLight3D);
+                        collection.Clear();
+                        collection.Add(existingPointLight ?? new PointLight3D { Color = Colors.White, Attenuation = new Vector3D(0.8, 0.01, 0), Position = new Point3D(0, 0, 0) });
+                        if (submeshes.Count == 0) {
+                            return;
+                        }
 
-                    if (token.IsCancellationRequested) {
-                        return;
-                    }
+                        if (token.IsCancellationRequested) {
+                            return;
+                        }
 
-                    BuildSubmeshes(collection, submeshes, null, token);
-                });
+                        BuildSubmeshes(collection, submeshes, null, token);
+                    });
             },
             true);
     }
@@ -287,19 +299,19 @@ public static class MeshToHelixConverter {
             var submesh = submeshes[index];
             var material3d = new PBRMaterial { AlbedoColor = Color4.White };
             var (texture, textureData) = textures.ElementAtOrDefault(index);
-            if (texture != null &&
-                !textureData.IsEmpty) {
+            if (texture != null && !textureData.IsEmpty) {
                 material3d.AlbedoMap = new TextureModel((IntPtr) textureData.Pin().Pointer, Format.R8G8B8A8_UNorm, texture.Width, texture.Height);
             }
 
-            collection.Add(new MeshGeometryModel3D {
-                RenderWireframe = false,
-                WireframeColor = Colors.Orange,
-                Geometry = submesh.Geometry,
-                Name = submesh.Name.Replace('.', '_'),
-                Material = material3d,
-                Transform = Transform3D.Identity,
-            });
+            collection.Add(
+                new MeshGeometryModel3D {
+                    RenderWireframe = false,
+                    WireframeColor = Colors.Orange,
+                    Geometry = submesh.Geometry,
+                    Name = submesh.Name.Replace('.', '_'),
+                    Material = material3d,
+                    Transform = Transform3D.Identity,
+                });
         }
     }
 
@@ -318,10 +330,7 @@ public static class MeshToHelixConverter {
             var texture = mainTexPtr?.Texture.Value as Texture2D;
             var textureData = Memory<byte>.Empty;
             if (texture != null) {
-                if (texture.ShouldDeserialize) {
-                    texture.Deserialize(SnuggleCore.Instance.Settings.ObjectOptions);
-                }
-
+                texture.Deserialize(SnuggleCore.Instance.Settings.ObjectOptions);
                 textureData = SnuggleTextureFile.LoadCachedTexture(texture);
                 for (var i = 0; i < textureData.Length / 4; ++i) { // strip alpha
                     textureData.Span[i * 4 + 3] = 0xFF;

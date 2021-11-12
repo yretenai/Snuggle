@@ -42,9 +42,7 @@ public partial class Assets {
                 if (headerClicked != LastHeaderClicked) {
                     direction = ListSortDirection.Ascending;
                 } else {
-                    direction = LastDirection == ListSortDirection.Ascending
-                        ? ListSortDirection.Descending
-                        : ListSortDirection.Ascending;
+                    direction = LastDirection == ListSortDirection.Ascending ? ListSortDirection.Descending : ListSortDirection.Ascending;
                 }
 
                 var columnBinding = headerClicked.Column.DisplayMemberBinding as Binding;
@@ -73,18 +71,13 @@ public partial class Assets {
             return false;
         }
 
-        if (SnuggleCore.Instance.Filters.Count > 0 &&
-            !SnuggleCore.Instance.Filters.Contains(SnuggleObject.ClassId)) {
+        if (SnuggleCore.Instance.Filters.Count > 0 && !SnuggleCore.Instance.Filters.Contains(SnuggleObject.ClassId)) {
             return false;
         }
 
         if (!string.IsNullOrWhiteSpace(SnuggleCore.Instance.Search)) {
             var value = SnuggleCore.Instance.Search;
-            if (!(SnuggleObject.PathId.ToString().Contains(value, StringComparison.InvariantCultureIgnoreCase) ||
-                  SnuggleObject.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase) ||
-                  SnuggleObject.Container.Contains(value, StringComparison.InvariantCultureIgnoreCase) ||
-                  SnuggleObject.SerializedName.Contains(value, StringComparison.InvariantCultureIgnoreCase) ||
-                  SnuggleObject.ClassId.ToString()?.Contains(value, StringComparison.InvariantCultureIgnoreCase) == true)) {
+            if (!(SnuggleObject.PathId.ToString().Contains(value, StringComparison.InvariantCultureIgnoreCase) || SnuggleObject.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase) || SnuggleObject.Container.Contains(value, StringComparison.InvariantCultureIgnoreCase) || SnuggleObject.SerializedName.Contains(value, StringComparison.InvariantCultureIgnoreCase) || SnuggleObject.ClassId.ToString()?.Contains(value, StringComparison.InvariantCultureIgnoreCase) == true)) {
                 return false;
             }
         }
@@ -102,9 +95,7 @@ public partial class Assets {
 
         SnuggleCore.Instance.SelectedObject = (SnuggleObject) selectedItems[^1]!;
         var serializedObject = SnuggleCore.Instance.SelectedObject.GetObject();
-        if (serializedObject is { ShouldDeserialize: true }) {
-            serializedObject.Deserialize(SnuggleCore.Instance.Settings.ObjectOptions);
-        }
+        serializedObject?.Deserialize(SnuggleCore.Instance.Settings.ObjectOptions);
 
         SnuggleCore.Instance.OnPropertyChanged(nameof(SnuggleCore.SelectedObject));
         SnuggleCore.Instance.SelectedObjects = selectedItems.Cast<SnuggleObject>().ToList();

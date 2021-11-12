@@ -62,10 +62,7 @@ public class PlayerSettings : SerializedObject {
         ActiveColorSpace = reader.ReadInt32();
 
         MTRendering = reader.ReadBoolean();
-        if (SerializedFile.Version < UnityVersionRegister.Unity2017_2 ||
-            SerializedFile.Version >= UnityVersionRegister.Unity2018_4 &&
-            SerializedFile.Version < UnityVersionRegister.Unity2019_1 ||
-            SerializedFile.Version >= UnityVersionRegister.Unity2019_4) { // xD
+        if (SerializedFile.Version < UnityVersionRegister.Unity2017_2 || SerializedFile.Version >= UnityVersionRegister.Unity2018_4 && SerializedFile.Version < UnityVersionRegister.Unity2019_1 || SerializedFile.Version >= UnityVersionRegister.Unity2019_4) { // xD
             MobileMTRendering = reader.ReadBoolean();
         }
 
@@ -96,8 +93,7 @@ public class PlayerSettings : SerializedObject {
 
         IosShowActivityIndicatorOnLoading = reader.ReadInt32();
         AndroidShowActivityIndicatorOnLoading = reader.ReadInt32();
-        if (SerializedFile.Version >= UnityVersionRegister.Unity5_5 &&
-            SerializedFile.Version < UnityVersionRegister.Unity2018_2) {
+        if (SerializedFile.Version >= UnityVersionRegister.Unity5_5 && SerializedFile.Version < UnityVersionRegister.Unity2018_2) {
             TizenShowActivityIndicatorOnLoading = reader.ReadInt32();
         }
 
@@ -111,8 +107,7 @@ public class PlayerSettings : SerializedObject {
             DisplayResolutionDialog = reader.ReadInt32();
         }
 
-        if (SerializedFile.Version >= UnityVersionRegister.Unity2018_4 &&
-            SerializedFile.Version < UnityVersionRegister.Unity2019_1 || // Dear Unity, please stop.
+        if (SerializedFile.Version >= UnityVersionRegister.Unity2018_4 && SerializedFile.Version < UnityVersionRegister.Unity2019_1 || // Dear Unity, please stop.
             SerializedFile.Version >= UnityVersionRegister.Unity2019_2) {
             IOSUseCustomAppBackgroundBehavior = reader.ReadBoolean();
         }
@@ -183,8 +178,7 @@ public class PlayerSettings : SerializedObject {
         }
 
         GPUSkinning = reader.ReadBoolean();
-        if (SerializedFile.Version > UnityVersionRegister.Unity5_4 &&
-            SerializedFile.Version < UnityVersionRegister.Unity2019_3) {
+        if (SerializedFile.Version > UnityVersionRegister.Unity5_4 && SerializedFile.Version < UnityVersionRegister.Unity2019_3) {
             GraphicsJobs = reader.ReadBoolean();
         }
 
@@ -200,8 +194,7 @@ public class PlayerSettings : SerializedObject {
 
         reader.Align();
 
-        if (SerializedFile.Version >= UnityVersionRegister.Unity5_6 &&
-            SerializedFile.Version < UnityVersionRegister.Unity2019_3) {
+        if (SerializedFile.Version >= UnityVersionRegister.Unity5_6 && SerializedFile.Version < UnityVersionRegister.Unity2019_3) {
             GraphicsJobMode = reader.ReadInt32();
         }
 
@@ -235,8 +228,7 @@ public class PlayerSettings : SerializedObject {
             MetalFramebufferOnly = reader.ReadBoolean();
         }
 
-        if (SerializedFile.Version >= UnityVersionRegister.Unity5_2 &&
-            SerializedFile.Version < UnityVersionRegister.Unity2018_3) {
+        if (SerializedFile.Version >= UnityVersionRegister.Unity5_2 && SerializedFile.Version < UnityVersionRegister.Unity2018_3) {
             N3DSDisableStereoscopicView = reader.ReadBoolean();
             N3DSEnableSharedListOpt = reader.ReadBoolean();
             N3DSEnableVSync = reader.ReadBoolean();
@@ -272,9 +264,7 @@ public class PlayerSettings : SerializedObject {
             XboxOneDisableEsram = reader.ReadBoolean();
             reader.Align();
 
-            if (SerializedFile.Version >= UnityVersionRegister.Unity2018_4 &&
-                SerializedFile.Version < UnityVersionRegister.Unity2019_1 ||
-                SerializedFile.Version >= UnityVersionRegister.Unity2019_3) {
+            if (SerializedFile.Version >= UnityVersionRegister.Unity2018_4 && SerializedFile.Version < UnityVersionRegister.Unity2019_1 || SerializedFile.Version >= UnityVersionRegister.Unity2019_3) {
                 XboxOneEnableTypeOptimization = reader.ReadBoolean();
                 reader.Align();
             }
@@ -290,16 +280,13 @@ public class PlayerSettings : SerializedObject {
                         SwitchNVNShaderPoolsGranularity = reader.ReadInt32();
                         SwitchNVNDefaultPoolsGranularity = reader.ReadInt32();
                         SwitchNVNOtherPoolsGranularity = reader.ReadInt32();
-                        if (SerializedFile.Version < UnityVersionRegister.Unity2019_1 ||
-                            SerializedFile.Version >= UnityVersionRegister.Unity2019_4) {
+                        if (SerializedFile.Version < UnityVersionRegister.Unity2019_1 || SerializedFile.Version >= UnityVersionRegister.Unity2019_4) {
                             SwitchNVNMaxPublicTextureIdCount = reader.ReadInt32();
                             SwitchNVNMaxPublicSamplerIdCount = reader.ReadInt32();
                         }
 
                         if (SerializedFile.Version >= UnityVersionRegister.Unity2019_4) {
-                            if (SerializedFile.Options.Game != UnityGame.PokemonUnite ||
-                                SerializedFile.Options.GameOptions.TryGetOptionsObject<UniteOptions>(UnityGame.PokemonUnite, out var uniteOptions) &&
-                                uniteOptions.GameVersion >= UniteVersion.Version1_2) {
+                            if (SerializedFile.Options.Game != UnityGame.PokemonUnite || SerializedFile.Options.GameOptions.TryGetOptionsObject<UniteOptions>(UnityGame.PokemonUnite, out var uniteOptions) && uniteOptions.GameVersion >= UniteVersion.Version1_2) {
                                 StadiaPresentMode = reader.ReadInt32();
                                 StadiaTargetFramerate = reader.ReadInt32();
                             }
@@ -330,17 +317,14 @@ public class PlayerSettings : SerializedObject {
                 VulkanEnablePreTransform = reader.ReadBoolean();
             }
 
-            if (SerializedFile.Version >= UnityVersionRegister.Unity2019_4 &&
-                SerializedFile.Version < UnityVersionRegister.Unity2020_1 ||
-                SerializedFile.Version >= UnityVersionRegister.Unity2020_2) {
+            if (SerializedFile.Version >= UnityVersionRegister.Unity2019_4 && SerializedFile.Version < UnityVersionRegister.Unity2020_1 || SerializedFile.Version >= UnityVersionRegister.Unity2020_2) {
                 VulkanEnableLateAcquireNextImage = reader.ReadBoolean();
             }
 
             reader.Align();
         }
 
-        if (SerializedFile.Version >= UnityVersionRegister.Unity5_2 &&
-            SerializedFile.Version < UnityVersionRegister.Unity2018_1) {
+        if (SerializedFile.Version >= UnityVersionRegister.Unity5_2 && SerializedFile.Version < UnityVersionRegister.Unity2018_1) {
             WiiUTVResolution = reader.ReadInt32();
             WiiUGamePadMSAA = reader.ReadInt32();
 
@@ -386,8 +370,7 @@ public class PlayerSettings : SerializedObject {
             XboxOneEnable7ThCore = reader.ReadBoolean();
             reader.Align();
 
-            if (SerializedFile.Version >= UnityVersionRegister.Unity2018_3 &&
-                SerializedFile.Version < UnityVersionRegister.Unity2019_1) {
+            if (SerializedFile.Version >= UnityVersionRegister.Unity2018_3 && SerializedFile.Version < UnityVersionRegister.Unity2019_1) {
                 IsWSAHolographicRemotingEnabled = reader.ReadBoolean();
                 reader.Align();
             }
@@ -474,13 +457,11 @@ public class PlayerSettings : SerializedObject {
 
         CloudEnabled = reader.ReadBoolean();
 
-        if (SerializedFile.Version >= UnityVersionRegister.Unity5_6 &&
-            SerializedFile.Version < UnityVersionRegister.Unity2017_1) {
+        if (SerializedFile.Version >= UnityVersionRegister.Unity5_6 && SerializedFile.Version < UnityVersionRegister.Unity2017_1) {
             EnableNewInputSystem = reader.ReadBoolean();
         }
 
-        if (SerializedFile.Version >= UnityVersionRegister.Unity2017_1 &&
-            SerializedFile.Version < UnityVersionRegister.Unity2020_2) {
+        if (SerializedFile.Version >= UnityVersionRegister.Unity2017_1 && SerializedFile.Version < UnityVersionRegister.Unity2020_2) {
             DisableOldInputManagerSupport = reader.ReadBoolean();
         }
 

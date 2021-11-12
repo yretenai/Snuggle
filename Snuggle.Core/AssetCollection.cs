@@ -105,9 +105,7 @@ public class AssetCollection : IDisposable {
             }
 
             var file = new SerializedFile(dataStream, tag, handler, options, true) { Assets = this, Name = path };
-            if (file.Version == UnityVersion.MinValue &&
-                fallbackVersion != null &&
-                fallbackVersion != UnityVersion.MinValue) {
+            if (file.Version == UnityVersion.MinValue && fallbackVersion != null && fallbackVersion != UnityVersion.MinValue) {
                 file.Version = fallbackVersion.Value;
             }
 
@@ -135,8 +133,7 @@ public class AssetCollection : IDisposable {
                 LoadSerializedFile(dataStream, tag, handler, options, leaveOpen);
             } else if (Bundle.IsBundleFile(dataStream)) {
                 LoadBundleSequence(dataStream, tag, handler, options, align, leaveOpen);
-            } else if (dataStream is FileStream fs &&
-                       IsAssembly(dataStream)) {
+            } else if (dataStream is FileStream fs && IsAssembly(dataStream)) {
                 LoadAssembly(dataStream, Path.GetDirectoryName(fs.Name) ?? "./", options, leaveOpen);
             } else {
                 if (tag is not string path) {

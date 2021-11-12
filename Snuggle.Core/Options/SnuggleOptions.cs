@@ -30,9 +30,7 @@ public record SnuggleOptions(
         DefaultIgnoreCondition = JsonIgnoreCondition.Never,
         AllowTrailingCommas = true,
         NumberHandling = JsonNumberHandling.AllowReadingFromString,
-        Converters = {
-            new JsonStringEnumConverter(),
-        },
+        Converters = { new JsonStringEnumConverter() },
     };
 
     public static SnuggleOptions FromJson(string json) {

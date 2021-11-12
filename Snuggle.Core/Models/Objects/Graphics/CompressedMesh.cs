@@ -36,17 +36,7 @@ public record CompressedMesh(
         0);
 
     [JsonIgnore]
-    public bool ShouldDeserialize =>
-        Vertices.ShouldDeserialize ||
-        UVs.ShouldDeserialize ||
-        Normals.ShouldDeserialize ||
-        Tangents.ShouldDeserialize ||
-        Weights.ShouldDeserialize ||
-        NormalSigns.ShouldDeserialize ||
-        TangentSigns.ShouldDeserialize ||
-        FloatColors.ShouldDeserialize ||
-        BoneIndices.ShouldDeserialize ||
-        Triangles.ShouldDeserialize;
+    public bool ShouldDeserialize => Vertices.ShouldDeserialize || UVs.ShouldDeserialize || Normals.ShouldDeserialize || Tangents.ShouldDeserialize || Weights.ShouldDeserialize || NormalSigns.ShouldDeserialize || TangentSigns.ShouldDeserialize || FloatColors.ShouldDeserialize || BoneIndices.ShouldDeserialize || Triangles.ShouldDeserialize;
 
     public static CompressedMesh FromReader(BiEndianBinaryReader reader, SerializedFile file) {
         var vertices = PackedBitVector.FromReader(reader, file, true);
@@ -60,7 +50,18 @@ public record CompressedMesh(
         var boneIndices = PackedBitVector.FromReader(reader, file, false);
         var triangles = PackedBitVector.FromReader(reader, file, false);
         var uvInfo = reader.ReadUInt32();
-        return new CompressedMesh(vertices, uvs, normals, tangents, weights, normalSigns, tangentSigns, floatColors, boneIndices, triangles, uvInfo);
+        return new CompressedMesh(
+            vertices,
+            uvs,
+            normals,
+            tangents,
+            weights,
+            normalSigns,
+            tangentSigns,
+            floatColors,
+            boneIndices,
+            triangles,
+            uvInfo);
     }
 
     public void ToWriter(BiEndianBinaryWriter writer, SerializedFile serializedFile, UnityVersion targetVersion) {

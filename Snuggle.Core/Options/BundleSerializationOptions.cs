@@ -7,10 +7,7 @@ using Snuggle.Core.Models.Bundle;
 namespace Snuggle.Core.Options;
 
 [PublicAPI]
-public record BundleSerializationOptions(
-    int BlockSize,
-    UnityCompressionType CompressionType,
-    UnityCompressionType BlockCompressionType) {
+public record BundleSerializationOptions(int BlockSize, UnityCompressionType CompressionType, UnityCompressionType BlockCompressionType) {
     private const int LatestVersion = 1;
     public static BundleSerializationOptions LZMA { get; } = new(int.MaxValue, UnityCompressionType.None, UnityCompressionType.LZMA);
     public static BundleSerializationOptions LZ4 { get; } = new(0x20000, UnityCompressionType.None, UnityCompressionType.LZ4);

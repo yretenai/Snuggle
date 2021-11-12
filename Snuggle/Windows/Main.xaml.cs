@@ -7,9 +7,7 @@ using Snuggle.Handlers;
 
 namespace Snuggle.Windows;
 
-/// <summary>
-///     Interaction logic for MainWindow.xaml
-/// </summary>
+/// <summary>Interaction logic for MainWindow.xaml</summary>
 public partial class Main {
     public Main() {
         InitializeComponent();
@@ -48,8 +46,7 @@ public partial class Main {
         }
 
         try {
-            if (e.Data.GetData("FileDrop") is not string[] names ||
-                names.Length == 0) {
+            if (e.Data.GetData("FileDrop") is not string[] names || names.Length == 0) {
                 return;
             }
 

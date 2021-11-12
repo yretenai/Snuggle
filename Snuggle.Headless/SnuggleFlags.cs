@@ -30,6 +30,9 @@ public class SnuggleFlags : ICLIFlags {
     [CLIFlag("dds", Category = "General Options", Default = false, Help = "Export textures to DDS when possible, otherwise use PNG")]
     public bool TextureToDDS { get; set; }
 
+    [CLIFlag("low-memory", Category = "General Options", Default = false, Help = "Low memory mode, at the cost of performance")]
+    public bool LowMemory { get; set; }
+
     [CLIFlag("loose-meshes", Category = "General Options", Default = false, Help = "Export mesh even if they are not part of a renderer")]
     public bool LooseMeshes { get; set; }
 

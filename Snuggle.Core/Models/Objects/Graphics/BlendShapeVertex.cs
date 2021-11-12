@@ -6,11 +6,7 @@ using Snuggle.Core.Models.Objects.Math;
 namespace Snuggle.Core.Models.Objects.Graphics;
 
 [PublicAPI]
-public record BlendShapeVertex(
-    Vector3 Vertex,
-    Vector3 Normal,
-    Vector3 Tangent,
-    uint Index) {
+public record BlendShapeVertex(Vector3 Vertex, Vector3 Normal, Vector3 Tangent, uint Index) {
     public static BlendShapeVertex Default { get; } = new(Vector3.Zero, Vector3.Zero, Vector3.Zero, 0);
 
     public static BlendShapeVertex FromReader(BiEndianBinaryReader reader, SerializedFile file) {

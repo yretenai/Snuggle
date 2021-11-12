@@ -16,12 +16,10 @@ public class Texture2DToBitmapConverter : MarkupExtension, IValueConverter {
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotSupportedException($"{nameof(Texture2DToBitmapConverter)} only supports converting to BitmapSource");
 
     private static async Task<BitmapSource?> ConvertTexture(Texture2D texture, Dispatcher dispatcher) {
-        return await SnuggleCore.Instance.WorkerAction("DecodeTexture",
+        return await SnuggleCore.Instance.WorkerAction(
+            "DecodeTexture",
             _ => {
-                if (texture.ShouldDeserialize) {
-                    texture.Deserialize(SnuggleCore.Instance.Settings.ObjectOptions);
-                }
-
+                texture.Deserialize(SnuggleCore.Instance.Settings.ObjectOptions);
                 var memory = SnuggleTextureFile.LoadCachedTexture(texture);
                 return memory.Length == 0 ? null : (RGBABitmapSource) dispatcher.Invoke(() => new RGBABitmapSource(memory, texture.Width, texture.Height));
             },

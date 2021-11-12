@@ -8,9 +8,7 @@ using Snuggle.Core.Options;
 namespace Snuggle.Core.Models.Serialization;
 
 [PublicAPI]
-public record UnityTypeTree(
-    UnityTypeTreeNode[] Nodes,
-    Memory<byte> StringBuffer) {
+public record UnityTypeTree(UnityTypeTreeNode[] Nodes, Memory<byte> StringBuffer) {
     public static UnityTypeTree FromReader(BiEndianBinaryReader reader, UnitySerializedFile header, SnuggleOptions options) => header.FileVersion is >= UnitySerializedFileVersion.TypeTreeBlob or UnitySerializedFileVersion.TypeTreeBlobBeta ? FromReaderBlob(reader, header, options) : FromReaderLegacy(reader, header, options);
 
     private static UnityTypeTree FromReaderLegacy(BiEndianBinaryReader reader, UnitySerializedFile header, SnuggleOptions options) => new(UnityTypeTreeNode.ArrayFromReaderLegacy(reader, header, options, 1, 0), Memory<byte>.Empty);
@@ -28,10 +26,7 @@ public record UnityTypeTree(
         var staticBuffer = UnityTypeTreeNode.StaticBuffer.Span;
         for (var i = 0; i < nodeCount; ++i) {
             var node = nodes[i];
-            nodes[i] = node with {
-                Type = UnityTypeTreeNode.GetString(node.TypeOffset, (node.TypeOffset & 0x80000000) == 0 ? buffer.Span : staticBuffer),
-                Name = UnityTypeTreeNode.GetString(node.NameOffset, (node.NameOffset & 0x80000000) == 0 ? buffer.Span : staticBuffer),
-            };
+            nodes[i] = node with { Type = UnityTypeTreeNode.GetString(node.TypeOffset, (node.TypeOffset & 0x80000000) == 0 ? buffer.Span : staticBuffer), Name = UnityTypeTreeNode.GetString(node.NameOffset, (node.NameOffset & 0x80000000) == 0 ? buffer.Span : staticBuffer) };
         }
 
         return new UnityTypeTree(nodes, buffer);

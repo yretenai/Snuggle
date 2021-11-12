@@ -5,13 +5,7 @@ using Snuggle.Core.Meta;
 namespace Snuggle.Core.Models.Objects.Graphics;
 
 [PublicAPI]
-public record GLTextureSettings(
-    FilterMode FilterMode,
-    int Asiostropy,
-    float Bias,
-    TextureWrapMode WrapU,
-    TextureWrapMode WrapV,
-    TextureWrapMode WrapW) {
+public record GLTextureSettings(FilterMode FilterMode, int Asiostropy, float Bias, TextureWrapMode WrapU, TextureWrapMode WrapV, TextureWrapMode WrapW) {
     public static GLTextureSettings Default { get; } = new(FilterMode.Point, 0, 0, TextureWrapMode.Repeat, TextureWrapMode.Repeat, TextureWrapMode.Repeat);
 
     public static GLTextureSettings FromReader(BiEndianBinaryReader reader, SerializedFile file) {

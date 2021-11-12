@@ -51,7 +51,16 @@ public record UnityObjectInfo(
             stripped = reader.ReadBoolean();
         }
 
-        return new UnityObjectInfo(pathId, offset, size, typeId, classIdEx, typeIndex, isDestroyed == 1, scriptTypeIndex, stripped);
+        return new UnityObjectInfo(
+            pathId,
+            offset,
+            size,
+            typeId,
+            classIdEx,
+            typeIndex,
+            isDestroyed == 1,
+            scriptTypeIndex,
+            stripped);
     }
 
     public static UnityObjectInfo[] ArrayFromReader(BiEndianBinaryReader reader, ref UnitySerializedFile header, UnitySerializedType[] types, SnuggleOptions options) {

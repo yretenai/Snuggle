@@ -14,7 +14,14 @@ public record Submesh(
     int FirstVertex,
     int VertexCount,
     AABB LocalAABB) {
-    public static Submesh Default { get; } = new(0, 0, GfxPrimitiveType.Triangles, 0, 0, 0, AABB.Default);
+    public static Submesh Default { get; } = new(
+        0,
+        0,
+        GfxPrimitiveType.Triangles,
+        0,
+        0,
+        0,
+        AABB.Default);
 
     public static Submesh FromReader(BiEndianBinaryReader reader, SerializedFile file) {
         var firstByte = reader.ReadUInt32();
@@ -28,7 +35,14 @@ public record Submesh(
         var firstVertex = reader.ReadInt32();
         var vertexCount = reader.ReadInt32();
         var aabb = reader.ReadStruct<AABB>();
-        return new Submesh(firstByte, indexCount, topo, baseVertex, firstVertex, vertexCount, aabb);
+        return new Submesh(
+            firstByte,
+            indexCount,
+            topo,
+            baseVertex,
+            firstVertex,
+            vertexCount,
+            aabb);
     }
 
     public void ToWriter(BiEndianBinaryWriter writer, SerializedFile serializedFile, UnityVersion targetVersion) {

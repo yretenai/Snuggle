@@ -12,9 +12,7 @@ using Snuggle.Core.Models.Serialization;
 namespace Snuggle.Core.Models;
 
 [PublicAPI]
-public record PPtr<T>(
-    int FileId,
-    long PathId) where T : SerializedObject {
+public record PPtr<T>(int FileId, long PathId) where T : SerializedObject {
     private PPtr(PPtrEnclosure enclosure) : this(enclosure.FileId, enclosure.PathId) { }
 
     public static PPtr<T> Null => new(0, 0);
@@ -35,10 +33,7 @@ public record PPtr<T>(
     [JsonIgnore]
     public UnityObjectInfo? Info {
         get {
-            if (IsNull ||
-                File == null ||
-                FileId > File.ExternalInfos.Length ||
-                File.Assets == null) {
+            if (IsNull || File == null || FileId > File.ExternalInfos.Length || File.Assets == null) {
                 return null;
             }
 
@@ -64,10 +59,7 @@ public record PPtr<T>(
     [JsonIgnore]
     public T? Value {
         get {
-            if (IsNull ||
-                File == null ||
-                FileId > File.ExternalInfos.Length ||
-                File.Assets == null) {
+            if (IsNull || File == null || FileId > File.ExternalInfos.Length || File.Assets == null) {
                 return null;
             }
 

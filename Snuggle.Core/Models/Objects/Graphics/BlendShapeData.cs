@@ -10,10 +10,7 @@ using Snuggle.Core.Options;
 namespace Snuggle.Core.Models.Objects.Graphics;
 
 [PublicAPI]
-public record BlendShapeData(
-    List<MeshBlendShape> Shapes,
-    List<MeshBlendShapeChannel> Channels,
-    List<float> Weights) {
+public record BlendShapeData(List<MeshBlendShape> Shapes, List<MeshBlendShapeChannel> Channels, List<float> Weights) {
     private long VerticesOffset { get; init; } = -1;
 
     [JsonIgnore]

@@ -29,10 +29,7 @@ public enum VertexChannel {
 }
 
 [PublicAPI]
-public record VertexData(
-    uint CurrentChannels,
-    uint VertexCount,
-    Dictionary<VertexChannel, ChannelInfo> Channels) {
+public record VertexData(uint CurrentChannels, uint VertexCount, Dictionary<VertexChannel, ChannelInfo> Channels) {
     private long DataStart { get; init; } = -1;
 
     [JsonIgnore]
@@ -57,8 +54,7 @@ public record VertexData(
 
         for (var i = 0; i < channelCount; ++i) {
             var channel = (VertexChannel) i;
-            if (i is >= 2 and <= 7 &&
-                file.Version < UnityVersionRegister.Unity2018) {
+            if (i is >= 2 and <= 7 && file.Version < UnityVersionRegister.Unity2018) {
                 if (i == 7) {
                     channel = VertexChannel.Tangent;
                 } else {

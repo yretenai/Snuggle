@@ -78,13 +78,16 @@ public class SerializedObject : IEquatable<SerializedObject>, ISerialized {
     }
 
     public void Deserialize(ObjectDeserializationOptions options) {
+        if (!ShouldDeserialize) {
+            return;
+        }
+
         using var reader = new BiEndianBinaryReader(SerializedFile.OpenFile(PathId), SerializedFile.Header.IsBigEndian);
         Deserialize(reader, options);
     }
 
     protected T GetExtraContainer<T>(object classId) where T : ISerialized, new() {
-        if (!ExtraContainers.TryGetValue(classId, out var instance) ||
-            instance is not T tInstance) {
+        if (!ExtraContainers.TryGetValue(classId, out var instance) || instance is not T tInstance) {
             tInstance = new T();
             ExtraContainers[classId] = tInstance;
         }

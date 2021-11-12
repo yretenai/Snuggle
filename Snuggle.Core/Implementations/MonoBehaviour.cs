@@ -43,8 +43,7 @@ public class MonoBehaviour : Behaviour {
     public override void Deserialize(BiEndianBinaryReader reader, ObjectDeserializationOptions options) {
         base.Deserialize(reader, options);
 
-        if (ObjectData == null &&
-            SerializedFile.Assets != null) {
+        if (ObjectData == null && SerializedFile.Assets != null) {
             var script = Script.Value;
             if (script == null) {
                 throw new PPtrNullReferenceException(UnityClassId.MonoScript);
@@ -53,9 +52,7 @@ public class MonoBehaviour : Behaviour {
             var name = script.ToString();
 
             var info = SerializedFile.ObjectInfos[PathId];
-            if (info.TypeIndex > 0 &&
-                info.TypeIndex < SerializedFile.Types.Length &&
-                SerializedFile.Types[info.TypeIndex].TypeTree != null) {
+            if (info.TypeIndex > 0 && info.TypeIndex < SerializedFile.Types.Length && SerializedFile.Types[info.TypeIndex].TypeTree != null) {
                 ObjectData = ObjectFactory.FindObjectNode(name, SerializedFile.Types[info.TypeIndex].TypeTree, SerializedFile.Assets);
             }
 

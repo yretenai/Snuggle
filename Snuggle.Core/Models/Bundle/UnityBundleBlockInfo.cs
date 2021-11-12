@@ -10,10 +10,7 @@ namespace Snuggle.Core.Models.Bundle;
 
 [PublicAPI]
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
-public record UnityBundleBlockInfo(
-    int Size,
-    int CompressedSize,
-    UnityBundleBlockInfoFlags Flags) {
+public record UnityBundleBlockInfo(int Size, int CompressedSize, UnityBundleBlockInfoFlags Flags) {
     public static UnityBundleBlockInfo FromReader(BiEndianBinaryReader reader, UnityBundle header, int fsFlags, SnuggleOptions options) {
         var size = reader.ReadInt32();
         var compressedSize = reader.ReadInt32();

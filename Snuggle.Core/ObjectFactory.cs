@@ -29,9 +29,7 @@ public static class ObjectFactory {
     public static Type NamedBaseType { get; } = typeof(NamedObject);
     public static Type BaseClassIdType { get; } = typeof(UnityClassId);
 
-    public static Dictionary<UnityGame, Dictionary<object, Type>> Implementations { get; set; } = new() {
-        { UnityGame.Default, new Dictionary<object, Type>() },
-    };
+    public static Dictionary<UnityGame, Dictionary<object, Type>> Implementations { get; set; } = new() { { UnityGame.Default, new Dictionary<object, Type>() } };
 
     public static Dictionary<UnityGame, Type> ClassIdExtensions { get; set; } = new();
 
@@ -57,10 +55,7 @@ public static class ObjectFactory {
     public static object GetClassIdForGame(UnityGame game, UnityClassId classId) => GetClassIdForGame(game, (int) classId);
 
     public static void LoadImplementationTypes(Assembly assembly) {
-        foreach (var (type, attribute) in assembly.GetExportedTypes()
-                     .Where(x => x.IsAssignableTo(BaseType))
-                     .Select(x => (Type: x, Attribute: x.GetCustomAttribute<ObjectImplementationAttribute>()))
-                     .Where(x => x.Attribute != null)) {
+        foreach (var (type, attribute) in assembly.GetExportedTypes().Where(x => x.IsAssignableTo(BaseType)).Select(x => (Type: x, Attribute: x.GetCustomAttribute<ObjectImplementationAttribute>())).Where(x => x.Attribute != null)) {
             if (!Implementations.TryGetValue(attribute!.Game, out var gameImplementations)) {
                 gameImplementations = new Dictionary<object, Type>();
                 Implementations[attribute.Game] = gameImplementations;
@@ -69,10 +64,7 @@ public static class ObjectFactory {
             gameImplementations[attribute.UnderlyingClassId] = type;
         }
 
-        foreach (var (type, attribute) in assembly.GetExportedTypes()
-                     .Where(x => x.IsEnum)
-                     .Select(x => (Type: x, Attribute: x.GetCustomAttribute<ClassIdExtensionAttribute>()))
-                     .Where(x => x.Attribute != null)) {
+        foreach (var (type, attribute) in assembly.GetExportedTypes().Where(x => x.IsEnum).Select(x => (Type: x, Attribute: x.GetCustomAttribute<ClassIdExtensionAttribute>())).Where(x => x.Attribute != null)) {
             ClassIdExtensions[attribute!.Game] = type;
         }
     }
@@ -89,11 +81,17 @@ public static class ObjectFactory {
 
             using var reader = new BiEndianBinaryReader(stream, serializedFile.Header.IsBigEndian);
             try {
-                return CreateObjectInstance(reader, info, serializedFile, type, hasImplementation, overrideType, overrideGame);
+                return CreateObjectInstance(
+                    reader,
+                    info,
+                    serializedFile,
+                    type,
+                    hasImplementation,
+                    overrideType,
+                    overrideGame);
             } catch (Exception e) {
                 serializedFile.Options.Logger.Error("Object", $"Failed to deserialize object {info.PathId} ({overrideType ?? info.ClassId:G}, {overrideGame ?? UnityGame.Default:G})", e);
-                if (overrideType == null ||
-                    overrideType.Equals(UnityClassId.Object) == false && overrideType.Equals(UnityClassId.NamedObject) == false) {
+                if (overrideType == null || overrideType.Equals(UnityClassId.Object) == false && overrideType.Equals(UnityClassId.NamedObject) == false) {
                     overrideType = type.IsAssignableFrom(NamedBaseType) ? UnityClassId.NamedObject : UnityClassId.Object;
                     continue;
                 }
@@ -103,13 +101,7 @@ public static class ObjectFactory {
         }
     }
 
-    private static bool TryFindObjectType(
-        UnityObjectInfo info,
-        SerializedFile serializedFile,
-        object? overrideType,
-        ref UnityGame? overrideGame,
-        out bool hasImplementation,
-        [MaybeNullWhen(false)] out Type type) {
+    private static bool TryFindObjectType(UnityObjectInfo info, SerializedFile serializedFile, object? overrideType, ref UnityGame? overrideGame, out bool hasImplementation, [MaybeNullWhen(false)] out Type type) {
         type = null;
         if (!Implementations.TryGetValue(overrideGame ?? serializedFile.Options.Game, out var gameImplementations)) {
             overrideGame = UnityGame.Default;
@@ -154,17 +146,12 @@ public static class ObjectFactory {
 
 #if DEBUG
         if (memoryUse >= 1.ToMebiByte()) {
-            serializedFile.Options.Logger.Warning("Object",
-                $"Using {memoryUse.GetHumanReadableBytes()} of memory to load object {info.PathId} ({overrideType ?? info.ClassId:G}, {overrideGame ?? UnityGame.Default:G}), consider moving some things to ToSerialize()");
+            serializedFile.Options.Logger.Warning("Object", $"Using {memoryUse.GetHumanReadableBytes()} of memory to load object {info.PathId} ({overrideType ?? info.ClassId:G}, {overrideGame ?? UnityGame.Default:G}), consider moving some things to ToSerialize()");
         }
 #endif
 
-        if (overrideType == null &&
-            hasImplementation &&
-            reader.Unconsumed > 0 &&
-            !serializedObject.ShouldDeserialize) {
-            serializedFile.Options.Logger.Warning("Object",
-                $"{reader.Unconsumed} bytes left unconsumed in buffer and object {info.PathId} ({overrideType ?? info.ClassId:G}, {overrideGame ?? UnityGame.Default:G}) is not marked for deserialization! Check implementation");
+        if (overrideType == null && hasImplementation && reader.Unconsumed > 0 && !serializedObject.ShouldDeserialize) {
+            serializedFile.Options.Logger.Warning("Object", $"{reader.Unconsumed} bytes left unconsumed in buffer and object {info.PathId} ({overrideType ?? info.ClassId:G}, {overrideGame ?? UnityGame.Default:G}) is not marked for deserialization! Check implementation");
         }
 
         if (serializedObject is ISerializedResource resource) {
@@ -178,8 +165,7 @@ public static class ObjectFactory {
         var start = reader.BaseStream.Position;
         object? value = null;
         try {
-            if (node.TypeName.StartsWith("PPtr<") ||
-                node.TypeName == "PPtr`1") {
+            if (node.TypeName.StartsWith("PPtr<") || node.TypeName == "PPtr`1") {
                 value = PPtr<SerializedObject>.FromReader(reader, file);
             } else {
                 switch (node.TypeName.ToLowerInvariant()) {
@@ -367,8 +353,7 @@ public static class ObjectFactory {
 
         if (typeTree != null) {
             var type = ObjectNode.FromUnityTypeTree(typeTree);
-            if (type.Properties.Count > 0 &&
-                !string.IsNullOrEmpty(type.TypeName)) {
+            if (type.Properties.Count > 0 && !string.IsNullOrEmpty(type.TypeName)) {
                 collection.Types[name] = type;
                 return type;
             }
@@ -399,10 +384,7 @@ public static class ObjectFactory {
 
             var objectNode = new ObjectNode("Base", "MonoBehavior", -1, false, false) {
                 Properties = new List<ObjectNode> { // these all get skipped.
-                    new("m_GameObject", "PPtr`1", 12, false, false),
-                    new("m_Enabled", "UInt8", 1, true, true),
-                    new("m_Script", "PPtr`1", 12, false, false),
-                    new("m_Name", "string", -1, false, false),
+                    new("m_GameObject", "PPtr`1", 12, false, false), new("m_Enabled", "UInt8", 1, true, true), new("m_Script", "PPtr`1", 12, false, false), new("m_Name", "string", -1, false, false),
                 },
             };
 
@@ -441,40 +423,16 @@ public static class ObjectFactory {
         }
 
         var typeDefinition = typeReference.Resolve();
-        if (typeReference.FullName.StartsWith("System.Collections.Generic.List`1") ||
-            typeReference.IsArray) {
+        if (typeReference.FullName.StartsWith("System.Collections.Generic.List`1") || typeReference.IsArray) {
             var arrayType = typeReference.IsArray ? ((ArrayType) typeReference).ElementType : ((GenericInstanceType) typeReference).GenericArguments[0];
-            return new ObjectNode(name, "vector", -1, false, false) {
-                Properties = new List<ObjectNode> {
-                    new("Array", "Array", -1, true, false) {
-                        Properties = new List<ObjectNode> {
-                            new("count", "int", 4, false, false),
-                            CreateObjectNode("data", arrayType, cache),
-                        },
-                    },
-                },
-            };
+            return new ObjectNode(name, "vector", -1, false, false) { Properties = new List<ObjectNode> { new("Array", "Array", -1, true, false) { Properties = new List<ObjectNode> { new("count", "int", 4, false, false), CreateObjectNode("data", arrayType, cache) } } } };
         }
 
         if (typeReference.FullName.StartsWith("System.Collections.Generic.Dictionary`2")) {
             var generics = ((GenericInstanceType) typeReference).GenericArguments;
             var keyType = generics[0].Resolve();
             var valueType = generics[1].Resolve();
-            return new ObjectNode(name, "map", -1, false, false) {
-                Properties = new List<ObjectNode> {
-                    new("Array", "Array", -1, true, false) {
-                        Properties = new List<ObjectNode> {
-                            new("count", "int", 4, false, false),
-                            new("data", "pair", -1, false, false) {
-                                Properties = new List<ObjectNode> {
-                                    CreateObjectNode("first", keyType, cache),
-                                    CreateObjectNode("second", valueType, cache),
-                                },
-                            },
-                        },
-                    },
-                },
-            };
+            return new ObjectNode(name, "map", -1, false, false) { Properties = new List<ObjectNode> { new("Array", "Array", -1, true, false) { Properties = new List<ObjectNode> { new("count", "int", 4, false, false), new("data", "pair", -1, false, false) { Properties = new List<ObjectNode> { CreateObjectNode("first", keyType, cache), CreateObjectNode("second", valueType, cache) } } } } } };
         }
 
         if (typeReference.Namespace == "System") {

@@ -5,9 +5,7 @@ using Snuggle.Core.Meta;
 namespace Snuggle.Core.Models.Objects;
 
 [PublicAPI]
-public record AssetBundleInfo(
-    byte[] Hash,
-    int[] Dependencies) {
+public record AssetBundleInfo(byte[] Hash, int[] Dependencies) {
     public static AssetBundleInfo FromReader(BiEndianBinaryReader reader, SerializedFile file) {
         var hash = reader.ReadBytes(16);
         var count = reader.ReadInt32();

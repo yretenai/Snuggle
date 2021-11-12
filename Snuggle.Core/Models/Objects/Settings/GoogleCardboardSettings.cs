@@ -4,9 +4,7 @@ using Snuggle.Core.IO;
 namespace Snuggle.Core.Models.Objects.Settings;
 
 [PublicAPI]
-public record GoogleCardboardSettings(
-    int DepthFormat,
-    bool EnableTransitionView) {
+public record GoogleCardboardSettings(int DepthFormat, bool EnableTransitionView) {
     public static GoogleCardboardSettings Default { get; } = new(0, false);
 
     public static GoogleCardboardSettings FromReader(BiEndianBinaryReader reader, SerializedFile file) {

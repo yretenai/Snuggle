@@ -6,11 +6,7 @@ using Snuggle.Core.Options;
 namespace Snuggle.Core.Models.Bundle;
 
 [PublicAPI]
-public record UnityBundle(
-    string Signature,
-    int FormatVersion,
-    string EngineVersion,
-    string EngineRevision) {
+public record UnityBundle(string Signature, int FormatVersion, string EngineVersion, string EngineRevision) {
     public UnityFormat Format { get; } = (UnityFormat) Signature[5];
 
     public UnityVersion? Version { get; } = UnityVersion.ParseSafe(EngineVersion);
