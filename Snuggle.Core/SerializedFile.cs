@@ -71,7 +71,7 @@ public class SerializedFile : IRenewable {
 
     public Stream OpenFile(UnityObjectInfo info, Stream? stream, bool leaveOpen = false) => new OffsetStream(stream ?? Handler.OpenFile(Tag), info.Offset + Header.Offset, info.Size, leaveOpen) { Position = 0 };
 
-    public bool ToStream(FileSerializationOptions serializationOptions, [MaybeNullWhen(false)] out Stream? bundleStream, [MaybeNullWhen(false)] out Stream? resourceStream) {
+    public bool ToStream(FileSerializationOptions serializationOptions, [MaybeNullWhen(false)] out Stream bundleStream, [MaybeNullWhen(false)] out Stream resourceStream) {
         bundleStream = null;
         resourceStream = null;
 
@@ -139,17 +139,19 @@ public class SerializedFile : IRenewable {
 
     public void FindResources(SerializedObject? resourceManager) {
         foreach (var serializedObject in Objects.Values) {
-            if (serializedObject is ICABPathProvider cab) {
-                foreach (var (pPtr, path) in cab.GetCABPaths()) {
-                    if (pPtr.Value != null) {
-                        pPtr.Value.ObjectContainerPath = path;
+            switch (serializedObject) {
+                case ICABPathProvider cab: {
+                    foreach (var (pPtr, path) in cab.GetCABPaths()) {
+                        if (pPtr.Value != null) {
+                            pPtr.Value.ObjectContainerPath = path;
+                        }
                     }
-                }
-            }
 
-            if (serializedObject is PlayerSettings settings &&
-                Assets != null) {
-                Assets.PlayerSettings = settings;
+                    break;
+                }
+                case PlayerSettings settings when Assets != null:
+                    Assets.PlayerSettings = settings;
+                    break;
             }
         }
     }

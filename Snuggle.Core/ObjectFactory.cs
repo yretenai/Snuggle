@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -78,7 +79,7 @@ public static class ObjectFactory {
 
     public static SerializedObject GetInstance(Stream stream, UnityObjectInfo info, SerializedFile serializedFile, object? overrideType = null, UnityGame? overrideGame = null) {
         while (true) {
-            if (FindObjectType(info, serializedFile, overrideType, ref overrideGame, out var hasImplementation, out var type)) {
+            if (!TryFindObjectType(info, serializedFile, overrideType, ref overrideGame, out var hasImplementation, out var type)) {
                 continue;
             }
 
@@ -102,13 +103,13 @@ public static class ObjectFactory {
         }
     }
 
-    private static bool FindObjectType(
+    private static bool TryFindObjectType(
         UnityObjectInfo info,
         SerializedFile serializedFile,
         object? overrideType,
         ref UnityGame? overrideGame,
         out bool hasImplementation,
-        out Type? type) {
+        [MaybeNullWhen(false)] out Type type) {
         type = null;
         if (!Implementations.TryGetValue(overrideGame ?? serializedFile.Options.Game, out var gameImplementations)) {
             overrideGame = UnityGame.Default;
@@ -119,16 +120,17 @@ public static class ObjectFactory {
         if (!hasImplementation) {
             if (overrideGame != UnityGame.Default) {
                 overrideGame = UnityGame.Default;
-                return true;
+                return false;
             }
 
-            type = BaseType;
             if (ParserNotFoundWarningSet.Add(overrideType ?? info.ClassId)) {
                 serializedFile.Options.Logger.Warning($"Can't find parser for type {overrideType ?? info.ClassId:G}");
             }
         }
 
-        return false;
+        type ??= BaseType;
+
+        return true;
     }
 
     private static SerializedObject CreateObjectInstance(

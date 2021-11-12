@@ -92,7 +92,7 @@ public class SerializedObject : IEquatable<SerializedObject>, ISerialized {
         return tInstance;
     }
 
-    protected bool TryGetExtraContainer(object classId, [MaybeNullWhen(false)] out ISerialized? container) {
+    protected bool TryGetExtraContainer(object classId, [MaybeNullWhen(false)] out ISerialized container) {
         if (!ExtraContainers.TryGetValue(classId, out var instance)) {
             container = null;
             return false;

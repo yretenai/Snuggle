@@ -136,7 +136,7 @@ public class Bundle : IDisposable, IRenewable {
         return data;
     }
 
-    public bool ToStream(UnityBundleBlock[] blocks, Stream dataStream, BundleSerializationOptions serializationOptions, [MaybeNullWhen(false)] out Stream? bundleStream) {
+    public bool ToStream(UnityBundleBlock[] blocks, Stream dataStream, BundleSerializationOptions serializationOptions, [MaybeNullWhen(false)] out Stream bundleStream) {
         try {
             bundleStream = new MemoryStream();
             using var writer = new BiEndianBinaryWriter(bundleStream, true, true);

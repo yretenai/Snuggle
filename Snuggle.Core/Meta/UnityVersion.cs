@@ -17,6 +17,7 @@ public record struct UnityVersion(
 ) : IComparable<UnityVersion>, IComparable<int> {
     public static UnityVersion MaxValue { get; } = new(int.MaxValue, int.MaxValue, int.MaxValue);
     public static UnityVersion MinValue { get; } = new(0);
+    public static UnityVersion Default { get; } = new(5);
 
     public int CompareTo(int value) => Major > value ? 1 : Minor + Build == 0 ? 1 : -1;
 
@@ -118,12 +119,12 @@ public record struct UnityVersion(
         return (build, typeChar, revision);
     }
 
-    public static bool TryParse(string? input, out UnityVersion? version) {
+    public static bool TryParse(string? input, out UnityVersion version) {
         try {
             version = Parse(input);
             return true;
         } catch {
-            version = null;
+            version = Default;
             return false;
         }
     }
