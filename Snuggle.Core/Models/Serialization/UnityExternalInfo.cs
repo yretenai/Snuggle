@@ -10,7 +10,7 @@ public record UnityExternalInfo(string Path, Guid Guid, int Type, string AssetPa
     public string Name { get; } = System.IO.Path.GetFileName(AssetPath);
     public bool IsArchiveReference { get; } = AssetPath.StartsWith("archive:/", StringComparison.InvariantCultureIgnoreCase);
 
-    public static UnityExternalInfo FromReader(BiEndianBinaryReader reader, UnitySerializedFile header, SnuggleOptions options) {
+    public static UnityExternalInfo FromReader(BiEndianBinaryReader reader, UnitySerializedFile header, SnuggleCoreOptions options) {
         var path = string.Empty;
         if (header.FileVersion >= UnitySerializedFileVersion.ExternalExtraPath) {
             path = reader.ReadNullString();
@@ -33,7 +33,7 @@ public record UnityExternalInfo(string Path, Guid Guid, int Type, string AssetPa
         return new UnityExternalInfo(path, guid, type, assetPath);
     }
 
-    public static UnityExternalInfo[] ArrayFromReader(BiEndianBinaryReader reader, UnitySerializedFile header, SnuggleOptions options) {
+    public static UnityExternalInfo[] ArrayFromReader(BiEndianBinaryReader reader, UnitySerializedFile header, SnuggleCoreOptions options) {
         var count = reader.ReadInt32();
         var array = new UnityExternalInfo[count];
         for (var i = 0; i < count; ++i) {

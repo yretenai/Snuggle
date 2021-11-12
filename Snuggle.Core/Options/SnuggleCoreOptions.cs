@@ -8,7 +8,7 @@ using Snuggle.Core.Meta;
 namespace Snuggle.Core.Options;
 
 [PublicAPI]
-public record SnuggleOptions(
+public record SnuggleCoreOptions(
     bool CacheData,
     bool CacheDataIfLZMA, // this literally takes two years, you want it to be enabled.
     bool LoadOnDemand,
@@ -23,7 +23,7 @@ public record SnuggleOptions(
     [JsonIgnore]
     public ILogger Logger { get; set; } = DebugLogger.Instance;
 
-    public static SnuggleOptions Default { get; } = new(false, true, false, UnityGame.Default);
+    public static SnuggleCoreOptions Default { get; } = new(false, true, false, UnityGame.Default);
 
     public static JsonSerializerOptions JsonOptions { get; } = new() {
         WriteIndented = true,
@@ -33,9 +33,9 @@ public record SnuggleOptions(
         Converters = { new JsonStringEnumConverter() },
     };
 
-    public static SnuggleOptions FromJson(string json) {
+    public static SnuggleCoreOptions FromJson(string json) {
         try {
-            var options = JsonSerializer.Deserialize<SnuggleOptions>(json, JsonOptions) ?? Default;
+            var options = JsonSerializer.Deserialize<SnuggleCoreOptions>(json, JsonOptions) ?? Default;
             return options.NeedsMigration() ? options.Migrate() : options;
         } catch {
             return Default;
@@ -46,7 +46,7 @@ public record SnuggleOptions(
 
     public bool NeedsMigration() => Version < LatestVersion;
 
-    public SnuggleOptions Migrate() {
+    public SnuggleCoreOptions Migrate() {
         var options = this;
         if (options.Version <= 1) {
             options = options with { CacheDataIfLZMA = true, Version = 2 };

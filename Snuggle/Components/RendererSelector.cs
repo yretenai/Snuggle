@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using Snuggle.Core.Implementations;
+using Snuggle.Core.Options;
 using Snuggle.Handlers;
 
 namespace Snuggle.Components;

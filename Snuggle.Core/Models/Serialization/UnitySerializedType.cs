@@ -18,7 +18,7 @@ public record UnitySerializedType(
     public byte[] Hash { get; init; } = Array.Empty<byte>();
     public byte[] ScriptId { get; init; } = Array.Empty<byte>();
 
-    public static UnitySerializedType FromReader(BiEndianBinaryReader reader, UnitySerializedFile header, SnuggleOptions options, bool isRef = false) {
+    public static UnitySerializedType FromReader(BiEndianBinaryReader reader, UnitySerializedFile header, SnuggleCoreOptions options, bool isRef = false) {
         var classId = reader.ReadInt32();
         var classIdEx = ObjectFactory.GetClassIdForGame(options.Game, classId);
         var isStrippedType = false;
@@ -79,7 +79,7 @@ public record UnitySerializedType(
             dependencies) { Hash = hash, ScriptId = scriptId };
     }
 
-    public static UnitySerializedType[] ArrayFromReader(BiEndianBinaryReader reader, UnitySerializedFile header, SnuggleOptions options, bool isRef = false) {
+    public static UnitySerializedType[] ArrayFromReader(BiEndianBinaryReader reader, UnitySerializedFile header, SnuggleCoreOptions options, bool isRef = false) {
         var count = reader.ReadInt32();
         var entries = new UnitySerializedType[count];
         for (var i = 0; i < count; ++i) {

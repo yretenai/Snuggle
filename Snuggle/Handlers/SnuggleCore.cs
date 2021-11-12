@@ -14,6 +14,7 @@ using System.Windows.Threading;
 using AdonisUI;
 using DragonLib;
 using JetBrains.Annotations;
+using Snuggle.Converters;
 using Snuggle.Core;
 using Snuggle.Core.Interfaces;
 using Snuggle.Core.Logging;
@@ -38,7 +39,7 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
                 // Log,
             },
         };
-        SetOptions(File.Exists(SettingsFile) ? SnuggleSettings.FromJson(File.ReadAllText(SettingsFile)) : SnuggleSettings.Default);
+        SetOptions(File.Exists(SettingsFile) ? SnuggleOptions.FromJson(File.ReadAllText(SettingsFile)) : SnuggleOptions.Default);
         ResourceLocator.SetColorScheme(Application.Current.Resources, Settings.LightMode ? ResourceLocator.LightColorScheme : ResourceLocator.DarkColorScheme);
     }
 
@@ -49,7 +50,7 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
 
     // public SnuggleLog Log { get; set; } = new();
     public ILogger LogTarget { get; }
-    public SnuggleSettings Settings { get; private set; } = SnuggleSettings.Default;
+    public SnuggleOptions Settings { get; private set; } = SnuggleOptions.Default;
     public Thread WorkerThread { get; private set; }
     public CancellationTokenSource TokenSource { get; private set; } = new();
     private BlockingCollection<(string Name, Action<CancellationToken> Work)> Tasks { get; set; } = new();
@@ -200,12 +201,12 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
         OnPropertyChanged(nameof(Settings));
     }
 
-    public void SetOptions(SnuggleSettings options) {
+    public void SetOptions(SnuggleOptions options) {
         Settings = options with { Options = options.Options with { Reporter = Status, Logger = LogTarget } };
         SaveOptions();
     }
 
-    public void SetOptions(SnuggleOptions options) {
+    public void SetOptions(SnuggleCoreOptions options) {
         Settings = Settings with { Options = options with { Reporter = Status, Logger = LogTarget } };
         SaveOptions();
     }

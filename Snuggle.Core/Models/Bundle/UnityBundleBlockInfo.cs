@@ -11,7 +11,7 @@ namespace Snuggle.Core.Models.Bundle;
 [PublicAPI]
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 public record UnityBundleBlockInfo(int Size, int CompressedSize, UnityBundleBlockInfoFlags Flags) {
-    public static UnityBundleBlockInfo FromReader(BiEndianBinaryReader reader, UnityBundle header, int fsFlags, SnuggleOptions options) {
+    public static UnityBundleBlockInfo FromReader(BiEndianBinaryReader reader, UnityBundle header, int fsFlags, SnuggleCoreOptions options) {
         var size = reader.ReadInt32();
         var compressedSize = reader.ReadInt32();
         var flags = header.Format switch {
@@ -23,7 +23,7 @@ public record UnityBundleBlockInfo(int Size, int CompressedSize, UnityBundleBloc
         return new UnityBundleBlockInfo(size, compressedSize, flags);
     }
 
-    public static UnityBundleBlockInfo[] ArrayFromReader(BiEndianBinaryReader reader, UnityBundle header, int fsFlags, int count, SnuggleOptions options) {
+    public static UnityBundleBlockInfo[] ArrayFromReader(BiEndianBinaryReader reader, UnityBundle header, int fsFlags, int count, SnuggleCoreOptions options) {
         var container = new UnityBundleBlockInfo[count];
         switch (header.Format) {
             case UnityFormat.FS:
@@ -43,7 +43,7 @@ public record UnityBundleBlockInfo(int Size, int CompressedSize, UnityBundleBloc
         return container;
     }
 
-    public static void ToWriter(BiEndianBinaryWriter writer, UnityBundle header, SnuggleOptions options, BundleSerializationOptions serializationOptions, Stream blockDataStream, Stream blockStream) {
+    public static void ToWriter(BiEndianBinaryWriter writer, UnityBundle header, SnuggleCoreOptions options, BundleSerializationOptions serializationOptions, Stream blockDataStream, Stream blockStream) {
         var (blockSize, _, blockCompressionType) = serializationOptions;
         var actualBlockSize = (int) Math.Min(blockStream.Length - blockStream.Position, blockSize);
         writer.Write(actualBlockSize);

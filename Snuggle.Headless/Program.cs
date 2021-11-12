@@ -40,9 +40,9 @@ public static class Program {
         }
 
         var collection = new AssetCollection();
-        var options = SnuggleOptions.Default with { Game = flags.Game, Logger = logger, CacheDataIfLZMA = true };
+        var options = SnuggleCoreOptions.Default with { Game = flags.Game, Logger = logger, CacheDataIfLZMA = true };
         if (options.Game != UnityGame.Default && !string.IsNullOrEmpty(flags.GameOptions)) {
-            options.GameOptions.StorageMap[options.Game] = JsonSerializer.Deserialize<JsonElement>(File.Exists(flags.GameOptions) ? File.ReadAllText(flags.GameOptions) : flags.GameOptions, SnuggleOptions.JsonOptions);
+            options.GameOptions.StorageMap[options.Game] = JsonSerializer.Deserialize<JsonElement>(File.Exists(flags.GameOptions) ? File.ReadAllText(flags.GameOptions) : flags.GameOptions, SnuggleCoreOptions.JsonOptions);
         }
 
         options.GameOptions.Migrate();
@@ -57,8 +57,6 @@ public static class Program {
         collection.FindResources();
         AssetCollection.Collect();
         logger.Info($"Memory Tension: {GC.GetTotalMemory(false).GetHumanReadableBytes()}");
-
-        var processed = new HashSet<long>();
 
         foreach (var asset in collection.Files.SelectMany(x => x.Value.GetAllObjects())) {
             var passedFilter = !flags.PathIdFilters.Any() && !flags.NameFilters.Any() || flags.PathIdFilters.Contains(asset.PathId) || flags.NameFilters.Any(x => x.IsMatch(asset.ObjectComparableName));
@@ -76,17 +74,17 @@ public static class Program {
                     logger.Info($"Processing Mesh {asset}");
                     ConvertCore.ConvertMesh(flags, logger, mesh);
                     break;
-                case GameObject gameObject when !flags.NoSkinnedMesh:
+                case GameObject gameObject when !flags.NoGameObject:
                     logger.Info($"Processing GameObject {asset}");
-                    ConvertCore.ConvertGameObject(flags, logger, gameObject, processed);
+                    ConvertCore.ConvertGameObject(flags, logger, gameObject);
                     break;
                 case MeshRenderer renderer when !flags.NoMesh && renderer.GameObject.Value is not null:
                     logger.Info($"Processing GameObject {renderer.GameObject.Value}");
-                    ConvertCore.ConvertGameObject(flags, logger, renderer.GameObject.Value, processed);
+                    ConvertCore.ConvertGameObject(flags, logger, renderer.GameObject.Value);
                     break;
                 case SkinnedMeshRenderer renderer when !flags.NoSkinnedMesh && renderer.GameObject.Value is not null:
                     logger.Info($"Processing GameObject {renderer.GameObject.Value}");
-                    ConvertCore.ConvertGameObject(flags, logger, renderer.GameObject.Value, processed);
+                    ConvertCore.ConvertGameObject(flags, logger, renderer.GameObject.Value);
                     break;
                 case Material material when !flags.NoMaterials && flags.LooseMaterials:
                     logger.Info($"Processing Material {asset}");
@@ -105,7 +103,7 @@ public static class Program {
 
         if (options.Game != UnityGame.Default && options.GameOptions.StorageMap.ContainsKey(options.Game)) {
             logger.Info("Updated Game Settings");
-            var jsonOptions = new JsonSerializerOptions(SnuggleOptions.JsonOptions) { WriteIndented = false };
+            var jsonOptions = new JsonSerializerOptions(SnuggleCoreOptions.JsonOptions) { WriteIndented = false };
             logger.Info(JsonSerializer.Serialize(options.GameOptions.StorageMap[options.Game], jsonOptions));
         }
 

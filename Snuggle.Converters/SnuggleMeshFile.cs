@@ -13,7 +13,6 @@ using SharpGLTF.Scenes;
 using SharpGLTF.Schema2;
 using SharpGLTF.Transforms;
 using SharpGLTF.Validation;
-using Snuggle.Converters;
 using Snuggle.Core.Implementations;
 using Snuggle.Core.Models;
 using Snuggle.Core.Models.Objects.Graphics;
@@ -21,17 +20,17 @@ using Snuggle.Core.Options;
 using Material = Snuggle.Core.Implementations.Material;
 using Mesh = Snuggle.Core.Implementations.Mesh;
 
-namespace Snuggle.Handlers;
+namespace Snuggle.Converters;
 
 public static class SnuggleMeshFile {
-    public static void Save(Mesh mesh, string path) {
+    public static void Save(Mesh mesh, string path, SnuggleMeshFileOptions options) {
         var targetPath = Path.ChangeExtension(path, ".gltf");
         if (File.Exists(targetPath)) {
             return;
         }
 
         var scene = new SceneBuilder();
-        var meshNode = CreateMesh(mesh);
+        var meshNode = CreateMesh(mesh, null, null, null, options);
         scene.AddRigidMesh(meshNode, AffineTransform.Identity);
         var gltf = scene.ToGltf2();
 
@@ -47,22 +46,13 @@ public static class SnuggleMeshFile {
         gltf.SaveGLTF(targetPath, new WriteSettings { JsonIndented = true, ImageWriting = ResourceWriteMode.SatelliteFile, Validation = ValidationMode.TryFix, ImageWriteCallback = (_, _, memoryFile) => Path.GetFileName(memoryFile.SourcePath) });
     }
 
-    public static void Save(Component component, string path) {
-        var gameObject = component.GameObject.Value;
-        if (gameObject == null) {
-            return;
-        }
-
-        Save(gameObject, SnuggleFile.GetResultPath(path, gameObject));
-    }
-
-    public static GameObject? FindTopGeometry(GameObject? gameObject) {
+    public static GameObject? FindTopGeometry(GameObject? gameObject, bool bubbleUp) {
         while (true) {
             if (gameObject?.FindComponent(UnityClassId.Transform).Value is not Transform transform) {
                 return null;
             }
 
-            if (transform.Parent.Value?.GameObject.Value == null || SnuggleCore.Instance.Settings.BubbleGameObjectsUp) {
+            if (transform.Parent.Value?.GameObject.Value == null || bubbleUp) {
                 return gameObject;
             }
 
@@ -70,7 +60,7 @@ public static class SnuggleMeshFile {
         }
     }
 
-    public static void Save(GameObject gameObject, string path) {
+    public static void Save(GameObject gameObject, string path, SnuggleMeshFileOptions options) {
         path = Path.Combine(Path.GetDirectoryName(path)!, Path.GetFileNameWithoutExtension(path));
 
         if (File.Exists(path + ".gltf") || File.Exists(Path.Combine(path, Path.GetFileName(path)) + ".gltf")) {
@@ -78,7 +68,7 @@ public static class SnuggleMeshFile {
         }
 
         var scene = new SceneBuilder();
-        gameObject = FindTopGeometry(gameObject) ?? gameObject;
+        gameObject = FindTopGeometry(gameObject, options.BubbleUp) ?? gameObject;
 
         var node = new NodeBuilder();
         scene.AddNode(node);
@@ -86,7 +76,14 @@ public static class SnuggleMeshFile {
         var nodeTree = new Dictionary<long, NodeBuilder>();
         var skinnedMeshes = new List<(Mesh mesh, List<Material?>)>();
         var hashTree = new Dictionary<uint, NodeBuilder>();
-        BuildGameObject(gameObject, scene, node, nodeTree, skinnedMeshes, path);
+        BuildGameObject(
+            gameObject,
+            scene,
+            node,
+            nodeTree,
+            skinnedMeshes,
+            path,
+            options);
         BuildHashTree(nodeTree, hashTree, gameObject.FindComponent(UnityClassId.Transform).Value as Transform);
         var saved = new Dictionary<long, string>();
         foreach (var (skinnedMesh, materials) in skinnedMeshes) {
@@ -98,7 +95,7 @@ public static class SnuggleMeshFile {
                 skin[i] = (hashNode, matrix);
             }
 
-            scene.AddSkinnedMesh(CreateMesh(skinnedMesh, materials, path, saved), skin);
+            scene.AddSkinnedMesh(CreateMesh(skinnedMesh, materials, path, saved, options), skin);
         }
 
         var gltf = scene.ToGltf2();
@@ -154,7 +151,14 @@ public static class SnuggleMeshFile {
         return name;
     }
 
-    private static void BuildGameObject(GameObject gameObject, SceneBuilder scene, NodeBuilder node, Dictionary<long, NodeBuilder> nodeTree, ICollection<(Mesh, List<Material?>)> skinnedMeshes, string? path) {
+    private static void BuildGameObject(
+        GameObject gameObject,
+        SceneBuilder scene,
+        NodeBuilder node,
+        Dictionary<long, NodeBuilder> nodeTree,
+        ICollection<(Mesh, List<Material?>)> skinnedMeshes,
+        string? path,
+        SnuggleMeshFileOptions options) {
         if (gameObject.FindComponent(UnityClassId.Transform).Value is not Transform transform) {
             return;
         }
@@ -178,10 +182,10 @@ public static class SnuggleMeshFile {
 
         if (gameObject.FindComponent(UnityClassId.MeshFilter).Value is MeshFilter filter && filter.Mesh.Value != null) {
             filter.Mesh.Value.Deserialize(ObjectDeserializationOptions.Default);
-            scene.AddRigidMesh(CreateMesh(filter.Mesh.Value, materials, path), node);
+            scene.AddRigidMesh(CreateMesh(filter.Mesh.Value, materials, path, null, options), node);
         }
 
-        if (SnuggleCore.Instance.Settings.BubbleGameObjectsDown) {
+        if (options.BubbleDown) {
             foreach (var child in transform.Children) {
                 if (child.Value?.GameObject.Value == null) {
                     continue;
@@ -189,12 +193,19 @@ public static class SnuggleMeshFile {
 
                 var childNode = node.CreateNode();
                 scene.AddNode(childNode);
-                BuildGameObject(child.Value.GameObject.Value, scene, childNode, nodeTree, skinnedMeshes, path);
+                BuildGameObject(
+                    child.Value.GameObject.Value,
+                    scene,
+                    childNode,
+                    nodeTree,
+                    skinnedMeshes,
+                    path,
+                    options);
             }
         }
     }
 
-    private static IMeshBuilder<MaterialBuilder> CreateMesh(Mesh mesh, List<Material?>? materials = null, string? path = null, Dictionary<long, string>? saved = null) {
+    private static IMeshBuilder<MaterialBuilder> CreateMesh(Mesh mesh, List<Material?>? materials, string? path, Dictionary<long, string>? saved, SnuggleMeshFileOptions options) {
         var vertexStream = MeshConverter.GetVBO(mesh, out var descriptors, out var strides);
         var indexStream = MeshConverter.GetIBO(mesh);
         var indices = mesh.IndexFormat == IndexFormat.UInt16 ? MemoryMarshal.Cast<byte, ushort>(indexStream.Span).ToArray().Select(x => (int) x).ToArray() : MemoryMarshal.Cast<byte, int>(indexStream.Span);
@@ -288,7 +299,7 @@ public static class SnuggleMeshFile {
             for (var submeshIndex = 0; submeshIndex < mesh.Submeshes.Count; submeshIndex++) {
                 var submesh = mesh.Submeshes[submeshIndex];
                 var material = new MaterialBuilder($"Submesh{submeshIndex}");
-                CreateMaterial(material, materials?.ElementAtOrDefault(submeshIndex), path, saved ?? new Dictionary<long, string>());
+                CreateMaterial(material, materials?.ElementAtOrDefault(submeshIndex), path, saved ?? new Dictionary<long, string>(), options);
 
                 var primitive = meshBuilderAbs.UsePrimitive(material);
 
@@ -335,7 +346,7 @@ public static class SnuggleMeshFile {
             for (var submeshIndex = 0; submeshIndex < mesh.Submeshes.Count; submeshIndex++) {
                 var submesh = mesh.Submeshes[submeshIndex];
                 var material = new MaterialBuilder($"Submesh{submeshIndex}");
-                CreateMaterial(material, materials?.ElementAtOrDefault(submeshIndex), path, saved ?? new Dictionary<long, string>());
+                CreateMaterial(material, materials?.ElementAtOrDefault(submeshIndex), path, saved ?? new Dictionary<long, string>(), options);
 
                 var primitive = meshBuilderAbs.UsePrimitive(material);
 
@@ -412,43 +423,49 @@ public static class SnuggleMeshFile {
         return meshBuilder;
     }
 
-    private static void CreateMaterial(MaterialBuilder materialBuilder, Material? material, string? path, Dictionary<long, string> saved) {
+    private static void CreateMaterial(MaterialBuilder materialBuilder, Material? material, string? path, Dictionary<long, string> saved, SnuggleMeshFileOptions options) {
         if (material == null || path == null) {
             return;
         }
 
         materialBuilder.Name = material.Name;
 
-        if (!Directory.Exists(path)) {
-            Directory.CreateDirectory(path);
+        if (options.WriteTexture) {
+            if (!Directory.Exists(path)) {
+                Directory.CreateDirectory(path);
+            }
+
+            foreach (var (name, texEnv) in material.SavedProperties.Textures) {
+                if (texEnv.Texture.Value is not Texture2D texture) {
+                    continue;
+                }
+
+                texture.Deserialize(options.ObjectOptions);
+
+                if (!saved.TryGetValue(texture.PathId, out var texPath)) {
+                    texPath = SnuggleTextureFile.Save(texture, Path.Combine(path, texture.Name + "_" + texture.PathId + ".bin"), options.WriteNative);
+                }
+
+                if (name == "_MainTex") {
+                    materialBuilder.WithBaseColor(texPath);
+                } else if (name == "_BumpMap" || name.Contains("Normal")) {
+                    materialBuilder.WithNormal(texPath);
+                } else if (name.Contains("Spec")) {
+                    materialBuilder.WithSpecularGlossiness(texPath);
+                } else if (name.Contains("Metal")) {
+                    materialBuilder.WithMetallicRoughness(texPath);
+                } else if (name.Contains("Rough") || name.Contains("Smooth")) {
+                    materialBuilder.WithMetallicRoughness(texPath);
+                } else if (name.Contains("Emis")) {
+                    materialBuilder.WithEmissive(texPath);
+                }
+            }
         }
 
-        foreach (var (name, texEnv) in material.SavedProperties.Textures) {
-            if (texEnv.Texture.Value is not Texture2D texture) {
-                continue;
-            }
-
-            texture.Deserialize(SnuggleCore.Instance.Settings.ObjectOptions);
-
-            if (!saved.TryGetValue(texture.PathId, out var texPath)) {
-                texPath = SnuggleTextureFile.Save(texture, Path.Combine(path, texture.Name + "_" + texture.PathId + ".bin"));
-            }
-
-            if (name == "_MainTex") {
-                materialBuilder.WithBaseColor(texPath);
-            } else if (name == "_BumpMap" || name.Contains("Normal")) {
-                materialBuilder.WithNormal(texPath);
-            } else if (name.Contains("Spec")) {
-                materialBuilder.WithSpecularGlossiness(texPath);
-            } else if (name.Contains("Metal")) {
-                materialBuilder.WithMetallicRoughness(texPath);
-            } else if (name.Contains("Rough") || name.Contains("Smooth")) {
-                materialBuilder.WithMetallicRoughness(texPath);
-            } else if (name.Contains("Emis")) {
-                materialBuilder.WithEmissive(texPath);
-            }
+        if (options.WriteMaterial) {
+            SnuggleMaterialFile.SaveMaterial(material, path);
         }
-
-        SnuggleMaterialFile.SaveMaterial(material, path);
     }
+
+    public readonly record struct SnuggleMeshFileOptions(ObjectDeserializationOptions ObjectOptions, bool BubbleDown, bool BubbleUp, bool WriteNative, bool WriteTexture, bool WriteMaterial);
 }

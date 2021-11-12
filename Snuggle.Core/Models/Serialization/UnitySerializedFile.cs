@@ -19,7 +19,7 @@ public record UnitySerializedFile(
     bool TypeTreeEnabled) {
     public UnityVersion? Version { get; } = UnityVersion.ParseSafe(EngineVersion);
 
-    public static UnitySerializedFile FromReader(BiEndianBinaryReader reader, SnuggleOptions options) {
+    public static UnitySerializedFile FromReader(BiEndianBinaryReader reader, SnuggleCoreOptions options) {
         var headerSize = reader.ReadInt32();
         long size = reader.ReadInt32();
         var version = (UnitySerializedFileVersion) reader.ReadUInt32();

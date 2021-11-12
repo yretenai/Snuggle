@@ -3,10 +3,9 @@ using System.Collections.Concurrent;
 using System.IO;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
-using Snuggle.Converters;
 using Snuggle.Core.Implementations;
 
-namespace Snuggle.Handlers;
+namespace Snuggle.Converters;
 
 public static class SnuggleTextureFile {
     private static ConcurrentDictionary<long, Memory<byte>> CachedData { get; } = new();
@@ -50,13 +49,13 @@ public static class SnuggleTextureFile {
         CachedData.Clear();
     }
 
-    public static string Save(Texture2D texture, string path) {
+    public static string Save(Texture2D texture, string path, bool writeNative) {
         var dir = Path.GetDirectoryName(path);
         if (!string.IsNullOrWhiteSpace(dir) && !Directory.Exists(dir)) {
             Directory.CreateDirectory(dir);
         }
 
-        if (!SnuggleCore.Instance.Settings.WriteNativeTextures || !SaveNative(texture, path, out var resultPath)) {
+        if (!writeNative || !SaveNative(texture, path, out var resultPath)) {
             return SavePNG(texture, path);
         }
 

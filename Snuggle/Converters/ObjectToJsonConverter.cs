@@ -18,7 +18,7 @@ public class ObjectToJsonConverter : IValueConverter {
         }
 
         try {
-            return value == null ? "{}" : JsonSerializer.Serialize(value, SnuggleOptions.JsonOptions);
+            return value == null ? "{}" : JsonSerializer.Serialize(value, SnuggleCoreOptions.JsonOptions);
         } catch {
             return "{}";
         }

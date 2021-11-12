@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using AdonisUI;
+using Snuggle.Converters;
 using Snuggle.Core;
 using Snuggle.Core.Meta;
 using Snuggle.Core.Options;

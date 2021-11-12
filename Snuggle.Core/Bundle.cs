@@ -14,9 +14,9 @@ namespace Snuggle.Core;
 
 [PublicAPI]
 public class Bundle : IDisposable, IRenewable {
-    public Bundle(string path, SnuggleOptions options) : this(File.OpenRead(path), path, FileStreamHandler.Instance.Value, options) { }
+    public Bundle(string path, SnuggleCoreOptions options) : this(File.OpenRead(path), path, FileStreamHandler.Instance.Value, options) { }
 
-    public Bundle(Stream dataStream, object tag, IFileHandler fileHandler, SnuggleOptions options, bool leaveOpen = false) {
+    public Bundle(Stream dataStream, object tag, IFileHandler fileHandler, SnuggleCoreOptions options, bool leaveOpen = false) {
         try {
             using var reader = new BiEndianBinaryReader(dataStream, true, leaveOpen);
 
@@ -48,7 +48,7 @@ public class Bundle : IDisposable, IRenewable {
     public UnityBundle Header { get; init; }
     public UnityContainer Container { get; init; }
     public long DataStart { get; set; }
-    public SnuggleOptions Options { get; init; }
+    public SnuggleCoreOptions Options { get; init; }
     public Stream? DataStream { get; private set; }
 
     public void Dispose() {
@@ -60,7 +60,7 @@ public class Bundle : IDisposable, IRenewable {
     public object Tag { get; set; }
     public IFileHandler Handler { get; set; }
 
-    public static Bundle[] OpenBundleSequence(Stream dataStream, object tag, IFileHandler handler, SnuggleOptions options, int align = 1, bool leaveOpen = false) {
+    public static Bundle[] OpenBundleSequence(Stream dataStream, object tag, IFileHandler handler, SnuggleCoreOptions options, int align = 1, bool leaveOpen = false) {
         var bundles = new List<Bundle>();
         while (dataStream.Position < dataStream.Length) {
             var start = dataStream.Position;

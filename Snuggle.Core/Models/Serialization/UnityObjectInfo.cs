@@ -18,7 +18,7 @@ public record UnityObjectInfo(
     bool IsDestroyed, // probably a flag. 
     short ScriptTypeIndex,
     bool IsStripped) {
-    public static UnityObjectInfo FromReader(BiEndianBinaryReader reader, UnitySerializedFile header, UnitySerializedType[] types, SnuggleOptions options) {
+    public static UnityObjectInfo FromReader(BiEndianBinaryReader reader, UnitySerializedFile header, UnitySerializedType[] types, SnuggleCoreOptions options) {
         if (header.FileVersion >= UnitySerializedFileVersion.BigIdAlwaysEnabled) {
             reader.Align();
         }
@@ -63,7 +63,7 @@ public record UnityObjectInfo(
             stripped);
     }
 
-    public static UnityObjectInfo[] ArrayFromReader(BiEndianBinaryReader reader, ref UnitySerializedFile header, UnitySerializedType[] types, SnuggleOptions options) {
+    public static UnityObjectInfo[] ArrayFromReader(BiEndianBinaryReader reader, ref UnitySerializedFile header, UnitySerializedType[] types, SnuggleCoreOptions options) {
         if (header.FileVersion is >= UnitySerializedFileVersion.BigId and < UnitySerializedFileVersion.BigIdAlwaysEnabled) {
             var value = reader.ReadInt32();
             if (value != 1) {

@@ -25,7 +25,7 @@ public record UnityTypeTreeNode(
 
     internal static Memory<byte> StaticBuffer { get; } = new(StaticStringBuffer.ToSpan().ToArray());
 
-    public static UnityTypeTreeNode FromReader(BiEndianBinaryReader reader, UnitySerializedFile header, SnuggleOptions options) {
+    public static UnityTypeTreeNode FromReader(BiEndianBinaryReader reader, UnitySerializedFile header, SnuggleCoreOptions options) {
         var version = reader.ReadInt16();
         var level = reader.ReadByte();
         var arrayKind = (UnityTypeArrayKind) reader.ReadByte();
@@ -54,7 +54,7 @@ public record UnityTypeTreeNode(
             string.Empty);
     }
 
-    public static UnityTypeTreeNode FromReaderLegacy(BiEndianBinaryReader reader, UnitySerializedFile header, SnuggleOptions options) {
+    public static UnityTypeTreeNode FromReaderLegacy(BiEndianBinaryReader reader, UnitySerializedFile header, SnuggleCoreOptions options) {
         var type = reader.ReadNullString();
         var name = reader.ReadNullString();
         var size = reader.ReadInt32();
@@ -91,7 +91,7 @@ public record UnityTypeTreeNode(
     }
 
     // ReSharper disable once FunctionRecursiveOnAllPaths
-    public static UnityTypeTreeNode[] ArrayFromReaderLegacy(BiEndianBinaryReader reader, UnitySerializedFile header, SnuggleOptions options, int count, int level) {
+    public static UnityTypeTreeNode[] ArrayFromReaderLegacy(BiEndianBinaryReader reader, UnitySerializedFile header, SnuggleCoreOptions options, int count, int level) {
         var list = new List<UnityTypeTreeNode>();
         for (var i = 0; i < count; ++i) {
             list.Add(FromReaderLegacy(reader, header, options) with { Level = level });

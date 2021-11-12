@@ -124,7 +124,7 @@ public static class MeshToHelixConverter {
             "DecodeGeometryHelix",
             token2 => {
                 var cts = CancellationTokenSource.CreateLinkedTokenSource(token1, token2);
-                gameObject = SnuggleMeshFile.FindTopGeometry(gameObject);
+                gameObject = SnuggleMeshFile.FindTopGeometry(gameObject, SnuggleCore.Instance.Settings.BubbleGameObjectsUp);
                 if (gameObject == null) {
                     return;
                 }

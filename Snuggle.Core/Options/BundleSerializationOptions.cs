@@ -25,14 +25,14 @@ public record BundleSerializationOptions(int BlockSize, UnityCompressionType Com
 
     public static BundleSerializationOptions FromJson(string json) {
         try {
-            var options = JsonSerializer.Deserialize<BundleSerializationOptions>(json, SnuggleOptions.JsonOptions) ?? Default;
+            var options = JsonSerializer.Deserialize<BundleSerializationOptions>(json, SnuggleCoreOptions.JsonOptions) ?? Default;
             return options.NeedsMigration() ? options.Migrate() : options;
         } catch {
             return Default;
         }
     }
 
-    public string ToJson() => JsonSerializer.Serialize(this, SnuggleOptions.JsonOptions);
+    public string ToJson() => JsonSerializer.Serialize(this, SnuggleCoreOptions.JsonOptions);
     public bool NeedsMigration() => Version < LatestVersion;
 
     public BundleSerializationOptions Migrate() => this with { Version = LatestVersion };

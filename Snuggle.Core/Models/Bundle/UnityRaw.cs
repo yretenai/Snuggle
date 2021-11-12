@@ -15,11 +15,11 @@ public record UnityRaw(uint Checksum, long MinimumStreamedBytes, long Size, int 
     public override long Length { get; }
     public override long DataStart => Size;
 
-    public override void ToWriter(BiEndianBinaryWriter writer, UnityBundle header, SnuggleOptions options, UnityBundleBlock[] blocks, Stream blockStream, BundleSerializationOptions serializationOptions) {
+    public override void ToWriter(BiEndianBinaryWriter writer, UnityBundle header, SnuggleCoreOptions options, UnityBundleBlock[] blocks, Stream blockStream, BundleSerializationOptions serializationOptions) {
         throw new NotImplementedException();
     }
 
-    public static UnityRaw FromReader(BiEndianBinaryReader reader, UnityBundle header, SnuggleOptions options) {
+    public static UnityRaw FromReader(BiEndianBinaryReader reader, UnityBundle header, SnuggleCoreOptions options) {
         var hash = Array.Empty<byte>();
         var checksum = 0u;
         if (header.FormatVersion >= 4) {

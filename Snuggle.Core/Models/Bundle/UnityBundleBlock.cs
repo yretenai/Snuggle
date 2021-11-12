@@ -7,7 +7,7 @@ namespace Snuggle.Core.Models.Bundle;
 
 [PublicAPI]
 public record UnityBundleBlock(long Offset, long Size, UnityBundleBlockFlags Flags, string Path) {
-    public static UnityBundleBlock FromReader(BiEndianBinaryReader reader, int fsFlags, SnuggleOptions options) {
+    public static UnityBundleBlock FromReader(BiEndianBinaryReader reader, int fsFlags, SnuggleCoreOptions options) {
         var offset = reader.ReadInt64();
         var size = reader.ReadInt64();
         var flags = (UnityBundleBlockFlags) reader.ReadUInt32();
@@ -16,14 +16,14 @@ public record UnityBundleBlock(long Offset, long Size, UnityBundleBlockFlags Fla
         return new UnityBundleBlock(offset, size, flags, path);
     }
 
-    public static UnityBundleBlock FromReaderRaw(BiEndianBinaryReader reader, int fsFlags, SnuggleOptions options) {
+    public static UnityBundleBlock FromReaderRaw(BiEndianBinaryReader reader, int fsFlags, SnuggleCoreOptions options) {
         var path = reader.ReadNullString();
         var offset = reader.ReadUInt32();
         var size = reader.ReadUInt32();
         return new UnityBundleBlock(offset, size, UnityBundleBlockFlags.SerializedFile, path);
     }
 
-    public static UnityBundleBlock[] ArrayFromReader(BiEndianBinaryReader reader, UnityBundle header, int fsFlags, int count, SnuggleOptions options) {
+    public static UnityBundleBlock[] ArrayFromReader(BiEndianBinaryReader reader, UnityBundle header, int fsFlags, int count, SnuggleCoreOptions options) {
         switch (header.Format) {
             case UnityFormat.FS: {
                 var container = new UnityBundleBlock[count];
@@ -49,7 +49,7 @@ public record UnityBundleBlock(long Offset, long Size, UnityBundleBlockFlags Fla
         }
     }
 
-    public static void ArrayToWriter(BiEndianBinaryWriter writer, UnityBundleBlock[] blocks, UnityBundle header, SnuggleOptions options, BundleSerializationOptions serializationOptions) {
+    public static void ArrayToWriter(BiEndianBinaryWriter writer, UnityBundleBlock[] blocks, UnityBundle header, SnuggleCoreOptions options, BundleSerializationOptions serializationOptions) {
         writer.Write(blocks.Length);
 
         var offset = 0L;
@@ -59,7 +59,7 @@ public record UnityBundleBlock(long Offset, long Size, UnityBundleBlockFlags Fla
         }
     }
 
-    private void ToWriter(BiEndianBinaryWriter writer, UnityBundle header, SnuggleOptions options, BundleSerializationOptions serializationOptions, long offset) {
+    private void ToWriter(BiEndianBinaryWriter writer, UnityBundle header, SnuggleCoreOptions options, BundleSerializationOptions serializationOptions, long offset) {
         if (header.Format == UnityFormat.FS) {
             writer.Write(offset);
             writer.Write(Size);

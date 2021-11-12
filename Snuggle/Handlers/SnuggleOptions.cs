@@ -6,8 +6,8 @@ using Snuggle.Core.Options;
 
 namespace Snuggle.Handlers;
 
-public record SnuggleSettings(
-    SnuggleOptions Options,
+public record SnuggleOptions(
+    SnuggleCoreOptions Options,
     ObjectDeserializationOptions ObjectOptions,
     BundleSerializationOptions BundleOptions,
     FileSerializationOptions FileOptions,
@@ -26,8 +26,8 @@ public record SnuggleSettings(
     public string LastSaveDirectory { get; set; } = string.Empty;
     public HashSet<RendererType> EnabledRenders { get; set; } = Enum.GetValues<RendererType>().ToHashSet();
 
-    public static SnuggleSettings Default { get; } = new(
-        SnuggleOptions.Default,
+    public static SnuggleOptions Default { get; } = new(
+        SnuggleCoreOptions.Default,
         ObjectDeserializationOptions.Default,
         BundleSerializationOptions.Default,
         FileSerializationOptions.Default,
@@ -42,9 +42,9 @@ public record SnuggleSettings(
 
     public int Version { get; set; } = LatestVersion;
 
-    public static SnuggleSettings FromJson(string json) {
+    public static SnuggleOptions FromJson(string json) {
         try {
-            var settings = JsonSerializer.Deserialize<SnuggleSettings>(json, SnuggleOptions.JsonOptions) ?? Default;
+            var settings = JsonSerializer.Deserialize<SnuggleOptions>(json, SnuggleCoreOptions.JsonOptions) ?? Default;
 
             if (settings.Options.NeedsMigration()) {
                 settings = settings with { Options = settings.Options.Migrate() };
@@ -68,11 +68,11 @@ public record SnuggleSettings(
         }
     }
 
-    public string ToJson() => JsonSerializer.Serialize(this, SnuggleOptions.JsonOptions);
+    public string ToJson() => JsonSerializer.Serialize(this, SnuggleCoreOptions.JsonOptions);
 
     public bool NeedsMigration() => Version < LatestVersion;
 
-    public SnuggleSettings Migrate() {
+    public SnuggleOptions Migrate() {
         var settings = this;
 
         if (settings.Version < 2) {

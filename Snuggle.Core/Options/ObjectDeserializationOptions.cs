@@ -4,7 +4,7 @@ using JetBrains.Annotations;
 
 namespace Snuggle.Core.Options;
 
-public delegate (string Path, SnuggleOptions Options) RequestAssemblyPath(string assemblyName);
+public delegate (string Path, SnuggleCoreOptions Options) RequestAssemblyPath(string assemblyName);
 
 [PublicAPI]
 public record ObjectDeserializationOptions {
@@ -18,7 +18,7 @@ public record ObjectDeserializationOptions {
 
     public static ObjectDeserializationOptions FromJson(string json) {
         try {
-            var options = JsonSerializer.Deserialize<ObjectDeserializationOptions>(json, SnuggleOptions.JsonOptions) ?? Default;
+            var options = JsonSerializer.Deserialize<ObjectDeserializationOptions>(json, SnuggleCoreOptions.JsonOptions) ?? Default;
             return options.NeedsMigration() ? options.Migrate() : options;
         } catch {
             return Default;

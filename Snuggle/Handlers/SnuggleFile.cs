@@ -8,6 +8,7 @@ using System.Text.Json;
 using System.Threading;
 using DragonLib;
 using Microsoft.WindowsAPICodePack.Dialogs;
+using Snuggle.Converters;
 using Snuggle.Core;
 using Snuggle.Core.Implementations;
 using Snuggle.Core.Interfaces;
@@ -159,21 +160,28 @@ public static class SnuggleFile {
     private static void ExtractConvert(SerializedObject serializedObject, string resultDir, string resultPath, string outputDirectory) {
         serializedObject.Deserialize(SnuggleCore.Instance.Settings.ObjectOptions);
 
+        var instance = SnuggleCore.Instance;
+
         switch (serializedObject) {
             case Texture2D texture2d: {
-                SnuggleTextureFile.Save(texture2d, resultPath);
+                SnuggleTextureFile.Save(texture2d, resultPath, SnuggleCore.Instance.Settings.WriteNativeTextures);
                 return;
             }
             case Mesh mesh: {
-                SnuggleMeshFile.Save(mesh, resultPath);
+                SnuggleMeshFile.Save(mesh, resultPath, new SnuggleMeshFile.SnuggleMeshFileOptions(instance.Settings.ObjectOptions, instance.Settings.BubbleGameObjectsDown, instance.Settings.BubbleGameObjectsUp, instance.Settings.WriteNativeTextures, true, true));
                 return;
             }
             case Component component: {
-                SnuggleMeshFile.Save(component, outputDirectory);
+                var gameObject = component.GameObject.Value;
+                if (gameObject == null) {
+                    return;
+                }
+
+                SnuggleMeshFile.Save(gameObject, GetResultPath(outputDirectory, gameObject), new SnuggleMeshFile.SnuggleMeshFileOptions(instance.Settings.ObjectOptions, instance.Settings.BubbleGameObjectsDown, instance.Settings.BubbleGameObjectsUp, instance.Settings.WriteNativeTextures, true, true));
                 return;
             }
             case GameObject gameObject: {
-                SnuggleMeshFile.Save(gameObject, resultPath);
+                SnuggleMeshFile.Save(gameObject, GetResultPath(outputDirectory, gameObject), new SnuggleMeshFile.SnuggleMeshFileOptions(instance.Settings.ObjectOptions, instance.Settings.BubbleGameObjectsDown, instance.Settings.BubbleGameObjectsUp, instance.Settings.WriteNativeTextures, true, true));
                 return;
             }
         }
@@ -182,7 +190,7 @@ public static class SnuggleFile {
     private static void ExtractJson(SerializedObject serializedObject, string resultDir, string resultPath) {
         serializedObject.Deserialize(SnuggleCore.Instance.Settings.ObjectOptions);
 
-        var data = JsonSerializer.Serialize<object>(serializedObject, SnuggleOptions.JsonOptions);
+        var data = JsonSerializer.Serialize<object>(serializedObject, SnuggleCoreOptions.JsonOptions);
         if (!Directory.Exists(resultDir)) {
             Directory.CreateDirectory(resultDir);
         }

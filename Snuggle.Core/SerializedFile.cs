@@ -15,7 +15,7 @@ namespace Snuggle.Core;
 
 [PublicAPI]
 public class SerializedFile : IRenewable {
-    public SerializedFile(Stream dataStream, object tag, IFileHandler handler, SnuggleOptions options, bool leaveOpen = false) {
+    public SerializedFile(Stream dataStream, object tag, IFileHandler handler, SnuggleCoreOptions options, bool leaveOpen = false) {
         try {
             Tag = tag;
             Handler = handler;
@@ -48,7 +48,7 @@ public class SerializedFile : IRenewable {
         }
     }
 
-    public SnuggleOptions Options { get; init; }
+    public SnuggleCoreOptions Options { get; init; }
     public UnitySerializedFile Header { get; init; }
     public UnitySerializedType[] Types { get; init; }
     public Dictionary<long, UnityObjectInfo> ObjectInfos { get; init; }
@@ -155,9 +155,9 @@ public class SerializedFile : IRenewable {
         }
     }
 
-    public SerializedObject? GetObject(long pathId, SnuggleOptions? options = null, Stream? dataStream = null) => !ObjectInfos.ContainsKey(pathId) ? null : GetObject(ObjectInfos[pathId], options, dataStream);
+    public SerializedObject? GetObject(long pathId, SnuggleCoreOptions? options = null, Stream? dataStream = null) => !ObjectInfos.ContainsKey(pathId) ? null : GetObject(ObjectInfos[pathId], options, dataStream);
 
-    public SerializedObject? GetObject(UnityObjectInfo objectInfo, SnuggleOptions? options = null, Stream? dataStream = null) {
+    public SerializedObject? GetObject(UnityObjectInfo objectInfo, SnuggleCoreOptions? options = null, Stream? dataStream = null) {
         if (!ObjectInfos.ContainsKey(objectInfo.PathId)) {
             return null;
         }
@@ -195,7 +195,7 @@ public class SerializedFile : IRenewable {
         }
     }
 
-    public void PreloadObject(UnityObjectInfo objectInfo, SnuggleOptions? options = null, Stream? dataStream = null) {
+    public void PreloadObject(UnityObjectInfo objectInfo, SnuggleCoreOptions? options = null, Stream? dataStream = null) {
         if ((options ?? Options).LoadOnDemand) {
             Objects[objectInfo.PathId] = new SerializedObject(objectInfo, this) { NeedsLoad = true };
         } else {

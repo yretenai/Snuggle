@@ -26,7 +26,7 @@ public record UnityGameOptions {
             return false;
         }
 
-        options = anonymousOptionsObject.Deserialize<T>(SnuggleOptions.JsonOptions);
+        options = anonymousOptionsObject.Deserialize<T>(SnuggleCoreOptions.JsonOptions);
         if (options == null) {
             return false;
         }
@@ -36,7 +36,7 @@ public record UnityGameOptions {
     }
 
     public void SetOptions(UnityGame game, object options) {
-        StorageMap[game] = JsonSerializer.SerializeToElement(options, options.GetType(), SnuggleOptions.JsonOptions);
+        StorageMap[game] = JsonSerializer.SerializeToElement(options, options.GetType(), SnuggleCoreOptions.JsonOptions);
     }
 
     public void MigrateOptions<T>(UnityGame game) where T : IUnityGameOptions, new() {

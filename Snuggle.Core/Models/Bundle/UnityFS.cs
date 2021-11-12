@@ -17,7 +17,7 @@ public record UnityFS(long Size, int CompressedBlockInfoSize, int BlockInfoSize,
     public override long Length => Size;
     public override long DataStart => -1;
 
-    public override void ToWriter(BiEndianBinaryWriter writer, UnityBundle header, SnuggleOptions options, UnityBundleBlock[] blocks, Stream blockStream, BundleSerializationOptions serializationOptions) {
+    public override void ToWriter(BiEndianBinaryWriter writer, UnityBundle header, SnuggleCoreOptions options, UnityBundleBlock[] blocks, Stream blockStream, BundleSerializationOptions serializationOptions) {
         var start = writer.BaseStream.Position;
         writer.Write(0L);
         writer.Write(0);
@@ -76,7 +76,7 @@ public record UnityFS(long Size, int CompressedBlockInfoSize, int BlockInfoSize,
         writer.Write(blockInfoSize);
     }
 
-    public static UnityFS FromReader(BiEndianBinaryReader reader, UnityBundle header, SnuggleOptions options) {
+    public static UnityFS FromReader(BiEndianBinaryReader reader, UnityBundle header, SnuggleCoreOptions options) {
         var size = reader.ReadInt64();
         var compressedBlockSize = reader.ReadInt32();
         var blockSize = reader.ReadInt32();

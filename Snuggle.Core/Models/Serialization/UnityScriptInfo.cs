@@ -7,7 +7,7 @@ namespace Snuggle.Core.Models.Serialization;
 
 [PublicAPI]
 public record UnityScriptInfo(int Index, long PathId) {
-    public static UnityScriptInfo FromReader(BiEndianBinaryReader reader, UnitySerializedFile header, SnuggleOptions options) {
+    public static UnityScriptInfo FromReader(BiEndianBinaryReader reader, UnitySerializedFile header, SnuggleCoreOptions options) {
         if (header.FileVersion >= UnitySerializedFileVersion.BigIdAlwaysEnabled) {
             reader.Align();
         }
@@ -17,7 +17,7 @@ public record UnityScriptInfo(int Index, long PathId) {
         return new UnityScriptInfo(index, identifier);
     }
 
-    public static UnityScriptInfo[] ArrayFromReader(BiEndianBinaryReader reader, UnitySerializedFile header, SnuggleOptions options) {
+    public static UnityScriptInfo[] ArrayFromReader(BiEndianBinaryReader reader, UnitySerializedFile header, SnuggleCoreOptions options) {
         if (header.FileVersion <= UnitySerializedFileVersion.ScriptTypeIndex) {
             return Array.Empty<UnityScriptInfo>();
         }

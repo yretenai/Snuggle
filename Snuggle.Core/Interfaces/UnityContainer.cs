@@ -15,9 +15,9 @@ public record UnityContainer {
     public virtual long Length { get; }
     public virtual long DataStart { get; }
 
-    public Stream OpenFile(string path, SnuggleOptions options, BiEndianBinaryReader? reader = null, Stream? stream = null) => OpenFile(Blocks.FirstOrDefault(x => x.Path.Equals(path, StringComparison.InvariantCultureIgnoreCase)), options, reader, stream);
+    public Stream OpenFile(string path, SnuggleCoreOptions options, BiEndianBinaryReader? reader = null, Stream? stream = null) => OpenFile(Blocks.FirstOrDefault(x => x.Path.Equals(path, StringComparison.InvariantCultureIgnoreCase)), options, reader, stream);
 
-    public Stream OpenFile(UnityBundleBlock? block, SnuggleOptions options, BiEndianBinaryReader? reader = null, Stream? stream = null) {
+    public Stream OpenFile(UnityBundleBlock? block, SnuggleCoreOptions options, BiEndianBinaryReader? reader = null, Stream? stream = null) {
         if (block == null) {
             return Stream.Null;
         }
@@ -67,5 +67,5 @@ public record UnityContainer {
         return new OffsetStream(stream, block.Offset - skippedBytes, block.Size) { Position = 0 };
     }
 
-    public virtual void ToWriter(BiEndianBinaryWriter writer, UnityBundle header, SnuggleOptions options, UnityBundleBlock[] blocks, Stream blockStream, BundleSerializationOptions bundleSerializationOptions) { }
+    public virtual void ToWriter(BiEndianBinaryWriter writer, UnityBundle header, SnuggleCoreOptions options, UnityBundleBlock[] blocks, Stream blockStream, BundleSerializationOptions bundleSerializationOptions) { }
 }

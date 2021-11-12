@@ -29,14 +29,14 @@ public record FileSerializationOptions(int Alignment, long ResourceDataThreshold
 
     public static FileSerializationOptions FromJson(string json) {
         try {
-            var options = JsonSerializer.Deserialize<FileSerializationOptions>(json, SnuggleOptions.JsonOptions) ?? Default;
+            var options = JsonSerializer.Deserialize<FileSerializationOptions>(json, SnuggleCoreOptions.JsonOptions) ?? Default;
             return options.NeedsMigration() ? options.Migrate() : options;
         } catch {
             return Default;
         }
     }
 
-    public string ToJson() => JsonSerializer.Serialize(this, SnuggleOptions.JsonOptions);
+    public string ToJson() => JsonSerializer.Serialize(this, SnuggleCoreOptions.JsonOptions);
     public bool NeedsMigration() => Version < LatestVersion;
 
     public FileSerializationOptions Migrate() => this with { Version = LatestVersion };

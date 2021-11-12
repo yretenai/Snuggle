@@ -12,7 +12,7 @@ public record UnityBundle(string Signature, int FormatVersion, string EngineVers
     public UnityVersion? Version { get; } = UnityVersion.ParseSafe(EngineVersion);
     public UnityVersion? Revision { get; } = UnityVersion.ParseSafe(EngineRevision);
 
-    public void ToWriter(BiEndianBinaryWriter writer, SnuggleOptions options) {
+    public void ToWriter(BiEndianBinaryWriter writer, SnuggleCoreOptions options) {
         writer.IsBigEndian = true;
         writer.WriteNullString(Signature);
         writer.Write(FormatVersion);
@@ -20,5 +20,5 @@ public record UnityBundle(string Signature, int FormatVersion, string EngineVers
         writer.WriteNullString(EngineRevision);
     }
 
-    public static UnityBundle FromReader(BiEndianBinaryReader reader, SnuggleOptions options) => new(reader.ReadNullString(), reader.ReadInt32(), reader.ReadNullString(), reader.ReadNullString());
+    public static UnityBundle FromReader(BiEndianBinaryReader reader, SnuggleCoreOptions options) => new(reader.ReadNullString(), reader.ReadInt32(), reader.ReadNullString(), reader.ReadNullString());
 }

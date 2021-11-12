@@ -73,11 +73,11 @@ public class AssetCollection : IDisposable {
         Bundles.Add(bundle);
     }
 
-    public void LoadBundle(Stream dataStream, object tag, IFileHandler handler, SnuggleOptions options, bool leaveOpen = false) => LoadBundle(new Bundle(dataStream, tag, handler, options, leaveOpen));
+    public void LoadBundle(Stream dataStream, object tag, IFileHandler handler, SnuggleCoreOptions options, bool leaveOpen = false) => LoadBundle(new Bundle(dataStream, tag, handler, options, leaveOpen));
 
-    public void LoadBundle(string path, SnuggleOptions options, bool leaveOpen = false) => LoadBundle(File.OpenRead(path), path, FileStreamHandler.Instance.Value, options, leaveOpen);
+    public void LoadBundle(string path, SnuggleCoreOptions options, bool leaveOpen = false) => LoadBundle(File.OpenRead(path), path, FileStreamHandler.Instance.Value, options, leaveOpen);
 
-    public void LoadBundleSequence(Stream dataStream, object tag, IFileHandler handler, SnuggleOptions options, int align = 1, bool leaveOpen = false) {
+    public void LoadBundleSequence(Stream dataStream, object tag, IFileHandler handler, SnuggleCoreOptions options, int align = 1, bool leaveOpen = false) {
         try {
             var bundles = Bundle.OpenBundleSequence(dataStream, tag, handler, options, align, leaveOpen);
             foreach (var bundle in bundles) {
@@ -90,9 +90,9 @@ public class AssetCollection : IDisposable {
         }
     }
 
-    public void LoadBundleSequence(string path, SnuggleOptions options, int align = 1) => LoadBundleSequence(File.OpenRead(path), path, MultiStreamHandler.FileInstance.Value, options, align);
+    public void LoadBundleSequence(string path, SnuggleCoreOptions options, int align = 1) => LoadBundleSequence(File.OpenRead(path), path, MultiStreamHandler.FileInstance.Value, options, align);
 
-    public void LoadSerializedFile(Stream dataStream, object tag, IFileHandler handler, SnuggleOptions options, bool leaveOpen = false, UnityVersion? fallbackVersion = null) {
+    public void LoadSerializedFile(Stream dataStream, object tag, IFileHandler handler, SnuggleCoreOptions options, bool leaveOpen = false, UnityVersion? fallbackVersion = null) {
         try {
             var path = tag switch {
                 UnityBundleBlock block => block.Path,
@@ -122,11 +122,11 @@ public class AssetCollection : IDisposable {
         }
     }
 
-    public void LoadSerializedFile(string path, SnuggleOptions options) => LoadSerializedFile(File.OpenRead(path), path, FileStreamHandler.Instance.Value, options);
+    public void LoadSerializedFile(string path, SnuggleCoreOptions options) => LoadSerializedFile(File.OpenRead(path), path, FileStreamHandler.Instance.Value, options);
 
-    public void LoadFile(string path, SnuggleOptions options) => LoadFile(File.OpenRead(path), path, MultiStreamHandler.FileInstance.Value, options);
+    public void LoadFile(string path, SnuggleCoreOptions options) => LoadFile(File.OpenRead(path), path, MultiStreamHandler.FileInstance.Value, options);
 
-    private void LoadFile(Stream dataStream, object tag, IFileHandler handler, SnuggleOptions options, int align = 1, bool leaveOpen = false) {
+    private void LoadFile(Stream dataStream, object tag, IFileHandler handler, SnuggleCoreOptions options, int align = 1, bool leaveOpen = false) {
         options.Logger.Info($"Attempting to load {tag} with options {options}");
         try {
             if (SerializedFile.IsSerializedFile(dataStream)) {
@@ -163,7 +163,7 @@ public class AssetCollection : IDisposable {
         GC.Collect();
     }
 
-    public void LoadAssembly(Stream dataStream, string assemblyLocation, SnuggleOptions options, bool leaveOpen = false) {
+    public void LoadAssembly(Stream dataStream, string assemblyLocation, SnuggleCoreOptions options, bool leaveOpen = false) {
         try {
             Assemblies.RemoveSearchDirectory(assemblyLocation);
             Assemblies.AddSearchDirectory(assemblyLocation);
