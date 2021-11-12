@@ -6,10 +6,10 @@ using Snuggle.Core.Meta;
 namespace Snuggle.Headless;
 
 public record SnuggleFlags : ICLIFlags {
-    [CLIFlag("no-mesh", Aliases = new[] { "m" }, Category = "General Options", Default = false, Help = "Don't export meshes (can still export through game objects)")]
+    [CLIFlag("no-mesh", Aliases = new[] { "m" }, Category = "General Options", Default = false, Help = "Don't export rigid meshes (can still export through game objects)")]
     public bool NoMesh { get; set; }
 
-    [CLIFlag("no-skin", Aliases = new[] { "s" }, Category = "General Options", Default = false, Help = "Don't export skinned meshes (can still export through game objects)")]
+    [CLIFlag("no-rigged-meshes", Aliases = new[] { "s" }, Category = "General Options", Default = false, Help = "Don't export rigged meshes (can still export through game objects)")]
     public bool NoSkinnedMesh { get; set; }
 
     [CLIFlag("no-game-object", Aliases = new[] { "b" }, Category = "General Options", Default = false, Help = "Don't export game objects")]

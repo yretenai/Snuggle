@@ -32,7 +32,7 @@ public static class SnuggleMeshFile {
         var scene = new SceneBuilder();
         var meshNode = CreateMesh(mesh, null, null, null, options);
         scene.AddRigidMesh(meshNode, AffineTransform.Identity);
-        var gltf = scene.ToGltf2();
+        var gltf = scene.ToGltf2(SceneBuilderSchema2Settings.Default with { GeneratorName = "Snuggle" });
 
         if (gltf.LogicalImages.Any()) {
             path = Path.Combine(path, Path.GetFileName(path));
@@ -97,8 +97,7 @@ public static class SnuggleMeshFile {
 
             scene.AddSkinnedMesh(CreateMesh(skinnedMesh, materials, path, saved, options), skin);
         }
-
-        var gltf = scene.ToGltf2();
+        var gltf = scene.ToGltf2(SceneBuilderSchema2Settings.Default with { GeneratorName = "Snuggle" });
 
         if (gltf.LogicalImages.Any()) {
             path = Path.Combine(path, Path.GetFileName(path));

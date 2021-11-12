@@ -127,7 +127,7 @@ public class AssetCollection : IDisposable {
     public void LoadFile(string path, SnuggleCoreOptions options) => LoadFile(File.OpenRead(path), path, MultiStreamHandler.FileInstance.Value, options);
 
     private void LoadFile(Stream dataStream, object tag, IFileHandler handler, SnuggleCoreOptions options, int align = 1, bool leaveOpen = false) {
-        options.Logger.Info($"Attempting to load {tag} with options {options}");
+        options.Logger.Info($"Attempting to load {tag}");
         try {
             if (SerializedFile.IsSerializedFile(dataStream)) {
                 LoadSerializedFile(dataStream, tag, handler, options, leaveOpen);

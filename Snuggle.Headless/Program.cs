@@ -48,7 +48,6 @@ public static class Program {
         options.GameOptions.Migrate();
 
         foreach (var file in fileSet) {
-            logger.Info($"Loading {file}");
             collection.LoadFile(file, options);
         }
 
@@ -65,35 +64,40 @@ public static class Program {
                 continue;
             }
 
-            switch (asset) {
-                case Texture2D texture when !flags.NoTexture && flags.LooseTextures:
-                    logger.Info($"Processing Texture {asset}");
-                    ConvertCore.ConvertTexture(flags, logger, texture);
-                    break;
-                case Mesh mesh when !flags.NoMesh && flags.LooseMeshes:
-                    logger.Info($"Processing Mesh {asset}");
-                    ConvertCore.ConvertMesh(flags, logger, mesh);
-                    break;
-                case GameObject gameObject when !flags.NoGameObject:
-                    logger.Info($"Processing GameObject {asset}");
-                    ConvertCore.ConvertGameObject(flags, logger, gameObject);
-                    break;
-                case MeshRenderer renderer when !flags.NoMesh && renderer.GameObject.Value is not null:
-                    logger.Info($"Processing GameObject {renderer.GameObject.Value}");
-                    ConvertCore.ConvertGameObject(flags, logger, renderer.GameObject.Value);
-                    break;
-                case SkinnedMeshRenderer renderer when !flags.NoSkinnedMesh && renderer.GameObject.Value is not null:
-                    logger.Info($"Processing GameObject {renderer.GameObject.Value}");
-                    ConvertCore.ConvertGameObject(flags, logger, renderer.GameObject.Value);
-                    break;
-                case Material material when !flags.NoMaterials && flags.LooseMaterials:
-                    logger.Info($"Processing Material {asset}");
-                    ConvertCore.ConvertMaterial(flags, logger, material);
-                    break;
-                case Text text when !flags.NoText:
-                    logger.Info($"Processing Text {asset}");
-                    ConvertCore.ConvertText(flags, logger, text);
-                    break;
+            try {
+
+                switch (asset) {
+                    case Texture2D texture when !flags.NoTexture && flags.LooseTextures:
+                        logger.Info($"Processing Texture {asset}");
+                        ConvertCore.ConvertTexture(flags, logger, texture);
+                        break;
+                    case Mesh mesh when !flags.NoMesh && flags.LooseMeshes:
+                        logger.Info($"Processing Mesh {asset}");
+                        ConvertCore.ConvertMesh(flags, logger, mesh);
+                        break;
+                    case GameObject gameObject when !flags.NoGameObject:
+                        logger.Info($"Processing GameObject {asset}");
+                        ConvertCore.ConvertGameObject(flags, logger, gameObject);
+                        break;
+                    case MeshRenderer renderer when !flags.NoMesh && renderer.GameObject.Value is not null:
+                        logger.Info($"Processing GameObject {renderer.GameObject.Value}");
+                        ConvertCore.ConvertGameObject(flags, logger, renderer.GameObject.Value);
+                        break;
+                    case SkinnedMeshRenderer renderer when !flags.NoSkinnedMesh && renderer.GameObject.Value is not null:
+                        logger.Info($"Processing GameObject {renderer.GameObject.Value}");
+                        ConvertCore.ConvertGameObject(flags, logger, renderer.GameObject.Value);
+                        break;
+                    case Material material when !flags.NoMaterials && flags.LooseMaterials:
+                        logger.Info($"Processing Material {asset}");
+                        ConvertCore.ConvertMaterial(flags, logger, material);
+                        break;
+                    case Text text when !flags.NoText:
+                        logger.Info($"Processing Text {asset}");
+                        ConvertCore.ConvertText(flags, logger, text);
+                        break;
+                }
+            } catch (Exception e) {
+                logger.Error(e.Message, e);
             }
 
             if (flags.LowMemory) {
