@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using DragonLib.CLI;
 using Snuggle.Core.Meta;
 
@@ -28,8 +29,14 @@ namespace Snuggle.Headless {
         [CLIFlag("dds", Category = "General Options", Default = false, Help = "Export textures to DDS when possible, otherwise use PNG")]
         public bool TextureToDDS { get; set; }
 
-        [CLIFlag("irrelevant-materials", Category = "General Options", Default = false, Help = "Do not exclusively export materials for assets that we are exporting")]
-        public bool IrrelevantMaterials { get; set; }
+        [CLIFlag("loose-meshes", Category = "General Options", Default = false, Help = "Export mesh even if they are not part of a renderer")]
+        public bool LooseMeshes { get; set; }
+
+        [CLIFlag("loose-materials", Category = "General Options", Default = false, Help = "Export materials even if they are not part of a renderer")]
+        public bool LooseMaterials { get; set; }
+
+        [CLIFlag("loose-textures", Category = "General Options", Default = false, Help = "Export textures even if they are not part of a material")]
+        public bool LooseTextures { get; set; }
 
         [CLIFlag("recursive", Aliases = new[] { "R" }, Category = "General Options", Default = false, Help = "Scan directories recursively for assets")]
         public bool Recursive { get; set; }
@@ -40,11 +47,17 @@ namespace Snuggle.Headless {
         [CLIFlag("game-options", Aliases = new[] { "G" }, Category = "General Options", Default = null, Help = "Game specific modification options json")]
         public string? GameOptions { get; set; }
 
-        [CLIFlag("output-format", Aliases = new[] { "f" }, Category = "General Options", Default = ":ObjectType/:ContainerPath/:PathId_:AssetName.:Ext", Help = "Output path format")]
+        [CLIFlag("output-format", Aliases = new[] { "f" }, Category = "General Options", Default = "{Type}/{Container}/{Id}_{Name}.{Ext}", Help = "Output path format")]
         public string OutputFormat { get; set; } = null!;
 
         [CLIFlag("output", Aliases = new[] { "o", "out" }, Category = "General Options", Help = "Path to output files to", IsRequired = true)]
         public string OutputPath { get; set; } = null!;
+
+        [CLIFlag("name", Category = "General Options", Help = "Game Object Name/Container Path Filters", IsRequired = true)]
+        public List<Regex> NameFilters { get; set; } = null!;
+
+        [CLIFlag("id", Category = "General Options", Help = "Path ID Filters", IsRequired = true)]
+        public List<long> PathIdFilters { get; set; } = null!;
 
         [CLIFlag("paths", Category = "General Options", Positional = 0, Help = "Paths to load", IsRequired = true)]
         public List<string> Paths { get; set; } = null!;

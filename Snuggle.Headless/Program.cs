@@ -6,6 +6,7 @@ using System.Text.Json;
 using DragonLib;
 using DragonLib.CLI;
 using Snuggle.Core;
+using Snuggle.Core.Implementations;
 using Snuggle.Core.Logging;
 using Snuggle.Core.Meta;
 using Snuggle.Core.Options;
@@ -53,12 +54,41 @@ namespace Snuggle.Headless {
             AssetCollection.Collect();
             Console.WriteLine($"Memory Tension: {GC.GetTotalMemory(false).GetHumanReadableBytes()}");
 
+            var processed = new HashSet<long>();
+
             foreach (var asset in collection.Files.SelectMany(x => x.Value.GetAllObjects())) {
-                // TODO(yretenai) Textures
-                // TODO(yretenai) Mesh
-                // TODO(yretenai) Skinned Mesh
-                // TODO(yretenai) Text
-                // TODO(yretenai) Material
+                var passedFilter = !flags.PathIdFilters.Any() && !flags.NameFilters.Any() || flags.PathIdFilters.Contains(asset.PathId) || flags.NameFilters.Any(x => x.IsMatch(asset.ObjectComparableName));
+
+                if (!passedFilter) {
+                    continue;
+                }
+                
+                Console.WriteLine($"Processing {asset}");
+
+                switch (asset)
+                {
+                    case Texture2D texture when !flags.NoTexture && flags.LooseTextures:
+                        ConvertCore.ConvertTexture(flags, texture);
+                        break;
+                    case Mesh mesh when !flags.NoMesh && flags.LooseMeshes:
+                        ConvertCore.ConvertMesh(flags, mesh);
+                        break;
+                    case GameObject gameObject when !flags.NoSkinnedMesh:
+                        ConvertCore.ConvertGameObject(flags, gameObject, processed);
+                        break;
+                    case MeshRenderer renderer when !flags.NoMesh && renderer.GameObject.Value is not null:
+                        ConvertCore.ConvertGameObject(flags, renderer.GameObject.Value, processed);
+                        break;
+                    case SkinnedMeshRenderer renderer when !flags.NoSkinnedMesh && renderer.GameObject.Value is not null:
+                        ConvertCore.ConvertGameObject(flags, renderer.GameObject.Value, processed);
+                        break;
+                    case Material material when !flags.NoMaterials && flags.LooseMaterials:
+                        ConvertCore.ConvertMaterial(flags, material);
+                        break;
+                    case Text text when !flags.NoText:
+                        ConvertCore.ConvertText(flags, text);
+                        break;
+                }
             }
 
             if (options.Game != UnityGame.Default &&
