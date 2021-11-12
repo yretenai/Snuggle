@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using JetBrains.Annotations;
 
-namespace Snuggle.Core.IO; 
+namespace Snuggle.Core.IO;
 
 [PublicAPI]
 public class BiEndianBinaryReader : BinaryReader {

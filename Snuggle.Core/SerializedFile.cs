@@ -11,7 +11,7 @@ using Snuggle.Core.Meta;
 using Snuggle.Core.Models.Serialization;
 using Snuggle.Core.Options;
 
-namespace Snuggle.Core; 
+namespace Snuggle.Core;
 
 [PublicAPI]
 public class SerializedFile : IRenewable {
@@ -147,7 +147,8 @@ public class SerializedFile : IRenewable {
                 }
             }
 
-            if (serializedObject is PlayerSettings settings && Assets != null) {
+            if (serializedObject is PlayerSettings settings &&
+                Assets != null) {
                 Assets.PlayerSettings = settings;
             }
         }

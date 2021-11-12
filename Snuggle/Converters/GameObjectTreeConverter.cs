@@ -8,7 +8,7 @@ using Snuggle.Core.Implementations;
 using Snuggle.Core.Models;
 using Snuggle.Handlers;
 
-namespace Snuggle.Converters; 
+namespace Snuggle.Converters;
 
 public class GameObjectTreeConverter : IValueConverter {
     public object? Convert(object? value, Type targetType, object parameter, CultureInfo culture) => GenerateGameObjectTree();
@@ -22,7 +22,7 @@ public class GameObjectTreeConverter : IValueConverter {
         var count = 1;
         foreach (var @object in SnuggleCore.Instance.Collection.Files.SelectMany(x => x.Value.GetAllObjects())) {
             SnuggleCore.Instance.Status.SetProgress(count++);
-            if (((UnityClassId) @object.ClassId) == UnityClassId.GameObject) {
+            if ((UnityClassId) @object.ClassId == UnityClassId.GameObject) {
                 SnuggleCore.Instance.Status.SetStatus($"Processing {@object.PathId}");
                 var node = GenerateGameObjectNode(@object as GameObject, true);
                 if (node == null) {
@@ -40,7 +40,7 @@ public class GameObjectTreeConverter : IValueConverter {
 
     private static TreeViewItem? GenerateGameObjectNode(GameObject? gameObject, bool rootOnly) {
         if (gameObject?.FindComponent(UnityClassId.Transform).Value is not Transform parent ||
-            (rootOnly && !parent.Parent.IsNull)) {
+            rootOnly && !parent.Parent.IsNull) {
             return null;
         }
 

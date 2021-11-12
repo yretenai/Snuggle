@@ -2,7 +2,7 @@
 using System.Text;
 using Snuggle.Core.Implementations;
 
-namespace Snuggle.Handlers; 
+namespace Snuggle.Handlers;
 
 public static class SnuggleMaterialFile {
     public static void SaveMaterial(Material? material, string path) {
@@ -14,7 +14,7 @@ public static class SnuggleMaterialFile {
         if (File.Exists(matPath)) {
             return;
         }
-            
+
         using var materialStream = new FileStream(matPath, FileMode.Create);
         using var materialWriter = new StreamWriter(materialStream, Encoding.UTF8);
 

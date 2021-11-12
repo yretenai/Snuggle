@@ -2,7 +2,7 @@
 using System.IO;
 using JetBrains.Annotations;
 
-namespace Snuggle.Core.Interfaces; 
+namespace Snuggle.Core.Interfaces;
 
 [PublicAPI]
 public interface IFileHandler : IDisposable {

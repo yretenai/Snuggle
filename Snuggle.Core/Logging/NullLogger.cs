@@ -4,7 +4,7 @@ using JetBrains.Annotations;
 using Snuggle.Core.Interfaces;
 using Snuggle.Core.Meta;
 
-namespace Snuggle.Core.Logging; 
+namespace Snuggle.Core.Logging;
 
 [PublicAPI]
 public class NullLogger : Singleton<NullLogger>, ILogger {

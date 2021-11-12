@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Snuggle.Core.Extensions; 
+namespace Snuggle.Core.Extensions;
 
 public static class SystemExtensions {
     public static string ToFlagString(this Enum @enum) {

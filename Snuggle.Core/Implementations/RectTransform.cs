@@ -7,9 +7,10 @@ using Snuggle.Core.Models.Objects.Math;
 using Snuggle.Core.Models.Serialization;
 using Snuggle.Core.Options;
 
-namespace Snuggle.Core.Implementations; 
+namespace Snuggle.Core.Implementations;
 
-[PublicAPI, ObjectImplementation(UnityClassId.RectTransform)]
+[PublicAPI]
+[ObjectImplementation(UnityClassId.RectTransform)]
 public class RectTransform : Transform {
     public RectTransform(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) {
         AnchorMin = reader.ReadStruct<Vector2>();

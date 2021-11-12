@@ -5,7 +5,7 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using Snuggle.Handlers;
 
-namespace Snuggle.Windows; 
+namespace Snuggle.Windows;
 
 /// <summary>
 ///     Interaction logic for MainWindow.xaml

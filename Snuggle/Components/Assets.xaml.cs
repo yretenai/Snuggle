@@ -6,7 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using Snuggle.Handlers;
 
-namespace Snuggle.Components; 
+namespace Snuggle.Components;
 
 public partial class Assets {
     public Assets() {
@@ -105,6 +105,7 @@ public partial class Assets {
         if (serializedObject is { ShouldDeserialize: true }) {
             serializedObject.Deserialize(SnuggleCore.Instance.Settings.ObjectOptions);
         }
+
         SnuggleCore.Instance.OnPropertyChanged(nameof(SnuggleCore.SelectedObject));
         SnuggleCore.Instance.SelectedObjects = selectedItems.Cast<SnuggleObject>().ToList();
         SnuggleCore.Instance.OnPropertyChanged(nameof(SnuggleCore.SelectedObjects));

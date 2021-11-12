@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text.Json;
 using Snuggle.Core.Options;
 
-namespace Snuggle.Handlers; 
+namespace Snuggle.Handlers;
 
 public record SnuggleSettings(
     SnuggleOptions Options,

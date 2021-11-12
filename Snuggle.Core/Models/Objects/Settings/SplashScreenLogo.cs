@@ -2,7 +2,7 @@
 using Snuggle.Core.Implementations;
 using Snuggle.Core.IO;
 
-namespace Snuggle.Core.Models.Objects.Settings; 
+namespace Snuggle.Core.Models.Objects.Settings;
 
 [PublicAPI]
 public record SplashScreenLogo(

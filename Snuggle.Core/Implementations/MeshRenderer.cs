@@ -4,9 +4,10 @@ using Snuggle.Core.Meta;
 using Snuggle.Core.Models;
 using Snuggle.Core.Models.Serialization;
 
-namespace Snuggle.Core.Implementations; 
+namespace Snuggle.Core.Implementations;
 
-[PublicAPI, ObjectImplementation(UnityClassId.MeshRenderer)]
+[PublicAPI]
+[ObjectImplementation(UnityClassId.MeshRenderer)]
 public class MeshRenderer : Renderer {
     public MeshRenderer(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) {
         AdditionalVertexStream = PPtr<Mesh>.FromReader(reader, SerializedFile);

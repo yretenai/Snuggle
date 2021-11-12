@@ -21,7 +21,7 @@ using Snuggle.Core.Options;
 using Material = Snuggle.Core.Implementations.Material;
 using Mesh = Snuggle.Core.Implementations.Mesh;
 
-namespace Snuggle.Handlers; 
+namespace Snuggle.Handlers;
 
 public static class SnuggleMeshFile {
     public static void Save(Mesh mesh, string path) {
@@ -63,7 +63,8 @@ public static class SnuggleMeshFile {
                 return null;
             }
 
-            if (transform.Parent.Value?.GameObject.Value == null || SnuggleCore.Instance.Settings.BubbleGameObjectsUp) {
+            if (transform.Parent.Value?.GameObject.Value == null ||
+                SnuggleCore.Instance.Settings.BubbleGameObjectsUp) {
                 return gameObject;
             }
 
@@ -469,7 +470,7 @@ public static class SnuggleMeshFile {
                 materialBuilder.WithEmissive(texPath);
             }
         }
-            
+
         SnuggleMaterialFile.SaveMaterial(material, path);
     }
 }

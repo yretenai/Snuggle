@@ -16,7 +16,7 @@ using Snuggle.Core.Models;
 using Snuggle.Core.Models.Serialization;
 using Snuggle.Core.Options;
 
-namespace Snuggle.Core; 
+namespace Snuggle.Core;
 
 [PublicAPI]
 public static class ObjectFactory {

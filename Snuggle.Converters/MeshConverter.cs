@@ -9,7 +9,7 @@ using Snuggle.Core.Exceptions;
 using Snuggle.Core.Implementations;
 using Snuggle.Core.Models.Objects.Graphics;
 
-namespace Snuggle.Converters; 
+namespace Snuggle.Converters;
 
 [PublicAPI]
 public static class MeshConverter {

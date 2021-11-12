@@ -2,7 +2,7 @@
 using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
 
-namespace Snuggle.Core.Models.Objects.Settings; 
+namespace Snuggle.Core.Models.Objects.Settings;
 
 [PublicAPI]
 public record OculusSettings(

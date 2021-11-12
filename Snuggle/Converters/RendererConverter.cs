@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Windows.Data;
 using Snuggle.Handlers;
 
-namespace Snuggle.Converters; 
+namespace Snuggle.Converters;
 
 public class RendererConverter : IValueConverter {
     public object? Convert(object? value, Type targetType, object parameter, CultureInfo culture) {

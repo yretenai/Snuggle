@@ -5,7 +5,7 @@ using K4os.Compression.LZ4;
 using SevenZip;
 using SevenZip.Compression.LZMA;
 
-namespace Snuggle.Core; 
+namespace Snuggle.Core;
 
 internal static class Utils {
     private static readonly CoderPropID[] PropIDs = {

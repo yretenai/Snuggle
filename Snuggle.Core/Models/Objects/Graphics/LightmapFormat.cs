@@ -1,6 +1,6 @@
 ﻿using JetBrains.Annotations;
 
-namespace Snuggle.Core.Models.Objects.Graphics; 
+namespace Snuggle.Core.Models.Objects.Graphics;
 
 // ReSharper disable InconsistentNaming
 [PublicAPI]

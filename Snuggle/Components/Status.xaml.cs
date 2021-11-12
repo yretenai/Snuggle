@@ -1,4 +1,4 @@
-﻿namespace Snuggle.Components; 
+﻿namespace Snuggle.Components;
 
 public partial class Status {
     public Status() {

@@ -16,9 +16,10 @@ using Snuggle.Core.Models.Objects.Math;
 using Snuggle.Core.Models.Serialization;
 using Snuggle.Core.Options;
 
-namespace Snuggle.Core.Implementations; 
+namespace Snuggle.Core.Implementations;
 
-[PublicAPI, ObjectImplementation(UnityClassId.Mesh)]
+[PublicAPI]
+[ObjectImplementation(UnityClassId.Mesh)]
 public class Mesh : NamedObject, ISerializedResource {
     public Mesh(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) {
         var submeshCount = reader.ReadInt32();

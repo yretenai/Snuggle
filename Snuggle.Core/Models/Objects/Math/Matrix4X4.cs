@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using JetBrains.Annotations;
 
-namespace Snuggle.Core.Models.Objects.Math; 
+namespace Snuggle.Core.Models.Objects.Math;
 
 [PublicAPI]
 public record struct Matrix4X4(float M11, float M21, float M31, float M41, float M12, float M22, float M32, float M42, float M13, float M23, float M33, float M43, float M14, float M24, float M34, float M44) {
@@ -12,5 +12,5 @@ public record struct Matrix4X4(float M11, float M21, float M31, float M41, float
         return MemoryMarshal.Cast<Matrix4X4, float>(new[] { this }).ToArray();
     }
 
-    public Matrix4x4 GetNumerics() => new Matrix4x4(M11, M12, M13, M14, M21, M22, M23, M24, M31, M32, M33, M34, M41, M42, M43, M44);
+    public Matrix4x4 GetNumerics() => new(M11, M12, M13, M14, M21, M22, M23, M24, M31, M32, M33, M34, M41, M42, M43, M44);
 }

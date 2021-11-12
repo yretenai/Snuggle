@@ -4,7 +4,7 @@ using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
 using Snuggle.Core.Options;
 
-namespace Snuggle.Core.Models.Serialization; 
+namespace Snuggle.Core.Models.Serialization;
 
 [PublicAPI]
 public record UnitySerializedFile(

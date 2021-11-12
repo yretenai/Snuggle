@@ -3,7 +3,7 @@ using System.Windows.Controls;
 using Snuggle.Core.Implementations;
 using Snuggle.Handlers;
 
-namespace Snuggle.Components; 
+namespace Snuggle.Components;
 
 public class RendererSelector : DataTemplateSelector {
     public override DataTemplate SelectTemplate(object? item, DependencyObject container) {

@@ -1,7 +1,7 @@
 ﻿using JetBrains.Annotations;
 using Mono.Cecil;
 
-namespace Snuggle.Core.Extensions; 
+namespace Snuggle.Core.Extensions;
 
 [PublicAPI]
 public static class CecilExtensions {

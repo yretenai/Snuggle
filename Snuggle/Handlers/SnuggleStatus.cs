@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Snuggle.Core.Interfaces;
 
-namespace Snuggle.Handlers; 
+namespace Snuggle.Handlers;
 
 [PublicAPI]
 public class SnuggleStatus : IStatusReporter, INotifyPropertyChanged {

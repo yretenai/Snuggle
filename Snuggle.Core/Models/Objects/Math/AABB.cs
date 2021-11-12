@@ -1,6 +1,6 @@
 ﻿using JetBrains.Annotations;
 
-namespace Snuggle.Core.Models.Objects.Math; 
+namespace Snuggle.Core.Models.Objects.Math;
 
 [PublicAPI]
 public record struct AABB(

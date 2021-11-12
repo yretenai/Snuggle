@@ -4,7 +4,7 @@ using JetBrains.Annotations;
 using Snuggle.Core.Meta;
 using Snuggle.Core.Models.Bundle;
 
-namespace Snuggle.Core.Options; 
+namespace Snuggle.Core.Options;
 
 [PublicAPI]
 public record BundleSerializationOptions(

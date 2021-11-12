@@ -8,9 +8,10 @@ using Snuggle.Core.Models.Objects.Graphics;
 using Snuggle.Core.Models.Objects.Math;
 using Snuggle.Core.Models.Serialization;
 
-namespace Snuggle.Core.Implementations; 
+namespace Snuggle.Core.Implementations;
 
-[PublicAPI, ObjectImplementation(UnityClassId.Renderer)]
+[PublicAPI]
+[ObjectImplementation(UnityClassId.Renderer)]
 public class Renderer : Behaviour {
     public Renderer(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) {
         if (SerializedFile.Version < UnityVersionRegister.Unity5_4) {

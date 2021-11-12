@@ -8,7 +8,7 @@ using JetBrains.Annotations;
 using Snuggle.Core.Interfaces;
 using Snuggle.Core.Meta;
 
-namespace Snuggle.Handlers; 
+namespace Snuggle.Handlers;
 
 public sealed class SnuggleLog : ILogger, INotifyPropertyChanged {
     public SnuggleLog() => Context = SynchronizationContext.Current ?? throw new InvalidOperationException("Cannot get syncronization context");

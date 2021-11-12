@@ -1,6 +1,6 @@
 using JetBrains.Annotations;
 
-namespace Snuggle.Core.Options; 
+namespace Snuggle.Core.Options;
 
 [PublicAPI]
 public interface IUnityGameOptions {

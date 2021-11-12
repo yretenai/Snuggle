@@ -1,6 +1,6 @@
 ﻿using Snuggle.Core.Implementations;
 
-namespace Snuggle.Handlers; 
+namespace Snuggle.Handlers;
 
 public record SnuggleObject(
     string Name,

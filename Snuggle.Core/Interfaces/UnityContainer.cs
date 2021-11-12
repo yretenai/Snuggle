@@ -6,7 +6,7 @@ using Snuggle.Core.IO;
 using Snuggle.Core.Models.Bundle;
 using Snuggle.Core.Options;
 
-namespace Snuggle.Core.Interfaces; 
+namespace Snuggle.Core.Interfaces;
 
 [PublicAPI]
 public record UnityContainer {

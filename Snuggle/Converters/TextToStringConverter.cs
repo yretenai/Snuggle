@@ -6,7 +6,7 @@ using System.Windows.Markup;
 using Snuggle.Core.Implementations;
 using Snuggle.Handlers;
 
-namespace Snuggle.Converters; 
+namespace Snuggle.Converters;
 
 public class TextToStringConverter : MarkupExtension, IValueConverter {
     public object? Convert(object? value, Type targetType, object parameter, CultureInfo culture) => value is not Text text ? null : new TaskCompletionNotifier<string?>(text, ConvertText(text));
@@ -21,7 +21,8 @@ public class TextToStringConverter : MarkupExtension, IValueConverter {
                 }
 
                 return text.String;
-            }, true);
+            },
+            true);
     }
 
     public override object ProvideValue(IServiceProvider serviceProvider) => this;

@@ -3,7 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 
-namespace Snuggle.Core.IO; 
+namespace Snuggle.Core.IO;
 
 [PublicAPI]
 public class OffsetStream : Stream {

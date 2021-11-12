@@ -9,7 +9,7 @@ using HelixToolkit.Wpf.SharpDX;
 using Snuggle.Converters;
 using Snuggle.Core.Implementations;
 
-namespace Snuggle.Components.Renderers; 
+namespace Snuggle.Components.Renderers;
 
 public partial class MeshGeometryRenderer {
     public MeshGeometryRenderer() {

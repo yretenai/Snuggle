@@ -4,7 +4,7 @@ using JetBrains.Annotations;
 using Snuggle.Core.Interfaces;
 using Snuggle.Core.Meta;
 
-namespace Snuggle.Core.IO; 
+namespace Snuggle.Core.IO;
 
 [PublicAPI]
 public class MultiStreamHandler : IFileHandler {

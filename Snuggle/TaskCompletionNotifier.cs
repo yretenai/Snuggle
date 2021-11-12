@@ -6,7 +6,7 @@ using System.Windows;
 using System.Windows.Threading;
 using JetBrains.Annotations;
 
-namespace Snuggle; 
+namespace Snuggle;
 
 [PublicAPI]
 public sealed class TaskCompletionNotifier<T> : INotifyPropertyChanged {

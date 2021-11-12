@@ -1,9 +1,10 @@
 ﻿using System;
 using JetBrains.Annotations;
 
-namespace Snuggle.Core.Game.Unite; 
+namespace Snuggle.Core.Game.Unite;
 
-[PublicAPI, Flags]
+[PublicAPI]
+[Flags]
 public enum UniteFSFlags {
     Encrypted = 0x200,
 }

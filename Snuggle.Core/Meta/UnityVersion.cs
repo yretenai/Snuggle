@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Snuggle.Core.Models;
 
-namespace Snuggle.Core.Meta; 
+namespace Snuggle.Core.Meta;
 
 [PublicAPI]
 public record struct UnityVersion(

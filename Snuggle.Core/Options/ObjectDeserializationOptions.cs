@@ -2,7 +2,7 @@
 using System.Text.Json.Serialization;
 using JetBrains.Annotations;
 
-namespace Snuggle.Core.Options; 
+namespace Snuggle.Core.Options;
 
 public delegate (string Path, SnuggleOptions Options) RequestAssemblyPath(string assemblyName);
 

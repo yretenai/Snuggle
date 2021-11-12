@@ -13,7 +13,7 @@ using Snuggle.Core.Implementations;
 using Snuggle.Core.Interfaces;
 using Snuggle.Core.Options;
 
-namespace Snuggle.Handlers; 
+namespace Snuggle.Handlers;
 
 public static class SnuggleFile {
     public static void LoadDirectories() {

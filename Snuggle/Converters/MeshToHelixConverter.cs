@@ -23,7 +23,7 @@ using MeshGeometry3D = HelixToolkit.SharpDX.Core.MeshGeometry3D;
 using Quaternion = SharpDX.Quaternion;
 using Transform = Snuggle.Core.Implementations.Transform;
 
-namespace Snuggle.Converters; 
+namespace Snuggle.Converters;
 
 public static class MeshToHelixConverter {
     private static List<Object3D> GetSubmeshes(Mesh mesh, CancellationToken token) {
@@ -39,7 +39,7 @@ public static class MeshToHelixConverter {
             if (token.IsCancellationRequested) {
                 return objects;
             }
-                
+
             var submesh = mesh.Submeshes[index];
             var geometry = new MeshGeometry3D();
             var span = indexStream.Span.Slice((int) submesh.FirstByte, (int) (submesh.IndexCount * (mesh.IndexFormat == IndexFormat.UInt16 ? 2 : 4)));
@@ -66,12 +66,12 @@ public static class MeshToHelixConverter {
                 if (token.IsCancellationRequested) {
                     return objects;
                 }
-                    
+
                 foreach (var (channel, info) in descriptors) {
                     if (token.IsCancellationRequested) {
                         return objects;
                     }
-                        
+
                     var stride = strides[info.Stream];
                     var offset = (submesh.FirstVertex + i) * stride;
                     var data = vertexStream[info.Stream][(offset + info.Offset)..].Span;
@@ -152,7 +152,8 @@ public static class MeshToHelixConverter {
                         topMost.Children.Add(labels);
                     }
                 });
-            }, true);
+            },
+            true);
     }
 
     private static void FindGeometryMeshData(GameObject gameObject, IDictionary<long, (List<Object3D> submeshes, List<(Texture2D? texture, Memory<byte> textureData)>)> meshData, CancellationToken token) {
@@ -268,7 +269,8 @@ public static class MeshToHelixConverter {
 
                     BuildSubmeshes(collection, submeshes, null, token);
                 });
-            }, true);
+            },
+            true);
     }
 
     private static unsafe void BuildSubmeshes(ICollection<Element3D> collection, IReadOnlyList<Object3D> submeshes, IReadOnlyCollection<(Texture2D? texture, Memory<byte> textureData)>? textures, CancellationToken token) {
@@ -277,7 +279,7 @@ public static class MeshToHelixConverter {
             if (token.IsCancellationRequested) {
                 return;
             }
-                
+
             if (index >= submeshes.Count) {
                 break;
             }
@@ -307,7 +309,7 @@ public static class MeshToHelixConverter {
             if (token.IsCancellationRequested) {
                 return textures;
             }
-                
+
             UnityTexEnv? mainTexPtr = null;
             if (material?.SavedProperties.Textures.TryGetValue("_MainTex", out mainTexPtr) == false) {
                 // ignored

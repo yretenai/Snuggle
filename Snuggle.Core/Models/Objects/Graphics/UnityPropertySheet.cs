@@ -3,7 +3,7 @@ using JetBrains.Annotations;
 using Snuggle.Core.IO;
 using Snuggle.Core.Models.Objects.Math;
 
-namespace Snuggle.Core.Models.Objects.Graphics; 
+namespace Snuggle.Core.Models.Objects.Graphics;
 
 [PublicAPI]
 public record UnityPropertySheet(

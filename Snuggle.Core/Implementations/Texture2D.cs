@@ -13,9 +13,10 @@ using Snuggle.Core.Models.Objects.Graphics;
 using Snuggle.Core.Models.Serialization;
 using Snuggle.Core.Options;
 
-namespace Snuggle.Core.Implementations; 
+namespace Snuggle.Core.Implementations;
 
-[PublicAPI, ObjectImplementation(UnityClassId.Texture2D)]
+[PublicAPI]
+[ObjectImplementation(UnityClassId.Texture2D)]
 public class Texture2D : Texture, ISerializedResource {
     public Texture2D(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) {
         Width = reader.ReadInt32();

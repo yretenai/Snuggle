@@ -2,7 +2,7 @@
 using Snuggle.Core.Meta;
 using Snuggle.Core.Models.Serialization;
 
-namespace Snuggle.Core.Options; 
+namespace Snuggle.Core.Options;
 
 [PublicAPI]
 public record AssetSerializationOptions(

@@ -6,9 +6,11 @@ using Snuggle.Core.Models;
 using Snuggle.Core.Models.Serialization;
 using Snuggle.Core.Options;
 
-namespace Snuggle.Core.Implementations; 
+namespace Snuggle.Core.Implementations;
 
-[PublicAPI, UsedImplicitly, ObjectImplementation(UnityClassId.MeshFilter)]
+[PublicAPI]
+[UsedImplicitly]
+[ObjectImplementation(UnityClassId.MeshFilter)]
 public class MeshFilter : Component {
     public MeshFilter(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) => Mesh = PPtr<Mesh>.FromReader(reader, serializedFile);
     public MeshFilter(UnityObjectInfo info, SerializedFile serializedFile) : base(info, serializedFile) => Mesh = PPtr<Mesh>.Null;

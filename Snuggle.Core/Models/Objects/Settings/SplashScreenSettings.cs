@@ -5,7 +5,7 @@ using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
 using Snuggle.Core.Models.Objects.Math;
 
-namespace Snuggle.Core.Models.Objects.Settings; 
+namespace Snuggle.Core.Models.Objects.Settings;
 
 [PublicAPI]
 public record SplashScreenSettings(
@@ -92,8 +92,8 @@ public record SplashScreenSettings(
             backgroundPortait = PPtr<Texture2D>.Null;
         }
 
-        PPtr<Texture2D> vrSplash = serializedFile.Version >= UnityVersionRegister.Unity5_3 ? PPtr<Texture2D>.FromReader(reader, serializedFile) : PPtr<Texture2D>.Null;
-        PPtr<Texture2D> arLoss = serializedFile.Version >= UnityVersionRegister.Unity5_5 ? PPtr<Texture2D>.FromReader(reader, serializedFile) : PPtr<Texture2D>.Null;
+        var vrSplash = serializedFile.Version >= UnityVersionRegister.Unity5_3 ? PPtr<Texture2D>.FromReader(reader, serializedFile) : PPtr<Texture2D>.Null;
+        var arLoss = serializedFile.Version >= UnityVersionRegister.Unity5_5 ? PPtr<Texture2D>.FromReader(reader, serializedFile) : PPtr<Texture2D>.Null;
 
         return new SplashScreenSettings(color, show, logo, opacity, animate, style, mode, bgZoom, logoZoom, landscapeAspect, portraitAspect, landscapeUv, portraitUv, logos, backgroundLandscape, backgroundPortait, vrSplash, arLoss);
     }

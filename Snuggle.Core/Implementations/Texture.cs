@@ -7,9 +7,10 @@ using Snuggle.Core.Models.Objects.Graphics;
 using Snuggle.Core.Models.Serialization;
 using Snuggle.Core.Options;
 
-namespace Snuggle.Core.Implementations; 
+namespace Snuggle.Core.Implementations;
 
-[PublicAPI, ObjectImplementation(UnityClassId.Texture)]
+[PublicAPI]
+[ObjectImplementation(UnityClassId.Texture)]
 public class Texture : NamedObject {
     public Texture(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) {
         if (serializedFile.Version >= UnityVersionRegister.Unity2017_3) {

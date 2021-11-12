@@ -10,9 +10,11 @@ using Snuggle.Core.Models;
 using Snuggle.Core.Models.Serialization;
 using Snuggle.Core.Options;
 
-namespace Snuggle.Core.Implementations; 
+namespace Snuggle.Core.Implementations;
 
-[PublicAPI, UsedImplicitly, ObjectImplementation(UnityClassId.Object)]
+[PublicAPI]
+[UsedImplicitly]
+[ObjectImplementation(UnityClassId.Object)]
 public class SerializedObject : IEquatable<SerializedObject>, ISerialized {
     public SerializedObject(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : this(info, serializedFile) => IsMutated = false;
 

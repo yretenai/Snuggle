@@ -1,7 +1,7 @@
 ﻿using JetBrains.Annotations;
 using Snuggle.Core.Models;
 
-namespace Snuggle.Core.Meta; 
+namespace Snuggle.Core.Meta;
 
 [PublicAPI]
 public static class UnityVersionRegister {

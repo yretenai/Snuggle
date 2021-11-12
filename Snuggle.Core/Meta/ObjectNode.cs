@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 using Mono.Cecil;
 using Snuggle.Core.Models.Serialization;
 
-namespace Snuggle.Core.Meta; 
+namespace Snuggle.Core.Meta;
 
 [PublicAPI]
 public record ObjectNode(

@@ -8,7 +8,7 @@ using System.Windows.Threading;
 using Snuggle.Core.Implementations;
 using Snuggle.Handlers;
 
-namespace Snuggle.Converters; 
+namespace Snuggle.Converters;
 
 public class Texture2DToBitmapConverter : MarkupExtension, IValueConverter {
     public object? Convert(object? value, Type targetType, object parameter, CultureInfo culture) => value is not Texture2D texture ? null : new TaskCompletionNotifier<BitmapSource?>(texture, ConvertTexture(texture, Dispatcher.CurrentDispatcher));
@@ -24,7 +24,8 @@ public class Texture2DToBitmapConverter : MarkupExtension, IValueConverter {
 
                 var memory = SnuggleTextureFile.LoadCachedTexture(texture);
                 return memory.Length == 0 ? null : (RGBABitmapSource) dispatcher.Invoke(() => new RGBABitmapSource(memory, texture.Width, texture.Height));
-            }, true);
+            },
+            true);
     }
 
     public override object ProvideValue(IServiceProvider serviceProvider) => this;

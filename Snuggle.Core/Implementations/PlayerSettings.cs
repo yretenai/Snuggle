@@ -9,9 +9,10 @@ using Snuggle.Core.Models.Objects.Settings;
 using Snuggle.Core.Models.Serialization;
 using Snuggle.Core.Options;
 
-namespace Snuggle.Core.Implementations; 
+namespace Snuggle.Core.Implementations;
 
-[PublicAPI, ObjectImplementation(UnityClassId.PlayerSettings)]
+[PublicAPI]
+[ObjectImplementation(UnityClassId.PlayerSettings)]
 public class PlayerSettings : SerializedObject {
     public PlayerSettings(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : this(info, serializedFile) {
         IsMutated = false;
@@ -296,8 +297,8 @@ public class PlayerSettings : SerializedObject {
                         }
 
                         if (SerializedFile.Version >= UnityVersionRegister.Unity2019_4) {
-                            if (SerializedFile.Options.Game != UnityGame.PokemonUnite || 
-                                SerializedFile.Options.GameOptions.TryGetOptionsObject<UniteOptions>(UnityGame.PokemonUnite, out var uniteOptions) && 
+                            if (SerializedFile.Options.Game != UnityGame.PokemonUnite ||
+                                SerializedFile.Options.GameOptions.TryGetOptionsObject<UniteOptions>(UnityGame.PokemonUnite, out var uniteOptions) &&
                                 uniteOptions.GameVersion >= UniteVersion.Version1_2) {
                                 StadiaPresentMode = reader.ReadInt32();
                                 StadiaTargetFramerate = reader.ReadInt32();

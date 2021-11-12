@@ -6,9 +6,10 @@ using K4os.Compression.LZ4;
 using Snuggle.Core.IO;
 using Snuggle.Core.Options;
 
-namespace Snuggle.Core.Models.Bundle; 
+namespace Snuggle.Core.Models.Bundle;
 
-[PublicAPI, StructLayout(LayoutKind.Sequential, Pack = 1)]
+[PublicAPI]
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
 public record UnityBundleBlockInfo(
     int Size,
     int CompressedSize,

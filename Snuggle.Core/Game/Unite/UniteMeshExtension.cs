@@ -3,7 +3,7 @@ using Snuggle.Core.Interfaces;
 using Snuggle.Core.IO;
 using Snuggle.Core.Options;
 
-namespace Snuggle.Core.Game.Unite; 
+namespace Snuggle.Core.Game.Unite;
 
 [PublicAPI]
 public class UniteMeshExtension : ISerialized {
@@ -13,7 +13,7 @@ public class UniteMeshExtension : ISerialized {
     public void Serialize(BiEndianBinaryWriter writer, AssetSerializationOptions options) { }
     public void Free() { }
 }
-    
+
 [PublicAPI]
 public class UniteAssetBundleExtension : ISerialized {
     public uint Unknown1 { get; set; }

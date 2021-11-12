@@ -1,8 +1,7 @@
 ﻿using Snuggle.Core.Implementations;
 
-namespace Snuggle.Headless; 
+namespace Snuggle.Headless;
 
 public static partial class ConvertCore {
-    public static void ConvertText(SnuggleFlags flags, Text text) {
-    }
+    public static void ConvertText(SnuggleFlags flags, Text text) { }
 }

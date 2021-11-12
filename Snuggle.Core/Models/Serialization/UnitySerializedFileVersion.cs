@@ -1,6 +1,6 @@
 ﻿using JetBrains.Annotations;
 
-namespace Snuggle.Core.Models.Serialization; 
+namespace Snuggle.Core.Models.Serialization;
 
 [PublicAPI]
 public enum UnitySerializedFileVersion : uint {

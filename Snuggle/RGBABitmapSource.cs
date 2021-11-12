@@ -3,7 +3,7 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-namespace Snuggle; 
+namespace Snuggle;
 
 public class RGBABitmapSource : BitmapSource {
     private readonly int BackingPixelHeight;

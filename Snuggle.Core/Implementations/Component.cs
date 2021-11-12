@@ -6,9 +6,11 @@ using Snuggle.Core.Models;
 using Snuggle.Core.Models.Serialization;
 using Snuggle.Core.Options;
 
-namespace Snuggle.Core.Implementations; 
+namespace Snuggle.Core.Implementations;
 
-[PublicAPI, UsedImplicitly, ObjectImplementation(UnityClassId.Component)]
+[PublicAPI]
+[UsedImplicitly]
+[ObjectImplementation(UnityClassId.Component)]
 public class Component : SerializedObject {
     public Component(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) => GameObject = PPtr<GameObject>.FromReader(reader, serializedFile);
     public Component(UnityObjectInfo info, SerializedFile serializedFile) : base(info, serializedFile) => GameObject = PPtr<GameObject>.Null;

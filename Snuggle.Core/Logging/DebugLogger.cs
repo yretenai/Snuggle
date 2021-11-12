@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 using Snuggle.Core.Interfaces;
 using Snuggle.Core.Meta;
 
-namespace Snuggle.Core.Logging; 
+namespace Snuggle.Core.Logging;
 
 [PublicAPI]
 public class DebugLogger : Singleton<DebugLogger>, ILogger {

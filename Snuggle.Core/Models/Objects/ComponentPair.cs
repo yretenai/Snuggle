@@ -3,7 +3,7 @@ using Snuggle.Core.Implementations;
 using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
 
-namespace Snuggle.Core.Models.Objects; 
+namespace Snuggle.Core.Models.Objects;
 
 [PublicAPI]
 public record ComponentPair(

@@ -6,7 +6,7 @@ using SixLabors.ImageSharp.PixelFormats;
 using Snuggle.Converters;
 using Snuggle.Core.Implementations;
 
-namespace Snuggle.Handlers; 
+namespace Snuggle.Handlers;
 
 public static class SnuggleTextureFile {
     private static ConcurrentDictionary<long, Memory<byte>> CachedData { get; } = new();

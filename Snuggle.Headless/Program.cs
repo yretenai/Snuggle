@@ -11,7 +11,7 @@ using Snuggle.Core.Logging;
 using Snuggle.Core.Meta;
 using Snuggle.Core.Options;
 
-namespace Snuggle.Headless; 
+namespace Snuggle.Headless;
 
 public static class Program {
     public static int Main() {
@@ -63,11 +63,10 @@ public static class Program {
             if (!passedFilter) {
                 continue;
             }
-                
+
             Console.WriteLine($"Processing {asset}");
 
-            switch (asset)
-            {
+            switch (asset) {
                 case Texture2D texture when !flags.NoTexture && flags.LooseTextures:
                     ConvertCore.ConvertTexture(flags, texture);
                     break;

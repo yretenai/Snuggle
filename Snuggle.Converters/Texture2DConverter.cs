@@ -12,7 +12,7 @@ using Snuggle.Core.Models.Objects.Graphics;
 using Snuggle.Core.Models.Serialization;
 using Texture2DDecoder;
 
-namespace Snuggle.Converters; 
+namespace Snuggle.Converters;
 
 [PublicAPI]
 public static class Texture2DConverter {
@@ -26,17 +26,17 @@ public static class Texture2DConverter {
                 var data = ToDDS(texture2D);
                 fixed (byte* dataPin = &data.GetPinnableReference()) {
                     scratch = TexHelper.Instance.LoadFromDDSMemory((IntPtr) dataPin, data.Length, DDS_FLAGS.NONE);
-                    TexMetadata info = scratch.GetMetadata();
+                    var info = scratch.GetMetadata();
 
                     if (TexHelper.Instance.IsCompressed(info.Format)) {
-                        ScratchImage temp = scratch.Decompress(0, DXGI_FORMAT.UNKNOWN);
+                        var temp = scratch.Decompress(0, DXGI_FORMAT.UNKNOWN);
                         scratch.Dispose();
                         scratch = temp;
                         info = scratch.GetMetadata();
                     }
 
                     if (info.Format != DXGI_FORMAT.R8G8B8A8_UNORM) {
-                        ScratchImage temp = scratch.Convert(DXGI_FORMAT.R8G8B8A8_UNORM, TEX_FILTER_FLAGS.DEFAULT, 0.5f);
+                        var temp = scratch.Convert(DXGI_FORMAT.R8G8B8A8_UNORM, TEX_FILTER_FLAGS.DEFAULT, 0.5f);
                         scratch.Dispose();
                         scratch = temp;
                     }

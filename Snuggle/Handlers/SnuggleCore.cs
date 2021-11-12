@@ -20,7 +20,7 @@ using Snuggle.Core.Logging;
 using Snuggle.Core.Meta;
 using Snuggle.Core.Options;
 
-namespace Snuggle.Handlers; 
+namespace Snuggle.Handlers;
 
 [PublicAPI]
 public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisposable {

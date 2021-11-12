@@ -13,9 +13,11 @@ using Snuggle.Core.Models.Objects;
 using Snuggle.Core.Models.Serialization;
 using Snuggle.Core.Options;
 
-namespace Snuggle.Core.Implementations; 
+namespace Snuggle.Core.Implementations;
 
-[PublicAPI, UsedImplicitly, ObjectImplementation(UnityClassId.AssetBundle)]
+[PublicAPI]
+[UsedImplicitly]
+[ObjectImplementation(UnityClassId.AssetBundle)]
 public class AssetBundle : NamedObject, ICABPathProvider {
     public AssetBundle(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) {
         PreloadStart = reader.BaseStream.Position;
@@ -40,13 +42,13 @@ public class AssetBundle : NamedObject, ICABPathProvider {
         MainAsset = AssetInfo.FromReader(reader, serializedFile);
         RuntimeCompatibility = reader.ReadUInt32();
 
-        if (serializedFile.Options.Game == UnityGame.PokemonUnite && 
-            SerializedFile.Options.GameOptions.TryGetOptionsObject<UniteOptions>(UnityGame.PokemonUnite, out var uniteOptions) && 
+        if (serializedFile.Options.Game == UnityGame.PokemonUnite &&
+            SerializedFile.Options.GameOptions.TryGetOptionsObject<UniteOptions>(UnityGame.PokemonUnite, out var uniteOptions) &&
             uniteOptions.GameVersion >= UniteVersion.Version1_2) {
             var container = GetExtraContainer<UniteAssetBundleExtension>(UnityClassId.AssetBundle);
             container.Unknown1 = reader.ReadUInt32();
         }
-            
+
         AssetBundleName = reader.ReadString32();
 
         var dependencyCount = reader.ReadInt32();

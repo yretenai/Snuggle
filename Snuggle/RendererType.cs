@@ -1,4 +1,4 @@
-﻿namespace Snuggle; 
+﻿namespace Snuggle;
 
 public enum RendererType {
     Geometry,

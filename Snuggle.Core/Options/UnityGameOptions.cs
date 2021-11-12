@@ -4,17 +4,15 @@ using System.Text.Json;
 using JetBrains.Annotations;
 using Snuggle.Core.Meta;
 
-namespace Snuggle.Core.Options; 
+namespace Snuggle.Core.Options;
 
 [PublicAPI]
 public record UnityGameOptions {
-    public static UnityGameOptions Default { get; }
-
-    static UnityGameOptions() {
-        Default = new UnityGameOptions().Migrate();
-    }
-        
     public const int LatestVersion = 1;
+
+    static UnityGameOptions() => Default = new UnityGameOptions().Migrate();
+
+    public static UnityGameOptions Default { get; }
     public int Version { get; set; } = LatestVersion;
     public Dictionary<UnityGame, JsonElement> StorageMap { get; set; } = new();
 
@@ -32,7 +30,7 @@ public record UnityGameOptions {
         if (options == null) {
             return false;
         }
-            
+
         options = (T) options.Migrate();
         return true;
     }

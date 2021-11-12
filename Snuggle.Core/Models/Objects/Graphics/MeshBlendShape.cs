@@ -2,7 +2,7 @@
 using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
 
-namespace Snuggle.Core.Models.Objects.Graphics; 
+namespace Snuggle.Core.Models.Objects.Graphics;
 
 [PublicAPI]
 public record MeshBlendShape(

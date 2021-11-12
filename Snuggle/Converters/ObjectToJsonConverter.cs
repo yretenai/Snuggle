@@ -5,7 +5,7 @@ using System.Windows.Data;
 using Snuggle.Core.Options;
 using Snuggle.Handlers;
 
-namespace Snuggle.Converters; 
+namespace Snuggle.Converters;
 
 public class ObjectToJsonConverter : IValueConverter {
     public object Convert(object? value, Type targetType, object parameter, CultureInfo culture) {

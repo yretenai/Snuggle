@@ -1,6 +1,6 @@
 ﻿using JetBrains.Annotations;
 
-namespace Snuggle.Core.Extensions; 
+namespace Snuggle.Core.Extensions;
 
 [PublicAPI]
 public static class ValueExtensions {

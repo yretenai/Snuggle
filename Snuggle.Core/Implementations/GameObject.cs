@@ -9,9 +9,11 @@ using Snuggle.Core.Models.Objects;
 using Snuggle.Core.Models.Serialization;
 using Snuggle.Core.Options;
 
-namespace Snuggle.Core.Implementations; 
+namespace Snuggle.Core.Implementations;
 
-[PublicAPI, UsedImplicitly, ObjectImplementation(UnityClassId.GameObject)]
+[PublicAPI]
+[UsedImplicitly]
+[ObjectImplementation(UnityClassId.GameObject)]
 public class GameObject : SerializedObject {
     public GameObject(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) {
         var componentCount = reader.ReadInt32();

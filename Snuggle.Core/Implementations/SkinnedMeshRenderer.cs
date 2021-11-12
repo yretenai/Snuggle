@@ -7,9 +7,10 @@ using Snuggle.Core.Models;
 using Snuggle.Core.Models.Objects.Math;
 using Snuggle.Core.Models.Serialization;
 
-namespace Snuggle.Core.Implementations; 
+namespace Snuggle.Core.Implementations;
 
-[PublicAPI, ObjectImplementation(UnityClassId.SkinnedMeshRenderer)]
+[PublicAPI]
+[ObjectImplementation(UnityClassId.SkinnedMeshRenderer)]
 public class SkinnedMeshRenderer : Renderer {
     public SkinnedMeshRenderer(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) {
         Quality = reader.ReadInt32();

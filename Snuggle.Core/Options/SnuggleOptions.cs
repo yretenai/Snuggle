@@ -5,7 +5,7 @@ using Snuggle.Core.Interfaces;
 using Snuggle.Core.Logging;
 using Snuggle.Core.Meta;
 
-namespace Snuggle.Core.Options; 
+namespace Snuggle.Core.Options;
 
 [PublicAPI]
 public record SnuggleOptions(
@@ -63,7 +63,6 @@ public record SnuggleOptions(
         }
 
         options.GameOptions = options.GameOptions.Migrate();
-
 
         return options;
     }

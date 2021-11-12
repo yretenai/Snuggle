@@ -9,9 +9,10 @@ using Snuggle.Core.Models;
 using Snuggle.Core.Models.Serialization;
 using Snuggle.Core.Options;
 
-namespace Snuggle.Core.Implementations; 
+namespace Snuggle.Core.Implementations;
 
-[PublicAPI, ObjectImplementation(UnityClassId.TextAsset)]
+[PublicAPI]
+[ObjectImplementation(UnityClassId.TextAsset)]
 public class Text : NamedObject {
     public Text(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) {
         StringStart = reader.BaseStream.Position;

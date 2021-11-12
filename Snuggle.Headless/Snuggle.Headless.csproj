@@ -7,11 +7,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Library\AssetStudio\AssetStudio.PInvoke\AssetStudio.PInvoke.csproj" />
-      <ProjectReference Include="..\Library\DragonLib\DragonLib.csproj" />
-      <ProjectReference Include="..\Library\Texture2DDecoderWrapper\Texture2DDecoderWrapper.csproj" />
-      <ProjectReference Include="..\Snuggle.Converters\Snuggle.Converters.csproj" />
-      <ProjectReference Include="..\Snuggle.Core\Snuggle.Core.csproj" />
+        <ProjectReference Include="..\Library\AssetStudio\AssetStudio.PInvoke\AssetStudio.PInvoke.csproj"/>
+        <ProjectReference Include="..\Library\DragonLib\DragonLib.csproj"/>
+        <ProjectReference Include="..\Library\Texture2DDecoderWrapper\Texture2DDecoderWrapper.csproj"/>
+        <ProjectReference Include="..\Snuggle.Converters\Snuggle.Converters.csproj"/>
+        <ProjectReference Include="..\Snuggle.Core\Snuggle.Core.csproj"/>
     </ItemGroup>
 
 </Project>

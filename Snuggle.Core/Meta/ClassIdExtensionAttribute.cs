@@ -1,9 +1,10 @@
 ﻿using System;
 using JetBrains.Annotations;
 
-namespace Snuggle.Core.Meta; 
+namespace Snuggle.Core.Meta;
 
-[PublicAPI, AttributeUsage(AttributeTargets.Enum)]
+[PublicAPI]
+[AttributeUsage(AttributeTargets.Enum)]
 public class ClassIdExtensionAttribute : Attribute {
     public ClassIdExtensionAttribute(UnityGame game) => Game = game;
 

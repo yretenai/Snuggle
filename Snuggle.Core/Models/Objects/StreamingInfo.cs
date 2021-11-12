@@ -6,7 +6,7 @@ using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
 using Snuggle.Core.Options;
 
-namespace Snuggle.Core.Models.Objects; 
+namespace Snuggle.Core.Models.Objects;
 
 [PublicAPI]
 public record StreamingInfo(

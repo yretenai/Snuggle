@@ -8,7 +8,7 @@ using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
 using Snuggle.Core.Options;
 
-namespace Snuggle.Core.Models.Objects.Graphics; 
+namespace Snuggle.Core.Models.Objects.Graphics;
 
 [PublicAPI]
 public enum VertexChannel {

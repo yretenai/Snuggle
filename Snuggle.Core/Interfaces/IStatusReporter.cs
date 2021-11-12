@@ -1,6 +1,6 @@
 ﻿using JetBrains.Annotations;
 
-namespace Snuggle.Core.Interfaces; 
+namespace Snuggle.Core.Interfaces;
 
 [PublicAPI]
 public interface IStatusReporter {

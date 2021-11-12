@@ -2,7 +2,7 @@
 using JetBrains.Annotations;
 using Snuggle.Core.Meta;
 
-namespace Snuggle.Core.Interfaces; 
+namespace Snuggle.Core.Interfaces;
 
 [PublicAPI]
 public interface ILogger {

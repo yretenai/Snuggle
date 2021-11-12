@@ -9,9 +9,11 @@ using Snuggle.Core.Models.Objects;
 using Snuggle.Core.Models.Serialization;
 using Snuggle.Core.Options;
 
-namespace Snuggle.Core.Implementations; 
+namespace Snuggle.Core.Implementations;
 
-[PublicAPI, UsedImplicitly, ObjectImplementation(UnityClassId.AssetBundleManifest)]
+[PublicAPI]
+[UsedImplicitly]
+[ObjectImplementation(UnityClassId.AssetBundleManifest)]
 public class AssetBundleManifest : NamedObject {
     public AssetBundleManifest(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) {
         var assetBundleNameCount = reader.ReadInt32();

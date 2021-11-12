@@ -1,4 +1,4 @@
-﻿namespace Snuggle.Windows; 
+﻿namespace Snuggle.Windows;
 
 public partial class GameObjectTree {
     public GameObjectTree() {

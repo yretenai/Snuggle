@@ -1,9 +1,10 @@
 ﻿using System;
 using JetBrains.Annotations;
 
-namespace Snuggle.Core.Models.Bundle; 
+namespace Snuggle.Core.Models.Bundle;
 
-[PublicAPI, Flags]
+[PublicAPI]
+[Flags]
 public enum UnityFSFlags : uint {
     CompressionRange = 0x3F,
     CombinedData = 0x40,

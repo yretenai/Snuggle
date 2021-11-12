@@ -12,7 +12,7 @@ using Snuggle.Core.Meta;
 using Snuggle.Core.Models.Bundle;
 using Snuggle.Core.Options;
 
-namespace Snuggle.Core; 
+namespace Snuggle.Core;
 
 [PublicAPI]
 public class AssetCollection : IDisposable {

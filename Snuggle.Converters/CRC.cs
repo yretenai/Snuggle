@@ -1,6 +1,6 @@
 using JetBrains.Annotations;
 
-namespace Snuggle.Converters; 
+namespace Snuggle.Converters;
 
 [PublicAPI]
 public class CRC {

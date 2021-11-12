@@ -1,7 +1,7 @@
 ﻿using System;
 using JetBrains.Annotations;
 
-namespace Snuggle.Core.Exceptions; 
+namespace Snuggle.Core.Exceptions;
 
 [PublicAPI]
 public class TypeImplementationNotFoundException : Exception {

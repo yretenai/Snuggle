@@ -6,13 +6,13 @@ using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using AdonisUI;
-using Snuggle.Handlers;
-using Snuggle.Windows;
 using Snuggle.Core;
 using Snuggle.Core.Meta;
 using Snuggle.Core.Options;
+using Snuggle.Handlers;
+using Snuggle.Windows;
 
-namespace Snuggle.Components; 
+namespace Snuggle.Components;
 
 public partial class Navigation {
     private readonly Dictionary<UniteVersion, MenuItem> PokemonUniteVersionItems = new();

@@ -9,7 +9,7 @@ using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
 using Snuggle.Core.Models.Serialization;
 
-namespace Snuggle.Core.Models; 
+namespace Snuggle.Core.Models;
 
 [PublicAPI]
 public record PPtr<T>(

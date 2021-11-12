@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 using DragonLib.CLI;
 using Snuggle.Core.Meta;
 
-namespace Snuggle.Headless; 
+namespace Snuggle.Headless;
 
 public class SnuggleFlags : ICLIFlags {
     [CLIFlag("no-mesh", Aliases = new[] { "m" }, Category = "General Options", Default = false, Help = "Don't export meshes")]

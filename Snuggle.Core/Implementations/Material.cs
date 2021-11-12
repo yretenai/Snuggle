@@ -6,9 +6,10 @@ using Snuggle.Core.Models;
 using Snuggle.Core.Models.Objects.Graphics;
 using Snuggle.Core.Models.Serialization;
 
-namespace Snuggle.Core.Implementations; 
+namespace Snuggle.Core.Implementations;
 
-[PublicAPI, ObjectImplementation(UnityClassId.Material)]
+[PublicAPI]
+[ObjectImplementation(UnityClassId.Material)]
 public class Material : NamedObject {
     public Material(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) {
         Shader = PPtr<SerializedObject>.FromReader(reader, SerializedFile);
