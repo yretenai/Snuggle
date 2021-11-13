@@ -8,14 +8,14 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="DirectXTexNet" Version="1.0.2" />
-        <PackageReference Include="SixLabors.ImageSharp" Version="1.0.4" />
+        <PackageReference Include="DirectXTexNet" Version="1.0.2"/>
+        <PackageReference Include="SixLabors.ImageSharp" Version="1.0.4"/>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Library\SharpGLTF\src\SharpGLTF.Core\SharpGLTF.Core.csproj" />
-        <ProjectReference Include="..\Library\SharpGLTF\src\SharpGLTF.Toolkit\SharpGLTF.Toolkit.csproj" />
-        <ProjectReference Include="..\Snuggle.Core\Snuggle.Core.csproj" />
-        <ProjectReference Include="..\Library\Texture2DDecoderWrapper\Texture2DDecoderWrapper.csproj" />
+        <ProjectReference Include="..\Library\SharpGLTF\src\SharpGLTF.Core\SharpGLTF.Core.csproj"/>
+        <ProjectReference Include="..\Library\SharpGLTF\src\SharpGLTF.Toolkit\SharpGLTF.Toolkit.csproj"/>
+        <ProjectReference Include="..\Snuggle.Core\Snuggle.Core.csproj"/>
+        <ProjectReference Include="..\Snuggle.Native\Snuggle.Native.csproj"/>
     </ItemGroup>
 </Project>

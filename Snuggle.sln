@@ -11,12 +11,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Snuggle", "Snuggle\Snuggle.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Snuggle.Converters", "Snuggle.Converters\Snuggle.Converters.csproj", "{1ACEB8FC-F643-4583-9E69-BE38ED00AD5A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Texture2DDecoderWrapper", "Library\Texture2DDecoderWrapper\Texture2DDecoderWrapper.csproj", "{A3BCFC09-5EF9-4485-858F-FFB79AE4EF23}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AssetStudio", "AssetStudio", "{CA8B8FD3-9A2F-4F0D-8591-906A92BCD4F3}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AssetStudio.PInvoke", "Library\AssetStudio\AssetStudio.PInvoke\AssetStudio.PInvoke.csproj", "{312D80B8-B723-4F5C-8ACC-C6C24452FE63}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SharpGLTF", "SharpGLTF", "{ABB3E12D-EF19-4DFB-9328-E5BBE9D4CA7C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpGLTF.Core", "Library\SharpGLTF\src\SharpGLTF.Core\SharpGLTF.Core.csproj", "{CFE1A7EA-5168-4982-B2AE-0EC931CCCC93}"
@@ -27,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DragonLib", "Library\Dragon
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Snuggle.Headless", "Snuggle.Headless\Snuggle.Headless.csproj", "{7BDAD5C2-EB28-4255-9B0C-CAA833E3E650}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Snuggle.Native", "Snuggle.Native\Snuggle.Native.csproj", "{4A644649-A767-4F80-8A3D-36C1C4EAC035}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,10 +32,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{312D80B8-B723-4F5C-8ACC-C6C24452FE63}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{312D80B8-B723-4F5C-8ACC-C6C24452FE63}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{312D80B8-B723-4F5C-8ACC-C6C24452FE63}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{312D80B8-B723-4F5C-8ACC-C6C24452FE63}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E94BC594-FBF0-41C8-B2BE-06284880E51C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E94BC594-FBF0-41C8-B2BE-06284880E51C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E94BC594-FBF0-41C8-B2BE-06284880E51C}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -54,10 +46,6 @@ Global
 		{1ACEB8FC-F643-4583-9E69-BE38ED00AD5A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C0EC463C-3BFA-4339-8F27-F961DFBA5B1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C0EC463C-3BFA-4339-8F27-F961DFBA5B1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A3BCFC09-5EF9-4485-858F-FFB79AE4EF23}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A3BCFC09-5EF9-4485-858F-FFB79AE4EF23}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A3BCFC09-5EF9-4485-858F-FFB79AE4EF23}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A3BCFC09-5EF9-4485-858F-FFB79AE4EF23}.Release|Any CPU.Build.0 = Release|Any CPU
 		{CFE1A7EA-5168-4982-B2AE-0EC931CCCC93}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CFE1A7EA-5168-4982-B2AE-0EC931CCCC93}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CFE1A7EA-5168-4982-B2AE-0EC931CCCC93}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -74,10 +62,12 @@ Global
 		{7BDAD5C2-EB28-4255-9B0C-CAA833E3E650}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7BDAD5C2-EB28-4255-9B0C-CAA833E3E650}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7BDAD5C2-EB28-4255-9B0C-CAA833E3E650}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4A644649-A767-4F80-8A3D-36C1C4EAC035}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A644649-A767-4F80-8A3D-36C1C4EAC035}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A644649-A767-4F80-8A3D-36C1C4EAC035}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A644649-A767-4F80-8A3D-36C1C4EAC035}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{A3BCFC09-5EF9-4485-858F-FFB79AE4EF23} = {CA8B8FD3-9A2F-4F0D-8591-906A92BCD4F3}
-		{312D80B8-B723-4F5C-8ACC-C6C24452FE63} = {CA8B8FD3-9A2F-4F0D-8591-906A92BCD4F3}
 		{CFE1A7EA-5168-4982-B2AE-0EC931CCCC93} = {ABB3E12D-EF19-4DFB-9328-E5BBE9D4CA7C}
 		{FAD2B309-9346-4711-9BA6-C89E13C4A3DF} = {ABB3E12D-EF19-4DFB-9328-E5BBE9D4CA7C}
 	EndGlobalSection
