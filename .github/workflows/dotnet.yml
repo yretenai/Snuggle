@@ -44,9 +44,7 @@ jobs:
                     name: Release
                     path: dist/release
             -   name: Build ReleaseStandalone
-                run: dotnet build -c Release --self-contained -o dist/release-standalone
-            -   name: Copy Texture2DDecoderNative (ReleaseStandalone, x86)
-                run: xcopy Library\AssetStudio\Texture2DDecoderNative\bin\Win32\Release\Texture2DDecoderNative.dll dist\release-standalone\runtimes\win-x86\native /Y
+                run: dotnet build -c Release --self-contained -r win-x64 -o dist/release-standalone
             -   name: Copy Texture2DDecoderNative (ReleaseStandalone, x64)
                 run: xcopy Library\AssetStudio\Texture2DDecoderNative\bin\x64\Release\Texture2DDecoderNative.dll dist\release-standalone\runtimes\win-x64\native /Y
             -   name: Upload ReleaseStandalone
