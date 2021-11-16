@@ -41,17 +41,26 @@ jobs:
             -   name: Upload Release
                 uses: actions/upload-artifact@v2
                 with:
-                    name: Release
+                    name: snuggle-net6-win-x86-64-rel
                     path: dist/release
             -   name: Build ReleaseStandalone
-                run: dotnet build -c Release --self-contained -r win-x64 -o dist/release-standalone
+                run: dotnet build Snuggle/Snuggle.csproj -c Release --self-contained -r win-x64 -o dist/release-standalone
             -   name: Copy Texture2DDecoderNative (ReleaseStandalone, x64)
                 run: xcopy Library\AssetStudio\Texture2DDecoderNative\bin\x64\Release\Texture2DDecoderNative.dll dist\release-standalone\runtimes\win-x64\native /Y
             -   name: Upload ReleaseStandalone
                 uses: actions/upload-artifact@v2
                 with:
-                    name: Release
+                    name: snuggle-standalone-win-x64-rel
                     path: dist/release-standalone
+            -   name: Build ReleaseStandaloneHeadless
+                run: dotnet build Snuggle.Headless/Snuggle.Headless.csproj -c Release --self-contained -r win-x64 -o dist/release-standalone-headless
+            -   name: Copy Texture2DDecoderNative (ReleaseStandaloneHeadless, x64)
+                run: xcopy Library\AssetStudio\Texture2DDecoderNative\bin\x64\Release\Texture2DDecoderNative.dll dist\release-standalone-headless\runtimes\win-x64\native /Y
+            -   name: Upload ReleaseStandaloneHeadless (Win64)
+                uses: actions/upload-artifact@v2
+                with:
+                    name: snuggle-headless-standalone-win-x64-rel
+                    path: dist/release-standalone-headless
             -   name: Build Debug
                 run: dotnet build -c Debug -o dist/debug
             -   name: Copy Texture2DDecoderNative (Debug, x86)
@@ -61,5 +70,5 @@ jobs:
             -   name: Upload Debug
                 uses: actions/upload-artifact@v2
                 with:
-                    name: Debug
+                    name: snuggle-net6-win-x86-64-dbg
                     path: dist/debug
