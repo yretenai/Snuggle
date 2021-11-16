@@ -9,7 +9,8 @@ namespace Snuggle.Converters;
 public static class TextureExtensions {
     public static bool CanSupportDDS(this TextureFormat format) => format != TextureFormat.RGB24 && format is >= TextureFormat.RG16 and <= TextureFormat.R8 or < TextureFormat.DXT1Crunched;
 
-    public static bool IsBGRA(this TextureFormat format) => format is TextureFormat.ARGB4444 or TextureFormat.RGBA4444 || format.IsASTC(); // BGRA32 is swapped by B8G8R8A8_UNORM
+    // BGRA32 is swapped by B8G8R8A8_UNORM, also AssetStudio loads as BGRA.
+    public static bool IsBGRA(this TextureFormat format) => format is TextureFormat.ARGB4444 or TextureFormat.RGBA4444 || format.IsASTC() || format.IsCrunched();
 
     public static bool IsAlphaFirst(this TextureFormat format) => format is TextureFormat.ARGB4444 or TextureFormat.ARGB32;
 
@@ -43,6 +44,7 @@ public static class TextureExtensions {
     }
 
     public static bool IsASTC(this TextureFormat format) => format is >= TextureFormat.ASTC_4x4 and < TextureFormat.ASTC_12x12 or >= TextureFormat.ASTC_HDR_4x4 and <= TextureFormat.ASTC_HDR_12x12;
+    public static bool IsCrunched(this TextureFormat format) => format is TextureFormat.DXT1Crunched or TextureFormat.DXT5Crunched;
 
     public static bool IsETC(this TextureFormat format) => format is >= TextureFormat.ETC_RGB4 and < TextureFormat.ETC2_RGBA8 or >= TextureFormat.ETC_RGB4_3DS and <= TextureFormat.ETC_RGBA8_3DS or >= TextureFormat.ETC_RGB4Crunched and <= TextureFormat.ETC2_RGBA8Crunched;
 

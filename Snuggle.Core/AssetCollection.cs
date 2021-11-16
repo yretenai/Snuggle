@@ -128,23 +128,27 @@ public class AssetCollection : IDisposable {
 
     private void LoadFile(Stream dataStream, object tag, IFileHandler handler, SnuggleCoreOptions options, int align = 1, bool leaveOpen = false) {
         options.Logger.Info($"Attempting to load {tag}");
+        if (dataStream.Length == 0) {
+            return;
+        }
+        
         try {
-            if (SerializedFile.IsSerializedFile(dataStream)) {
-                LoadSerializedFile(dataStream, tag, handler, options, leaveOpen);
-            } else if (Bundle.IsBundleFile(dataStream)) {
+            if (Bundle.IsBundleFile(dataStream)) {
                 LoadBundleSequence(dataStream, tag, handler, options, align, leaveOpen);
             } else if (dataStream is FileStream fs && IsAssembly(dataStream)) {
                 LoadAssembly(dataStream, Path.GetDirectoryName(fs.Name) ?? "./", options, leaveOpen);
+            } else if (SerializedFile.IsSerializedFile(dataStream)) {
+                LoadSerializedFile(dataStream, tag, handler, options, leaveOpen);
             } else {
                 if (tag is not string path) {
                     throw new NotSupportedException($"{tag.GetType().FullName} is not supported");
                 }
 
                 path = Path.GetFileName(path);
-                var ext = Path.GetExtension(path)[1..].ToLower();
+                var ext = Path.GetExtension(path).ToLower();
                 switch (ext) {
-                    case "ress":
-                    case "resource":
+                    case ".ress":
+                    case ".resource":
                         Resources[path] = (tag, handler);
                         break;
                     default:
@@ -183,6 +187,25 @@ public class AssetCollection : IDisposable {
     public static bool IsAssembly(Stream stream) {
         var pos = stream.Position;
         try {
+            using var reader = new BiEndianBinaryReader(stream, false, true);
+            if (reader.ReadUInt16() != 0x5A4D) { // no MZ header
+                return false;
+            }
+
+            stream.Position = pos + 0x3C;
+            var peOffset = reader.ReadInt32();
+            if (peOffset > stream.Length) {
+                return false;
+            }
+
+            stream.Position = pos + peOffset;
+
+            if (reader.ReadUInt16() != 0x4550) { // no PE header
+                return false;
+            }
+
+            stream.Position = pos;
+            
             using var module = ModuleDefinition.ReadModule(new OffsetStream(stream, leaveOpen: true), new ReaderParameters(ReadingMode.Deferred) { InMemory = true });
             return module.Kind == ModuleKind.Dll && module.HasTypes;
         } catch {
