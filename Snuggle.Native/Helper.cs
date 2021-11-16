@@ -22,8 +22,24 @@ internal static class Helper {
             prefix = string.Empty;
         }
 
-        var libPath = Path.Combine("runtimes", $"{rid}-{(Environment.Is64BitProcess ? "x64" : "x86")}", "native", $"{prefix}{libraryName}.{ext}");
-        return NativeLibrary.Load(libPath);
+        var libName = $"{prefix}{libraryName}.{ext}";
+        var local = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
+        var libPath = Path.Combine(local, libName);
+        if (File.Exists(libPath)) {
+            return NativeLibrary.Load(libPath);
+        }
+
+        libPath = Path.Combine(local, "runtimes", rid, "native", libName);
+        if (File.Exists(libPath)) {
+            return NativeLibrary.Load(libPath);
+        }
+
+        libPath = Path.Combine(local, "runtimes", $"{rid}-{(Environment.Is64BitProcess ? "x64" : "x86")}", "native", libName);
+        if (File.Exists(libPath)) {
+            return NativeLibrary.Load(libPath);
+        }
+
+        return IntPtr.Zero;
     }
 
     public static void Register() {
