@@ -164,10 +164,6 @@ public static class MeshToHelixConverter {
     }
 
     private static void FindGeometryMeshData(GameObject gameObject, IDictionary<long, (List<Object3D> submeshes, List<(Texture2D? texture, Memory<byte> textureData)>)> meshData, CancellationToken token) {
-        if (gameObject.FindComponent(UnityClassId.Transform).Value is not Transform transform) {
-            return;
-        }
-
         var submeshes = new List<Object3D>();
         if (gameObject.FindComponent(UnityClassId.MeshFilter).Value is MeshFilter filter && filter.Mesh.Value != null) {
             filter.Mesh.Value.Deserialize(ObjectDeserializationOptions.Default);
@@ -189,8 +185,8 @@ public static class MeshToHelixConverter {
         }
 
         if (SnuggleCore.Instance.Settings.BubbleGameObjectsDown) {
-            foreach (var child in transform.Children) {
-                if (child.Value?.GameObject.Value == null) {
+            foreach (var child in gameObject.Children) {
+                if (child.Value == null) {
                     continue;
                 }
 
@@ -198,7 +194,7 @@ public static class MeshToHelixConverter {
                     return;
                 }
 
-                FindGeometryMeshData(child.Value.GameObject.Value, meshData, token);
+                FindGeometryMeshData(child.Value, meshData, token);
             }
         }
     }
@@ -236,8 +232,8 @@ public static class MeshToHelixConverter {
             collection.Add(group);
         }
 
-        foreach (var child in transform.Children) {
-            if (child.Value?.GameObject.Value == null) {
+        foreach (var child in gameObject.Children) {
+            if (child.Value == null) {
                 continue;
             }
 
@@ -246,7 +242,7 @@ public static class MeshToHelixConverter {
             }
 
             AddGameObjectNode(
-                child.Value.GameObject.Value,
+                child.Value,
                 collection,
                 matrix,
                 builder,
@@ -305,8 +301,8 @@ public static class MeshToHelixConverter {
 
             collection.Add(
                 new MeshGeometryModel3D {
-                    RenderWireframe = false,
-                    WireframeColor = Colors.Orange,
+                    RenderWireframe = SnuggleCore.Instance.Settings.DisplayWireframe,
+                    WireframeColor = Colors.Red,
                     Geometry = submesh.Geometry,
                     Name = submesh.Name.Replace('.', '_'),
                     Material = material3d,

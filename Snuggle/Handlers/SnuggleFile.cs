@@ -92,6 +92,8 @@ public static class SnuggleFile {
                 instance.Status.Reset();
                 instance.Status.SetStatus("Finding container paths...");
                 instance.Collection.FindResources();
+                instance.Status.SetStatus("Building GameObject Graph...");
+                instance.Collection.BuildGraph();
                 instance.Status.SetStatus($"Loaded {instance.Collection.Files.Count} files");
                 instance.WorkerAction("Collect", _ => AssetCollection.Collect(), false);
                 instance.OnPropertyChanged(nameof(SnuggleCore.Objects));

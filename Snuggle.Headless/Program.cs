@@ -54,6 +54,9 @@ public static class Program {
         collection.CacheGameObjectClassIds();
         logger.Info("Finding container paths...");
         collection.FindResources();
+        logger.Info("Building GameObject Graph...");
+        collection.BuildGraph();
+        logger.Info("Collecting Memory...");
         AssetCollection.Collect();
         logger.Info($"Memory Tension: {GC.GetTotalMemory(false).GetHumanReadableBytes()}");
 

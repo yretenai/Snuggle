@@ -1,17 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using AdonisUI;
+using DragonLib.IO;
+using Microsoft.WindowsAPICodePack.Dialogs;
 using Snuggle.Converters;
 using Snuggle.Core;
+using Snuggle.Core.Implementations;
 using Snuggle.Core.Meta;
 using Snuggle.Core.Options;
 using Snuggle.Handlers;
-using Snuggle.Windows;
 
 namespace Snuggle.Components;
 
@@ -33,6 +36,7 @@ public partial class Navigation {
         BubbleGameObjectsDown.IsChecked = instance.Settings.BubbleGameObjectsDown;
         BubbleGameObjectsUp.IsChecked = instance.Settings.BubbleGameObjectsUp;
         DisplayRelationshipLines.IsChecked = instance.Settings.DisplayRelationshipLines;
+        DisplayWireframe.IsChecked = instance.Settings.DisplayWireframe;
 
         BuildEnumMenu(UnityGameList, UnityGameItems, new[] { instance.Settings.Options.Game }, UpdateGame, CancelGameEvent);
         BuildEnumMenu(RendererTypes, RendererTypeItems, instance.Settings.EnabledRenders, AddRenderer, RemoveRenderer);
@@ -227,18 +231,28 @@ public partial class Navigation {
         var enabled = ((MenuItem) sender).IsChecked;
         var instance = SnuggleCore.Instance;
         instance.SetOptions(instance.Settings with { BubbleGameObjectsDown = enabled });
+        instance.OnPropertyChanged(nameof(SnuggleCore.Settings) + ".Renderer");
     }
 
     private void ToggleDisplayRelationshipLines(object sender, RoutedEventArgs e) {
         var enabled = ((MenuItem) sender).IsChecked;
         var instance = SnuggleCore.Instance;
         instance.SetOptions(instance.Settings with { DisplayRelationshipLines = enabled });
+        instance.OnPropertyChanged(nameof(SnuggleCore.Settings) + ".Renderer");
+    }
+
+    private void ToggleDisplayWireframe(object sender, RoutedEventArgs e) {
+        var enabled = ((MenuItem) sender).IsChecked;
+        var instance = SnuggleCore.Instance;
+        instance.SetOptions(instance.Settings with { DisplayWireframe = enabled });
+        instance.OnPropertyChanged(nameof(SnuggleCore.Settings) + ".Renderer");
     }
 
     private void ToggleBubbleGameObjectUp(object sender, RoutedEventArgs e) {
         var enabled = ((MenuItem) sender).IsChecked;
         var instance = SnuggleCore.Instance;
         instance.SetOptions(instance.Settings with { BubbleGameObjectsUp = enabled });
+        instance.OnPropertyChanged(nameof(SnuggleCore.Settings) + ".Renderer");
     }
 
     private void ToggleLightMode(object sender, RoutedEventArgs e) {
@@ -284,8 +298,27 @@ public partial class Navigation {
             true);
     }
 
-    private void OpenGameObjectTree(object sender, RoutedEventArgs e) {
-        App.OpenWindow<GameObjectTree>();
+    private void DumpGameObjectTree(object sender, RoutedEventArgs e) {
+        using var selection = new CommonSaveFileDialog() {
+            DefaultFileName = "gametree.txt",
+            Filters = { new CommonFileDialogFilter("JSON File", ".json") },
+            InitialDirectory = SnuggleCore.Instance.Settings.LastSaveDirectory,
+            Title = "Select file to save to",
+            ShowPlacesList = true,
+        };
+
+        if (selection.ShowDialog() != CommonFileDialogResult.Ok) {
+            return;
+        }
+
+        using var file = new FileStream(selection.FileName, FileMode.Create);
+        using var writer = new StreamWriter(file);
+        var nodes = BuildTreeNode(SnuggleCore.Instance.Collection.GameObjectTree);
+        TreePrinter.PrintTree(writer, nodes);
+    }
+
+    private List<TreePrinter.TreeNode> BuildTreeNode(IEnumerable<GameObject?> gameObjects) {
+        return gameObjects.Where(x => x != null).Select(x => new TreePrinter.TreeNode(x!.Name, BuildTreeNode(x.Children.Select(y => y.Value)))).ToList();
     }
 
     private void ExtractRaw(object sender, RoutedEventArgs e) {

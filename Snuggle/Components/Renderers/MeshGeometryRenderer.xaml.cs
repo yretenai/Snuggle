@@ -8,6 +8,8 @@ using System.Windows.Threading;
 using HelixToolkit.Wpf.SharpDX;
 using Snuggle.Converters;
 using Snuggle.Core.Implementations;
+using Snuggle.Handlers;
+using Component = Snuggle.Core.Implementations.Component;
 
 namespace Snuggle.Components.Renderers;
 
@@ -22,6 +24,12 @@ public partial class MeshGeometryRenderer {
 
             light.Position = Viewport3D.Camera.Position;
         };
+        
+        SnuggleCore.Instance.PropertyChanged += (sender, args) => {
+            if (args.PropertyName == nameof(SnuggleCore.Settings) + ".Renderer") {
+                Refresh(sender, new DependencyPropertyChangedEventArgs());
+            }
+        };
     }
 
     public static RoutedCommand ToggleWireframeCommand { get; } = new();
@@ -29,7 +37,7 @@ public partial class MeshGeometryRenderer {
     public static RoutedCommand CycleSubmeshesCommand { get; } = new();
     public static RoutedCommand ZoomExtentsCommand { get; } = new();
 
-    private void Refresh(object sender, DependencyPropertyChangedEventArgs e) {
+    private void Refresh(object? sender, DependencyPropertyChangedEventArgs e) {
         var existingPointLight = Viewport3D.Items.FirstOrDefault(x => x is PointLight3D);
         Viewport3D.Items.Clear();
         if (existingPointLight != null) {

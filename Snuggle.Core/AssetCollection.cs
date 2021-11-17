@@ -9,6 +9,7 @@ using Snuggle.Core.Implementations;
 using Snuggle.Core.Interfaces;
 using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
+using Snuggle.Core.Models;
 using Snuggle.Core.Models.Bundle;
 using Snuggle.Core.Options;
 
@@ -21,6 +22,7 @@ public class AssetCollection : IDisposable {
     public Dictionary<string, ObjectNode> Types { get; } = new();
     public Dictionary<string, SerializedFile> Files { get; } = new(StringComparer.InvariantCultureIgnoreCase);
     public Dictionary<string, (object Tag, IFileHandler Handler)> Resources { get; } = new(StringComparer.InvariantCultureIgnoreCase);
+    public List<GameObject> GameObjectTree { get; set; } = new();
     public PlayerSettings? PlayerSettings { get; internal set; }
 
     public void Dispose() {
@@ -48,6 +50,7 @@ public class AssetCollection : IDisposable {
         Assemblies.Clear();
         Files.Clear();
         Resources.Clear();
+        GameObjectTree.Clear();
         Collect();
     }
 
@@ -238,6 +241,26 @@ public class AssetCollection : IDisposable {
     public void CacheGameObjectClassIds() {
         foreach (var serializedObject in Files.SelectMany(pair => pair.Value.GetAllObjects().OfType<GameObject>())) {
             serializedObject.CacheClassIds();
+        }
+    }
+
+    public void BuildGraph() {
+        foreach (var (_, file) in Files) {
+            foreach (var (pathId, info) in file.ObjectInfos) {
+                if (!info.ClassId.Equals(UnityClassId.GameObject)) {
+                    continue;
+                }
+
+                if (file.GetObject(pathId) is not GameObject gameObject) {
+                    continue;
+                }
+
+                if (!gameObject.Parent.IsNull) {
+                    continue;
+                }
+
+                GameObjectTree.Add(gameObject);
+            }
         }
     }
 }

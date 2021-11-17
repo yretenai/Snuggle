@@ -48,15 +48,11 @@ public static class SnuggleMeshFile {
 
     public static GameObject? FindTopGeometry(GameObject? gameObject, bool bubbleUp) {
         while (true) {
-            if (gameObject?.FindComponent(UnityClassId.Transform).Value is not Transform transform) {
-                return null;
-            }
-
-            if (transform.Parent.Value?.GameObject.Value == null || bubbleUp) {
+            if (gameObject?.Parent.Value == null || bubbleUp) {
                 return gameObject;
             }
 
-            gameObject = transform.Parent.Value.GameObject.Value;
+            gameObject = gameObject.Parent.Value;
         }
     }
 
@@ -84,7 +80,7 @@ public static class SnuggleMeshFile {
             skinnedMeshes,
             path,
             options);
-        BuildHashTree(nodeTree, hashTree, gameObject.FindComponent(UnityClassId.Transform).Value as Transform);
+        BuildHashTree(nodeTree, hashTree, gameObject);
         var saved = new Dictionary<long, string>();
         foreach (var (skinnedMesh, materials) in skinnedMeshes) {
             var skin = new (NodeBuilder, Matrix4x4)[skinnedMesh.BoneNameHashes.Count];
@@ -111,16 +107,16 @@ public static class SnuggleMeshFile {
         gltf.SaveGLTF(path + ".gltf", new WriteSettings { JsonIndented = true, ImageWriting = ResourceWriteMode.SatelliteFile, Validation = ValidationMode.TryFix, ImageWriteCallback = (_, _, memoryFile) => Path.GetFileName(memoryFile.SourcePath) });
     }
 
-    private static void BuildHashTree(IReadOnlyDictionary<long, NodeBuilder> nodeTree, IDictionary<uint, NodeBuilder> hashTree, Transform? transform) {
-        if (transform == null) {
+    private static void BuildHashTree(IReadOnlyDictionary<long, NodeBuilder> nodeTree, IDictionary<uint, NodeBuilder> hashTree, GameObject? gameObject) {
+        if (gameObject == null) {
             return;
         }
 
-        var name = GetTransformPath(transform);
+        var name = GetTransformPath(gameObject);
         var crc = new CRC();
         var bytes = Encoding.UTF8.GetBytes(name);
         crc.Update(bytes, 0, (uint) bytes.Length);
-        var node = nodeTree[transform.PathId];
+        var node = nodeTree[gameObject.PathId];
         hashTree[crc.GetDigest()] = node;
         int index;
         while ((index = name.IndexOf("/", StringComparison.Ordinal)) >= 0) {
@@ -131,20 +127,20 @@ public static class SnuggleMeshFile {
             hashTree[crc.GetDigest()] = node;
         }
 
-        foreach (var child in transform.Children) {
+        foreach (var child in gameObject.Children) {
             BuildHashTree(nodeTree, hashTree, child.Value);
         }
     }
 
-    private static string GetTransformPath(Transform transform) {
-        if (transform.GameObject.Value == null) {
+    private static string GetTransformPath(GameObject? gameObject) {
+        if (gameObject == null) {
             throw new InvalidOperationException();
         }
 
-        var name = transform.GameObject.Value.Name;
+        var name = gameObject.Name;
 
-        if (transform.Parent.Value != null) {
-            return GetTransformPath(transform.Parent.Value) + "/" + name;
+        if (gameObject.Parent.Value != null) {
+            return GetTransformPath(gameObject.Parent.Value) + "/" + name;
         }
 
         return name;
@@ -185,15 +181,15 @@ public static class SnuggleMeshFile {
         }
 
         if (options.BubbleDown) {
-            foreach (var child in transform.Children) {
-                if (child.Value?.GameObject.Value == null) {
+            foreach (var child in gameObject.Children) {
+                if (child.Value == null) {
                     continue;
                 }
 
                 var childNode = node.CreateNode();
                 scene.AddNode(childNode);
                 BuildGameObject(
-                    child.Value.GameObject.Value,
+                    child.Value,
                     scene,
                     childNode,
                     nodeTree,

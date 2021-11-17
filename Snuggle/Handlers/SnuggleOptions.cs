@@ -18,8 +18,9 @@ public record SnuggleOptions(
     bool LightMode,
     bool BubbleGameObjectsDown,
     bool BubbleGameObjectsUp,
-    bool DisplayRelationshipLines) {
-    private const int LatestVersion = 5;
+    bool DisplayRelationshipLines,
+    bool DisplayWireframe) {
+    private const int LatestVersion = 6;
 
     public List<string> RecentFiles { get; set; } = new();
     public List<string> RecentDirectories { get; set; } = new();
@@ -37,8 +38,9 @@ public record SnuggleOptions(
         "{0}.{1:G}_{2:G}.bytes", // 0 = Name, 1 = PathId, 2 = Type
         false,
         true,
+        false,
         true,
-        true);
+        false);
 
     public int Version { get; set; } = LatestVersion;
 
@@ -89,6 +91,10 @@ public record SnuggleOptions(
 
         if (settings.Version < 5) {
             settings = settings with { DisplayRelationshipLines = true };
+        }
+
+        if (settings.Version < 6) {
+            settings = settings with { DisplayWireframe = false };
         }
 
         return settings with { Version = LatestVersion };

@@ -63,12 +63,15 @@
                 <MenuItem Header="_Display Lines"
                           ToolTip="Display game object hierarchy lines"
                           IsCheckable="True" Click="ToggleDisplayRelationshipLines" x:Name="DisplayRelationshipLines" />
+                <MenuItem Header="_Display Wireframe"
+                          ToolTip="Display mesh wireframe"
+                          IsCheckable="True" Click="ToggleDisplayWireframe" x:Name="DisplayWireframe" />
                 <MenuItem Header="_Enabled Preview Types" x:Name="RendererTypes" />
             </MenuItem>
             <MenuItem Header="_Light Mode" IsCheckable="True" Click="ToggleLightMode" x:Name="LightMode" />
             <Separator />
-            <MenuItem Header="_Game Object Hierarchy" ToolTip="Display game object hierarchy in a separate window"
-                      Click="OpenGameObjectTree" Visibility="{Binding IsDebugVisibility}" />
+            <MenuItem Header="_Dump Game Object Hierarchy" ToolTip="Dumps game object hierarchy to a text file"
+                      Click="DumpGameObjectTree"/>
             <MenuItem Header="_Game" x:Name="UnityGameList" />
             <MenuItem Header="Game _Options" x:Name="GameOptions" Visibility="Collapsed" />
         </MenuItem>

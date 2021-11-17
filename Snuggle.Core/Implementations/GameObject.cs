@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using JetBrains.Annotations;
 using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
@@ -36,6 +37,30 @@ public class GameObject : SerializedObject {
     public string Name { get; set; }
     public ushort Tag { get; set; }
     public bool Active { get; set; }
+
+    [JsonIgnore]
+    public PPtr<GameObject> Parent {
+        get {
+            var component = FindComponent(UnityClassId.Transform);
+            if (component.IsNull || component.Value is not Transform transform) {
+                return PPtr<GameObject>.Null;
+            }
+
+            return transform.Parent.Value?.GameObject ?? PPtr<GameObject>.Null;
+        }
+    }
+
+    [JsonIgnore]
+    public List<PPtr<GameObject>> Children {
+        get {
+            var component = FindComponent(UnityClassId.Transform);
+            if (component.IsNull || component.Value is not Transform transform) {
+                return new List<PPtr<GameObject>>();
+            }
+
+            return transform.Children.Where(x => x.Value != null).Select(x => x.Value!.GameObject).ToList() ?? new List<PPtr<GameObject>>();
+        }
+    }
 
     public IEnumerable<PPtr<Component>> FindComponents(params object[] classIds) {
         return Components.Where(x => classIds.Any(y => x.ClassId.Equals(y))).Select(x => x.Ptr);
