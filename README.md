@@ -1,7 +1,7 @@
 # Snuggle [![Snuggle](https://github.com/yretenai/Snuggle/actions/workflows/dotnet.yml/badge.svg)](https://github.com/yretenai/Snuggle/actions/workflows/dotnet.yml)
 Unity Processor
 
-## Snuggle and it's contributors are not affiliated with, or sponsored or authorized by, Unity Technologies.
+## Snuggle and it's contributors are not affiliated with, or sponsored by, or authorized by, Unity Technologies.
 
 ### Special Thanks
 
