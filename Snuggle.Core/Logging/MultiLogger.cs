@@ -15,4 +15,16 @@ public class MultiLogger : ILogger {
             logger.Log(level, category, message, exception);
         }
     }
+
+    ~MultiLogger() {
+        Dispose();
+    }
+
+    public void Dispose() {
+        foreach (var logger in Loggers) {
+            logger.Dispose();
+        }
+
+        GC.SuppressFinalize(this);
+    }
 }

@@ -9,6 +9,7 @@ using SharpGLTF.Geometry;
 using SharpGLTF.Geometry.VertexTypes;
 using SharpGLTF.IO;
 using SharpGLTF.Materials;
+using SharpGLTF.Memory;
 using SharpGLTF.Scenes;
 using SharpGLTF.Schema2;
 using SharpGLTF.Transforms;
@@ -43,8 +44,10 @@ public static class SnuggleMeshFile {
             Directory.CreateDirectory(dir);
         }
 
-        gltf.SaveGLTF(targetPath, new WriteSettings { JsonIndented = true, ImageWriting = ResourceWriteMode.SatelliteFile, Validation = ValidationMode.TryFix, ImageWriteCallback = (_, _, memoryFile) => Path.GetFileName(memoryFile.SourcePath) });
+        gltf.SaveGLTF(targetPath, new WriteSettings { JsonIndented = true, ImageWriting = ResourceWriteMode.SatelliteFile, Validation = ValidationMode.TryFix, ImageWriteCallback = FixImage });
     }
+
+    private static string FixImage(WriteContext context, string assetname, MemoryImage image) => Path.GetFileName(image.SourcePath);
 
     public static GameObject? FindTopGeometry(GameObject? gameObject, bool bubbleUp) {
         while (true) {
@@ -104,7 +107,7 @@ public static class SnuggleMeshFile {
             Directory.CreateDirectory(dir);
         }
 
-        gltf.SaveGLTF(path + ".gltf", new WriteSettings { JsonIndented = true, ImageWriting = ResourceWriteMode.SatelliteFile, Validation = ValidationMode.TryFix, ImageWriteCallback = (_, _, memoryFile) => Path.GetFileName(memoryFile.SourcePath) });
+        gltf.SaveGLTF(path + ".gltf", new WriteSettings { JsonIndented = true, ImageWriting = ResourceWriteMode.SatelliteFile, Validation = ValidationMode.TryFix, ImageWriteCallback = FixImage });
     }
 
     private static void BuildHashTree(IReadOnlyDictionary<long, NodeBuilder> nodeTree, IDictionary<uint, NodeBuilder> hashTree, GameObject? gameObject) {
@@ -159,7 +162,7 @@ public static class SnuggleMeshFile {
         }
 
         node.Name = gameObject.Name;
-        nodeTree[transform.PathId] = node;
+        nodeTree[gameObject.PathId] = node;
 
         var (rX, rY, rZ, rW) = transform.Rotation;
         var (tX, tY, tZ) = transform.Translation;
@@ -442,17 +445,17 @@ public static class SnuggleMeshFile {
                 }
 
                 if (name == "_MainTex") {
-                    materialBuilder.WithBaseColor(texPath);
+                    materialBuilder.WithBaseColor(new MemoryImage(texPath));
                 } else if (name == "_BumpMap" || name.Contains("Normal")) {
-                    materialBuilder.WithNormal(texPath);
+                    materialBuilder.WithNormal(new MemoryImage(texPath));
                 } else if (name.Contains("Spec")) {
-                    materialBuilder.WithSpecularGlossiness(texPath);
+                    materialBuilder.WithSpecularGlossiness(new MemoryImage(texPath));
                 } else if (name.Contains("Metal")) {
-                    materialBuilder.WithMetallicRoughness(texPath);
+                    materialBuilder.WithMetallicRoughness(new MemoryImage(texPath));
                 } else if (name.Contains("Rough") || name.Contains("Smooth")) {
-                    materialBuilder.WithMetallicRoughness(texPath);
+                    materialBuilder.WithMetallicRoughness(new MemoryImage(texPath));
                 } else if (name.Contains("Emis")) {
-                    materialBuilder.WithEmissive(texPath);
+                    materialBuilder.WithEmissive(new MemoryImage(texPath));
                 }
             }
         }

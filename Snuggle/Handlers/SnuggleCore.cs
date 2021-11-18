@@ -29,14 +29,18 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
 
     public SnuggleCore() {
         Dispatcher = Dispatcher.CurrentDispatcher;
-        var workDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-        SettingsFile = Path.Combine(workDir ?? "./", "Snuggle.json");
+        var workDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? "./";
+        SettingsFile = Path.Combine(workDir, "Snuggle.json");
         WorkerThread = new Thread(WorkLoop);
         WorkerThread.Start();
+        if (!Directory.Exists(Path.Combine(workDir, "Log"))) {
+            Directory.CreateDirectory(Path.Combine(workDir, "Log"));
+        }
         LogTarget = new MultiLogger {
             Loggers = {
-                new ConsoleLogger(), new DebugLogger(),
-                // Log,
+                new ConsoleLogger(), 
+                new DebugLogger(),
+                new FileLogger(new FileStream(Path.Combine(workDir, "Log", $"SnuggleLog_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds():D}.log"), FileMode.Create)),
             },
         };
         SetOptions(File.Exists(SettingsFile) ? SnuggleOptions.FromJson(File.ReadAllText(SettingsFile)) : SnuggleOptions.Default);
@@ -129,7 +133,6 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
         SelectedObject = null;
         Collection.Reset();
         Status.Reset();
-        // Log.Clear();
         Search = string.Empty;
         Filters.Clear();
         SnuggleTextureFile.ClearMemory();
@@ -152,15 +155,17 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
                 try {
                     if (report) {
                         Instance.Status.SetStatus($"Working on {name}...");
+                        Instance.LogTarget.Info($"Working on {name}...");
                     }
 
                     action(token);
                     if (report) {
                         Instance.Status.SetStatus($"{name} done.");
+                        Instance.LogTarget.Info($"{name} done.");
                     }
                 } catch (Exception e) {
                     Instance.Status.SetStatus($"{name} failed! {e.Message}");
-                    Debug.WriteLine(e);
+                    Instance.LogTarget.Error("Worker", $"{name} failed! {e.Message}", e);
                 }
             }));
     }

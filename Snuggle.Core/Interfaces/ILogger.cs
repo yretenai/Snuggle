@@ -5,7 +5,7 @@ using Snuggle.Core.Meta;
 namespace Snuggle.Core.Interfaces;
 
 [PublicAPI]
-public interface ILogger {
+public interface ILogger : IDisposable {
     public void Log(LogLevel level, string? category, string message, Exception? exception);
 
     public void Debug(string category, string message, Exception exception) => Log(LogLevel.Debug, category, message, exception);

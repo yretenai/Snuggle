@@ -84,6 +84,7 @@ public static class SnuggleFile {
                     }
 
                     instance.Status.SetStatus($"Loading {file}");
+                    instance.LogTarget.Info($"Loading {Path.GetFileName(file)}");
                     instance.Status.SetProgress(instance.Status.Value + 1);
                     instance.Collection.LoadFile(file, instance.Settings.Options);
                 }
@@ -91,10 +92,13 @@ public static class SnuggleFile {
                 instance.Collection.CacheGameObjectClassIds();
                 instance.Status.Reset();
                 instance.Status.SetStatus("Finding container paths...");
+                instance.LogTarget.Info("Finding container paths...");
                 instance.Collection.FindResources();
                 instance.Status.SetStatus("Building GameObject Graph...");
+                instance.LogTarget.Info("Building GameObject Graph...");
                 instance.Collection.BuildGraph();
                 instance.Status.SetStatus($"Loaded {instance.Collection.Files.Count} files");
+                instance.LogTarget.Info($"Loaded {instance.Collection.Files.Count} files");
                 instance.WorkerAction("Collect", _ => AssetCollection.Collect(), false);
                 instance.OnPropertyChanged(nameof(SnuggleCore.Objects));
                 instance.OnPropertyChanged(nameof(SnuggleCore.HasAssetsVisibility));
