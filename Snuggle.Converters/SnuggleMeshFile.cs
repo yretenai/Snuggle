@@ -244,7 +244,7 @@ public static class SnuggleMeshFile {
                         xyvnt[i].Tangent = new Vector4(floatValues.Take(4).ToArray());
                         break;
                     case VertexChannel.Color:
-                        cuv[i].Color = new Vector4(floatValues.Take(4).ToArray());
+                        cuv[i].Color = options.WriteColors ? new Vector4(floatValues.Take(4).ToArray()) : new Vector4(1.0f);
                         break;
                     case VertexChannel.UV0:
                         cuv[i].TexCoord0 = new Vector2(floatValues.Take(2).ToArray());
@@ -465,5 +465,5 @@ public static class SnuggleMeshFile {
         }
     }
 
-    public readonly record struct SnuggleMeshFileOptions(ObjectDeserializationOptions ObjectOptions, bool BubbleDown, bool BubbleUp, bool WriteNative, bool WriteTexture, bool WriteMaterial);
+    public readonly record struct SnuggleMeshFileOptions(ObjectDeserializationOptions ObjectOptions, bool BubbleDown, bool BubbleUp, bool WriteNative, bool WriteTexture, bool WriteMaterial, bool WriteColors);
 }

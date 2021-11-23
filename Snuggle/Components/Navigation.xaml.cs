@@ -30,6 +30,7 @@ public partial class Navigation {
         CacheData.IsChecked = instance.Settings.Options.CacheData;
         CacheDataIfLZMA.IsChecked = instance.Settings.Options.CacheDataIfLZMA;
         WriteNativeTextures.IsChecked = instance.Settings.WriteNativeTextures;
+        WriteVertexColors.IsChecked = instance.Settings.WriteVertexColors;
         UseContainerPaths.IsChecked = instance.Settings.UseContainerPaths;
         GroupByType.IsChecked = instance.Settings.GroupByType;
         LightMode.IsChecked = instance.Settings.LightMode;
@@ -97,10 +98,18 @@ public partial class Navigation {
     private void PopulateItemTypes() {
         var instance = SnuggleCore.Instance;
         Filters.Items.Clear();
+        var letters = new Dictionary<char, MenuItem>();
         foreach (var item in instance.Objects.DistinctBy(x => x.ClassId).Select(x => x.ClassId).OrderBy(x => ((Enum) x).ToString("G"))) {
-            var menuItem = new MenuItem { Tag = item, Header = "_" + ((Enum) item).ToString("G"), IsCheckable = true, IsChecked = instance.Filters.Contains(item) };
+            var name = ((Enum) item).ToString("G");
+            var menuItem = new MenuItem { Tag = item, Header = "_" + name, IsCheckable = true, IsChecked = instance.Filters.Contains(item) };
             menuItem.Click += ToggleFilter;
-            Filters.Items.Add(menuItem);
+            var letter = char.ToUpper(name[0]);
+            if (!letters.TryGetValue(letter, out var letterMenuItem)) {
+                letterMenuItem = new MenuItem { Header = $"_{letter}" };
+                letters[letter] = letterMenuItem;
+                Filters.Items.Add(letterMenuItem);
+            }
+            letterMenuItem.Items.Add(menuItem);
         }
 
         Filters.Visibility = Filters.Items.IsEmpty ? Visibility.Collapsed : Visibility.Visible;
@@ -213,6 +222,12 @@ public partial class Navigation {
         var enabled = ((MenuItem) sender).IsChecked;
         var instance = SnuggleCore.Instance;
         instance.SetOptions(instance.Settings with { WriteNativeTextures = enabled });
+    }
+
+    private void ToggleWriteVertexColors(object sender, RoutedEventArgs e) {
+        var enabled = ((MenuItem) sender).IsChecked;
+        var instance = SnuggleCore.Instance;
+        instance.SetOptions(instance.Settings with { WriteVertexColors = enabled });
     }
 
     private void ToggleUseContainerPaths(object sender, RoutedEventArgs e) {

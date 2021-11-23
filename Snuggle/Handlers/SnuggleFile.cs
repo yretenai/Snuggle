@@ -174,7 +174,7 @@ public static class SnuggleFile {
                 return;
             }
             case Mesh mesh: {
-                SnuggleMeshFile.Save(mesh, resultPath, new SnuggleMeshFile.SnuggleMeshFileOptions(instance.Settings.ObjectOptions, instance.Settings.BubbleGameObjectsDown, instance.Settings.BubbleGameObjectsUp, instance.Settings.WriteNativeTextures, true, true));
+                SnuggleMeshFile.Save(mesh, resultPath, new SnuggleMeshFile.SnuggleMeshFileOptions(instance.Settings.ObjectOptions, instance.Settings.BubbleGameObjectsDown, instance.Settings.BubbleGameObjectsUp, instance.Settings.WriteNativeTextures, true, true, instance.Settings.WriteVertexColors));
                 return;
             }
             case Component component: {
@@ -183,11 +183,11 @@ public static class SnuggleFile {
                     return;
                 }
 
-                SnuggleMeshFile.Save(gameObject, GetResultPath(outputDirectory, gameObject), new SnuggleMeshFile.SnuggleMeshFileOptions(instance.Settings.ObjectOptions, instance.Settings.BubbleGameObjectsDown, instance.Settings.BubbleGameObjectsUp, instance.Settings.WriteNativeTextures, true, true));
+                SnuggleMeshFile.Save(gameObject, GetResultPath(outputDirectory, gameObject), new SnuggleMeshFile.SnuggleMeshFileOptions(instance.Settings.ObjectOptions, instance.Settings.BubbleGameObjectsDown, instance.Settings.BubbleGameObjectsUp, instance.Settings.WriteNativeTextures, true, true, instance.Settings.WriteVertexColors));
                 return;
             }
             case GameObject gameObject: {
-                SnuggleMeshFile.Save(gameObject, GetResultPath(outputDirectory, gameObject), new SnuggleMeshFile.SnuggleMeshFileOptions(instance.Settings.ObjectOptions, instance.Settings.BubbleGameObjectsDown, instance.Settings.BubbleGameObjectsUp, instance.Settings.WriteNativeTextures, true, true));
+                SnuggleMeshFile.Save(gameObject, GetResultPath(outputDirectory, gameObject), new SnuggleMeshFile.SnuggleMeshFileOptions(instance.Settings.ObjectOptions, instance.Settings.BubbleGameObjectsDown, instance.Settings.BubbleGameObjectsUp, instance.Settings.WriteNativeTextures, true, true, instance.Settings.WriteVertexColors));
                 return;
             }
         }

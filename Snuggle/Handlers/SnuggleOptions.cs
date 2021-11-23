@@ -19,8 +19,9 @@ public record SnuggleOptions(
     bool BubbleGameObjectsDown,
     bool BubbleGameObjectsUp,
     bool DisplayRelationshipLines,
-    bool DisplayWireframe) {
-    private const int LatestVersion = 6;
+    bool DisplayWireframe,
+    bool WriteVertexColors) {
+    private const int LatestVersion = 7;
 
     public List<string> RecentFiles { get; set; } = new();
     public List<string> RecentDirectories { get; set; } = new();
@@ -40,7 +41,8 @@ public record SnuggleOptions(
         true,
         false,
         true,
-        false);
+        false,
+        true);
 
     public int Version { get; set; } = LatestVersion;
 
@@ -95,6 +97,10 @@ public record SnuggleOptions(
 
         if (settings.Version < 6) {
             settings = settings with { DisplayWireframe = false };
+        }
+
+        if (settings.Version < 7) {
+            settings = settings with { WriteVertexColors = true };
         }
 
         return settings with { Version = LatestVersion };
