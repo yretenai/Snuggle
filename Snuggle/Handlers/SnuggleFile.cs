@@ -232,6 +232,9 @@ public static class SnuggleFile {
 
         if (SnuggleCore.Instance.Settings.UseContainerPaths && !string.IsNullOrWhiteSpace(serializedObject.ObjectContainerPath)) {
             path = Path.Combine(path, "./" + serializedObject.ObjectContainerPath.SanitizeDirname());
+            if (!string.IsNullOrEmpty(Path.GetExtension(Path.GetFileName(serializedObject.ObjectContainerPath)))) {
+                return path;
+            }
         }
 
         path = Path.Combine(path, string.Format(SnuggleCore.Instance.Settings.NameTemplate, serializedObject, serializedObject.PathId, serializedObject.ClassId));

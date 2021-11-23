@@ -3,7 +3,9 @@ using System.Collections.Concurrent;
 using System.IO;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 using Snuggle.Core.Implementations;
+using Snuggle.Core.Options;
 
 namespace Snuggle.Converters;
 
@@ -14,31 +16,8 @@ public static class SnuggleTextureFile {
         return CachedData.GetOrAdd(
                 texture.PathId,
                 static (_, arg) => {
+                    arg.Deserialize(ObjectDeserializationOptions.Default);
                     var data = Texture2DConverter.ToRGBA(arg);
-                    if (arg.TextureFormat.IsAlphaFirst()) {
-                        for (var i = 0; i < data.Length; i += 4) {
-                            var a = data.Span[i];
-                            var r = data.Span[i + 1];
-                            var g = data.Span[i + 2];
-                            var b = data.Span[i + 3];
-                            data.Span[i] = r;
-                            data.Span[i + 1] = g;
-                            data.Span[i + 2] = b;
-                            data.Span[i + 3] = a;
-                        }
-                    }
-
-                    if (arg.TextureFormat.IsBGRA()) {
-                        for (var i = 0; i < data.Length; i += 4) {
-                            var b = data.Span[i];
-                            var g = data.Span[i + 1];
-                            var r = data.Span[i + 2];
-                            data.Span[i] = r;
-                            data.Span[i + 1] = g;
-                            data.Span[i + 2] = b;
-                        }
-                    }
-
                     return data;
                 },
                 texture)
@@ -73,8 +52,17 @@ public static class SnuggleTextureFile {
             return path;
         }
 
-        var image = Image.WrapMemory<Rgba32>(data, texture.Width, texture.Height);
+        Image image;
+        if (texture.TextureFormat.IsAlphaFirst()) {
+            image = Image.WrapMemory<Argb32>(data, texture.Width, texture.Height);
+        } else if (texture.TextureFormat.IsBGRA() || !texture.TextureFormat.CanSupportDDS()) {
+            image = Image.WrapMemory<Bgra32>(data, texture.Width, texture.Height);
+        } else {
+            image = Image.WrapMemory<Rgba32>(data, texture.Width, texture.Height);
+        }
+        image.Mutate(context => context.Flip(FlipMode.Vertical));
         image.SaveAsPng(path);
+        
         return path;
     }
 

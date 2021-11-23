@@ -9,8 +9,8 @@ namespace Snuggle.Converters;
 public static class TextureExtensions {
     public static bool CanSupportDDS(this TextureFormat format) => format != TextureFormat.RGB24 && format is >= TextureFormat.RG16 and <= TextureFormat.R8 or < TextureFormat.DXT1Crunched;
 
-    // BGRA32 is swapped by B8G8R8A8_UNORM, also AssetStudio loads as BGRA.
-    public static bool IsBGRA(this TextureFormat format) => format is TextureFormat.ARGB4444 or TextureFormat.RGBA4444 || format.IsASTC() || format.IsCrunched();
+    // BGRA32 is swapped by B8G8R8A8_UNORM
+    public static bool IsBGRA(this TextureFormat format) => format is TextureFormat.ARGB4444 or TextureFormat.RGBA4444; // or TextureFormat.BGRA32;
 
     public static bool IsAlphaFirst(this TextureFormat format) => format is TextureFormat.ARGB4444 or TextureFormat.ARGB32;
 
