@@ -220,6 +220,7 @@ public static class SnuggleMeshFile {
 
             xyvnt[i].Id = i;
             cuv[i].Id = i;
+            cuv[i].Color = Vector4.One;
             joint[i].Id = i;
 
             foreach (var (channel, info) in descriptors) {
@@ -243,8 +244,8 @@ public static class SnuggleMeshFile {
                     case VertexChannel.Tangent:
                         xyvnt[i].Tangent = new Vector4(floatValues.Take(4).ToArray());
                         break;
-                    case VertexChannel.Color:
-                        cuv[i].Color = options.WriteColors ? new Vector4(floatValues.Take(4).ToArray()) : new Vector4(1.0f);
+                    case VertexChannel.Color when options.WriteColors:
+                        cuv[i].Color = new Vector4(floatValues.Take(4).ToArray());
                         break;
                     case VertexChannel.UV0:
                         cuv[i].TexCoord0 = new Vector2(floatValues.Take(2).ToArray());
@@ -252,21 +253,12 @@ public static class SnuggleMeshFile {
                     case VertexChannel.UV1:
                         cuv[i].TexCoord1 = new Vector2(floatValues.Take(2).ToArray());
                         break;
-                    case VertexChannel.UV2:
-                    case VertexChannel.UV3:
-                    case VertexChannel.UV4:
-                    case VertexChannel.UV5:
-                    case VertexChannel.UV6:
-                    case VertexChannel.UV7:
-                        break;
                     case VertexChannel.SkinWeight:
                         weights = floatValues.Take(4).ToArray();
                         break;
                     case VertexChannel.SkinBoneIndex:
                         joints = uintValues.Take(4).ToArray();
                         break;
-                    default:
-                        throw new NotSupportedException();
                 }
             }
 
