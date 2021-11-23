@@ -170,7 +170,7 @@ public static class SnuggleFile {
 
         switch (serializedObject) {
             case Texture2D texture2d: {
-                SnuggleTextureFile.Save(texture2d, resultPath, SnuggleCore.Instance.Settings.WriteNativeTextures);
+                SnuggleTextureFile.Save(texture2d, resultPath, SnuggleCore.Instance.Settings.WriteNativeTextures, true);
                 return;
             }
             case Mesh mesh: {

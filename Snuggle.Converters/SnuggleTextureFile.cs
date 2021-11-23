@@ -28,20 +28,20 @@ public static class SnuggleTextureFile {
         CachedData.Clear();
     }
 
-    public static string Save(Texture2D texture, string path, bool writeNative) {
+    public static string Save(Texture2D texture, string path, bool writeNative, bool flip) {
         var dir = Path.GetDirectoryName(path);
         if (!string.IsNullOrWhiteSpace(dir) && !Directory.Exists(dir)) {
             Directory.CreateDirectory(dir);
         }
 
         if (!writeNative || !SaveNative(texture, path, out var resultPath)) {
-            return SavePNG(texture, path);
+            return SavePNG(texture, path, flip);
         }
 
         return resultPath;
     }
 
-    private static string SavePNG(Texture2D texture, string path) {
+    private static string SavePNG(Texture2D texture, string path, bool flip) {
         path = Path.ChangeExtension(path, ".png");
         if (File.Exists(path)) {
             return path;
@@ -60,7 +60,11 @@ public static class SnuggleTextureFile {
         } else {
             image = Image.WrapMemory<Rgba32>(data, texture.Width, texture.Height);
         }
-        image.Mutate(context => context.Flip(FlipMode.Vertical));
+
+        if (flip) {
+            image.Mutate(context => context.Flip(FlipMode.Vertical));
+        }
+
         image.SaveAsPng(path);
         
         return path;

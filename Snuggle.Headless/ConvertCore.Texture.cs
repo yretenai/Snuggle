@@ -15,7 +15,7 @@ namespace Snuggle.Headless;
 public static partial class ConvertCore {
     private static ConcurrentDictionary<long, Memory<byte>> CachedData { get; } = new();
 
-    public static void ConvertTexture(SnuggleFlags flags, ILogger logger, Texture2D texture) {
+    public static void ConvertTexture(SnuggleFlags flags, ILogger logger, Texture2D texture, bool flip) {
         var path = PathFormatter.Format(flags.OutputFormat, "png", texture);
         if (File.Exists(path)) {
             return;
@@ -37,7 +37,11 @@ public static partial class ConvertCore {
         } else {
             image = Image.WrapMemory<Rgba32>(data, texture.Width, texture.Height);
         }
-        image.Mutate(context => context.Flip(FlipMode.Vertical));
+
+        if (flip) {
+            image.Mutate(context => context.Flip(FlipMode.Vertical));
+        }
+
         image.SaveAsPng(fullPath);
         
         logger.Info($"Saved {path}");

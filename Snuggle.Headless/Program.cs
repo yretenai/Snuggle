@@ -72,7 +72,7 @@ public static class Program {
                 switch (asset) {
                     case Texture2D texture when !flags.NoTexture && flags.LooseTextures:
                         logger.Info($"Processing Texture {asset}");
-                        ConvertCore.ConvertTexture(flags, logger, texture);
+                        ConvertCore.ConvertTexture(flags, logger, texture, true);
                         break;
                     case Mesh mesh when !flags.NoMesh && flags.LooseMeshes:
                         logger.Info($"Processing Mesh {asset}");
