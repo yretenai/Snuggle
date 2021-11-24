@@ -9,4 +9,5 @@ public interface ISerialized {
     public void Deserialize(BiEndianBinaryReader reader, ObjectDeserializationOptions options);
     public void Serialize(BiEndianBinaryWriter writer, AssetSerializationOptions options);
     public void Free();
+    public bool ShouldDeserialize { get; }
 }

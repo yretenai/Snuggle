@@ -47,7 +47,7 @@ public static partial class ConvertCore {
         logger.Info($"Saved {path}");
     }
 
-    public static byte[] LoadCachedTexture(Texture2D texture) {
+    private static byte[] LoadCachedTexture(Texture2D texture) {
         return CachedData.GetOrAdd(
                 texture.PathId,
                 static (_, arg) => {
@@ -58,7 +58,7 @@ public static partial class ConvertCore {
             .ToArray();
     }
 
-    public static void ClearTexMemory() {
+    private static void ClearTexMemory() {
         CachedData.Clear();
     }
 }

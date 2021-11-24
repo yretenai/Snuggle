@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Text.Json.Serialization;
 using JetBrains.Annotations;
 using Snuggle.Core.Interfaces;
@@ -37,7 +38,7 @@ public class SerializedObject : IEquatable<SerializedObject>, ISerialized {
     public SerializedFile SerializedFile { get; init; }
 
     [JsonIgnore]
-    public virtual bool ShouldDeserialize { get; }
+    public virtual bool ShouldDeserialize => ExtraContainers.Values.Any(x => (x as ISerialized)?.ShouldDeserialize == true);
 
     [JsonIgnore]
     public bool IsMutated { get; set; }

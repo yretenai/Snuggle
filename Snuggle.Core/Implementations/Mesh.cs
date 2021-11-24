@@ -148,7 +148,7 @@ public class Mesh : NamedObject, ISerializedResource {
     public Memory<byte>? Indices { get; set; }
 
     [JsonIgnore]
-    public List<BoneWeight> Skin { get; set; } = new();
+    public List<BoneWeight>? Skin { get; set; }
 
     public VertexData VertexData { get; set; }
     public CompressedMesh CompressedMesh { get; set; }
@@ -168,6 +168,24 @@ public class Mesh : NamedObject, ISerializedResource {
 
     public long StreamDataOffset { get; set; }
     public StreamingInfo StreamData { get; set; }
+    
+
+    public override void Free() {
+        if (IsMutated) {
+            return;
+        }
+        
+        base.Free();
+        BlendShapeData.Free();
+        BindPose = Memory<Matrix4X4>.Empty;
+        VariableBoneCountWeights = Memory<uint>.Empty;
+        Indices = Memory<byte>.Empty;
+        Skin = null;
+        VertexData.Free();
+        CompressedMesh.Free();
+        BakedConvexCollisionMesh = Memory<byte>.Empty;
+        BakedTriangleCollisionMesh = Memory<byte>.Empty;
+    }
 
     public override void Deserialize(BiEndianBinaryReader reader, ObjectDeserializationOptions options) {
         base.Deserialize(reader, options);
@@ -200,6 +218,7 @@ public class Mesh : NamedObject, ISerializedResource {
         if (SkinStart > -1) {
             reader.BaseStream.Seek(SkinStart, SeekOrigin.Begin);
             var boneWeightsCount = reader.ReadInt32();
+            Skin = new List<BoneWeight>();
             Skin.EnsureCapacity(boneWeightsCount);
             for (var i = 0; i < boneWeightsCount; ++i) {
                 Skin.Add(BoneWeight.FromReader(reader, SerializedFile));

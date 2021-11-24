@@ -214,4 +214,17 @@ public record CompressedMesh(
 
         return data;
     }
+
+    public void Free() {
+        Vertices.Free();
+        UVs.Free();
+        Normals.Free();
+        Tangents.Free();
+        Weights.Free();
+        NormalSigns.Free();
+        TangentSigns.Free();
+        FloatColors.Free();
+        BoneIndices.Free();
+        Triangles.Free();
+    }
 }

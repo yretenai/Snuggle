@@ -98,4 +98,8 @@ public record VertexData(uint CurrentChannels, uint VertexCount, Dictionary<Vert
         var dataCount = reader.ReadInt32();
         Data = reader.ReadMemory(dataCount);
     }
+
+    public void Free() {
+        Data = Memory<byte>.Empty;
+    }
 }

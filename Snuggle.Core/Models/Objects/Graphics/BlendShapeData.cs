@@ -71,6 +71,10 @@ public record BlendShapeData(List<MeshBlendShape> Shapes, List<MeshBlendShapeCha
         writer.WriteArray(Weights);
     }
 
+    public void Free() {
+        Vertices = null;
+    }
+    
     public void Deserialize(BiEndianBinaryReader reader, SerializedFile serializedFile, ObjectDeserializationOptions options) {
         reader.BaseStream.Seek(VerticesOffset, SeekOrigin.Begin);
         var verticesCount = reader.ReadInt32();

@@ -104,7 +104,7 @@ public static class Program {
             }
 
             if (flags.LowMemory) {
-                ConvertCore.ClearMemory();
+                ConvertCore.ClearMemory(collection);
             }
         }
 

@@ -12,4 +12,5 @@ public class UniteTexture2DExtension : ISerialized {
 
     public void Serialize(BiEndianBinaryWriter writer, AssetSerializationOptions options) { }
     public void Free() { }
+    public bool ShouldDeserialize => false;
 }

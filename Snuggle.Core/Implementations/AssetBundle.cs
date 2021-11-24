@@ -92,10 +92,19 @@ public class AssetBundle : NamedObject, ICABPathProvider {
     public int PathFlags { get; set; }
     public Dictionary<string, string> SceneHashes { get; set; } = new();
 
-    public override bool ShouldDeserialize => PreloadTable == null;
+    public override bool ShouldDeserialize => base.ShouldDeserialize || PreloadTable == null;
 
     public Dictionary<PPtr<SerializedObject>, string> GetCABPaths() {
         return Container.DistinctBy(x => x.Value.Asset).ToDictionary(x => x.Value.Asset, x => x.Key);
+    }
+
+    public override void Free() {
+        if (IsMutated) {
+            return;
+        }
+
+        base.Free();
+        PreloadTable = Memory<PPtr<SerializedObject>>.Empty;
     }
 
     public override void Deserialize(BiEndianBinaryReader reader, ObjectDeserializationOptions options) {

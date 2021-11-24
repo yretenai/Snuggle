@@ -262,7 +262,7 @@ public static class SnuggleMeshFile {
                 }
             }
 
-            if (joints.IsEmpty && mesh.Skin.Count > 0) {
+            if (joints.IsEmpty && mesh.Skin?.Count > 0) {
                 joints = mesh.Skin[i].Indices;
                 weights = mesh.Skin[i].Weights;
             }

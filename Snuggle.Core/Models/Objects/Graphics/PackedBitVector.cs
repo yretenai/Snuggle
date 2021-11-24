@@ -146,4 +146,8 @@ public record PackedBitVector(uint Count, byte BitSize) {
 
         return data;
     }
+
+    public void Free() {
+        Data = Memory<byte>.Empty;
+    }
 }
