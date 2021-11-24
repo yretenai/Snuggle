@@ -21,8 +21,10 @@ public record PackedBitVector(uint Count, byte BitSize) {
 
     public static PackedBitVector Default { get; } = new(0, 0);
 
+    private bool ShouldDeserializeData => DataStart > -1 && Data == null;
+
     [JsonIgnore]
-    public bool ShouldDeserialize => Data == null;
+    public bool ShouldDeserialize => ShouldDeserializeData;
 
     public static PackedBitVector FromReader(BiEndianBinaryReader reader, SerializedFile file, bool hasRange) {
         var count = reader.ReadUInt32();
@@ -60,9 +62,11 @@ public record PackedBitVector(uint Count, byte BitSize) {
     }
 
     public void Deserialize(BiEndianBinaryReader reader, SerializedFile serializedFile, ObjectDeserializationOptions options) {
-        reader.BaseStream.Seek(DataStart, SeekOrigin.Begin);
-        var dataCount = reader.ReadInt32();
-        Data = reader.ReadMemory(dataCount);
+        if (ShouldDeserializeData) {
+            reader.BaseStream.Seek(DataStart, SeekOrigin.Begin);
+            var dataCount = reader.ReadInt32();
+            Data = reader.ReadMemory(dataCount);
+        }
     }
 
     // code taken from AssetStudio, with some edits

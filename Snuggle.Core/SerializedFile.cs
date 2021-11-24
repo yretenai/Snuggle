@@ -83,7 +83,7 @@ public class SerializedFile : IRenewable {
         var targetVersion = serializationOptions.TargetVersion;
         var targetFileVersion = serializationOptions.TargetFileVersion;
         var isBundle = serializationOptions.IsBundle;
-        var prefix = isBundle ? string.Format(bundleTemplate, Name) : "";
+        var prefix = isBundle ? string.Format(bundleTemplate, Name) : string.Empty;
 
         var options = new AssetSerializationOptions(
             alignment,

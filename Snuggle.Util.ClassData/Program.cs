@@ -13,7 +13,7 @@ public static class Program {
             Console.WriteLine("Usage: Snuggle.Util.ClassData.exe path/to/classdata.tpk path/to/typetree/output");
             return;
         }
-        
+
         var database = new ClassDatabasePackage();
         using var stream = File.OpenRead(args[0]);
         using var reader = new AssetsFileReader(stream);
@@ -85,6 +85,6 @@ public static class Program {
 
         var isAligned = (field.flags2 & 0x4000) != 0 || typeName == "Array";
 
-        builder.AppendLine($"{new string(' ', field.depth * 2)}{typeName} {fieldName} {field.size} {(isAligned ? "Aligned" : "")}");
+        builder.AppendLine($"{new string(' ', field.depth * 2)}{typeName} {fieldName} {field.size} {(isAligned ? "Aligned" : string.Empty)}");
     }
 }

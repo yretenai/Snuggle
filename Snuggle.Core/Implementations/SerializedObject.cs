@@ -37,8 +37,7 @@ public class SerializedObject : IEquatable<SerializedObject>, ISerialized {
     [JsonIgnore]
     public SerializedFile SerializedFile { get; init; }
 
-    [JsonIgnore]
-    public virtual bool ShouldDeserialize => ExtraContainers.Values.Any(x => (x as ISerialized)?.ShouldDeserialize == true);
+    private bool ShouldDeserializeExtraContainers => ExtraContainers.Values.Any(x => (x as ISerialized)?.ShouldDeserialize == true);
 
     [JsonIgnore]
     public bool IsMutated { get; set; }
@@ -66,7 +65,18 @@ public class SerializedObject : IEquatable<SerializedObject>, ISerialized {
         return PathId == other.PathId && ClassId == other.ClassId;
     }
 
-    public virtual void Deserialize(BiEndianBinaryReader reader, ObjectDeserializationOptions options) { }
+    [JsonIgnore]
+    public virtual bool ShouldDeserialize => ShouldDeserializeExtraContainers;
+
+    public virtual void Deserialize(BiEndianBinaryReader reader, ObjectDeserializationOptions options) {
+        foreach (var (_, extraContainer) in ExtraContainers) {
+            if (extraContainer is not ISerialized { ShouldDeserialize: true } serialized) {
+                continue;
+            }
+
+            serialized.Deserialize(reader, options);
+        }
+    }
 
     public virtual void Serialize(BiEndianBinaryWriter writer, AssetSerializationOptions options) {
         IsMutated = false;

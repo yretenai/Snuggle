@@ -31,13 +31,18 @@ public class Text : NamedObject {
     private long StringStart { get; set; }
     public string? String { get; set; }
 
+    private bool ShouldDeserializeString => StringStart > -1 && String == null;
+
     [JsonIgnore]
-    public override bool ShouldDeserialize => base.ShouldDeserialize || String == null;
+    public override bool ShouldDeserialize => base.ShouldDeserialize || ShouldDeserializeString;
 
     public override void Deserialize(BiEndianBinaryReader reader, ObjectDeserializationOptions options) {
         base.Deserialize(reader, options);
         reader.BaseStream.Seek(StringStart, SeekOrigin.Begin);
-        String = reader.ReadString32();
+
+        if (ShouldDeserializeString) {
+            String = reader.ReadString32();
+        }
     }
 
     public override void Serialize(BiEndianBinaryWriter writer, AssetSerializationOptions options) {

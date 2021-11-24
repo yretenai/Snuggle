@@ -37,13 +37,15 @@ public class MonoBehaviour : Behaviour {
 
     private long DataStart { get; init; } = -1;
 
+    private bool ShouldDeserializeData => DataStart > -1 && Data == null && !Script.IsNull;
+
     [JsonIgnore]
-    public override bool ShouldDeserialize => base.ShouldDeserialize || Data == null && !Script.IsNull;
+    public override bool ShouldDeserialize => base.ShouldDeserialize || ShouldDeserializeData;
 
     public override void Deserialize(BiEndianBinaryReader reader, ObjectDeserializationOptions options) {
         base.Deserialize(reader, options);
 
-        if (ObjectData == null && SerializedFile.Assets != null) {
+        if (ShouldDeserializeData && ObjectData == null && SerializedFile.Assets != null) {
             var script = Script.Value;
             if (script == null) {
                 throw new PPtrNullReferenceException(UnityClassId.MonoScript);

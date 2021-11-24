@@ -11,15 +11,17 @@ namespace Snuggle.Core.Models.Objects.Graphics;
 
 [PublicAPI]
 public record BlendShapeData(List<MeshBlendShape> Shapes, List<MeshBlendShapeChannel> Channels, List<float> Weights) {
-    private long VerticesOffset { get; init; } = -1;
+    private long VerticesStart { get; init; } = -1;
 
     [JsonIgnore]
     public List<BlendShapeVertex>? Vertices { get; set; }
 
     public static BlendShapeData Default { get; } = new(new List<MeshBlendShape>(), new List<MeshBlendShapeChannel>(), new List<float>());
 
+    private bool ShouldDeserializeVertexData => VerticesStart > -1 && Vertices == null;
+
     [JsonIgnore]
-    public bool ShouldDeserialize => Vertices == null;
+    public bool ShouldDeserialize => ShouldDeserializeVertexData;
 
     public static BlendShapeData FromReader(BiEndianBinaryReader reader, SerializedFile file) {
         var verticesOffset = reader.BaseStream.Position;
@@ -44,7 +46,7 @@ public record BlendShapeData(List<MeshBlendShape> Shapes, List<MeshBlendShapeCha
         var weights = new List<float>();
         weights.AddRange(reader.ReadArray<float>(weightsCount).ToArray());
 
-        return new BlendShapeData(shapes, channels, weights) { VerticesOffset = verticesOffset };
+        return new BlendShapeData(shapes, channels, weights) { VerticesStart = verticesOffset };
     }
 
     public void ToWriter(BiEndianBinaryWriter writer, SerializedFile serializedFile, UnityVersion targetVersion) {
@@ -74,14 +76,16 @@ public record BlendShapeData(List<MeshBlendShape> Shapes, List<MeshBlendShapeCha
     public void Free() {
         Vertices = null;
     }
-    
+
     public void Deserialize(BiEndianBinaryReader reader, SerializedFile serializedFile, ObjectDeserializationOptions options) {
-        reader.BaseStream.Seek(VerticesOffset, SeekOrigin.Begin);
-        var verticesCount = reader.ReadInt32();
-        Vertices = new List<BlendShapeVertex>();
-        Vertices.EnsureCapacity(verticesCount);
-        for (var i = 0; i < verticesCount; ++i) {
-            Vertices.Add(BlendShapeVertex.FromReader(reader, serializedFile));
+        if (ShouldDeserializeVertexData) {
+            reader.BaseStream.Seek(VerticesStart, SeekOrigin.Begin);
+            var verticesCount = reader.ReadInt32();
+            Vertices = new List<BlendShapeVertex>();
+            Vertices.EnsureCapacity(verticesCount);
+            for (var i = 0; i < verticesCount; ++i) {
+                Vertices.Add(BlendShapeVertex.FromReader(reader, serializedFile));
+            }
         }
     }
 }

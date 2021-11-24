@@ -45,8 +45,6 @@ public class Mesh : NamedObject, ISerializedResource {
             VariableBoneCountWeightsStart = reader.BaseStream.Position;
             var variableBoneCountWeightsCount = reader.ReadInt32();
             reader.BaseStream.Seek(4 * variableBoneCountWeightsCount, SeekOrigin.Current);
-        } else {
-            VariableBoneCountWeights = Memory<uint>.Empty;
         }
 
         if (serializedFile.Options.Game == UnityGame.PokemonUnite) {
@@ -163,59 +161,62 @@ public class Mesh : NamedObject, ISerializedResource {
 
     public float[] MeshMetrics { get; set; }
 
+    private bool ShouldDeserializeBindPose => BindPoseStart > -1 && BindPose == null;
+    private bool ShouldDeserializeVariableBoneCountWeights => VariableBoneCountWeightsStart == -1 && VariableBoneCountWeights == null;
+    private bool ShouldDeserializeIndices => IndicesStart > -1 && Indices == null;
+    private bool ShouldDeserializeSkin => SkinStart > -1 && Skin == null;
+    private bool ShouldDeserializeBakedConvexCollisionMesh => BakedConvexCollisionMeshStart > -1 && BakedConvexCollisionMesh == null;
+    private bool ShouldDeserializeBakedTriangleCollisionMesh => BakedTriangleCollisionMeshStart > -1 && BakedTriangleCollisionMesh == null;
+
     [JsonIgnore]
-    public override bool ShouldDeserialize => base.ShouldDeserialize || BindPose == null || VariableBoneCountWeights == null || Indices == null || BakedConvexCollisionMesh == null || BakedTriangleCollisionMesh == null || VertexData.ShouldDeserialize || CompressedMesh.ShouldDeserialize || BlendShapeData.ShouldDeserialize;
+    public override bool ShouldDeserialize => base.ShouldDeserialize || ShouldDeserializeBindPose || ShouldDeserializeVariableBoneCountWeights || ShouldDeserializeIndices || ShouldDeserializeSkin || ShouldDeserializeBakedConvexCollisionMesh || ShouldDeserializeBakedTriangleCollisionMesh || VertexData.ShouldDeserialize || CompressedMesh.ShouldDeserialize || BlendShapeData.ShouldDeserialize;
 
     public long StreamDataOffset { get; set; }
     public StreamingInfo StreamData { get; set; }
-    
 
     public override void Free() {
         if (IsMutated) {
             return;
         }
-        
+
         base.Free();
         BlendShapeData.Free();
-        BindPose = Memory<Matrix4X4>.Empty;
-        VariableBoneCountWeights = Memory<uint>.Empty;
-        Indices = Memory<byte>.Empty;
+        BindPose = null;
+        VariableBoneCountWeights = null;
+        Indices = null;
         Skin = null;
         VertexData.Free();
         CompressedMesh.Free();
-        BakedConvexCollisionMesh = Memory<byte>.Empty;
-        BakedTriangleCollisionMesh = Memory<byte>.Empty;
+        BakedConvexCollisionMesh = null;
+        BakedTriangleCollisionMesh = null;
     }
 
     public override void Deserialize(BiEndianBinaryReader reader, ObjectDeserializationOptions options) {
         base.Deserialize(reader, options);
-        BlendShapeData.Deserialize(reader, SerializedFile, options);
 
-        if (BindPoseStart > -1) {
+        if (BlendShapeData.ShouldDeserialize) {
+            BlendShapeData.Deserialize(reader, SerializedFile, options);
+        }
+
+        if (ShouldDeserializeBindPose) {
             reader.BaseStream.Seek(BindPoseStart, SeekOrigin.Begin);
             var bindPoseCount = reader.ReadInt32();
             BindPose = reader.ReadMemory<Matrix4X4>(bindPoseCount);
-        } else {
-            BindPose = Memory<Matrix4X4>.Empty;
         }
 
-        if (VariableBoneCountWeightsStart > -1) {
+        if (ShouldDeserializeVariableBoneCountWeights) {
             reader.BaseStream.Seek(VariableBoneCountWeightsStart, SeekOrigin.Begin);
             var variableBoneCountWeightsCount = reader.ReadInt32();
             VariableBoneCountWeights = reader.ReadMemory<uint>(variableBoneCountWeightsCount);
-        } else {
-            VariableBoneCountWeights = Memory<uint>.Empty;
         }
 
-        if (IndicesStart > -1) {
+        if (ShouldDeserializeIndices) {
             reader.BaseStream.Seek(IndicesStart, SeekOrigin.Begin);
             var indicesCount = reader.ReadInt32();
             Indices = reader.ReadMemory(indicesCount);
-        } else {
-            Indices = Memory<byte>.Empty;
         }
 
-        if (SkinStart > -1) {
+        if (ShouldDeserializeSkin) {
             reader.BaseStream.Seek(SkinStart, SeekOrigin.Begin);
             var boneWeightsCount = reader.ReadInt32();
             Skin = new List<BoneWeight>();
@@ -225,21 +226,25 @@ public class Mesh : NamedObject, ISerializedResource {
             }
         }
 
-        VertexData.Deserialize(reader, SerializedFile, options);
+        if (VertexData.ShouldDeserialize) {
+            VertexData.Deserialize(reader, SerializedFile, options);
 
-        if (!StreamData.IsNull) {
-            VertexData.Data = StreamData.GetData(SerializedFile.Assets, options, VertexData.Data);
+            if (!StreamData.IsNull) {
+                VertexData.Data = StreamData.GetData(SerializedFile.Assets, options, VertexData.Data);
+            }
         }
 
-        CompressedMesh.Deserialize(reader, SerializedFile, options);
+        if (CompressedMesh.ShouldDeserialize) {
+            CompressedMesh.Deserialize(reader, SerializedFile, options);
+        }
 
-        if (BakedConvexCollisionMeshStart > -1) {
+        if (ShouldDeserializeBakedConvexCollisionMesh) {
             reader.BaseStream.Seek(BakedConvexCollisionMeshStart, SeekOrigin.Begin);
             var bakedMeshCollisionMeshSize = reader.ReadInt32();
             BakedConvexCollisionMesh = reader.ReadMemory(bakedMeshCollisionMeshSize);
         }
 
-        if (BakedTriangleCollisionMeshStart > -1) {
+        if (ShouldDeserializeBakedTriangleCollisionMesh) {
             reader.BaseStream.Seek(BakedTriangleCollisionMeshStart, SeekOrigin.Begin);
             var bakedTriangleCollisionMeshSize = reader.ReadInt32();
             BakedTriangleCollisionMesh = reader.ReadMemory(bakedTriangleCollisionMeshSize);

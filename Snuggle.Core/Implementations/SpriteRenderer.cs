@@ -43,9 +43,7 @@ public class SpriteRenderer : Renderer {
         }
     }
 
-    public SpriteRenderer(UnityObjectInfo info, SerializedFile serializedFile) : base(info, serializedFile) {
-        Sprite = PPtr<Sprite>.Null;
-    }
+    public SpriteRenderer(UnityObjectInfo info, SerializedFile serializedFile) : base(info, serializedFile) => Sprite = PPtr<Sprite>.Null;
 
     public PPtr<Sprite> Sprite { get; set; }
     public ColorRGBA Color { get; set; }

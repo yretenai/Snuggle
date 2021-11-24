@@ -7,6 +7,8 @@ namespace Snuggle.Core.Models.Objects.Graphics;
 
 [PublicAPI]
 public record SecondarySpriteTexture(PPtr<Texture2D> Texture, string Name) {
+    public static SecondarySpriteTexture Default = new(PPtr<Texture2D>.Null, string.Empty);
+
     public static SecondarySpriteTexture FromReader(BiEndianBinaryReader reader, SerializedFile file) {
         var texture = PPtr<Texture2D>.FromReader(reader, file);
         var name = reader.ReadString32();

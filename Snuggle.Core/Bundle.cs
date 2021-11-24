@@ -103,7 +103,7 @@ public class Bundle : IDisposable, IRenewable {
         try {
             reader.BaseStream.Seek(DataStart, SeekOrigin.Begin);
 
-            DataStream = Container.OpenFile(new UnityBundleBlock(0, Container.BlockInfos.Select(x => x.Size).Sum(), 0, ""), Options, reader);
+            DataStream = Container.OpenFile(new UnityBundleBlock(0, Container.BlockInfos.Select(x => x.Size).Sum(), 0, string.Empty), Options, reader);
         } finally {
             if (shouldDispose) {
                 reader.Dispose();

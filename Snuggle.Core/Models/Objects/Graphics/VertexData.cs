@@ -37,8 +37,10 @@ public record VertexData(uint CurrentChannels, uint VertexCount, Dictionary<Vert
 
     public static VertexData Default { get; } = new(0, 0, new Dictionary<VertexChannel, ChannelInfo>());
 
+    private bool ShouldDeserializeData => DataStart > -1 && Data == null;
+
     [JsonIgnore]
-    public bool ShouldDeserialize => Data == null;
+    public bool ShouldDeserialize => ShouldDeserializeData;
 
     public static VertexData FromReader(BiEndianBinaryReader reader, SerializedFile file) {
         var currentChannels = 0U;
@@ -94,12 +96,14 @@ public record VertexData(uint CurrentChannels, uint VertexCount, Dictionary<Vert
     }
 
     public void Deserialize(BiEndianBinaryReader reader, SerializedFile serializedFile, ObjectDeserializationOptions options) {
-        reader.BaseStream.Seek(DataStart, SeekOrigin.Begin);
-        var dataCount = reader.ReadInt32();
-        Data = reader.ReadMemory(dataCount);
+        if (ShouldDeserializeData) {
+            reader.BaseStream.Seek(DataStart, SeekOrigin.Begin);
+            var dataCount = reader.ReadInt32();
+            Data = reader.ReadMemory(dataCount);
+        }
     }
 
     public void Free() {
-        Data = Memory<byte>.Empty;
+        Data = null;
     }
 }

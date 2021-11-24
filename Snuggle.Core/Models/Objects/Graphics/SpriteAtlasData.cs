@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using JetBrains.Annotations;
 using Snuggle.Core.Implementations;
 using Snuggle.Core.IO;
@@ -19,12 +18,23 @@ public record SpriteAtlasData(
     float DownscaleMultiplier,
     uint Settings,
     List<SecondarySpriteTexture> SecondaryTextures) {
+    public static SpriteAtlasData Default { get; } = new(
+        PPtr<Texture2D>.Null,
+        PPtr<Texture2D>.Null,
+        Rect.Zero,
+        Vector2.Zero,
+        Vector2.Zero,
+        Vector4.Zero,
+        1.0f,
+        0,
+        new List<SecondarySpriteTexture>());
+
     public static SpriteAtlasData FromReader(BiEndianBinaryReader reader, SerializedFile file) {
         var texture = PPtr<Texture2D>.FromReader(reader, file);
         var alpha = PPtr<Texture2D>.FromReader(reader, file);
         var rect = reader.ReadStruct<Rect>();
         var offset = reader.ReadStruct<Vector2>();
-        var atlasOffset = (file.Version >= UnityVersionRegister.Unity2017_2) ? reader.ReadStruct<Vector2>() : Vector2.Zero;
+        var atlasOffset = file.Version >= UnityVersionRegister.Unity2017_2 ? reader.ReadStruct<Vector2>() : Vector2.Zero;
         var uv = reader.ReadStruct<Vector4>();
         var multiplier = reader.ReadSingle();
         var settings = reader.ReadUInt32();

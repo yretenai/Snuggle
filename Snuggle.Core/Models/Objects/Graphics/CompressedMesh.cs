@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
 using JetBrains.Annotations;
+using Snuggle.Core.Exceptions;
 using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
 using Snuggle.Core.Options;
@@ -65,6 +66,10 @@ public record CompressedMesh(
     }
 
     public void ToWriter(BiEndianBinaryWriter writer, SerializedFile serializedFile, UnityVersion targetVersion) {
+        if (ShouldDeserialize) {
+            throw new IncompleteDeserializationException();
+        }
+
         Vertices.ToWriter(writer, serializedFile, targetVersion);
         UVs.ToWriter(writer, serializedFile, targetVersion);
         Normals.ToWriter(writer, serializedFile, targetVersion);

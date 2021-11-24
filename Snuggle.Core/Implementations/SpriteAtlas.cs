@@ -41,9 +41,7 @@ public class SpriteAtlas : NamedObject {
         reader.Align();
     }
 
-    public SpriteAtlas(UnityObjectInfo info, SerializedFile serializedFile) : base(info, serializedFile) {
-        Tag = string.Empty;
-    }
+    public SpriteAtlas(UnityObjectInfo info, SerializedFile serializedFile) : base(info, serializedFile) => Tag = string.Empty;
 
     public List<PPtr<Sprite>> PackedSprites { get; set; } = new();
     public List<string> PackedSpriteNamesToIndex { get; set; } = new();

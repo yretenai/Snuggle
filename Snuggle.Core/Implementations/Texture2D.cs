@@ -121,8 +121,11 @@ public class Texture2D : Texture, ISerializedResource {
     [JsonIgnore]
     public Memory<byte>? TextureData { get; set; }
 
+    private bool ShouldDeserializePlatformData => PlatformDataStart > -1 && PlatformData == null;
+    private bool ShouldDeserializeTextureData => (TextureDataStart > -1 || !StreamData.IsNull) && TextureData == null;
+
     [JsonIgnore]
-    public override bool ShouldDeserialize => base.ShouldDeserialize || PlatformData == null || TextureData == null;
+    public override bool ShouldDeserialize => base.ShouldDeserialize || ShouldDeserializePlatformData || ShouldDeserializeTextureData;
 
     public long StreamDataOffset { get; set; }
     public StreamingInfo StreamData { get; set; }
@@ -199,22 +202,20 @@ public class Texture2D : Texture, ISerializedResource {
 
     public override void Deserialize(BiEndianBinaryReader reader, ObjectDeserializationOptions options) {
         base.Deserialize(reader, options);
-        if (PlatformDataStart > -1) {
+        if (ShouldDeserializePlatformData) {
             reader.BaseStream.Seek(PlatformDataStart, SeekOrigin.Begin);
             PlatformData = reader.ReadMemory(reader.ReadInt32());
-        } else {
-            PlatformData = Memory<byte>.Empty;
         }
 
-        if (TextureDataStart > -1) {
-            reader.BaseStream.Seek(TextureDataStart, SeekOrigin.Begin);
-            TextureData = reader.ReadMemory(reader.ReadInt32());
-        } else {
-            TextureData = Memory<byte>.Empty;
-        }
+        if (ShouldDeserializeTextureData) {
+            if (TextureDataStart > -1) {
+                reader.BaseStream.Seek(TextureDataStart, SeekOrigin.Begin);
+                TextureData = reader.ReadMemory(reader.ReadInt32());
+            }
 
-        if (!StreamData.IsNull) {
-            TextureData = StreamData.GetData(SerializedFile.Assets, options, TextureData);
+            if (!StreamData.IsNull) {
+                TextureData = StreamData.GetData(SerializedFile.Assets, options, TextureData);
+            }
         }
     }
 

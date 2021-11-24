@@ -92,7 +92,9 @@ public class AssetBundle : NamedObject, ICABPathProvider {
     public int PathFlags { get; set; }
     public Dictionary<string, string> SceneHashes { get; set; } = new();
 
-    public override bool ShouldDeserialize => base.ShouldDeserialize || PreloadTable == null;
+    private bool ShouldDeserializePreloadTable => PreloadStart > -1 && PreloadTable == null;
+
+    public override bool ShouldDeserialize => base.ShouldDeserialize || ShouldDeserializePreloadTable;
 
     public Dictionary<PPtr<SerializedObject>, string> GetCABPaths() {
         return Container.DistinctBy(x => x.Value.Asset).ToDictionary(x => x.Value.Asset, x => x.Key);
@@ -104,15 +106,17 @@ public class AssetBundle : NamedObject, ICABPathProvider {
         }
 
         base.Free();
-        PreloadTable = Memory<PPtr<SerializedObject>>.Empty;
+        PreloadTable = null;
     }
 
     public override void Deserialize(BiEndianBinaryReader reader, ObjectDeserializationOptions options) {
         base.Deserialize(reader, options);
 
-        reader.BaseStream.Seek(PreloadStart, SeekOrigin.Begin);
-        var preloadCount = reader.ReadInt32();
-        PreloadTable = PPtr<SerializedObject>.ArrayFromReader(reader, SerializedFile, preloadCount).ToArray();
+        if (ShouldDeserializePreloadTable) {
+            reader.BaseStream.Seek(PreloadStart, SeekOrigin.Begin);
+            var preloadCount = reader.ReadInt32();
+            PreloadTable = PPtr<SerializedObject>.ArrayFromReader(reader, SerializedFile, preloadCount).ToArray();
+        }
     }
 
     public override void Serialize(BiEndianBinaryWriter writer, AssetSerializationOptions options) {
