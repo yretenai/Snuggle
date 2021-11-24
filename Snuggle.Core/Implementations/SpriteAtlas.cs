@@ -10,11 +10,11 @@ namespace Snuggle.Core.Implementations;
 
 [PublicAPI]
 [UsedImplicitly]
-[ObjectImplementation(UnityClassId.Sprite)]
-public class Sprite : NamedObject {
-    public Sprite(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) { }
+[ObjectImplementation(UnityClassId.SpriteAtlas)]
+public class SpriteAtlas : NamedObject {
+    public SpriteAtlas(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) { }
 
-    public Sprite(UnityObjectInfo info, SerializedFile serializedFile) : base(info, serializedFile) { }
+    public SpriteAtlas(UnityObjectInfo info, SerializedFile serializedFile) : base(info, serializedFile) { }
 
     public override void Serialize(BiEndianBinaryWriter writer, AssetSerializationOptions options) {
         throw new NotImplementedException();
