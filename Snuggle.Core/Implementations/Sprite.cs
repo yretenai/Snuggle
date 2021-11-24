@@ -38,6 +38,8 @@ public class Sprite : NamedObject {
             }
 
             SpriteAtlas = PPtr<SpriteAtlas>.FromReader(reader, serializedFile);
+        } else {
+            SpriteAtlas = PPtr<SpriteAtlas>.Null;
         }
 
         RenderData = SpriteRenderData.FromReader(reader, serializedFile);
