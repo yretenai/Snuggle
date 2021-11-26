@@ -29,6 +29,6 @@
     <Target Name="CustomAfterBuild" AfterTargets="AfterBuild">
         <Copy SourceFiles="$(SolutionDir)Library\AssetStudio\Texture2DDecoderNative\bin\Win32\$(Configuration)\Texture2DDecoderNative.dll" DestinationFolder="$(TargetDir)runtimes\win-x86\native" ContinueOnError="true" />
         <Copy SourceFiles="$(SolutionDir)Library\AssetStudio\Texture2DDecoderNative\bin\x64\$(Configuration)\Texture2DDecoderNative.dll" DestinationFolder="$(TargetDir)runtimes\win-x64\native" ContinueOnError="true" />
-        <Copy SourceFiles="$(SolutionDir)ATTRIBUTION.txt" DestinationFolder="$(TargetDir)ATTRIBUTION.txt" ContinueOnError="true" />
+        <Copy SourceFiles="$(SolutionDir)ATTRIBUTION.txt" DestinationFolder="$(TargetDir)" ContinueOnError="true" />
     </Target>
 </Project>
