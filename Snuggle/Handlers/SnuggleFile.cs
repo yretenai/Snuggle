@@ -186,6 +186,17 @@ public static class SnuggleFile {
                 SnuggleMeshFile.Save(gameObject, GetResultPath(outputDirectory, gameObject), new SnuggleMeshFile.SnuggleMeshFileOptions(instance.Settings.ObjectOptions, instance.Settings.BubbleGameObjectsDown, instance.Settings.BubbleGameObjectsUp, instance.Settings.WriteNativeTextures, true, true, instance.Settings.WriteVertexColors));
                 return;
             }
+            case Text text: {
+                serializedObject.Deserialize(SnuggleCore.Instance.Settings.ObjectOptions);
+                
+                if (!Directory.Exists(resultDir)) {
+                    Directory.CreateDirectory(resultDir);
+                }
+                
+                resultPath = Path.ChangeExtension(resultPath, ".txt");
+                File.WriteAllText(resultPath, text.String);
+                return;
+            }
             case GameObject gameObject: {
                 SnuggleMeshFile.Save(gameObject, GetResultPath(outputDirectory, gameObject), new SnuggleMeshFile.SnuggleMeshFileOptions(instance.Settings.ObjectOptions, instance.Settings.BubbleGameObjectsDown, instance.Settings.BubbleGameObjectsUp, instance.Settings.WriteNativeTextures, true, true, instance.Settings.WriteVertexColors));
                 return;
