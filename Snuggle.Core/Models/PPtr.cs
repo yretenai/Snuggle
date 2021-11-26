@@ -85,6 +85,8 @@ public record PPtr<T>(int FileId, long PathId) where T : SerializedObject {
             return UnderlyingValue;
         }
     }
+    
+    public PPtr<U> As<U>() where U : SerializedObject => new(FileId, PathId) { File = File };
 
     public void ToWriter(BiEndianBinaryWriter writer, SerializedFile file, UnityVersion targetVersion) {
         writer.Write(FileId);

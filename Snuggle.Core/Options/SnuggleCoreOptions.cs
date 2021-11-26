@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 using JetBrains.Annotations;
+using Snuggle.Core.Extensions;
 using Snuggle.Core.Interfaces;
 using Snuggle.Core.Logging;
 using Snuggle.Core.Meta;
@@ -30,7 +31,7 @@ public record SnuggleCoreOptions(
         DefaultIgnoreCondition = JsonIgnoreCondition.Never,
         AllowTrailingCommas = true,
         NumberHandling = JsonNumberHandling.AllowReadingFromString,
-        Converters = { new JsonStringEnumConverter() },
+        Converters = { new JsonStringEnumConverter(), new JsonMemoryConverterFactory() },
     };
 
     public static SnuggleCoreOptions FromJson(string json) {

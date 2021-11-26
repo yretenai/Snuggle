@@ -19,7 +19,8 @@ public class ObjectToJsonConverter : IValueConverter {
 
         try {
             return value == null ? "{}" : JsonSerializer.Serialize(value, SnuggleCoreOptions.JsonOptions);
-        } catch {
+        } catch (Exception e) {
+            SnuggleCore.Instance.LogTarget.Error("Failed converting object to JSON", e);
             return "{}";
         }
     }
