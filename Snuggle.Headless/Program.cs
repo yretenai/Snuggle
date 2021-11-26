@@ -20,8 +20,9 @@ public static class Program {
         if (flags == null) {
             return 1;
         }
+
         ILogger logger = ConsoleLogger.Instance;
-        
+
         logger.Debug(flags.ToString());
 
         var files = new List<string>();
@@ -68,13 +69,12 @@ public static class Program {
             }
 
             try {
-
                 switch (asset) {
-                    case Texture2D texture when !flags.NoTexture && flags.LooseTextures:
+                    case Texture2D texture when flags.LooseTextures:
                         logger.Info($"Processing Texture {asset}");
                         ConvertCore.ConvertTexture(flags, logger, texture, true);
                         break;
-                    case Mesh mesh when !flags.NoMesh && flags.LooseMeshes:
+                    case Mesh mesh when flags.LooseMeshes:
                         logger.Info($"Processing Mesh {asset}");
                         ConvertCore.ConvertMesh(flags, logger, mesh);
                         break;
@@ -90,7 +90,7 @@ public static class Program {
                         logger.Info($"Processing GameObject {renderer.GameObject.Value}");
                         ConvertCore.ConvertGameObject(flags, logger, renderer.GameObject.Value);
                         break;
-                    case Material material when !flags.NoMaterials && flags.LooseMaterials:
+                    case Material material when flags.LooseMaterials:
                         logger.Info($"Processing Material {asset}");
                         ConvertCore.ConvertMaterial(flags, logger, material);
                         break;
