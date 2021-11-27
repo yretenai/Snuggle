@@ -155,9 +155,9 @@ public class SerializedFile : IRenewable {
         }
     }
 
-    public SerializedObject? GetObject(long pathId, SnuggleCoreOptions? options = null, Stream? dataStream = null) => !ObjectInfos.ContainsKey(pathId) ? null : GetObject(ObjectInfos[pathId], options, dataStream);
+    public SerializedObject? GetObject(long pathId, SnuggleCoreOptions? options = null, Stream? dataStream = null, bool baseType = false) => !ObjectInfos.ContainsKey(pathId) ? null : GetObject(ObjectInfos[pathId], options, dataStream, baseType);
 
-    public SerializedObject? GetObject(UnityObjectInfo objectInfo, SnuggleCoreOptions? options = null, Stream? dataStream = null) {
+    public SerializedObject? GetObject(UnityObjectInfo objectInfo, SnuggleCoreOptions? options = null, Stream? dataStream = null, bool baseType = false) {
         if (!ObjectInfos.ContainsKey(objectInfo.PathId)) {
             return null;
         }
@@ -173,7 +173,7 @@ public class SerializedFile : IRenewable {
                 shouldLoad = true;
             }
 
-            if (shouldLoad) {
+            if (shouldLoad && !baseType) {
                 serializedObject = ObjectFactory.GetInstance(OpenFile(objectInfo, dataStream, dataStream != null), objectInfo, this);
             } else {
                 serializedObject = new SerializedObject(objectInfo, this) { NeedsLoad = true };

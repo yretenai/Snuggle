@@ -140,6 +140,10 @@ public static class SnuggleFile {
             }
 
             var serializedObject = SnuggleObject.GetObject();
+            if (mode == ExtractMode.Raw) {
+                serializedObject ??= SnuggleObject.GetObject(true);
+            }
+            
             if (serializedObject == null) {
                 continue;
             }

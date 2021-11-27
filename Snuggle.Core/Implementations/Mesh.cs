@@ -162,7 +162,7 @@ public class Mesh : NamedObject, ISerializedResource {
     public float[] MeshMetrics { get; set; }
 
     private bool ShouldDeserializeBindPose => BindPoseStart > -1 && BindPose == null;
-    private bool ShouldDeserializeVariableBoneCountWeights => VariableBoneCountWeightsStart == -1 && VariableBoneCountWeights == null;
+    private bool ShouldDeserializeVariableBoneCountWeights => VariableBoneCountWeightsStart > -1 && VariableBoneCountWeights == null;
     private bool ShouldDeserializeIndices => IndicesStart > -1 && Indices == null;
     private bool ShouldDeserializeSkin => SkinStart > -1 && Skin == null;
     private bool ShouldDeserializeBakedConvexCollisionMesh => BakedConvexCollisionMeshStart > -1 && BakedConvexCollisionMesh == null;
