@@ -41,7 +41,7 @@ public class AssetBundle : NamedObject, ICABPathProvider {
         MainAsset = AssetInfo.FromReader(reader, serializedFile);
         RuntimeCompatibility = reader.ReadUInt32();
 
-        if (serializedFile.Options.Game == UnityGame.PokemonUnite && SerializedFile.Options.GameOptions.TryGetOptionsObject<UniteOptions>(UnityGame.PokemonUnite, out var uniteOptions) && uniteOptions.GameVersion >= UniteVersion.Version1_2) {
+        if (serializedFile.Options.Game is UnityGame.PokemonUnite && SerializedFile.Options.GameOptions.TryGetOptionsObject<UniteOptions>(UnityGame.PokemonUnite, out var uniteOptions) && uniteOptions.GameVersion >= UniteVersion.Version1_2) {
             var container = GetExtraContainer<UniteAssetBundleExtension>(UnityClassId.AssetBundle);
             container.Unknown1 = reader.ReadUInt32();
         }

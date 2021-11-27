@@ -82,7 +82,7 @@ public record UnityFS(long Size, int CompressedBlockInfoSize, int BlockInfoSize,
         var blockSize = reader.ReadInt32();
         var flags = (UnityFSFlags) reader.ReadUInt32();
 
-        if (options.Game == UnityGame.PokemonUnite && ((UniteFSFlags) flags).HasFlag(UniteFSFlags.Encrypted)) {
+        if (options.Game is UnityGame.PokemonUnite && ((UniteFSFlags) flags).HasFlag(UniteFSFlags.Encrypted)) {
             throw new NotImplementedException("Pokemon Unite bundle is encrypted, use UntieUnite or another decryption tool");
         }
 

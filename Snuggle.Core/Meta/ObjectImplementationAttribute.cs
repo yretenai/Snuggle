@@ -19,6 +19,6 @@ public class ObjectImplementationAttribute : Attribute {
     public UnityClassId ClassId => (UnityClassId) (int) UnderlyingClassId;
 
     public override int GetHashCode() => HashCode.Combine(ClassId, Game);
-    public override bool IsDefaultAttribute() => ClassId == UnityClassId.Object && Game == UnityGame.Default;
+    public override bool IsDefaultAttribute() => ClassId is UnityClassId.Object && Game is UnityGame.Default;
     public override string ToString() => $"ObjectImplementationAttribute {{ ClassId = {ClassId:G}, Underlying = {Enum.Format(UnderlyingClassId.GetType(), UnderlyingClassId, "G")}, Game = {Game:G} }}";
 }

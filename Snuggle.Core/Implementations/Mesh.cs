@@ -47,7 +47,7 @@ public class Mesh : NamedObject, ISerializedResource {
             reader.BaseStream.Seek(4 * variableBoneCountWeightsCount, SeekOrigin.Current);
         }
 
-        if (serializedFile.Options.Game == UnityGame.PokemonUnite) {
+        if (serializedFile.Options.Game is UnityGame.PokemonUnite) {
             var container = GetExtraContainer<UniteMeshExtension>(UnityClassId.Mesh);
             container.BoneCount = reader.ReadInt32();
         }

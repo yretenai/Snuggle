@@ -61,7 +61,7 @@ public partial class Navigation {
 
         GameOptions.Visibility = Visibility.Collapsed;
 
-        if (selected == UnityGame.PokemonUnite) {
+        if (selected is UnityGame.PokemonUnite) {
             SetPokemonUniteOptionValues();
         } else {
             GameOptions.Items.Clear();

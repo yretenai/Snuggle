@@ -66,7 +66,7 @@ public class Texture2D : Texture, ISerializedResource {
         TextureSettings = GLTextureSettings.FromReader(reader, serializedFile);
         LightmapFormat = (LightmapFormat) reader.ReadInt32();
 
-        if (serializedFile.Options.Game == UnityGame.PokemonUnite) {
+        if (serializedFile.Options.Game is UnityGame.PokemonUnite) {
             var container = GetExtraContainer<UniteTexture2DExtension>(UnityClassId.Texture2D);
             container.UnknownValue = reader.ReadInt32();
         }
