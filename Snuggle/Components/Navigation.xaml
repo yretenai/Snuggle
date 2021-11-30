@@ -42,42 +42,17 @@
                       ToolTip="This always significantly increases performance at a gigantic memory cost"
                       IsCheckable="True" Click="ToggleCacheDataLZMA" x:Name="CacheDataIfLZMA" />
             <Separator />
-            <MenuItem Header="_Serialization">
-                <MenuItem Header="_Write Native Textures"
-                          ToolTip="Writes Native 3D textures such as DDS instead of converting them to PNG or TIF"
-                          IsCheckable="True" Click="ToggleWriteNativeTextures" x:Name="WriteNativeTextures" />
-                <MenuItem Header="_Write Vertex Color"
-                          ToolTip="Writes Vertex Colors to GLTF files"
-                          IsCheckable="True" Click="ToggleWriteVertexColors" x:Name="WriteVertexColors" />
-                <MenuItem Header="_Use Container Paths"
-                          ToolTip="Uses CAB container paths"
-                          IsCheckable="True" Click="ToggleUseContainerPaths" x:Name="UseContainerPaths" />
-                <MenuItem Header="_Group By Class Id"
-                          ToolTip="Groups Extraction paths by Class Id"
-                          IsCheckable="True" Click="ToggleGroupByType" x:Name="GroupByType" />
-            </MenuItem>
-            <MenuItem Header="_Renderer">
-                <MenuItem Header="_Find GameObject Parents"
-                          ToolTip="Find game objects by following the hierarchy tree upwards"
-                          IsCheckable="True" Click="ToggleBubbleGameObjectUp" x:Name="BubbleGameObjectsUp" />
-                <MenuItem Header="_Find GameObject Descendants"
-                          ToolTip="Find game objects by following the hierarchy tree downwards"
-                          IsCheckable="True" Click="ToggleBubbleGameObjectDown" x:Name="BubbleGameObjectsDown" />
-                <MenuItem Header="_Display Lines"
-                          ToolTip="Display game object hierarchy lines"
-                          IsCheckable="True" Click="ToggleDisplayRelationshipLines" x:Name="DisplayRelationshipLines" />
-                <MenuItem Header="_Display Wireframe"
-                          ToolTip="Display mesh wireframe"
-                          IsCheckable="True" Click="ToggleDisplayWireframe" x:Name="DisplayWireframe" />
+            <MenuItem Header="_Serialization" x:Name="SerializationOptions" />
+            <MenuItem Header="_Renderer" x:Name="RendererOptions">
                 <MenuItem Header="_Enabled Preview Types" x:Name="RendererTypes" />
             </MenuItem>
             <MenuItem Header="_Light Mode" IsCheckable="True" Click="ToggleLightMode" x:Name="LightMode" />
             <Separator />
             <MenuItem Header="_Dump Game Object Hierarchy" ToolTip="Dumps game object hierarchy to a text file"
-                      Click="DumpGameObjectTree"/>
+                      Click="DumpGameObjectTree" />
             <MenuItem Header="_Game" x:Name="UnityGameList" />
             <MenuItem Header="Game _Options" x:Name="GameOptions" Visibility="Collapsed" />
         </MenuItem>
-        <MenuItem Header="_Filter" Height="30" x:Name="Filters" Visibility="{Binding HasAssetsVisibility}"/>
+        <MenuItem Header="_Filter" Height="30" x:Name="Filters" Visibility="{Binding HasAssetsVisibility}" />
     </Menu>
 </UserControl>

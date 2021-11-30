@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using JetBrains.Annotations;
 using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
@@ -11,6 +12,9 @@ namespace Snuggle.Core.Implementations;
 public class MeshRenderer : Renderer {
     public MeshRenderer(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) {
         AdditionalVertexStream = PPtr<Mesh>.FromReader(reader, SerializedFile);
+        if (!AdditionalVertexStream.IsNull) {
+            Debugger.Break();
+        }
 
         if (SerializedFile.Version >= UnityVersionRegister.Unity2020_1) {
             EnlightenVertexStream = PPtr<Mesh>.FromReader(reader, SerializedFile);

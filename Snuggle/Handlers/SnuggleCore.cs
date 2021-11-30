@@ -20,6 +20,7 @@ using Snuggle.Core.Interfaces;
 using Snuggle.Core.Logging;
 using Snuggle.Core.Meta;
 using Snuggle.Core.Options;
+using Snuggle.Core.Options.Game;
 
 namespace Snuggle.Handlers;
 
@@ -30,29 +31,21 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
     public SnuggleCore() {
         Dispatcher = Dispatcher.CurrentDispatcher;
         var workDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? "./";
-        SettingsFile = Path.Combine(workDir, "Snuggle.json");
+        SettingsFile = Path.Combine(workDir, $"{Assembly.GetExecutingAssembly().GetName().Name ?? "Snuggle"}.json");
         WorkerThread = new Thread(WorkLoop);
         WorkerThread.Start();
         if (!Directory.Exists(Path.Combine(workDir, "Log"))) {
             Directory.CreateDirectory(Path.Combine(workDir, "Log"));
         }
-        LogTarget = new MultiLogger {
-            Loggers = {
-                new ConsoleLogger(), 
-                new DebugLogger(),
-                new FileLogger(new FileStream(Path.Combine(workDir, "Log", $"SnuggleLog_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds():D}.log"), FileMode.Create)),
-            },
-        };
+
+        LogTarget = new MultiLogger { Loggers = { new ConsoleLogger(), new DebugLogger(), new FileLogger(new FileStream(Path.Combine(workDir, "Log", $"SnuggleLog_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds():D}.log"), FileMode.Create)) } };
         SetOptions(File.Exists(SettingsFile) ? SnuggleOptions.FromJson(File.ReadAllText(SettingsFile)) : SnuggleOptions.Default);
         ResourceLocator.SetColorScheme(Application.Current.Resources, Settings.LightMode ? ResourceLocator.LightColorScheme : ResourceLocator.DarkColorScheme);
     }
 
     public Dispatcher Dispatcher { get; set; }
     public AssetCollection Collection { get; } = new();
-
     public SnuggleStatus Status { get; } = new();
-
-    // public SnuggleLog Log { get; set; } = new();
     public ILogger LogTarget { get; }
     public SnuggleOptions Settings { get; private set; } = SnuggleOptions.Default;
     public Thread WorkerThread { get; private set; }

@@ -16,7 +16,19 @@ public static partial class ConvertCore {
 
         var fullPath = Path.Combine(flags.OutputPath, path);
         fullPath.EnsureDirectoryExists();
-        SnuggleMeshFile.Save(gameObject, fullPath, new SnuggleMeshFile.SnuggleMeshFileOptions(ObjectDeserializationOptions.Default, !flags.NoGameObjectHierarchyDown, !flags.NoGameObjectHierarchyUp, flags.TextureToDDS, !flags.NoMaterials, !flags.NoTexture, !flags.NoVertexColor));
+        SnuggleMeshFile.Save(
+            gameObject,
+            fullPath,
+            ObjectDeserializationOptions.Default,
+            SnuggleExportOptions.Default with { WriteNativeTextures = flags.TextureToDDS },
+            SnuggleMeshExportOptions.Default with {
+                FindGameObjectDescendants = !flags.NoGameObjectHierarchyDown,
+                FindGameObjectParents = !flags.NoGameObjectHierarchyUp,
+                WriteMaterial = !flags.NoMaterials,
+                WriteTexture = !flags.NoTexture,
+                WriteVertexColors = !flags.NoVertexColor,
+                WriteMorphs = !flags.NoMorphs,
+            });
         logger.Info($"Saved {path}");
     }
 }

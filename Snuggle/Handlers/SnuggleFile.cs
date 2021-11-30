@@ -143,7 +143,7 @@ public static class SnuggleFile {
             if (mode == ExtractMode.Raw) {
                 serializedObject ??= SnuggleObject.GetObject(true);
             }
-            
+
             if (serializedObject == null) {
                 continue;
             }
@@ -174,11 +174,11 @@ public static class SnuggleFile {
 
         switch (serializedObject) {
             case Texture2D texture2d: {
-                SnuggleTextureFile.Save(texture2d, resultPath, SnuggleCore.Instance.Settings.WriteNativeTextures, true);
+                SnuggleTextureFile.Save(texture2d, resultPath, SnuggleCore.Instance.Settings.ExportOptions.WriteNativeTextures, true);
                 return;
             }
             case Mesh mesh: {
-                SnuggleMeshFile.Save(mesh, resultPath, new SnuggleMeshFile.SnuggleMeshFileOptions(instance.Settings.ObjectOptions, instance.Settings.BubbleGameObjectsDown, instance.Settings.BubbleGameObjectsUp, instance.Settings.WriteNativeTextures, true, true, instance.Settings.WriteVertexColors));
+                SnuggleMeshFile.Save(mesh, resultPath, instance.Settings.ObjectOptions, instance.Settings.ExportOptions, instance.Settings.MeshExportOptions);
                 return;
             }
             case Component component: {
@@ -187,22 +187,22 @@ public static class SnuggleFile {
                     return;
                 }
 
-                SnuggleMeshFile.Save(gameObject, GetResultPath(outputDirectory, gameObject), new SnuggleMeshFile.SnuggleMeshFileOptions(instance.Settings.ObjectOptions, instance.Settings.BubbleGameObjectsDown, instance.Settings.BubbleGameObjectsUp, instance.Settings.WriteNativeTextures, true, true, instance.Settings.WriteVertexColors));
+                SnuggleMeshFile.Save(gameObject, resultPath, instance.Settings.ObjectOptions, instance.Settings.ExportOptions, instance.Settings.MeshExportOptions);
                 return;
             }
             case Text text: {
                 serializedObject.Deserialize(SnuggleCore.Instance.Settings.ObjectOptions);
-                
+
                 if (!Directory.Exists(resultDir)) {
                     Directory.CreateDirectory(resultDir);
                 }
-                
+
                 resultPath = Path.ChangeExtension(resultPath, ".txt");
                 File.WriteAllText(resultPath, text.String);
                 return;
             }
             case GameObject gameObject: {
-                SnuggleMeshFile.Save(gameObject, GetResultPath(outputDirectory, gameObject), new SnuggleMeshFile.SnuggleMeshFileOptions(instance.Settings.ObjectOptions, instance.Settings.BubbleGameObjectsDown, instance.Settings.BubbleGameObjectsUp, instance.Settings.WriteNativeTextures, true, true, instance.Settings.WriteVertexColors));
+                SnuggleMeshFile.Save(gameObject, resultPath, instance.Settings.ObjectOptions, instance.Settings.ExportOptions, instance.Settings.MeshExportOptions);
                 return;
             }
         }
@@ -241,18 +241,18 @@ public static class SnuggleFile {
 
     public static string GetResultPath(string outputDirectory, SerializedObject serializedObject) {
         var path = outputDirectory;
-        if (SnuggleCore.Instance.Settings.GroupByType) {
+        if (SnuggleCore.Instance.Settings.ExportOptions.GroupByType) {
             path = Path.Combine(path, ((Enum) serializedObject.ClassId).ToString("G"));
         }
 
-        if (SnuggleCore.Instance.Settings.UseContainerPaths && !string.IsNullOrWhiteSpace(serializedObject.ObjectContainerPath)) {
+        if (SnuggleCore.Instance.Settings.ExportOptions.UseContainerPaths && !string.IsNullOrWhiteSpace(serializedObject.ObjectContainerPath)) {
             path = Path.Combine(path, "./" + serializedObject.ObjectContainerPath.SanitizeDirname());
             if (!string.IsNullOrEmpty(Path.GetExtension(Path.GetFileName(serializedObject.ObjectContainerPath)))) {
                 return path;
             }
         }
 
-        path = Path.Combine(path, string.Format(SnuggleCore.Instance.Settings.NameTemplate, serializedObject, serializedObject.PathId, serializedObject.ClassId));
+        path = Path.Combine(path, string.Format(SnuggleCore.Instance.Settings.ExportOptions.NameTemplate, serializedObject, serializedObject.PathId, serializedObject.ClassId));
 
         return path;
     }

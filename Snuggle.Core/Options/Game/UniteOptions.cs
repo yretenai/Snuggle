@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using JetBrains.Annotations;
 
-namespace Snuggle.Core.Options;
+namespace Snuggle.Core.Options.Game;
 
 [PublicAPI]
 public record UniteOptions(UniteVersion GameVersion) : IUnityGameOptions {

@@ -8,6 +8,7 @@ using Snuggle.Core.Models.Objects.Math;
 using Snuggle.Core.Models.Objects.Settings;
 using Snuggle.Core.Models.Serialization;
 using Snuggle.Core.Options;
+using Snuggle.Core.Options.Game;
 
 namespace Snuggle.Core.Implementations;
 

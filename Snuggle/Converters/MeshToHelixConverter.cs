@@ -124,7 +124,7 @@ public static class MeshToHelixConverter {
             "DecodeGeometryHelix",
             token2 => {
                 var cts = CancellationTokenSource.CreateLinkedTokenSource(token1, token2);
-                gameObject = SnuggleMeshFile.FindTopGeometry(gameObject, SnuggleCore.Instance.Settings.BubbleGameObjectsUp);
+                gameObject = SnuggleMeshFile.FindTopGeometry(gameObject, SnuggleCore.Instance.Settings.MeshExportOptions.FindGameObjectParents);
                 if (gameObject == null) {
                     return;
                 }
@@ -154,7 +154,7 @@ public static class MeshToHelixConverter {
                             cts.Token);
                         lines.Geometry = lineBuilder.ToLineGeometry3D();
                         lines.Color = Colors.Crimson;
-                        if (SnuggleCore.Instance.Settings.DisplayRelationshipLines) {
+                        if (SnuggleCore.Instance.Settings.MeshExportOptions.DisplayRelationshipLines) {
                             topMost.Children.Add(lines);
                             topMost.Children.Add(labels);
                         }
@@ -184,7 +184,7 @@ public static class MeshToHelixConverter {
             meshData[gameObject.PathId] = (submeshes, textureData);
         }
 
-        if (SnuggleCore.Instance.Settings.BubbleGameObjectsDown) {
+        if (SnuggleCore.Instance.Settings.MeshExportOptions.FindGameObjectDescendants) {
             foreach (var child in gameObject.Children) {
                 if (child.Value == null) {
                     continue;
@@ -301,7 +301,7 @@ public static class MeshToHelixConverter {
 
             collection.Add(
                 new MeshGeometryModel3D {
-                    RenderWireframe = SnuggleCore.Instance.Settings.DisplayWireframe,
+                    RenderWireframe = SnuggleCore.Instance.Settings.MeshExportOptions.DisplayWireframe,
                     WireframeColor = Colors.Red,
                     Geometry = submesh.Geometry,
                     Name = submesh.Name.Replace('.', '_'),

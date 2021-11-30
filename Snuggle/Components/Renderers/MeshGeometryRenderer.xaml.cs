@@ -9,7 +9,6 @@ using HelixToolkit.Wpf.SharpDX;
 using Snuggle.Converters;
 using Snuggle.Core.Implementations;
 using Snuggle.Handlers;
-using Component = Snuggle.Core.Implementations.Component;
 
 namespace Snuggle.Components.Renderers;
 
@@ -24,9 +23,9 @@ public partial class MeshGeometryRenderer {
 
             light.Position = Viewport3D.Camera.Position;
         };
-        
+
         SnuggleCore.Instance.PropertyChanged += (sender, args) => {
-            if (args.PropertyName == nameof(SnuggleCore.Settings) + ".Renderer") {
+            if (args.PropertyName == nameof(SnuggleCore.Settings.MeshExportOptions)) {
                 Refresh(sender, new DependencyPropertyChangedEventArgs());
             }
         };

@@ -23,9 +23,12 @@ public record SnuggleFlags : ICLIFlags {
 
     [CLIFlag("no-materials", Aliases = new[] { "M" }, Category = "General Options", Default = false, Help = "Don't export materials")]
     public bool NoMaterials { get; set; }
-    
+
     [CLIFlag("no-vertex-color", Aliases = new[] { "c" }, Category = "General Options", Default = false, Help = "Do not write vertex colors")]
     public bool NoVertexColor { get; set; }
+
+    [CLIFlag("no-morphs", Aliases = new[] { "O" }, Category = "General Options", Default = false, Help = "Do not write morphs")]
+    public bool NoMorphs { get; set; }
 
     [CLIFlag("dont-scan-up", Category = "General Options", Default = false, Help = "Do not scan for game object hierarchy ancestors.")]
     public bool NoGameObjectHierarchyUp { get; set; }

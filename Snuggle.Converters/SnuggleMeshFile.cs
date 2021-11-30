@@ -24,14 +24,21 @@ using Mesh = Snuggle.Core.Implementations.Mesh;
 namespace Snuggle.Converters;
 
 public static class SnuggleMeshFile {
-    public static void Save(Mesh mesh, string path, SnuggleMeshFileOptions options) {
+    public static void Save(Mesh mesh, string path, ObjectDeserializationOptions deserializationOptions, SnuggleExportOptions exportOptions, SnuggleMeshExportOptions options) {
         var targetPath = Path.ChangeExtension(path, ".gltf");
         if (File.Exists(targetPath)) {
             return;
         }
 
         var scene = new SceneBuilder();
-        var meshNode = CreateMesh(mesh, null, null, null, options);
+        var meshNode = CreateMesh(
+            mesh,
+            null,
+            null,
+            null,
+            deserializationOptions,
+            exportOptions,
+            options);
         scene.AddRigidMesh(meshNode, AffineTransform.Identity);
         var gltf = scene.ToGltf2(SceneBuilderSchema2Settings.Default with { GeneratorName = "Snuggle" });
 
@@ -59,7 +66,7 @@ public static class SnuggleMeshFile {
         }
     }
 
-    public static void Save(GameObject gameObject, string path, SnuggleMeshFileOptions options) {
+    public static void Save(GameObject gameObject, string path, ObjectDeserializationOptions deserializationOptions, SnuggleExportOptions exportOptions, SnuggleMeshExportOptions options) {
         path = Path.Combine(Path.GetDirectoryName(path)!, Path.GetFileNameWithoutExtension(path));
 
         if (File.Exists(path + ".gltf") || File.Exists(Path.Combine(path, Path.GetFileName(path)) + ".gltf")) {
@@ -67,7 +74,7 @@ public static class SnuggleMeshFile {
         }
 
         var scene = new SceneBuilder();
-        gameObject = FindTopGeometry(gameObject, options.BubbleUp) ?? gameObject;
+        gameObject = FindTopGeometry(gameObject, options.FindGameObjectParents) ?? gameObject;
 
         var node = new NodeBuilder();
         scene.AddNode(node);
@@ -82,6 +89,8 @@ public static class SnuggleMeshFile {
             nodeTree,
             skinnedMeshes,
             path,
+            deserializationOptions,
+            exportOptions,
             options);
         BuildHashTree(nodeTree, hashTree, gameObject);
         var saved = new Dictionary<long, string>();
@@ -94,8 +103,18 @@ public static class SnuggleMeshFile {
                 skin[i] = (hashNode, matrix);
             }
 
-            scene.AddSkinnedMesh(CreateMesh(skinnedMesh, materials, path, saved, options), skin);
+            scene.AddSkinnedMesh(
+                CreateMesh(
+                    skinnedMesh,
+                    materials,
+                    path,
+                    saved,
+                    deserializationOptions,
+                    exportOptions,
+                    options),
+                skin);
         }
+
         var gltf = scene.ToGltf2(SceneBuilderSchema2Settings.Default with { GeneratorName = "Snuggle" });
 
         if (gltf.LogicalImages.Any()) {
@@ -156,7 +175,9 @@ public static class SnuggleMeshFile {
         Dictionary<long, NodeBuilder> nodeTree,
         ICollection<(Mesh, List<Material?>)> skinnedMeshes,
         string? path,
-        SnuggleMeshFileOptions options) {
+        ObjectDeserializationOptions deserializationOptions,
+        SnuggleExportOptions exportOptions,
+        SnuggleMeshExportOptions options) {
         if (gameObject.FindComponent(UnityClassId.Transform).Value is not Transform transform) {
             return;
         }
@@ -180,10 +201,19 @@ public static class SnuggleMeshFile {
 
         if (gameObject.FindComponent(UnityClassId.MeshFilter).Value is MeshFilter filter && filter.Mesh.Value != null) {
             filter.Mesh.Value.Deserialize(ObjectDeserializationOptions.Default);
-            scene.AddRigidMesh(CreateMesh(filter.Mesh.Value, materials, path, null, options), node);
+            scene.AddRigidMesh(
+                CreateMesh(
+                    filter.Mesh.Value,
+                    materials,
+                    path,
+                    null,
+                    deserializationOptions,
+                    exportOptions,
+                    options),
+                node);
         }
 
-        if (options.BubbleDown) {
+        if (options.FindGameObjectDescendants) {
             foreach (var child in gameObject.Children) {
                 if (child.Value == null) {
                     continue;
@@ -198,12 +228,21 @@ public static class SnuggleMeshFile {
                     nodeTree,
                     skinnedMeshes,
                     path,
+                    deserializationOptions,
+                    exportOptions,
                     options);
             }
         }
     }
 
-    private static IMeshBuilder<MaterialBuilder> CreateMesh(Mesh mesh, List<Material?>? materials, string? path, Dictionary<long, string>? saved, SnuggleMeshFileOptions options) {
+    private static IMeshBuilder<MaterialBuilder> CreateMesh(
+        Mesh mesh,
+        List<Material?>? materials,
+        string? path,
+        Dictionary<long, string>? saved,
+        ObjectDeserializationOptions deserializationOptions,
+        SnuggleExportOptions exportOptions,
+        SnuggleMeshExportOptions options) {
         var vertexStream = MeshConverter.GetVBO(mesh, out var descriptors, out var strides);
         var indexStream = MeshConverter.GetIBO(mesh);
         var indices = mesh.IndexFormat == IndexFormat.UInt16 ? MemoryMarshal.Cast<byte, ushort>(indexStream.Span).ToArray().Select(x => (int) x).ToArray() : MemoryMarshal.Cast<byte, int>(indexStream.Span);
@@ -244,7 +283,7 @@ public static class SnuggleMeshFile {
                     case VertexChannel.Tangent:
                         xyvnt[i].Tangent = new Vector4(floatValues.Take(4).ToArray());
                         break;
-                    case VertexChannel.Color when options.WriteColors:
+                    case VertexChannel.Color when options.WriteVertexColors:
                         cuv[i].Color = new Vector4(floatValues.Take(4).ToArray());
                         break;
                     case VertexChannel.UV0:
@@ -289,7 +328,14 @@ public static class SnuggleMeshFile {
             for (var submeshIndex = 0; submeshIndex < mesh.Submeshes.Count; submeshIndex++) {
                 var submesh = mesh.Submeshes[submeshIndex];
                 var material = new MaterialBuilder($"Submesh{submeshIndex}");
-                CreateMaterial(material, materials?.ElementAtOrDefault(submeshIndex), path, saved ?? new Dictionary<long, string>(), options);
+                CreateMaterial(
+                    material,
+                    materials?.ElementAtOrDefault(submeshIndex),
+                    path,
+                    saved ?? new Dictionary<long, string>(),
+                    deserializationOptions,
+                    exportOptions,
+                    options);
 
                 var primitive = meshBuilderAbs.UsePrimitive(material);
 
@@ -336,7 +382,14 @@ public static class SnuggleMeshFile {
             for (var submeshIndex = 0; submeshIndex < mesh.Submeshes.Count; submeshIndex++) {
                 var submesh = mesh.Submeshes[submeshIndex];
                 var material = new MaterialBuilder($"Submesh{submeshIndex}");
-                CreateMaterial(material, materials?.ElementAtOrDefault(submeshIndex), path, saved ?? new Dictionary<long, string>(), options);
+                CreateMaterial(
+                    material,
+                    materials?.ElementAtOrDefault(submeshIndex),
+                    path,
+                    saved ?? new Dictionary<long, string>(),
+                    deserializationOptions,
+                    exportOptions,
+                    options);
 
                 var primitive = meshBuilderAbs.UsePrimitive(material);
 
@@ -379,41 +432,50 @@ public static class SnuggleMeshFile {
             }
         }
 
-        var morphNames = new List<string>();
-        for (var blendIndex = 0; blendIndex < mesh.BlendShapeData.Channels.Count; blendIndex++) {
-            var channel = mesh.BlendShapeData.Channels[blendIndex];
-            var morph = meshBuilder.UseMorphTarget(blendIndex);
-            morphNames.Add(channel.Name);
-            for (var frameIndex = 0; frameIndex < channel.Count; frameIndex++) {
-                var fullIndex = channel.Index + frameIndex;
-                var shape = mesh.BlendShapeData.Shapes[fullIndex];
+        if (options.WriteMorphs) {
+            var morphNames = new List<string>();
+            for (var blendIndex = 0; blendIndex < mesh.BlendShapeData.Channels.Count; blendIndex++) {
+                var channel = mesh.BlendShapeData.Channels[blendIndex];
+                var morph = meshBuilder.UseMorphTarget(blendIndex);
+                morphNames.Add(channel.Name);
+                for (var frameIndex = 0; frameIndex < channel.Count; frameIndex++) {
+                    var fullIndex = channel.Index + frameIndex;
+                    var shape = mesh.BlendShapeData.Shapes[fullIndex];
 
-                for (var vertexIndex = 0; vertexIndex < shape.VertexCount; vertexIndex++) {
-                    var vertex = mesh.BlendShapeData.Vertices![(int) (shape.FirstVertex + vertexIndex)];
+                    for (var vertexIndex = 0; vertexIndex < shape.VertexCount; vertexIndex++) {
+                        var vertex = mesh.BlendShapeData.Vertices![(int) (shape.FirstVertex + vertexIndex)];
 
-                    var geometryData = new VertexGeometryDelta { PositionDelta = new Vector3(vertex.Vertex.X, vertex.Vertex.Y, vertex.Vertex.Z) };
+                        var geometryData = new VertexGeometryDelta { PositionDelta = new Vector3(vertex.Vertex.X, vertex.Vertex.Y, vertex.Vertex.Z) };
 
-                    if (shape.HasNormals) {
-                        geometryData.NormalDelta = new Vector3(vertex.Normal.X, vertex.Normal.Y, vertex.Normal.Z);
+                        if (shape.HasNormals) {
+                            geometryData.NormalDelta = new Vector3(vertex.Normal.X, vertex.Normal.Y, vertex.Normal.Z);
+                        }
+
+                        if (shape.HasTangents) {
+                            geometryData.TangentDelta = new Vector3(vertex.Tangent.X, vertex.Tangent.Y, vertex.Tangent.Z);
+                        }
+
+                        morph.SetVertexDelta(xyvnt[vertex.Index], geometryData);
                     }
-
-                    if (shape.HasTangents) {
-                        geometryData.TangentDelta = new Vector3(vertex.Tangent.X, vertex.Tangent.Y, vertex.Tangent.Z);
-                    }
-
-                    morph.SetVertexDelta(xyvnt[vertex.Index], geometryData);
                 }
             }
-        }
 
-        if (morphNames.Count > 0) {
-            meshBuilder.Extras = JsonContent.CreateFrom(new Dictionary<string, List<string>> { { "targetNames", morphNames } });
+            if (morphNames.Count > 0) {
+                meshBuilder.Extras = JsonContent.CreateFrom(new Dictionary<string, List<string>> { { "targetNames", morphNames } });
+            }
         }
 
         return meshBuilder;
     }
 
-    private static void CreateMaterial(MaterialBuilder materialBuilder, Material? material, string? path, Dictionary<long, string> saved, SnuggleMeshFileOptions options) {
+    private static void CreateMaterial(
+        MaterialBuilder materialBuilder,
+        Material? material,
+        string? path,
+        Dictionary<long, string> saved,
+        ObjectDeserializationOptions deserializationOptions,
+        SnuggleExportOptions exportOptions,
+        SnuggleMeshExportOptions options) {
         if (material == null || path == null) {
             return;
         }
@@ -430,10 +492,10 @@ public static class SnuggleMeshFile {
                     continue;
                 }
 
-                texture.Deserialize(options.ObjectOptions);
+                texture.Deserialize(deserializationOptions);
 
                 if (!saved.TryGetValue(texture.PathId, out var texPath)) {
-                    texPath = SnuggleTextureFile.Save(texture, Path.Combine(path, texture.Name + "_" + texture.PathId + ".bin"), options.WriteNative, false);
+                    texPath = SnuggleTextureFile.Save(texture, Path.Combine(path, texture.Name + "_" + texture.PathId + ".bin"), exportOptions.WriteNativeTextures, false);
                 }
 
                 if (name == "_MainTex") {
@@ -456,6 +518,4 @@ public static class SnuggleMeshFile {
             SnuggleMaterialFile.SaveMaterial(material, path);
         }
     }
-
-    public readonly record struct SnuggleMeshFileOptions(ObjectDeserializationOptions ObjectOptions, bool BubbleDown, bool BubbleUp, bool WriteNative, bool WriteTexture, bool WriteMaterial, bool WriteColors);
 }

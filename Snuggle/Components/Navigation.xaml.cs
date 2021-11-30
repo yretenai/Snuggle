@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using AdonisUI;
@@ -14,11 +15,13 @@ using Snuggle.Core;
 using Snuggle.Core.Implementations;
 using Snuggle.Core.Meta;
 using Snuggle.Core.Options;
+using Snuggle.Core.Options.Game;
 using Snuggle.Handlers;
 
 namespace Snuggle.Components;
 
 public partial class Navigation {
+    private static readonly Regex SplitPattern = new(@"(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])|(?<=[a-z])(?=[0-9])", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.CultureInvariant);
     private readonly Dictionary<UniteVersion, MenuItem> PokemonUniteVersionItems = new();
     private readonly Dictionary<RendererType, MenuItem> RendererTypeItems = new();
     private readonly Dictionary<UnityGame, MenuItem> UnityGameItems = new();
@@ -29,18 +32,12 @@ public partial class Navigation {
 
         CacheData.IsChecked = instance.Settings.Options.CacheData;
         CacheDataIfLZMA.IsChecked = instance.Settings.Options.CacheDataIfLZMA;
-        WriteNativeTextures.IsChecked = instance.Settings.WriteNativeTextures;
-        WriteVertexColors.IsChecked = instance.Settings.WriteVertexColors;
-        UseContainerPaths.IsChecked = instance.Settings.UseContainerPaths;
-        GroupByType.IsChecked = instance.Settings.GroupByType;
         LightMode.IsChecked = instance.Settings.LightMode;
-        BubbleGameObjectsDown.IsChecked = instance.Settings.BubbleGameObjectsDown;
-        BubbleGameObjectsUp.IsChecked = instance.Settings.BubbleGameObjectsUp;
-        DisplayRelationshipLines.IsChecked = instance.Settings.DisplayRelationshipLines;
-        DisplayWireframe.IsChecked = instance.Settings.DisplayWireframe;
 
         BuildEnumMenu(UnityGameList, UnityGameItems, new[] { instance.Settings.Options.Game }, UpdateGame, CancelGameEvent);
-        BuildEnumMenu(RendererTypes, RendererTypeItems, instance.Settings.EnabledRenders, AddRenderer, RemoveRenderer);
+        BuildEnumMenu(RendererTypes, RendererTypeItems, instance.Settings.MeshExportOptions.EnabledRenders, AddRenderer, RemoveRenderer);
+        BuildToggleMenu(SerializationOptions, typeof(SnuggleExportOptions), nameof(SnuggleOptions.ExportOptions));
+        BuildToggleMenu(RendererOptions, typeof(SnuggleMeshExportOptions), nameof(SnuggleOptions.MeshExportOptions));
         PopulateGameOptions();
         PopulateRecentItems();
 
@@ -54,6 +51,91 @@ public partial class Navigation {
                     break;
             }
         };
+    }
+
+    private void BuildToggleMenu(MenuItem menu, Type type, string objectName) {
+        // typeof(SnuggleOptions).GetProperty(objectName)?.SetValue(SnuggleCore.Instance.Settings, newValue)
+        var current = typeof(SnuggleOptions).GetProperty(objectName)!.GetValue(SnuggleCore.Instance.Settings)!;
+        var i = 0;
+        var descriptions = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
+        var constructors = type.GetConstructors();
+        foreach (var constructor in constructors) {
+            var parameters = constructor.GetParameters();
+            foreach (var parameter in parameters) {
+                var description = parameter.GetCustomAttribute<DescriptionAttribute>()?.Description;
+                if (string.IsNullOrWhiteSpace(description)) {
+                    continue;
+                }
+
+                descriptions[parameter.Name!] = description;
+            }
+        }
+
+        foreach (var property in type.GetProperties(BindingFlags.Public | BindingFlags.Instance)) {
+            if (property.PropertyType != typeof(bool)) {
+                continue;
+            }
+
+            if (!descriptions.TryGetValue(property.Name, out var description)) {
+                description = property.GetCustomAttribute<DescriptionAttribute>()?.Description ?? string.Empty;
+            }
+
+            var item = new MenuItem {
+                Tag = (type, objectName, property),
+                Header = SplitName(property.Name),
+                ToolTip = description,
+                IsCheckable = true,
+                IsChecked = property.GetValue(current) is true,
+            };
+            item.Checked += UpdateToggle;
+            item.Unchecked += UpdateToggle;
+            menu.Items.Insert(i++, item);
+        }
+    }
+
+    private static string SplitName(string name) => string.Join(' ', SplitPattern.Split(name));
+
+    private void UpdateToggle(object sender, RoutedEventArgs args) {
+        if (sender is not MenuItem item) {
+            return;
+        }
+
+        var (type, objectName, targetProperty) = item.Tag is (Type, string, PropertyInfo) ? ((Type, string, PropertyInfo)) item.Tag : (null, null, null);
+        if (type == null || objectName == null || targetProperty == null) {
+            return;
+        }
+
+        var propertyMap = new Dictionary<string, object?>(StringComparer.InvariantCultureIgnoreCase);
+        var propertyInfoMap = new Dictionary<string, PropertyInfo>(StringComparer.InvariantCultureIgnoreCase);
+        var currentProperty = typeof(SnuggleOptions).GetProperty(objectName)!;
+        var current = currentProperty.GetValue(SnuggleCore.Instance.Settings)!;
+        foreach (var property in type.GetProperties(BindingFlags.Public | BindingFlags.Instance)) {
+            propertyMap[property.Name] = property == targetProperty ? item.IsChecked : property.GetValue(current);
+            propertyInfoMap[property.Name] = property;
+        }
+
+        var constructors = type.GetConstructors();
+        foreach (var constructor in constructors) {
+            var parameters = constructor.GetParameters().ToDictionary(x => x.Name!, y => y, StringComparer.InvariantCultureIgnoreCase);
+            if (!parameters.Keys.All(propertyMap.ContainsKey)) {
+                continue;
+            }
+
+            if (parameters.Keys.Any(x => !propertyMap.ContainsKey(x))) {
+                continue;
+            }
+
+            var constructorParams = parameters.Select(x => propertyMap[x.Key]).ToArray();
+            var newSettings = Activator.CreateInstance(type, constructorParams);
+            foreach (var (properyKeyName, properyValue) in propertyMap) {
+                if (!parameters.ContainsKey(properyKeyName)) {
+                    propertyInfoMap[properyKeyName].SetValue(newSettings, properyValue);
+                }
+            }
+
+            currentProperty.SetValue(SnuggleCore.Instance.Settings, newSettings);
+            SnuggleCore.Instance.SaveOptions();
+        }
     }
 
     private void PopulateGameOptions() {
@@ -83,7 +165,7 @@ public partial class Navigation {
     }
 
     private static void BuildEnumMenu<T>(ItemsControl menu, IDictionary<T, MenuItem> items, IReadOnlyCollection<T> currentValue, RoutedEventHandler @checked, RoutedEventHandler @unchecked) where T : struct, Enum {
-        var descriptions = typeof(T).GetFields(BindingFlags.Static | BindingFlags.Public).ToDictionary(x => (T) x.GetValue(null)!, x => x.GetCustomAttribute<DescriptionAttribute>()?.Description ?? x.Name);
+        var descriptions = typeof(T).GetFields(BindingFlags.Static | BindingFlags.Public).ToDictionary(x => (T) x.GetValue(null)!, x => x.GetCustomAttribute<DescriptionAttribute>()?.Description ?? SplitName(x.Name));
         foreach (var value in Enum.GetValues<T>()) {
             var item = new MenuItem {
                 Tag = value, Header = "_" + descriptions[value], IsChecked = currentValue.Any(x => x.Equals(value)), IsCheckable = true,
@@ -100,7 +182,7 @@ public partial class Navigation {
         Filters.Items.Clear();
         var letters = new Dictionary<char, MenuItem>();
         foreach (var item in instance.Objects.DistinctBy(x => x.ClassId).Select(x => x.ClassId).OrderBy(x => ((Enum) x).ToString("G"))) {
-            var name = ((Enum) item).ToString("G");
+            var name = SplitName(((Enum) item).ToString("G"));
             var menuItem = new MenuItem { Tag = item, Header = "_" + name, IsCheckable = true, IsChecked = instance.Filters.Contains(item) };
             menuItem.Click += ToggleFilter;
             var letter = char.ToUpper(name[0]);
@@ -109,6 +191,7 @@ public partial class Navigation {
                 letters[letter] = letterMenuItem;
                 Filters.Items.Add(letterMenuItem);
             }
+
             letterMenuItem.Items.Add(menuItem);
         }
 
@@ -190,7 +273,7 @@ public partial class Navigation {
         }
 
         var tag = (RendererType) menuItem.Tag;
-        SnuggleCore.Instance.Settings.EnabledRenders.Add(tag);
+        SnuggleCore.Instance.Settings.MeshExportOptions.EnabledRenders.Add(tag);
         SnuggleCore.Instance.SaveOptions();
         e.Handled = true;
     }
@@ -201,7 +284,7 @@ public partial class Navigation {
         }
 
         var tag = (RendererType) menuItem.Tag;
-        SnuggleCore.Instance.Settings.EnabledRenders.Remove(tag);
+        SnuggleCore.Instance.Settings.MeshExportOptions.EnabledRenders.Remove(tag);
         SnuggleCore.Instance.SaveOptions();
         e.Handled = true;
     }
@@ -216,58 +299,6 @@ public partial class Navigation {
         var enabled = ((MenuItem) sender).IsChecked;
         var instance = SnuggleCore.Instance;
         instance.SetOptions(instance.Settings.Options with { CacheDataIfLZMA = enabled });
-    }
-
-    private void ToggleWriteNativeTextures(object sender, RoutedEventArgs e) {
-        var enabled = ((MenuItem) sender).IsChecked;
-        var instance = SnuggleCore.Instance;
-        instance.SetOptions(instance.Settings with { WriteNativeTextures = enabled });
-    }
-
-    private void ToggleWriteVertexColors(object sender, RoutedEventArgs e) {
-        var enabled = ((MenuItem) sender).IsChecked;
-        var instance = SnuggleCore.Instance;
-        instance.SetOptions(instance.Settings with { WriteVertexColors = enabled });
-    }
-
-    private void ToggleUseContainerPaths(object sender, RoutedEventArgs e) {
-        var enabled = ((MenuItem) sender).IsChecked;
-        var instance = SnuggleCore.Instance;
-        instance.SetOptions(instance.Settings with { UseContainerPaths = enabled });
-    }
-
-    private void ToggleGroupByType(object sender, RoutedEventArgs e) {
-        var enabled = ((MenuItem) sender).IsChecked;
-        var instance = SnuggleCore.Instance;
-        instance.SetOptions(instance.Settings with { GroupByType = enabled });
-    }
-
-    private void ToggleBubbleGameObjectDown(object sender, RoutedEventArgs e) {
-        var enabled = ((MenuItem) sender).IsChecked;
-        var instance = SnuggleCore.Instance;
-        instance.SetOptions(instance.Settings with { BubbleGameObjectsDown = enabled });
-        instance.OnPropertyChanged(nameof(SnuggleCore.Settings) + ".Renderer");
-    }
-
-    private void ToggleDisplayRelationshipLines(object sender, RoutedEventArgs e) {
-        var enabled = ((MenuItem) sender).IsChecked;
-        var instance = SnuggleCore.Instance;
-        instance.SetOptions(instance.Settings with { DisplayRelationshipLines = enabled });
-        instance.OnPropertyChanged(nameof(SnuggleCore.Settings) + ".Renderer");
-    }
-
-    private void ToggleDisplayWireframe(object sender, RoutedEventArgs e) {
-        var enabled = ((MenuItem) sender).IsChecked;
-        var instance = SnuggleCore.Instance;
-        instance.SetOptions(instance.Settings with { DisplayWireframe = enabled });
-        instance.OnPropertyChanged(nameof(SnuggleCore.Settings) + ".Renderer");
-    }
-
-    private void ToggleBubbleGameObjectUp(object sender, RoutedEventArgs e) {
-        var enabled = ((MenuItem) sender).IsChecked;
-        var instance = SnuggleCore.Instance;
-        instance.SetOptions(instance.Settings with { BubbleGameObjectsUp = enabled });
-        instance.OnPropertyChanged(nameof(SnuggleCore.Settings) + ".Renderer");
     }
 
     private void ToggleLightMode(object sender, RoutedEventArgs e) {
@@ -314,7 +345,7 @@ public partial class Navigation {
     }
 
     private void DumpGameObjectTree(object sender, RoutedEventArgs e) {
-        using var selection = new CommonSaveFileDialog() {
+        using var selection = new CommonSaveFileDialog {
             DefaultFileName = "gametree.txt",
             Filters = { new CommonFileDialogFilter("JSON File", ".json") },
             InitialDirectory = SnuggleCore.Instance.Settings.LastSaveDirectory,
