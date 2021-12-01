@@ -34,7 +34,7 @@
                 <MenuItem Header="_Serialize" Click="ExtractSerialize" />
             </MenuItem>
         </MenuItem>
-        <MenuItem Header="_Snuggle" Height="30">
+        <MenuItem Header="{Binding FormattedProjectName, Mode=OneWay}" Height="30">
             <MenuItem Header="_Cache Memory"
                       ToolTip="This can significantly increase performance at a heavy memory cost"
                       IsCheckable="True" Click="ToggleCacheData" x:Name="CacheData" />

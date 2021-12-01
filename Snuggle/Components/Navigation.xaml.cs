@@ -93,7 +93,7 @@ public partial class Navigation {
         }
     }
 
-    private static string SplitName(string name) => string.Join(' ', SplitPattern.Split(name));
+    internal static string SplitName(string name) => string.Join(' ', SplitPattern.Split(name));
 
     private void UpdateToggle(object sender, RoutedEventArgs args) {
         if (sender is not MenuItem item) {

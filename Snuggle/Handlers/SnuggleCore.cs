@@ -14,6 +14,7 @@ using System.Windows.Threading;
 using AdonisUI;
 using DragonLib;
 using JetBrains.Annotations;
+using Snuggle.Components;
 using Snuggle.Converters;
 using Snuggle.Core;
 using Snuggle.Core.Interfaces;
@@ -31,7 +32,7 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
     public SnuggleCore() {
         Dispatcher = Dispatcher.CurrentDispatcher;
         var workDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? "./";
-        SettingsFile = Path.Combine(workDir, $"{Assembly.GetExecutingAssembly().GetName().Name ?? "Snuggle"}.json");
+        SettingsFile = Path.Combine(workDir, $"{ProjectName}.json");
         WorkerThread = new Thread(WorkLoop);
         WorkerThread.Start();
         if (!Directory.Exists(Path.Combine(workDir, "Log"))) {
@@ -68,6 +69,9 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
 #endif
 
     public Visibility HasAssetsVisibility => Collection.Files.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+
+    public string ProjectName { get; } = Assembly.GetExecutingAssembly().GetName().Name ?? "Snuggle";
+    public string FormattedProjectName { get; } = Navigation.SplitName(Assembly.GetExecutingAssembly().GetName().Name ?? "Snuggle");
 
     public void Dispose() {
         Dispose(true);
