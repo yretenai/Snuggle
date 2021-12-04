@@ -26,8 +26,7 @@ public sealed partial class SpriteRenderer {
     private void Zoom(object sender, MouseWheelEventArgs e) {
         var st = (ScaleTransform) ImageView.LayoutTransform;
         var zoom = e.Delta > 0 ? .2 : -.2;
-        st.ScaleX = Math.Clamp(st.ScaleX + zoom, 0.2, 3);
-        st.ScaleY = 0 - st.ScaleX;
+        st.ScaleY = st.ScaleX = Math.Clamp(st.ScaleX + zoom, 0.2, 3);
     }
 
     private void CapturePan(object sender, MouseButtonEventArgs e) {

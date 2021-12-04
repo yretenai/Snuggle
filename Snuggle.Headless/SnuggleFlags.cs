@@ -21,6 +21,9 @@ public record SnuggleFlags : ICLIFlags {
     [CLIFlag("no-text", Aliases = new[] { "t" }, Category = "General Options", Default = false, Help = "Don't export text assets")]
     public bool NoText { get; set; }
 
+    [CLIFlag("no-sprite", Aliases = new[] { "S" }, Category = "General Options", Default = false, Help = "Don't export sprite assets")]
+    public bool NoSprite { get; set; }
+
     [CLIFlag("no-materials", Aliases = new[] { "M" }, Category = "General Options", Default = false, Help = "Don't export materials")]
     public bool NoMaterials { get; set; }
 

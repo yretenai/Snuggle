@@ -28,7 +28,7 @@
                        HorizontalAlignment="Left"
                        VerticalAlignment="Top" Stretch="Fill" x:Name="ImageView">
                     <Image.LayoutTransform>
-                        <ScaleTransform ScaleX="1" ScaleY="-1" />
+                        <ScaleTransform ScaleX="1" ScaleY="1" />
                     </Image.LayoutTransform>
                     <Image.RenderTransform>
                         <TranslateTransform />

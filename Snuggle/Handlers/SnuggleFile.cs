@@ -174,7 +174,11 @@ public static class SnuggleFile {
 
         switch (serializedObject) {
             case Texture2D texture2d: {
-                SnuggleTextureFile.Save(texture2d, resultPath, SnuggleCore.Instance.Settings.ExportOptions, true);
+                SnuggleTextureFile.Save(texture2d, resultPath, instance.Settings.ExportOptions, true);
+                return;
+            }
+            case Sprite sprite: {
+                SnuggleSpriteFile.Save(sprite, resultPath, instance.Settings.ObjectOptions, instance.Settings.ExportOptions);
                 return;
             }
             case Mesh mesh: {

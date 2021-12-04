@@ -8,15 +8,15 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="DirectXTexNet" Version="1.0.3"/>
-        <PackageReference Include="SixLabors.ImageSharp" Version="1.0.4"/>
-        <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta13"/>
+        <PackageReference Include="DirectXTexNet" Version="1.0.3" />
+        <PackageReference Include="SixLabors.ImageSharp" Version="1.0.4" />
+        <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta13" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Library\SharpGLTF\src\SharpGLTF.Core\SharpGLTF.Core.csproj"/>
-        <ProjectReference Include="..\Library\SharpGLTF\src\SharpGLTF.Toolkit\SharpGLTF.Toolkit.csproj"/>
-        <ProjectReference Include="..\Snuggle.Core\Snuggle.Core.csproj"/>
-        <ProjectReference Include="..\Snuggle.Native\Snuggle.Native.csproj"/>
+        <ProjectReference Include="..\Library\SharpGLTF\src\SharpGLTF.Core\SharpGLTF.Core.csproj" />
+        <ProjectReference Include="..\Library\SharpGLTF\src\SharpGLTF.Toolkit\SharpGLTF.Toolkit.csproj" />
+        <ProjectReference Include="..\Snuggle.Core\Snuggle.Core.csproj" />
+        <ProjectReference Include="..\Snuggle.Native\Snuggle.Native.csproj" />
     </ItemGroup>
 </Project>

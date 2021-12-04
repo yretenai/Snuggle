@@ -98,6 +98,10 @@ public static class Program {
                         logger.Info($"Processing Text {asset}");
                         ConvertCore.ConvertText(flags, logger, text);
                         break;
+                    case Sprite sprite when !flags.NoSprite:
+                        logger.Info($"Processing Sprite {asset}");
+                        ConvertCore.ConvertSprite(flags, logger, sprite);
+                        break;
                 }
             } catch (Exception e) {
                 logger.Error(e.Message, e);

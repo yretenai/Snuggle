@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
@@ -14,17 +15,18 @@ using Snuggle.Core.Implementations;
 using Snuggle.Core.Models.Objects.Graphics;
 using Snuggle.Core.Models.Objects.Math;
 using Snuggle.Core.Options;
+using Path = SixLabors.ImageSharp.Drawing.Path;
 using Vector2 = Snuggle.Core.Models.Objects.Math.Vector2;
 
 namespace Snuggle.Converters;
 
 [PublicAPI]
 public static class SnuggleSpriteFile {
-    private static ConcurrentDictionary<(long, string), (ReadOnlyMemory<byte> Memory, TextureFormat Format)> CachedData { get; } = new();
+    private static ConcurrentDictionary<(long, string), ReadOnlyMemory<byte>> CachedData { get; } = new();
 
     // Perfare's Asset Studio - SpriteHelper.cs.
-    public static Memory<byte> ConvertSprite(Sprite sprite, ObjectDeserializationOptions options, bool useDirectXTex, out TextureFormat textureFormat) {
-        var (memory, format) = CachedData.GetOrAdd(
+    public static Memory<byte> ConvertSprite(Sprite sprite, ObjectDeserializationOptions options, bool useDirectXTex) {
+        var memory = CachedData.GetOrAdd(
             sprite.GetCompositeId(),
             static (_, arg) => {
                 var (sprite, options, useDirectXTex) = arg;
@@ -32,7 +34,7 @@ public static class SnuggleSpriteFile {
                     spriteAtlasData.Texture.Value.Deserialize(options);
                     using var image = ConvertSprite(sprite, spriteAtlasData.Texture.Value!, spriteAtlasData.TextureRect, spriteAtlasData.TextureRectOffset, spriteAtlasData.Settings, useDirectXTex);
                     if (image != null) {
-                        return (image.ToRGBA(), spriteAtlasData.Texture.Value.TextureFormat);
+                        return image.ToRGBA();
                     }
                 }
 
@@ -40,17 +42,16 @@ public static class SnuggleSpriteFile {
                     sprite.RenderData.Texture.Value.Deserialize(options);
                     using var image = ConvertSprite(sprite, sprite.RenderData.Texture.Value, sprite.RenderData.TextureRect, sprite.RenderData.TextureRectOffset, sprite.RenderData.Settings, useDirectXTex);
                     if (image != null) {
-                        return (image.ToRGBA(), sprite.RenderData.Texture.Value.TextureFormat);
+                        return image.ToRGBA();
                     }
                 }
 
-                return (ReadOnlyMemory<byte>.Empty, TextureFormat.None);
+                return ReadOnlyMemory<byte>.Empty;
             },
             (sprite, options, useDirectXTex));
 
         var newMemory = new Memory<byte>(new byte[memory.Length]);
         memory.CopyTo(newMemory);
-        textureFormat = format;
         return newMemory;
     }
 
@@ -97,7 +98,6 @@ public static class SnuggleSpriteFile {
                 var options = new DrawingOptions { GraphicsOptions = new GraphicsOptions { AlphaCompositionMode = PixelAlphaCompositionMode.DestOut } };
                 var rectP = new RectangularPolygon(0, 0, rect.Width, rect.Height);
                 spriteImage.Mutate(x => x.Fill(options, Color.Red, rectP.Clip(path)));
-                return spriteImage;
             }
 
             spriteImage.Mutate(x => x.Flip(FlipMode.Vertical));
@@ -153,5 +153,19 @@ public static class SnuggleSpriteFile {
 
             return triangles.ToArray();
         }
+    }
+
+    public static string Save(Sprite sprite, string path, ObjectDeserializationOptions options, SnuggleExportOptions exportOptions) {
+        var dir = System.IO.Path.GetDirectoryName(path);
+        if (!string.IsNullOrWhiteSpace(dir) && !Directory.Exists(dir)) {
+            Directory.CreateDirectory(dir);
+        }
+
+        path = System.IO.Path.ChangeExtension(path, ".png");
+        var buffer = ConvertSprite(sprite, options, exportOptions.UseDirectTex);
+        var image = Image.WrapMemory<Rgba32>(buffer, (int) sprite.Rect.W, (int) sprite.Rect.H);
+        image.SaveAsPng(path);
+        
+        return path;
     }
 }

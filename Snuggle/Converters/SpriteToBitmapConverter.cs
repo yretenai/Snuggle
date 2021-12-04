@@ -6,6 +6,7 @@ using System.Windows.Markup;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using Snuggle.Core.Implementations;
+using Snuggle.Core.Models.Objects.Graphics;
 using Snuggle.Handlers;
 
 namespace Snuggle.Converters;
@@ -20,8 +21,8 @@ public class SpriteToBitmapConverter : MarkupExtension, IValueConverter {
             "DecodeTexture",
             _ => {
                 sprite.Deserialize(SnuggleCore.Instance.Settings.ObjectOptions);
-                var memory = SnuggleSpriteFile.ConvertSprite(sprite, SnuggleCore.Instance.Settings.ObjectOptions, SnuggleCore.Instance.Settings.ExportOptions.UseDirectTex, out var textureFormat);
-                return memory.Length == 0 ? null : dispatcher.Invoke(() => new RGBABitmapSource(memory, (int) sprite.Rect.W, (int) sprite.Rect.H, textureFormat));
+                var memory = SnuggleSpriteFile.ConvertSprite(sprite, SnuggleCore.Instance.Settings.ObjectOptions, SnuggleCore.Instance.Settings.ExportOptions.UseDirectTex);
+                return memory.Length == 0 ? null : dispatcher.Invoke(() => new RGBABitmapSource(memory, (int) sprite.Rect.W, (int) sprite.Rect.H, TextureFormat.RGBA32));
             },
             true);
     }
