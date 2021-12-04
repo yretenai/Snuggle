@@ -1,10 +1,11 @@
-﻿using Snuggle.Core;
+﻿using Snuggle.Converters;
+using Snuggle.Core;
 
 namespace Snuggle.Headless;
 
 public static partial class ConvertCore {
     public static void ClearMemory(AssetCollection assetCollection) {
-        ClearTexMemory();
+        SnuggleTextureFile.ClearMemory();
         foreach (var (_, file) in assetCollection.Files) {
             file.Free();
         }

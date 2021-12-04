@@ -12,16 +12,18 @@ namespace Snuggle.Converters;
 public static class SnuggleTextureFile {
     private static ConcurrentDictionary<long, Memory<byte>> CachedData { get; } = new();
 
-    public static byte[] LoadCachedTexture(Texture2D texture) {
-        return CachedData.GetOrAdd(
-                texture.PathId,
-                static (_, arg) => {
-                    arg.Deserialize(ObjectDeserializationOptions.Default);
-                    var data = Texture2DConverter.ToRGBA(arg);
-                    return data;
-                },
-                texture)
-            .ToArray();
+    public static Memory<byte> LoadCachedTexture(Texture2D texture) {
+        var memory = CachedData.GetOrAdd(
+            texture.PathId,
+            static (_, arg) => {
+                arg.Deserialize(ObjectDeserializationOptions.Default);
+                var data = Texture2DConverter.ToRGBA(arg);
+                return data;
+            },
+            texture);
+        var newMemory = new Memory<byte>(new byte[memory.Length]);
+        memory.CopyTo(newMemory);
+        return newMemory;
     }
 
     public static void ClearMemory() {
@@ -34,22 +36,27 @@ public static class SnuggleTextureFile {
             Directory.CreateDirectory(dir);
         }
 
-        if (!writeNative || !SaveNative(texture, path, out var resultPath)) {
-            return SavePNG(texture, path, flip);
+        var writeDds = writeNative && texture.TextureFormat.CanSupportDDS();
+
+        if (writeDds) {
+            path = Path.ChangeExtension(path, ".dds");
+            SaveNative(texture, path);
+            return path;
         }
 
-        return resultPath;
+        path = Path.ChangeExtension(path, ".png");
+        SavePNG(texture, path, flip);
+        return path;
     }
 
-    private static string SavePNG(Texture2D texture, string path, bool flip) {
-        path = Path.ChangeExtension(path, ".png");
+    public static void SavePNG(Texture2D texture, string path, bool flip) {
         if (File.Exists(path)) {
-            return path;
+            return;
         }
 
-        var data = new Memory<byte>(LoadCachedTexture(texture));
+        var data = LoadCachedTexture(texture);
         if (data.IsEmpty) {
-            return path;
+            return;
         }
 
         Image image;
@@ -66,23 +73,19 @@ public static class SnuggleTextureFile {
         }
 
         image.SaveAsPng(path);
-        
-        return path;
     }
 
-    private static bool SaveNative(Texture2D texture, string path, out string destinationPath) {
-        destinationPath = Path.ChangeExtension(path, ".dds");
+    public static void SaveNative(Texture2D texture, string path) {
         if (!texture.TextureFormat.CanSupportDDS()) {
-            return false;
+            return;
         }
 
-        if (File.Exists(destinationPath)) {
-            return true;
+        if (File.Exists(path)) {
+            return;
         }
 
-        using var fs = File.OpenWrite(destinationPath);
+        using var fs = File.OpenWrite(path);
         fs.SetLength(0);
         fs.Write(Texture2DConverter.ToDDS(texture));
-        return true;
     }
 }
