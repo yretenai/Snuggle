@@ -10,7 +10,7 @@ using Snuggle.Core.Options;
 namespace Snuggle.Converters;
 
 public static class SnuggleTextureFile {
-    private static ConcurrentDictionary<long, Memory<byte>> CachedData { get; } = new();
+    private static ConcurrentDictionary<long, ReadOnlyMemory<byte>> CachedData { get; } = new();
 
     public static Memory<byte> LoadCachedTexture(Texture2D texture) {
         var memory = CachedData.GetOrAdd(
