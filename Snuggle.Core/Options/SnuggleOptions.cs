@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Text.Json;
+using JetBrains.Annotations;
 
 namespace Snuggle.Core.Options;
 
+[PublicAPI]
 public record SnuggleOptions(SnuggleCoreOptions Options, ObjectDeserializationOptions ObjectOptions, BundleSerializationOptions BundleOptions, FileSerializationOptions FileOptions, bool LightMode) {
     private const int LatestVersion = 8;
 

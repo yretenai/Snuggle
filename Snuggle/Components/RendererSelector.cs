@@ -19,6 +19,7 @@ public class RendererSelector : DataTemplateSelector {
             MeshRenderer when SnuggleCore.Instance.Settings.MeshExportOptions.EnabledRenders.Contains(RendererType.Geometry) => (DataTemplate) Application.Current.Resources["SnuggleMeshGeometryRenderer"],
             SkinnedMeshRenderer when SnuggleCore.Instance.Settings.MeshExportOptions.EnabledRenders.Contains(RendererType.Geometry) => (DataTemplate) Application.Current.Resources["SnuggleMeshGeometryRenderer"],
             Texture2D when SnuggleCore.Instance.Settings.MeshExportOptions.EnabledRenders.Contains(RendererType.Texture) => (DataTemplate) Application.Current.Resources["SnuggleTexture2DRenderer"],
+            Sprite when SnuggleCore.Instance.Settings.MeshExportOptions.EnabledRenders.Contains(RendererType.Sprite) => (DataTemplate) Application.Current.Resources["SnuggleSpriteRenderer"],
             Text when SnuggleCore.Instance.Settings.MeshExportOptions.EnabledRenders.Contains(RendererType.Text) => (DataTemplate) Application.Current.Resources["SnuggleTextRenderer"],
             _ => (DataTemplate) Application.Current.Resources["SnuggleNullRenderer"],
         };

@@ -58,7 +58,7 @@ public record ChannelInfo(int Stream, int Offset, VertexFormat Format, VertexDim
         return valueSize * (int) Dimension;
     }
 
-    public object[] Unpack(ref Span<byte> dataSpan) {
+    public object[] Unpack(ReadOnlySpan<byte> dataSpan) {
         var data = dataSpan[..GetSize()];
         return Format switch {
             VertexFormat.Single => MemoryMarshal.Cast<byte, float>(data).ToArray().Cast<object>().ToArray(),

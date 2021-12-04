@@ -184,6 +184,7 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
                     tcs.SetCanceled(token);
                 } catch (Exception e) {
                     Instance.Status.SetStatus($"{name} failed! {e.Message}");
+                    Instance.LogTarget.Error($"{name} failed! {e.Message}", e);
                     tcs.SetException(e);
                 }
             }));

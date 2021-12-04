@@ -79,7 +79,7 @@ public static class MeshToHelixConverter {
                         continue;
                     }
 
-                    var value = info.Unpack(ref data);
+                    var value = info.Unpack(data);
                     var floatValues = value.Select(Convert.ToSingle).Concat(new float[4]);
                     switch (channel) {
                         case VertexChannel.Vertex:
@@ -129,7 +129,7 @@ public static class MeshToHelixConverter {
                     return;
                 }
 
-                var meshData = new Dictionary<long, (List<Object3D> submeshes, List<(Texture2D? texture, Memory<byte> textureData)>)>();
+                var meshData = new Dictionary<(long, string), (List<Object3D> submeshes, List<(Texture2D? texture, Memory<byte> textureData)>)>();
                 FindGeometryMeshData(gameObject, meshData, cts.Token);
 
                 dispatcher.Invoke(
@@ -163,7 +163,7 @@ public static class MeshToHelixConverter {
             true);
     }
 
-    private static void FindGeometryMeshData(GameObject gameObject, IDictionary<long, (List<Object3D> submeshes, List<(Texture2D? texture, Memory<byte> textureData)>)> meshData, CancellationToken token) {
+    private static void FindGeometryMeshData(GameObject gameObject, IDictionary<(long, string), (List<Object3D> submeshes, List<(Texture2D? texture, Memory<byte> textureData)>)> meshData, CancellationToken token) {
         var submeshes = new List<Object3D>();
         if (gameObject.FindComponent(UnityClassId.MeshFilter).Value is MeshFilter filter && filter.Mesh.Value != null) {
             filter.Mesh.Value.Deserialize(ObjectDeserializationOptions.Default);
@@ -181,7 +181,7 @@ public static class MeshToHelixConverter {
         }
 
         if (submeshes.Count > 0) {
-            meshData[gameObject.PathId] = (submeshes, textureData);
+            meshData[gameObject.GetCompositeId()] = (submeshes, textureData);
         }
 
         if (SnuggleCore.Instance.Settings.MeshExportOptions.FindGameObjectDescendants) {
@@ -205,7 +205,7 @@ public static class MeshToHelixConverter {
         Matrix? parentMatrix,
         LineBuilder builder,
         BillboardText3D labels,
-        Dictionary<long, (List<Object3D> submeshes, List<(Texture2D? texture, Memory<byte> textureData)>)> meshData,
+        Dictionary<(long, string), (List<Object3D> submeshes, List<(Texture2D? texture, Memory<byte> textureData)>)> meshData,
         CancellationToken token) {
         if (gameObject.FindComponent(UnityClassId.Transform).Value is not Transform transform) {
             return;
@@ -223,7 +223,7 @@ public static class MeshToHelixConverter {
             labels.TextInfo.Add(new TextInfo(gameObject.Name, matrix.TranslationVector) { Foreground = new Color4(1, 1, 1, 0.5f), Scale = 0.5f });
         }
 
-        if (meshData.TryGetValue(gameObject.PathId, out var mesh)) {
+        if (meshData.TryGetValue(gameObject.GetCompositeId(), out var mesh)) {
             var group = new GroupModel3D();
             group.SceneNode.ModelMatrix = matrix;
             var (submeshes, textures) = mesh;
@@ -327,7 +327,7 @@ public static class MeshToHelixConverter {
             var textureData = Memory<byte>.Empty;
             if (texture != null) {
                 texture.Deserialize(SnuggleCore.Instance.Settings.ObjectOptions);
-                textureData = SnuggleTextureFile.LoadCachedTexture(texture);
+                textureData = SnuggleTextureFile.LoadCachedTexture(texture, SnuggleCore.Instance.Settings.ExportOptions.UseDirectTex);
                 for (var i = 0; i < textureData.Length / 4; ++i) { // strip alpha
                     textureData.Span[i * 4 + 3] = 0xFF;
                 }

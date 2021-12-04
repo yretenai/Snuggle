@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using DragonLib.IO;
 using JetBrains.Annotations;
 using Snuggle.Core.Implementations;
 using Snuggle.Core.IO;
@@ -16,7 +17,7 @@ public record SpriteAtlasData(
     Vector2 AtlasRectOffset,
     Vector4 UVTransform,
     float DownscaleMultiplier,
-    uint Settings,
+    SpriteSettings Settings,
     List<SecondarySpriteTexture> SecondaryTextures) {
     public static SpriteAtlasData Default { get; } = new(
         PPtr<Texture2D>.Null,
@@ -26,7 +27,7 @@ public record SpriteAtlasData(
         Vector2.Zero,
         Vector4.Zero,
         1.0f,
-        0,
+        SpriteSettings.Default,
         new List<SecondarySpriteTexture>());
 
     public static SpriteAtlasData FromReader(BiEndianBinaryReader reader, SerializedFile file) {
@@ -55,7 +56,7 @@ public record SpriteAtlasData(
             atlasOffset,
             uv,
             multiplier,
-            settings,
+            BitPacked.Unpack<SpriteSettings>(settings),
             secondaryTextures);
     }
 
@@ -69,7 +70,7 @@ public record SpriteAtlasData(
         }
 
         writer.WriteStruct(UVTransform);
-        writer.Write(Settings);
+        writer.Write((uint) BitPacked.Pack(Settings));
 
         if (targetVersion >= UnityVersionRegister.Unity2020_2) {
             writer.Write(SecondaryTextures.Count);

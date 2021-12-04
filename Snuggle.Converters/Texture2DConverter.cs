@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Runtime.InteropServices;
 using DirectXTexNet;
 using DragonLib.Imaging.DXGI;
 using JetBrains.Annotations;
@@ -18,10 +19,14 @@ namespace Snuggle.Converters;
 [PublicAPI]
 public static class Texture2DConverter {
     public static bool SupportsDDS(Texture2D texture) => texture.TextureFormat.CanSupportDDS();
-    public static bool SupportsDDSConversion(Texture2D texture) => Environment.OSVersion.Platform == PlatformID.Win32NT && SupportsDDS(texture);
+    public static bool UseDDSConversion(TextureFormat textureFormat) => Environment.OSVersion.Platform == PlatformID.Win32NT && textureFormat.CanSupportDDS();
 
-    public static unsafe Memory<byte> ToRGBA(Texture2D texture2D) {
-        if (SupportsDDSConversion(texture2D)) {
+    public static unsafe Memory<byte> ToRGBA(Texture2D texture2D, bool useDirectXTex) {
+        if (texture2D.TextureData!.Value.IsEmpty) {
+            return Memory<byte>.Empty;
+        }
+
+        if (useDirectXTex && UseDDSConversion(texture2D.TextureFormat)) {
             ScratchImage? scratch = null;
             try {
                 var data = ToDDS(texture2D);
@@ -54,7 +59,7 @@ public static class Texture2DConverter {
             }
         }
 
-        var textureData = texture2D.TextureData!.Value.Span.ToArray();
+        var textureData = texture2D.TextureData.Value.Span.ToArray();
         switch (texture2D.TextureFormat) {
             case TextureFormat.DXT1Crunched when UnpackCrunch(texture2D.SerializedFile.Version, texture2D.TextureFormat, textureData, out var data): {
                 return DecodeDXT1(texture2D.Width, texture2D.Height, data);
@@ -62,6 +67,10 @@ public static class Texture2DConverter {
             case TextureFormat.DXT5Crunched when UnpackCrunch(texture2D.SerializedFile.Version, texture2D.TextureFormat, textureData, out var data): {
                 return DecodeDXT5(texture2D.Width, texture2D.Height, data);
             }
+            case TextureFormat.DXT1:
+                return DecodeDXT1(texture2D.Width, texture2D.Height, textureData);
+            case TextureFormat.DXT5:
+                return DecodeDXT5(texture2D.Width, texture2D.Height, textureData);
             case TextureFormat.PVRTC_RGB2:
             case TextureFormat.PVRTC_RGBA2:
                 return DecodePVRTC(true, texture2D.Width, texture2D.Height, textureData);
@@ -120,6 +129,49 @@ public static class Texture2DConverter {
             case TextureFormat.ETC2_RGBA8Crunched when UnpackCrunch(texture2D.SerializedFile.Version, texture2D.TextureFormat, textureData, out var data): {
                 return DecodeETC2A8(texture2D.Width, texture2D.Height, data);
             }
+            case TextureFormat.Alpha8:
+            case TextureFormat.R8:
+                return DecodeA8(texture2D.Width, texture2D.Height, textureData);
+            case TextureFormat.ARGB4444:
+                return DecodeARGB4444(texture2D.Width, texture2D.Height, textureData);
+            case TextureFormat.RGB24:
+                return DecodeRGB24(texture2D.Width, texture2D.Height, textureData);
+            case TextureFormat.RGBA32:
+            case TextureFormat.BGRA32:
+            case TextureFormat.ARGB32:
+                return textureData;
+            case TextureFormat.RGB565:
+                return DecodeRGB565(texture2D.Width, texture2D.Height, textureData);
+            case TextureFormat.R16:
+                return DecodeR16(texture2D.Width, texture2D.Height, textureData);
+            case TextureFormat.RG16:
+                return DecodeRG16(texture2D.Width, texture2D.Height, textureData);
+            case TextureFormat.RGBA4444:
+                return DecodeRGBA4444(texture2D.Width, texture2D.Height, textureData);
+            case TextureFormat.RHalf:
+                return DecodeR16H(texture2D.Width, texture2D.Height, textureData);
+            case TextureFormat.RGHalf:
+                return DecodeRG16H(texture2D.Width, texture2D.Height, textureData);
+            case TextureFormat.RGBAHalf:
+                return DecodeRGBA16H(texture2D.Width, texture2D.Height, textureData);
+            case TextureFormat.RFloat:
+                return DecodeRF(texture2D.Width, texture2D.Height, textureData);
+            case TextureFormat.RGFloat:
+                return DecodeRGF(texture2D.Width, texture2D.Height, textureData);
+            case TextureFormat.RGBAFloat:
+                return DecodeRGBAF(texture2D.Width, texture2D.Height, textureData);
+            case TextureFormat.YUY2:
+                return DecodeYUY2(texture2D.Width, texture2D.Height, textureData);
+            case TextureFormat.RGB9e5Float:
+                return DecodeRGB9E5(texture2D.Width, texture2D.Height, textureData);
+            case TextureFormat.BC4:
+                return DecodeBC4(texture2D.Width, texture2D.Height, textureData);
+            case TextureFormat.BC5:
+                return DecodeBC5(texture2D.Width, texture2D.Height, textureData);
+            case TextureFormat.BC6H:
+                return DecodeBC6H(texture2D.Width, texture2D.Height, textureData);
+            case TextureFormat.BC7:
+                return DecodeBC7(texture2D.Width, texture2D.Height, textureData);
         }
 
         return Memory<byte>.Empty;
@@ -143,6 +195,26 @@ public static class Texture2DConverter {
     private static Memory<byte> DecodeDXT5(int width, int height, byte[] data) {
         var buff = new byte[width * height * 4];
         return !Texture2DDecoder.DecodeDXT5(data, width, height, buff) ? Memory<byte>.Empty : buff;
+    }
+
+    private static Memory<byte> DecodeBC4(int width, int height, byte[] data) {
+        var buff = new byte[width * height * 4];
+        return !Texture2DDecoder.DecodeBC4(data, width, height, buff) ? Memory<byte>.Empty : buff;
+    }
+
+    private static Memory<byte> DecodeBC5(int width, int height, byte[] data) {
+        var buff = new byte[width * height * 4];
+        return !Texture2DDecoder.DecodeBC5(data, width, height, buff) ? Memory<byte>.Empty : buff;
+    }
+
+    private static Memory<byte> DecodeBC6H(int width, int height, byte[] data) {
+        var buff = new byte[width * height * 4];
+        return !Texture2DDecoder.DecodeBC6(data, width, height, buff) ? Memory<byte>.Empty : buff;
+    }
+
+    private static Memory<byte> DecodeBC7(int width, int height, byte[] data) {
+        var buff = new byte[width * height * 4];
+        return !Texture2DDecoder.DecodeBC7(data, width, height, buff) ? Memory<byte>.Empty : buff;
     }
 
     private static Memory<byte> DecodePVRTC(bool is2bpp, int width, int height, byte[] data) {
@@ -203,6 +275,203 @@ public static class Texture2DConverter {
     private static Memory<byte> DecodeASTC(int blocksize, int width, int height, byte[] data) {
         var buff = new byte[width * height * 4];
         return !Texture2DDecoder.DecodeASTC(data, width, height, blocksize, blocksize, buff) ? Memory<byte>.Empty : buff;
+    }
+
+    private static Memory<byte> DecodeA8(int width, int height, byte[] data) {
+        var memory = new Memory<byte>(new byte[width * height * 4]);
+        for (var i = 0; i < data.Length; ++i) {
+            memory.Span[i * 4] = data[i];
+            memory.Span[i * 4 + 3] = 0xFF;
+        }
+
+        return memory;
+    }
+
+    private static Memory<byte> DecodeARGB4444(int width, int height, Span<byte> data) {
+        var memory = new Memory<byte>(new byte[width * height * 4]);
+        for (var i = 0; i < width * height; ++i) {
+            var value = MemoryMarshal.Read<ushort>(data[(i * 2)..]);
+            memory.Span[i * 4 + 0] = (byte) (((value & 0x00f0) >> 4) * 0x11);
+            memory.Span[i * 4 + 1] = (byte) (((value & 0x0f00) >> 8) * 0x11);
+            memory.Span[i * 4 + 2] = (byte) (((value & 0xf000) >> 12) * 0x11);
+            memory.Span[i * 4 + 3] = (byte) ((value & 0x000f) * 0x11);
+        }
+
+        return memory;
+    }
+
+    private static Memory<byte> DecodeRGBA4444(int width, int height, Span<byte> data) {
+        var memory = new Memory<byte>(new byte[width * height * 4]);
+        for (var i = 0; i < width * height; ++i) {
+            var value = MemoryMarshal.Read<ushort>(data[(i * 2)..]);
+            memory.Span[i * 4 + 0] = (byte) ((value & 0x000f) * 0x11);
+            memory.Span[i * 4 + 1] = (byte) (((value & 0x00f0) >> 4) * 0x11);
+            memory.Span[i * 4 + 2] = (byte) (((value & 0x0f00) >> 8) * 0x11);
+            memory.Span[i * 4 + 3] = (byte) (((value & 0xf000) >> 12) * 0x11);
+        }
+
+        return memory;
+    }
+
+    private static Memory<byte> DecodeRGB24(int width, int height, byte[] data) {
+        var memory = new Memory<byte>(new byte[width * height * 4]);
+        for (var i = 0; i < width * height; ++i) {
+            memory.Span[i * 4 + 0] = data[i * 4 + 0];
+            memory.Span[i * 4 + 1] = data[i * 4 + 1];
+            memory.Span[i * 4 + 2] = data[i * 4 + 2];
+            memory.Span[i * 4 + 3] = 0xFF;
+        }
+
+        return memory;
+    }
+
+    private static Memory<byte> DecodeRGB565(int width, int height, Span<byte> data) {
+        var memory = new Memory<byte>(new byte[width * height * 4]);
+        for (var i = 0; i < width * height; ++i) {
+            var value = MemoryMarshal.Read<ushort>(data[(i * 2)..]);
+            memory.Span[i * 4 + 0] = (byte) ((value << 3) | ((value >> 2) & 7));
+            memory.Span[i * 4 + 1] = (byte) (((value >> 3) & 0xfc) | ((value >> 9) & 3));
+            memory.Span[i * 4 + 2] = (byte) (((value >> 8) & 0xf8) | (value >> 13));
+            memory.Span[i * 4 + 3] = 0xFF;
+        }
+
+        return memory;
+    }
+
+    private static Memory<byte> DecodeR16(int width, int height, Span<byte> data) {
+        var memory = new Memory<byte>(new byte[width * height * 4]);
+        for (var i = 0; i < width * height; ++i) {
+            memory.Span[i * 4 + 0] = (byte) (MemoryMarshal.Read<ushort>(data[(i * 2)..]) / 2);
+            memory.Span[i * 4 + 3] = 0xFF;
+        }
+
+        return memory;
+    }
+
+    private static Memory<byte> DecodeRG16(int width, int height, Span<byte> data) {
+        var memory = new Memory<byte>(new byte[width * height * 4]);
+        for (var i = 0; i < width * height; ++i) {
+            memory.Span[i * 4 + 0] = (byte) (MemoryMarshal.Read<ushort>(data[(i * 4)..]) / 2);
+            memory.Span[i * 4 + 1] = (byte) (MemoryMarshal.Read<ushort>(data[(i * 4 + 2)..]) / 2);
+            memory.Span[i * 4 + 3] = 0xFF;
+        }
+
+        return memory;
+    }
+
+    private static Memory<byte> DecodeR16H(int width, int height, Span<byte> data) {
+        var memory = new Memory<byte>(new byte[width * height * 4]);
+        for (var i = 0; i < width * height; ++i) {
+            memory.Span[i * 4 + 0] = (byte) ((float) MemoryMarshal.Read<Half>(data[(i * 2)..]) * 0xff);
+            memory.Span[i * 4 + 3] = 0xFF;
+        }
+
+        return memory;
+    }
+
+    private static Memory<byte> DecodeRG16H(int width, int height, Span<byte> data) {
+        var memory = new Memory<byte>(new byte[width * height * 4]);
+        for (var i = 0; i < width * height; ++i) {
+            memory.Span[i * 4 + 0] = (byte) ((float) MemoryMarshal.Read<Half>(data[(i * 4)..]) * 0xff);
+            memory.Span[i * 4 + 1] = (byte) ((float) MemoryMarshal.Read<Half>(data[(i * 4 + 2)..]) * 0xff);
+            memory.Span[i * 4 + 3] = 0xFF;
+        }
+
+        return memory;
+    }
+
+    private static Memory<byte> DecodeRGBA16H(int width, int height, Span<byte> data) {
+        var memory = new Memory<byte>(new byte[width * height * 4]);
+        for (var i = 0; i < width * height; ++i) {
+            memory.Span[i * 4 + 0] = (byte) ((float) MemoryMarshal.Read<Half>(data[(i * 8)..]) * 0xff);
+            memory.Span[i * 4 + 1] = (byte) ((float) MemoryMarshal.Read<Half>(data[(i * 8 + 2)..]) * 0xff);
+            memory.Span[i * 4 + 2] = (byte) ((float) MemoryMarshal.Read<Half>(data[(i * 8 + 4)..]) * 0xff);
+            memory.Span[i * 4 + 3] = (byte) ((float) MemoryMarshal.Read<Half>(data[(i * 8 + 6)..]) * 0xff);
+        }
+
+        return memory;
+    }
+
+    private static Memory<byte> DecodeRF(int width, int height, Span<byte> data) {
+        var memory = new Memory<byte>(new byte[width * height * 4]);
+        for (var i = 0; i < width * height; ++i) {
+            memory.Span[i * 4 + 0] = (byte) (MemoryMarshal.Read<float>(data[(i * 2)..]) * 0xff);
+            memory.Span[i * 4 + 3] = 0xFF;
+        }
+
+        return memory;
+    }
+
+    private static Memory<byte> DecodeRGF(int width, int height, Span<byte> data) {
+        var memory = new Memory<byte>(new byte[width * height * 4]);
+        for (var i = 0; i < width * height; ++i) {
+            memory.Span[i * 4 + 0] = (byte) (MemoryMarshal.Read<float>(data[(i * 4)..]) * 0xff);
+            memory.Span[i * 4 + 1] = (byte) (MemoryMarshal.Read<float>(data[(i * 4 + 2)..]) * 0xff);
+            memory.Span[i * 4 + 3] = 0xFF;
+        }
+
+        return memory;
+    }
+
+    private static Memory<byte> DecodeRGBAF(int width, int height, Span<byte> data) {
+        var memory = new Memory<byte>(new byte[width * height * 4]);
+        for (var i = 0; i < width * height; ++i) {
+            memory.Span[i * 4 + 0] = (byte) (MemoryMarshal.Read<float>(data[(i * 8)..]) * 0xff);
+            memory.Span[i * 4 + 1] = (byte) (MemoryMarshal.Read<float>(data[(i * 8 + 2)..]) * 0xff);
+            memory.Span[i * 4 + 2] = (byte) (MemoryMarshal.Read<float>(data[(i * 8 + 4)..]) * 0xff);
+            memory.Span[i * 4 + 3] = (byte) (MemoryMarshal.Read<float>(data[(i * 8 + 6)..]) * 0xff);
+        }
+
+        return memory;
+    }
+
+    private static byte ClampByte(int x) => (byte) (byte.MaxValue < x ? byte.MaxValue : x > byte.MinValue ? x : byte.MinValue);
+
+    private static Memory<byte> DecodeYUY2(int width, int height, byte[] data) {
+        var memory = new Memory<byte>(new byte[width * height * 4]);
+        var p = 0;
+        var o = 0;
+        var halfWidth = width / 2;
+        for (var j = 0; j < height; j++) {
+            for (var i = 0; i < halfWidth; ++i) {
+                int y0 = data[p++];
+                int u0 = data[p++];
+                int y1 = data[p++];
+                int v0 = data[p++];
+                var c = y0 - 16;
+                var d = u0 - 128;
+                var e = v0 - 128;
+                memory.Span[o++] = ClampByte((298 * c + 516 * d + 128) >> 8); // b
+                memory.Span[o++] = ClampByte((298 * c - 100 * d - 208 * e + 128) >> 8); // g
+                memory.Span[o++] = ClampByte((298 * c + 409 * e + 128) >> 8); // r
+                memory.Span[o++] = 255;
+                c = y1 - 16;
+                memory.Span[o++] = ClampByte((298 * c + 516 * d + 128) >> 8); // b
+                memory.Span[o++] = ClampByte((298 * c - 100 * d - 208 * e + 128) >> 8); // g
+                memory.Span[o++] = ClampByte((298 * c + 409 * e + 128) >> 8); // r
+                memory.Span[o++] = 255;
+            }
+        }
+
+        return memory;
+    }
+
+    private static Memory<byte> DecodeRGB9E5(int width, int height, Span<byte> data) {
+        var memory = new Memory<byte>(new byte[width * height * 4]);
+        for (var i = 0; i < data.Length; i += 4) {
+            var n = MemoryMarshal.Read<int>(data[i..]);
+            var scale = (n >> 27) & 0x1f;
+            var scalef = Math.Pow(2, scale - 24);
+            var b = (n >> 18) & 0x1ff;
+            var g = (n >> 9) & 0x1ff;
+            var r = n & 0x1ff;
+            memory.Span[i] = (byte) Math.Round(r * scalef * 0xff);
+            memory.Span[i + 1] = (byte) Math.Round(g * scalef * 0xff);
+            memory.Span[i + 2] = (byte) Math.Round(b * scalef * 0xff);
+            memory.Span[i + 3] = 255;
+        }
+
+        return memory;
     }
 
     public static Span<byte> ToDDS(Texture2D texture) {

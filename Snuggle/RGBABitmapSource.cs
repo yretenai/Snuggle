@@ -4,6 +4,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Snuggle.Converters;
 using Snuggle.Core.Models.Objects.Graphics;
+using Snuggle.Handlers;
 
 namespace Snuggle;
 
@@ -56,7 +57,7 @@ public class RGBABitmapSource : BitmapSource {
         byte[] shuffle;
         if (BaseFormat.IsAlphaFirst()) {
             shuffle = new byte[] { 3, 0, 1, 2 };
-        } else if (BaseFormat.IsBGRA() || !BaseFormat.CanSupportDDS()) {
+        } else if (BaseFormat.IsBGRA() || !(SnuggleCore.Instance.Settings.ExportOptions.UseDirectTex && BaseFormat.UseDDSConversion()) && BaseFormat.HasNativeConversion()) {
             shuffle = new byte[] { 2, 1, 0, 3 };
         } else {
             shuffle = new byte[] { 0, 1, 2, 3 };

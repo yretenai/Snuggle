@@ -15,6 +15,9 @@
                     <DataTemplate x:Key="SnuggleTexture2DRenderer">
                         <renderers:Texture2DRenderer />
                     </DataTemplate>
+                    <DataTemplate x:Key="SnuggleSpriteRenderer">
+                        <renderers:SpriteRenderer />
+                    </DataTemplate>
                     <DataTemplate x:Key="SnuggleTextRenderer">
                         <renderers:TextRenderer />
                     </DataTemplate>

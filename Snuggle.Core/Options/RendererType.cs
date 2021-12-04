@@ -4,4 +4,5 @@ public enum RendererType {
     Geometry,
     Text,
     Texture,
+    Sprite,
 }

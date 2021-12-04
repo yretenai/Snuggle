@@ -16,7 +16,7 @@ public static partial class ConvertCore {
         if (dds) {
             SnuggleTextureFile.SaveNative(texture, path);
         } else {
-            SnuggleTextureFile.SavePNG(texture, path, flip);
+            SnuggleTextureFile.SavePNG(texture, path, flip, flags.UseDirectXTex);
         }
 
         logger.Info($"Saved {path}");

@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using JetBrains.Annotations;
 
 namespace Snuggle.Core.Options;
 
+[PublicAPI]
 public record SnuggleMeshExportOptions(
     [Description("Find game objects by following the hierarchy tree downwards")] bool FindGameObjectDescendants,
     [Description("Find game objects by following the hierarchy tree upwards")] bool FindGameObjectParents,
@@ -14,7 +16,7 @@ public record SnuggleMeshExportOptions(
     [Description("Write Material Textures")] bool WriteTexture,
     [Description("Write Material JSON files")] bool WriteMaterial,
     [Description("Write Morph Targets to GLTF")] bool WriteMorphs) {
-    private const int LatestVersion = 1;
+    private const int LatestVersion = 2;
 
     public static SnuggleMeshExportOptions Default { get; } = new(
         true,
@@ -29,5 +31,14 @@ public record SnuggleMeshExportOptions(
     public HashSet<RendererType> EnabledRenders { get; set; } = Enum.GetValues<RendererType>().ToHashSet();
     public int Version { get; set; } = LatestVersion;
     public bool NeedsMigration() => Version < LatestVersion;
-    public SnuggleMeshExportOptions Migrate() => this with { Version = LatestVersion };
+
+    public SnuggleMeshExportOptions Migrate() {
+        var settings = this;
+
+        if (settings.Version < 2) {
+            settings.EnabledRenders.Add(RendererType.Sprite);
+        }
+
+        return settings with { Version = LatestVersion };
+    }
 }

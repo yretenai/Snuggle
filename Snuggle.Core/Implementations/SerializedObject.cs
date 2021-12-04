@@ -131,4 +131,6 @@ public class SerializedObject : IEquatable<SerializedObject>, ISerialized {
     }
 
     public override int GetHashCode() => HashCode.Combine(ClassId, PathId);
+
+    public (long, string) GetCompositeId() => (PathId, SerializedFile.Name);
 }

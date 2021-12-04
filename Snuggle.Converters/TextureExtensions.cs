@@ -8,9 +8,9 @@ namespace Snuggle.Converters;
 [PublicAPI]
 public static class TextureExtensions {
     public static bool CanSupportDDS(this TextureFormat format) => format != TextureFormat.RGB24 && format is >= TextureFormat.RG16 and <= TextureFormat.R8 or < TextureFormat.DXT1Crunched;
-
-    // BGRA32 is swapped by B8G8R8A8_UNORM
-    public static bool IsBGRA(this TextureFormat format) => format is TextureFormat.ARGB4444 or TextureFormat.RGBA4444; // or TextureFormat.BGRA32;
+    public static bool UseDDSConversion(this TextureFormat textureFormat) => Environment.OSVersion.Platform == PlatformID.Win32NT && textureFormat.CanSupportDDS();
+    public static bool HasNativeConversion(this TextureFormat format) => format is >= TextureFormat.ETC_RGB4Crunched or <= TextureFormat.ETC_RGBA8_3DS and >= TextureFormat.BC6H or TextureFormat.DXT1 or TextureFormat.DXT5;
+    public static bool IsBGRA(this TextureFormat format) => format is TextureFormat.BGRA32 or TextureFormat.YUY2;
 
     public static bool IsAlphaFirst(this TextureFormat format) => format is TextureFormat.ARGB4444 or TextureFormat.ARGB32;
 

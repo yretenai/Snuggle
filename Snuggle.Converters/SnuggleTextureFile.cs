@@ -10,17 +10,18 @@ using Snuggle.Core.Options;
 namespace Snuggle.Converters;
 
 public static class SnuggleTextureFile {
-    private static ConcurrentDictionary<long, ReadOnlyMemory<byte>> CachedData { get; } = new();
+    private static ConcurrentDictionary<(long, string), ReadOnlyMemory<byte>> CachedData { get; } = new();
 
-    public static Memory<byte> LoadCachedTexture(Texture2D texture) {
+    public static Memory<byte> LoadCachedTexture(Texture2D texture, bool useDirectXTex) {
         var memory = CachedData.GetOrAdd(
-            texture.PathId,
+            texture.GetCompositeId(),
             static (_, arg) => {
-                arg.Deserialize(ObjectDeserializationOptions.Default);
-                var data = Texture2DConverter.ToRGBA(arg);
+                var (texture, useDirectXTex) = arg;
+                texture.Deserialize(ObjectDeserializationOptions.Default);
+                var data = Texture2DConverter.ToRGBA(texture, useDirectXTex && Environment.OSVersion.Platform == PlatformID.Win32NT);
                 return data;
             },
-            texture);
+            (texture, useDirectXTex));
         var newMemory = new Memory<byte>(new byte[memory.Length]);
         memory.CopyTo(newMemory);
         return newMemory;
@@ -30,13 +31,13 @@ public static class SnuggleTextureFile {
         CachedData.Clear();
     }
 
-    public static string Save(Texture2D texture, string path, bool writeNative, bool flip) {
+    public static string Save(Texture2D texture, string path, SnuggleExportOptions options, bool flip) {
         var dir = Path.GetDirectoryName(path);
         if (!string.IsNullOrWhiteSpace(dir) && !Directory.Exists(dir)) {
             Directory.CreateDirectory(dir);
         }
 
-        var writeDds = writeNative && texture.TextureFormat.CanSupportDDS();
+        var writeDds = options.WriteNativeTextures && texture.TextureFormat.CanSupportDDS();
 
         if (writeDds) {
             path = Path.ChangeExtension(path, ".dds");
@@ -45,24 +46,29 @@ public static class SnuggleTextureFile {
         }
 
         path = Path.ChangeExtension(path, ".png");
-        SavePNG(texture, path, flip);
+        SavePNG(texture, path, flip, options.UseDirectTex);
         return path;
     }
 
-    public static void SavePNG(Texture2D texture, string path, bool flip) {
+    public static void SavePNG(Texture2D texture, string path, bool flip, bool useDirectXTex) {
         if (File.Exists(path)) {
             return;
         }
 
-        var data = LoadCachedTexture(texture);
+        using var image = ConvertImage(texture, flip, useDirectXTex);
+        image.SaveAsPng(path);
+    }
+
+    public static Image<Rgba32>? ConvertImage(Texture2D texture, bool flip, bool useDirectXTex) {
+        var data = LoadCachedTexture(texture, useDirectXTex);
         if (data.IsEmpty) {
-            return;
+            return null;
         }
 
         Image image;
         if (texture.TextureFormat.IsAlphaFirst()) {
             image = Image.WrapMemory<Argb32>(data, texture.Width, texture.Height);
-        } else if (texture.TextureFormat.IsBGRA() || !texture.TextureFormat.CanSupportDDS()) {
+        } else if (texture.TextureFormat.IsBGRA() || !texture.TextureFormat.HasNativeConversion()) {
             image = Image.WrapMemory<Bgra32>(data, texture.Width, texture.Height);
         } else {
             image = Image.WrapMemory<Rgba32>(data, texture.Width, texture.Height);
@@ -72,7 +78,7 @@ public static class SnuggleTextureFile {
             image.Mutate(context => context.Flip(FlipMode.Vertical));
         }
 
-        image.SaveAsPng(path);
+        return image.CloneAs<Rgba32>();
     }
 
     public static void SaveNative(Texture2D texture, string path) {

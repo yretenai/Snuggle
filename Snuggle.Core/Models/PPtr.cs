@@ -85,7 +85,9 @@ public record PPtr<T>(int FileId, long PathId) where T : SerializedObject {
             return UnderlyingValue;
         }
     }
-    
+
+    private (long, string)? UnderlyingCompositeId { get; set; }
+
     public PPtr<U> As<U>() where U : SerializedObject => new(FileId, PathId) { File = File };
 
     public void ToWriter(BiEndianBinaryWriter writer, SerializedFile file, UnityVersion targetVersion) {
@@ -102,6 +104,43 @@ public record PPtr<T>(int FileId, long PathId) where T : SerializedObject {
     public static implicit operator T?(PPtr<T> ptr) => ptr.Value;
     public override int GetHashCode() => HashCode.Combine(FileId, PathId);
     public override string ToString() => $"PPtr<{typeof(T).Name}> {{ FileId = {FileId}, PathId = {PathId} }}";
+
+    public (long, string) GetCompositeId() {
+        if (IsNull || File == null || FileId > File.ExternalInfos.Length || File.Assets == null) {
+            return (0, "");
+        }
+
+        if (UnderlyingCompositeId != null) {
+            return UnderlyingCompositeId.Value;
+        }
+
+        SerializedFile? referencedFile;
+        if (FileId == 0) {
+            referencedFile = File;
+        } else if (!File.Assets.Files.TryGetValue(File.ExternalInfos[FileId - 1].Name, out referencedFile)) {
+            File.Options.Logger.Warning("PPtr", $"Cannot find External File {File.ExternalInfos[FileId - 1].Name}");
+            return (0, "");
+        }
+
+        UnderlyingCompositeId = (PathId, referencedFile.Name);
+        return UnderlyingCompositeId.Value;
+    }
+
+    public bool IsSame(T? child) {
+        if (IsNull || child == null || child.PathId != PathId || File == null || FileId > File.ExternalInfos.Length || File.Assets == null) {
+            return false;
+        }
+
+        SerializedFile? referencedFile;
+        if (FileId == 0) {
+            referencedFile = File;
+        } else if (!File.Assets.Files.TryGetValue(File.ExternalInfos[FileId - 1].Name, out referencedFile)) {
+            File.Options.Logger.Warning("PPtr", $"Cannot find External File {File.ExternalInfos[FileId - 1].Name}");
+            return false;
+        }
+
+        return referencedFile.Name == child.SerializedFile.Name;
+    }
 
     [StructLayout(LayoutKind.Sequential, Size = 12, Pack = 1)]
     private record struct PPtrEnclosure(int FileId, long PathId);

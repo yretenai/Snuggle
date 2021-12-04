@@ -22,7 +22,7 @@ public static partial class ConvertCore {
             mesh,
             fullPath,
             ObjectDeserializationOptions.Default,
-            SnuggleExportOptions.Default with { WriteNativeTextures = flags.TextureToDDS },
+            SnuggleExportOptions.Default with { WriteNativeTextures = flags.TextureToDDS, UseDirectTex = flags.UseDirectXTex },
             SnuggleMeshExportOptions.Default with {
                 FindGameObjectDescendants = !flags.NoGameObjectHierarchyDown,
                 FindGameObjectParents = !flags.NoGameObjectHierarchyUp,

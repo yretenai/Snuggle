@@ -39,6 +39,9 @@ public record SnuggleFlags : ICLIFlags {
     [CLIFlag("dds", Category = "General Options", Default = false, Help = "Export textures to DDS when possible, otherwise use PNG")]
     public bool TextureToDDS { get; set; }
 
+    [CLIFlag("use-dxtex", Category = "General Options", Default = false, Help = "Use DirectXTex when possible (only on windows)")]
+    public bool UseDirectXTex { get; set; }
+
     [CLIFlag("low-memory", Category = "General Options", Default = false, Help = "Low memory mode, at the cost of performance")]
     public bool LowMemory { get; set; }
 

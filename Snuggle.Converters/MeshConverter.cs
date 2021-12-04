@@ -23,7 +23,7 @@ public static class MeshConverter {
             return bones;
         }
 
-        var transformToBoneHash = new Dictionary<long, uint>();
+        var transformToBoneHash = new Dictionary<(long, string), uint>();
         var hashToIndex = new List<uint>();
 
         foreach (var childPtr in skinnedMeshRenderer.Bones) {
@@ -41,7 +41,7 @@ public static class MeshConverter {
             var bytes = Encoding.UTF8.GetBytes(gameObject.Name);
             crc.Update(bytes, 0, (uint) bytes.Length);
             var hash = crc.GetDigest();
-            transformToBoneHash[child.PathId] = hash;
+            transformToBoneHash[child.GetCompositeId()] = hash;
             hashToIndex.Add(hash);
         }
 
@@ -57,8 +57,8 @@ public static class MeshConverter {
                 continue;
             }
 
-            if (child.PathId != skinnedMeshRenderer.RootBone.PathId) {
-                bones[index] = hashToIndex.IndexOf(transformToBoneHash[child.Parent.PathId]);
+            if (skinnedMeshRenderer.RootBone.IsSame(child)) {
+                bones[index] = hashToIndex.IndexOf(transformToBoneHash[child.Parent.GetCompositeId()]);
             } else {
                 bones[index] = -1;
             }
@@ -80,6 +80,10 @@ public static class MeshConverter {
             fullBuffer = mesh.CompressedMesh.Decompress(mesh.VertexData.VertexCount, out channels);
         }
 
+        return GetVBO(fullBuffer, mesh.VertexData.VertexCount, channels, out strides);
+    }
+
+    public static Memory<byte>[] GetVBO(Memory<byte> fullBuffer, uint vertexCount, Dictionary<VertexChannel, ChannelInfo> channels, out int[] strides) {
         var streamCount = channels.Max(x => x.Value.Stream) + 1;
         strides = new int[streamCount];
         var vbos = new Memory<byte>[streamCount];
@@ -93,7 +97,7 @@ public static class MeshConverter {
             var last = streamChannels.Max(x => x.Offset);
             var lastInfo = streamChannels.First(x => x.Offset == last);
             strides[index] = last + lastInfo.GetSize();
-            var length = mesh.VertexData.VertexCount * strides[index];
+            var length = vertexCount * strides[index];
             vbos[index] = fullBuffer.Slice(offset, (int) length);
             offset = (int) (offset + length).Align(16);
         }

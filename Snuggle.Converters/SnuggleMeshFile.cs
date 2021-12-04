@@ -79,7 +79,7 @@ public static class SnuggleMeshFile {
         var node = new NodeBuilder();
         scene.AddNode(node);
 
-        var nodeTree = new Dictionary<long, NodeBuilder>();
+        var nodeTree = new Dictionary<(long, string), NodeBuilder>();
         var skinnedMeshes = new List<(Mesh mesh, List<Material?>)>();
         var hashTree = new Dictionary<uint, NodeBuilder>();
         BuildGameObject(
@@ -93,7 +93,7 @@ public static class SnuggleMeshFile {
             exportOptions,
             options);
         BuildHashTree(nodeTree, hashTree, gameObject);
-        var saved = new Dictionary<long, string>();
+        var saved = new Dictionary<(long, string), string>();
         foreach (var (skinnedMesh, materials) in skinnedMeshes) {
             var skin = new (NodeBuilder, Matrix4x4)[skinnedMesh.BoneNameHashes.Count];
             for (var i = 0; i < skin.Length; ++i) {
@@ -129,7 +129,7 @@ public static class SnuggleMeshFile {
         gltf.SaveGLTF(path + ".gltf", new WriteSettings { JsonIndented = true, ImageWriting = ResourceWriteMode.SatelliteFile, Validation = ValidationMode.TryFix, ImageWriteCallback = FixImage });
     }
 
-    private static void BuildHashTree(IReadOnlyDictionary<long, NodeBuilder> nodeTree, IDictionary<uint, NodeBuilder> hashTree, GameObject? gameObject) {
+    private static void BuildHashTree(IReadOnlyDictionary<(long, string), NodeBuilder> nodeTree, IDictionary<uint, NodeBuilder> hashTree, GameObject? gameObject) {
         if (gameObject == null) {
             return;
         }
@@ -138,7 +138,7 @@ public static class SnuggleMeshFile {
         var crc = new CRC();
         var bytes = Encoding.UTF8.GetBytes(name);
         crc.Update(bytes, 0, (uint) bytes.Length);
-        var node = nodeTree[gameObject.PathId];
+        var node = nodeTree[gameObject.GetCompositeId()];
         hashTree[crc.GetDigest()] = node;
         int index;
         while ((index = name.IndexOf("/", StringComparison.Ordinal)) >= 0) {
@@ -172,7 +172,7 @@ public static class SnuggleMeshFile {
         GameObject gameObject,
         SceneBuilder scene,
         NodeBuilder node,
-        Dictionary<long, NodeBuilder> nodeTree,
+        Dictionary<(long, string), NodeBuilder> nodeTree,
         ICollection<(Mesh, List<Material?>)> skinnedMeshes,
         string? path,
         ObjectDeserializationOptions deserializationOptions,
@@ -183,7 +183,7 @@ public static class SnuggleMeshFile {
         }
 
         node.Name = gameObject.Name;
-        nodeTree[gameObject.PathId] = node;
+        nodeTree[gameObject.GetCompositeId()] = node;
 
         var (rX, rY, rZ, rW) = transform.Rotation;
         var (tX, tY, tZ) = transform.Translation;
@@ -239,7 +239,7 @@ public static class SnuggleMeshFile {
         Mesh mesh,
         List<Material?>? materials,
         string? path,
-        Dictionary<long, string>? saved,
+        Dictionary<(long, string), string>? saved,
         ObjectDeserializationOptions deserializationOptions,
         SnuggleExportOptions exportOptions,
         SnuggleMeshExportOptions options) {
@@ -270,7 +270,7 @@ public static class SnuggleMeshFile {
                     continue;
                 }
 
-                var value = info.Unpack(ref data);
+                var value = info.Unpack(data);
                 var floatValues = value.Select(x => (float) Convert.ChangeType(x, TypeCode.Single)).Concat(new float[4]);
                 var uintValues = value.Select(x => (int) Convert.ChangeType(x, TypeCode.Int32)).Concat(new int[4]);
                 switch (channel) {
@@ -332,7 +332,7 @@ public static class SnuggleMeshFile {
                     material,
                     materials?.ElementAtOrDefault(submeshIndex),
                     path,
-                    saved ?? new Dictionary<long, string>(),
+                    saved ?? new Dictionary<(long, string), string>(),
                     deserializationOptions,
                     exportOptions,
                     options);
@@ -386,7 +386,7 @@ public static class SnuggleMeshFile {
                     material,
                     materials?.ElementAtOrDefault(submeshIndex),
                     path,
-                    saved ?? new Dictionary<long, string>(),
+                    saved ?? new Dictionary<(long, string), string>(),
                     deserializationOptions,
                     exportOptions,
                     options);
@@ -472,7 +472,7 @@ public static class SnuggleMeshFile {
         MaterialBuilder materialBuilder,
         Material? material,
         string? path,
-        Dictionary<long, string> saved,
+        Dictionary<(long, string), string> saved,
         ObjectDeserializationOptions deserializationOptions,
         SnuggleExportOptions exportOptions,
         SnuggleMeshExportOptions options) {
@@ -494,8 +494,8 @@ public static class SnuggleMeshFile {
 
                 texture.Deserialize(deserializationOptions);
 
-                if (!saved.TryGetValue(texture.PathId, out var texPath)) {
-                    texPath = SnuggleTextureFile.Save(texture, Path.Combine(path, texture.Name + "_" + texture.PathId + ".bin"), exportOptions.WriteNativeTextures, false);
+                if (!saved.TryGetValue(texture.GetCompositeId(), out var texPath)) {
+                    texPath = SnuggleTextureFile.Save(texture, Path.Combine(path, texture.Name + "_" + texture.PathId + ".bin"), exportOptions, false);
                 }
 
                 if (name == "_MainTex") {

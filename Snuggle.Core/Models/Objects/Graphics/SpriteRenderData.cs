@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json.Serialization;
+using DragonLib.IO;
 using JetBrains.Annotations;
 using Snuggle.Core.Exceptions;
 using Snuggle.Core.Implementations;
@@ -23,7 +24,7 @@ public record SpriteRenderData(
     Rect TextureRect,
     Vector2 TextureRectOffset,
     Vector2 AtlasRectOffset,
-    uint Settings,
+    SpriteSettings Settings,
     Vector4 UVTransform,
     float DownscaleMultiplier) {
     public static SpriteRenderData Default { get; } = new(
@@ -36,7 +37,7 @@ public record SpriteRenderData(
         Rect.Zero,
         Vector2.Zero,
         Vector2.Zero,
-        0,
+        SpriteSettings.Default,
         Vector4.Zero,
         1);
 
@@ -129,7 +130,7 @@ public record SpriteRenderData(
             rect,
             offset,
             atlasOffset,
-            settings,
+            BitPacked.Unpack<SpriteSettings>(settings),
             uv,
             multiplier) { VerticesStart = vertexOffset, IndicesStart = indexOffset, SkinStart = skinOffset };
     }
@@ -186,7 +187,7 @@ public record SpriteRenderData(
         writer.WriteStruct(TextureRect);
         writer.WriteStruct(TextureRectOffset);
         writer.WriteStruct(AtlasRectOffset);
-        writer.Write(Settings);
+        writer.Write((uint) BitPacked.Pack(Settings));
         writer.WriteStruct(UVTransform);
         writer.Write(DownscaleMultiplier);
     }

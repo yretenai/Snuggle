@@ -20,7 +20,7 @@ public class Sprite : NamedObject {
         Offset = reader.ReadStruct<Vector2>();
         Border = reader.ReadStruct<Vector4>();
         PixelsToUnits = reader.ReadSingle();
-        Pivot = serializedFile.Version >= UnityVersionRegister.Unity5_5 ? reader.ReadStruct<Vector2>() : Vector2.Zero;
+        Pivot = serializedFile.Version >= UnityVersionRegister.Unity5_5 ? reader.ReadStruct<Vector2>() : new Vector2(0.5f, 0.5f);
         Extrude = reader.ReadUInt32();
 
         IsPolygon = serializedFile.Version >= UnityVersionRegister.Unity5_3 && reader.ReadBoolean();
