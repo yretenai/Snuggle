@@ -18,7 +18,7 @@ public class SpriteToBitmapConverter : MarkupExtension, IValueConverter {
 
     private static async Task<BitmapSource?> ConvertSprite(Sprite sprite, Dispatcher dispatcher) {
         return await SnuggleCore.Instance.WorkerAction(
-            "DecodeTexture",
+            "DecodeSprite",
             _ => {
                 sprite.Deserialize(SnuggleCore.Instance.Settings.ObjectOptions);
                 var memory = SnuggleSpriteFile.ConvertSprite(sprite, SnuggleCore.Instance.Settings.ObjectOptions, SnuggleCore.Instance.Settings.ExportOptions.UseDirectTex);
