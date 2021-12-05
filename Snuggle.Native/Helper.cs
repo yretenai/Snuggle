@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 namespace Snuggle.Native;
 
 internal static class Helper {
-    private static bool Loaded { get; } = false;
+    private static bool Loaded { get; set; }
 
     private static IntPtr Resolver(string libraryName, Assembly assembly, DllImportSearchPath? searchPath) {
         string rid, ext, prefix;
@@ -48,5 +48,7 @@ internal static class Helper {
         }
 
         NativeLibrary.SetDllImportResolver(typeof(Helper).Assembly, Resolver);
+
+        Loaded = true;
     }
 }

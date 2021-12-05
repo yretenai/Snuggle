@@ -32,10 +32,10 @@ public class RGBABitmapSource : BitmapSource {
 
     private Memory<byte> Buffer { get; }
 
-    public bool HideRed { get; set; }
-    public bool HideGreen { get; set; }
-    public bool HideBlue { get; set; }
-    public bool HideAlpha { get; set; }
+    public bool HideRed { get; init; }
+    public bool HideGreen { get; init; }
+    public bool HideBlue { get; init; }
+    public bool HideAlpha { get; init; }
 
     public override double DpiX => 96;
 

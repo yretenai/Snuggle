@@ -58,7 +58,7 @@ public class GameObject : SerializedObject {
                 return new List<PPtr<GameObject>>();
             }
 
-            return transform.Children.Where(x => x.Value != null).Select(x => x.Value!.GameObject).ToList() ?? new List<PPtr<GameObject>>();
+            return transform.Children.Where(x => x.Value != null).Select(x => x.Value!.GameObject).ToList();
         }
     }
 

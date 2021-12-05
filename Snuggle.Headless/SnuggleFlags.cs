@@ -1,10 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using DragonLib.CLI;
+using JetBrains.Annotations;
 using Snuggle.Core.Meta;
 
 namespace Snuggle.Headless;
 
+[PublicAPI]
 public record SnuggleFlags : ICLIFlags {
     [CLIFlag("no-mesh", Aliases = new[] { "m" }, Category = "General Options", Default = false, Help = "Don't export rigid meshes (can still export through game objects)")]
     public bool NoMesh { get; set; }

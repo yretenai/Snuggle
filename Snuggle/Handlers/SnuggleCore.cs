@@ -63,9 +63,9 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
     private string SettingsFile { get; }
 
 #if DEBUG
-    public Visibility IsDebugVisibility => Visibility.Visible;
+    public static Visibility IsDebugVisibility => Visibility.Visible;
 #else
-        public static Visibility IsDebugVisibility => Debugger.IsAttached ? Visibility.Visible : Visibility.Collapsed;
+    public static Visibility IsDebugVisibility => Debugger.IsAttached ? Visibility.Visible : Visibility.Collapsed;
 #endif
 
     public Visibility HasAssetsVisibility => Collection.Files.Count > 0 ? Visibility.Visible : Visibility.Collapsed;

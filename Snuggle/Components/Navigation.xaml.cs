@@ -95,7 +95,7 @@ public partial class Navigation {
 
     internal static string SplitName(string name) => string.Join(' ', SplitPattern.Split(name));
 
-    private void UpdateToggle(object sender, RoutedEventArgs args) {
+    private static void UpdateToggle(object sender, RoutedEventArgs args) {
         if (sender is not MenuItem item) {
             return;
         }
@@ -267,7 +267,7 @@ public partial class Navigation {
         e.Handled = true;
     }
 
-    private void AddRenderer(object sender, RoutedEventArgs e) {
+    private static void AddRenderer(object sender, RoutedEventArgs e) {
         if (sender is not MenuItem menuItem) {
             return;
         }
@@ -278,7 +278,7 @@ public partial class Navigation {
         e.Handled = true;
     }
 
-    private void RemoveRenderer(object sender, RoutedEventArgs e) {
+    private static void RemoveRenderer(object sender, RoutedEventArgs e) {
         if (sender is not MenuItem menuItem) {
             return;
         }
@@ -363,7 +363,7 @@ public partial class Navigation {
         TreePrinter.PrintTree(writer, nodes);
     }
 
-    private List<TreePrinter.TreeNode> BuildTreeNode(IEnumerable<GameObject?> gameObjects) {
+    private static List<TreePrinter.TreeNode> BuildTreeNode(IEnumerable<GameObject?> gameObjects) {
         return gameObjects.Where(x => x != null).Select(x => new TreePrinter.TreeNode(x!.Name, BuildTreeNode(x.Children.Select(y => y.Value)))).ToList();
     }
 
@@ -399,7 +399,7 @@ public partial class Navigation {
         e.Handled = true;
     }
 
-    private void CancelPokemonUniteVersionEvent(object sender, RoutedEventArgs e) {
+    private static void CancelPokemonUniteVersionEvent(object sender, RoutedEventArgs e) {
         if (sender is not MenuItem menuItem) {
             return;
         }
