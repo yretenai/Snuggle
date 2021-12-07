@@ -7,7 +7,7 @@ using Snuggle.Core.Models;
 namespace Snuggle.Core.Meta;
 
 [PublicAPI]
-public record struct UnityVersion(int Major, int Minor = 0, int Build = 0, UnityBuildType Type = UnityBuildType.Release, int Revision = 0, int ExtraVersion = 0) : IComparable<UnityVersion>, IComparable<int> {
+public record struct UnityVersion(int Major, int Minor = 0, int Build = 0, UnityBuildType Type = UnityBuildType.Release, int Revision = 0, string? ExtraVersion = null) : IComparable<UnityVersion>, IComparable<int> {
     public static UnityVersion MaxValue { get; } = new(int.MaxValue, int.MaxValue, int.MaxValue);
     public static UnityVersion MinValue { get; } = new(0);
     public static UnityVersion Default { get; } = new(5);
@@ -44,7 +44,7 @@ public record struct UnityVersion(int Major, int Minor = 0, int Build = 0, Unity
         var minor = 0;
         var build = 0;
         var revision = 0;
-        var extra = 0;
+        var extra = default(string);
         var typeChar = '\u0000';
 
         var major = ExtractVersionPart(input, out var end);
@@ -55,8 +55,7 @@ public record struct UnityVersion(int Major, int Minor = 0, int Build = 0, Unity
                 input = input[end..];
                 (build, typeChar, revision) = ExtractRevisionPart(input, out end);
                 if (end < input.Length) {
-                    input = input[end..];
-                    extra = ExtractVersionPart(input, out _);
+                    extra = input[end..];
                 }
             }
         }
@@ -100,9 +99,12 @@ public record struct UnityVersion(int Major, int Minor = 0, int Build = 0, Unity
         var typeChar = input[charEnd];
         charEnd += 1;
 
-        input = input[charEnd..];
-        if (!int.TryParse(input, out var revision)) {
+        var charEnd2 = input[charEnd..].TakeWhile(char.IsDigit).Count() + charEnd;
+        if (!int.TryParse(input[charEnd..charEnd2], out var revision)) {
             revision = 0;
+            end = charEnd;
+        } else {
+            end = charEnd2;
         }
 
         return (build, typeChar, revision);
@@ -125,4 +127,11 @@ public record struct UnityVersion(int Major, int Minor = 0, int Build = 0, Unity
             return null;
         }
     }
+
+    public override string ToString() {
+        var s = $"{Major}.{Minor}.{Build}{(char) Type}{Revision}";
+        return string.IsNullOrWhiteSpace(ExtraVersion) ? s : $"{s}{ExtraVersion}";
+    }
+
+    public string ToStringSafe() => new(ToString().Select(x => x is '*' or '.' or '-' or '+' || char.IsLetterOrDigit(x) ? x : '.').ToArray());
 }

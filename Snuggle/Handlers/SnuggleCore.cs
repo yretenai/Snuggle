@@ -57,7 +57,19 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
     public HashSet<object> Filters { get; set; } = new();
     public IReadOnlyList<SnuggleObject> SelectedObjects { get; set; } = Array.Empty<SnuggleObject>();
     public string? Search { get; set; }
-    public string Title => string.IsNullOrEmpty(Collection.PlayerSettings?.CombinedName) ? BaseTitle : $"{BaseTitle} | {Collection.PlayerSettings.CombinedName}";
+    public string Title {
+        get {
+            var str = BaseTitle;
+            if (!string.IsNullOrEmpty(Collection.PlayerSettings?.CombinedName)) {
+                str += $" | {Collection.PlayerSettings.CombinedName}";
+                str += $" | Unity {Collection.PlayerSettings.SerializedFile.Version.ToStringSafe()}";
+            } else if (Objects.Count > 0) {
+                str += $" | Unity {Objects[0].GetObject()!.SerializedFile.Version.ToStringSafe()}";
+            }
+
+            return str;
+        }
+    }
 
     private const string BaseTitle = "Snuggle";
     private string SettingsFile { get; }

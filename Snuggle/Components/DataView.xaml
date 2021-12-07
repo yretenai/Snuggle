@@ -13,5 +13,6 @@
     </UserControl.Resources>
     <TextBox TextWrapping="NoWrap" AcceptsReturn="True" AcceptsTab="true" VerticalScrollBarVisibility="Auto"
              HorizontalScrollBarVisibility="Auto" FontFamily="Courier New" FontSize="14" IsReadOnly="True"
-             Text="{Binding Converter={StaticResource JsonConverter}, Mode=OneWay}" Margin="5" />
+             Text="{Binding Converter={StaticResource JsonConverter}, Mode=OneWay}" Margin="5"
+             VerticalContentAlignment="Top" />
 </UserControl>

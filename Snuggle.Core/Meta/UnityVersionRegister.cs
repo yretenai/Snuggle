@@ -5,9 +5,11 @@ namespace Snuggle.Core.Meta;
 
 [PublicAPI]
 public static class UnityVersionRegister {
+    public static readonly UnityVersion Unity2021_2 = new(2021, 2);
     public static readonly UnityVersion Unity2021_1 = new(2021, 1);
     public static readonly UnityVersion Unity2021 = new(2021);
 
+    public static readonly UnityVersion Unity2020_3_18 = new(2020, 3, 18);
     public static readonly UnityVersion Unity2020_3 = new(2020, 3);
     public static readonly UnityVersion Unity2020_2 = new(2020, 2);
     public static readonly UnityVersion Unity2020_1 = new(2020, 1);

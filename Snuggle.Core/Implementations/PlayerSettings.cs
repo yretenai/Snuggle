@@ -135,13 +135,26 @@ public class PlayerSettings : SerializedObject {
 
         if (SerializedFile.Version >= UnityVersionRegister.Unity2019_2) {
             AndroidUseSwappy = reader.ReadBoolean();
+            reader.Align();
         }
 
         reader.Align();
 
         if (SerializedFile.Version >= UnityVersionRegister.Unity2017_2) {
             AndroidBlitType = reader.ReadInt32();
+            reader.Align();
         }
+
+        if (SerializedFile.Version >= UnityVersionRegister.Unity2020_3_18 && SerializedFile.Version <= UnityVersionRegister.Unity2021_1 || SerializedFile.Version >= UnityVersionRegister.Unity2021_2) {
+            AndroidResizableWindow = reader.ReadBoolean();
+            reader.Align();
+
+            AndroidDefaultWindowWidth = reader.ReadInt32();
+            AndroidDefaultWindowHeight = reader.ReadInt32();
+            AndroidMinimumWindowWidth = reader.ReadInt32();
+            AndroidMinimumWindowHeight = reader.ReadInt32();
+            AndroidFullscreenMode = reader.ReadInt32();
+        }  
 
         if (SerializedFile.Version < UnityVersionRegister.Unity2018_1) {
             DefaultIsFullScreen = reader.ReadBoolean();
@@ -322,6 +335,10 @@ public class PlayerSettings : SerializedObject {
                 VulkanEnableLateAcquireNextImage = reader.ReadBoolean();
             }
 
+            if (SerializedFile.Version >= UnityVersionRegister.Unity2020_3_18 && SerializedFile.Version <= UnityVersionRegister.Unity2021_1 || SerializedFile.Version >= UnityVersionRegister.Unity2021_2) {
+                VulkanEnableCommandBufferRecycling = reader.ReadBoolean();
+            }
+
             reader.Align();
         }
 
@@ -470,8 +487,18 @@ public class PlayerSettings : SerializedObject {
             LegacyClampBlendShapeWeights = reader.ReadBoolean();
         }
 
+        if (SerializedFile.Version >= UnityVersionRegister.Unity2021_2) {
+            reader.Align();
+            PlayerDataPath = reader.ReadString();
+            ForceSRGBBlit = reader.ReadBoolean();
+        }
+
         if (SerializedFile.Version >= UnityVersionRegister.Unity2020_1) {
             VirtualTexturingSupportEnabled = reader.ReadBoolean();
+        }
+
+        if (SerializedFile.Version >= UnityVersionRegister.Unity2021_2) {
+            UploadClearedTextureDataAfterCreationFromScript = reader.ReadBoolean();
         }
 
         reader.Align();
@@ -545,6 +572,12 @@ public class PlayerSettings : SerializedObject {
     public bool AndroidRenderOutsideSafeArea { get; set; }
     public bool AndroidUseSwappy { get; set; }
     public int AndroidBlitType { get; set; }
+    public bool AndroidResizableWindow { get; set; }
+    public int AndroidDefaultWindowWidth { get; set; }
+    public int AndroidDefaultWindowHeight { get; set; }
+    public int AndroidMinimumWindowWidth { get; set; }
+    public int AndroidMinimumWindowHeight { get; set; }
+    public int AndroidFullscreenMode { get; set; }
     public bool DefaultIsFullScreen { get; set; }
     public bool DefaultIsNativeResolution { get; set; }
     public bool MacRetinaSupport { get; set; }
@@ -612,6 +645,7 @@ public class PlayerSettings : SerializedObject {
     public bool PSP2AcquireBGM { get; set; }
     public bool VulkanEnableSetSRGBWrite { get; set; }
     public bool VulkanEnableLateAcquireNextImage { get; set; }
+    public bool VulkanEnableCommandBufferRecycling { get; set; }
     public bool VulkanUseSWCommandBuffers { get; set; }
     public bool VulkanEnablePreTransform { get; set; }
     public int WiiUTVResolution { get; set; }
@@ -658,13 +692,16 @@ public class PlayerSettings : SerializedObject {
     public bool EnableNewInputSystem { get; set; }
     public bool DisableOldInputManagerSupport { get; set; }
     public bool LegacyClampBlendShapeWeights { get; set; }
+    public string PlayerDataPath { get; set; }
+    public bool ForceSRGBBlit { get; set; }
     public bool VirtualTexturingSupportEnabled { get; set; }
+    public bool UploadClearedTextureDataAfterCreationFromScript { get; set; }
 
     public string CombinedName {
         get {
-            var name = ProjectName;
+            var name = ProductName;
             if (string.IsNullOrEmpty(name)) {
-                name = ProductName;
+                name = ProjectName;
             }
 
             if (string.IsNullOrEmpty(name)) {

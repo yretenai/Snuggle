@@ -24,6 +24,10 @@ public class Renderer : Behaviour {
             DynamicOccludee = reader.ReadByte();
         }
 
+        if (SerializedFile.Version >= UnityVersionRegister.Unity2021_1) {
+            StaticShadowCaster = reader.ReadByte();
+        }
+
         if (SerializedFile.Version >= UnityVersionRegister.Unity5_4) {
             MotionVectors = reader.ReadByte();
             LightProbeUsage = reader.ReadByte();
@@ -97,6 +101,7 @@ public class Renderer : Behaviour {
     public byte CastShadows { get; set; }
     public byte RecieveShadows { get; set; }
     public byte DynamicOccludee { get; set; }
+    public byte StaticShadowCaster { get; set; }
     public byte MotionVectors { get; set; }
     public byte LightProbeUsage { get; set; }
     public byte RayTracingMode { get; set; }

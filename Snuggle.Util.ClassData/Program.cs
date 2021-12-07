@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using AssetsTools.NET;
 
 namespace Snuggle.Util.ClassData;
@@ -14,8 +15,43 @@ public static class Program {
             return;
         }
 
+        switch (Path.GetExtension(args[0]).ToLowerInvariant()) {
+            case ".tpk":
+                ParseClassDatabase(args[0], args[1]);
+                break;
+            case ".json":
+                ParseDump(args[0], args[1]);
+                break;
+        }
+    }
+
+    private static void ParseDump(string path, string outputPath) {
+        var database = JsonSerializer.Deserialize<UnityInfo>(File.ReadAllText(path))!;
+        foreach (var classObject in database.Classes) {
+            if (classObject.ReleaseRootNode == null) {
+                continue;
+            }
+            
+            var name = classObject.Name;
+            var result = Path.Combine(outputPath, database.Version, name + $"_{classObject.TypeID}.txt");
+            var dir = Path.GetDirectoryName(result);
+            var builder = new StringBuilder();
+            PrintFields(classObject.ReleaseRootNode, builder);
+            if (!Directory.Exists(dir)) {
+                Directory.CreateDirectory(dir!);
+            }
+
+            if (builder.Length == 0) {
+                continue;
+            } 
+
+            File.WriteAllText(result, builder.ToString());
+        }
+    }
+
+    private static void ParseClassDatabase(string path, string outputPath) {
         var database = new ClassDatabasePackage();
-        using var stream = File.OpenRead(args[0]);
+        using var stream = File.OpenRead(path);
         using var reader = new AssetsFileReader(stream);
         database.Read(reader);
 
@@ -31,21 +67,29 @@ public static class Program {
             foreach (var classType in databaseFile.classes) {
                 var nameRef = classType.name;
                 var name = nameRef.GetString(databaseFile);
-                var path = Path.Combine(args[1], version, name + $"_{classType.classId}.txt");
-                var dir = Path.GetDirectoryName(path);
+                var result = Path.Combine(outputPath, version, name + $"_{classType.classId}.txt");
+                var dir = Path.GetDirectoryName(result);
                 var builder = new StringBuilder();
                 PrintFields(classType, databaseFile, false, builder, new HashSet<string>());
                 if (!Directory.Exists(dir)) {
                     Directory.CreateDirectory(dir!);
                 }
 
-                File.WriteAllText(path, builder.ToString());
+                if (builder.Length == 0) {
+                    continue;
+                } 
+
+                File.WriteAllText(result, builder.ToString());
             }
         }
     }
 
     private static long GetUnityVersion(ClassDatabaseFile file) {
-        var split = file.header.unityVersions[0].Split('.');
+        return GetUnityVersion(file.header.unityVersions[0]);
+    }
+
+    private static long GetUnityVersion(string version) {
+        var split = version.Split('.');
         var first = uint.Parse(split[0]);
         var second = uint.Parse(split[1]);
 
@@ -86,5 +130,25 @@ public static class Program {
         var isAligned = (field.flags2 & 0x4000) != 0 || typeName == "Array";
 
         builder.AppendLine($"{new string(' ', field.depth * 2)}{typeName} {fieldName} {field.size} {(isAligned ? "Aligned" : string.Empty)}");
+    }
+
+    private static void PrintFields(UnityNode? node, StringBuilder builder) {
+        if (node == null) {
+            return;
+        }
+        
+        var typeName = node.TypeName;
+        var fieldName = node.Name;
+        if (string.IsNullOrEmpty(typeName) || string.IsNullOrEmpty(fieldName)) {
+            return;
+        }
+        
+        var isAligned = (node.MetaFlag & 0x4000) != 0 || typeName == "Array";
+
+        builder.AppendLine($"{new string(' ', node.Level * 2)}{typeName} {fieldName} {node.ByteSize} {(isAligned ? "Aligned" : string.Empty)}");
+
+        foreach (var subNode in node.SubNodes) {
+            PrintFields(subNode, builder);
+        }
     }
 }
