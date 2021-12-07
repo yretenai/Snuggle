@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text;
 using JetBrains.Annotations;
 using Snuggle.Core.Models;
 
@@ -129,9 +130,28 @@ public record struct UnityVersion(int Major, int Minor = 0, int Build = 0, Unity
     }
 
     public override string ToString() {
-        var s = $"{Major}.{Minor}.{Build}{(char) Type}{Revision}";
-        return string.IsNullOrWhiteSpace(ExtraVersion) ? s : $"{s}{ExtraVersion}";
+        var builder = new StringBuilder(32);
+        builder.Append($"{Major}.{Minor}.{Build}");
+
+        if (Type is UnityBuildType.None  or UnityBuildType.Release) {
+            return builder.ToString();
+        }
+
+        builder.Append((char) Type);
+
+        if (Revision == 0) {
+            return builder.ToString();
+        }
+
+        builder.Append(Revision);
+        
+        if (ExtraVersion == null) {
+            return builder.ToString();
+        }
+
+        builder.Append(ExtraVersion);
+        return builder.ToString();
     }
 
-    public string ToStringSafe() => new(ToString().Select(x => x is '*' or '.' or '-' or '+' || char.IsLetterOrDigit(x) ? x : '.').ToArray());
+    public string ToStringSafe() => new(ToString().Select(x => x is '*' or '.' or '+' || char.IsLetterOrDigit(x) ? x : '.').ToArray());
 }
