@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using DragonLib;
 using Snuggle.Converters;
 using Snuggle.Core.Implementations;
 using Snuggle.Core.Interfaces;
@@ -13,10 +14,12 @@ public static partial class ConvertCore {
             return;
         }
 
+        var fullPath = Path.Combine(flags.OutputPath, path);
+        fullPath.EnsureDirectoryExists();
         if (dds) {
-            SnuggleTextureFile.SaveNative(texture, path);
+            SnuggleTextureFile.SaveNative(texture, fullPath);
         } else {
-            SnuggleTextureFile.SavePNG(texture, path, flip, flags.UseDirectXTex);
+            SnuggleTextureFile.SavePNG(texture, fullPath, flip, flags.UseDirectXTex);
         }
 
         logger.Info($"Saved {path}");

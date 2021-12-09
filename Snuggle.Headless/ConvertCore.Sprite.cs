@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using DragonLib;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using Snuggle.Converters;
@@ -17,7 +18,9 @@ public static partial class ConvertCore {
 
         var rgb = SnuggleSpriteFile.ConvertSprite(sprite, ObjectDeserializationOptions.Default, flags.UseDirectXTex);
         var image = Image.WrapMemory<Rgba32>(rgb, (int) sprite.Rect.W, (int) sprite.Rect.H);
-        image.SaveAsPng(path);
+        var fullPath = Path.Combine(flags.OutputPath, path);
+        fullPath.EnsureDirectoryExists();
+        image.SaveAsPng(fullPath);
         
         logger.Info($"Saved {path}");
     }
