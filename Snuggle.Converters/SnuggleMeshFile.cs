@@ -100,7 +100,8 @@ public static class SnuggleMeshFile {
                 var hash = skinnedMesh.BoneNameHashes[i];
                 var hashNode = hashTree[hash];
                 var matrix = skinnedMesh.BindPose!.Value.Span[i].GetNumerics();
-                skin[i] = (hashNode, matrix);
+                var mirror = Matrix4x4.CreateScale(-1, 1, 1);
+                skin[i] = (hashNode, mirror * matrix * mirror);
             }
 
             scene.AddSkinnedMesh(
@@ -188,7 +189,9 @@ public static class SnuggleMeshFile {
         var (rX, rY, rZ, rW) = transform.Rotation;
         var (tX, tY, tZ) = transform.Translation;
         var (sX, sY, sZ) = transform.Scale;
+        var mirror = Matrix4x4.CreateScale(-1, 1, 1);
         node.LocalMatrix = Matrix4x4.CreateScale(sX, sY, sZ) * Matrix4x4.CreateFromQuaternion(new Quaternion(rX, rY, rZ, rW)) * Matrix4x4.CreateTranslation(new Vector3(tX, tY, tZ));
+        node.LocalMatrix = mirror * node.LocalMatrix * mirror;
 
         var materials = new List<Material?>();
         if (gameObject.FindComponent(UnityClassId.MeshRenderer, UnityClassId.SkinnedMeshRenderer).Value is Renderer renderer) {
@@ -276,6 +279,7 @@ public static class SnuggleMeshFile {
                 switch (channel) {
                     case VertexChannel.Vertex:
                         xyvnt[i].Position = new Vector3(floatValues.Take(3).ToArray());
+                        xyvnt[i].Position.X *= -1;
                         break;
                     case VertexChannel.Normal:
                         xyvnt[i].Normal = new Vector3(floatValues.Take(3).ToArray());

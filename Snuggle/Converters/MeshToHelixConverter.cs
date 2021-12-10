@@ -82,9 +82,12 @@ public static class MeshToHelixConverter {
                     var value = info.Unpack(data);
                     var floatValues = value.Select(Convert.ToSingle).Concat(new float[4]);
                     switch (channel) {
-                        case VertexChannel.Vertex:
-                            geometry.Positions.Add(new Vector3(floatValues.Take(3).ToArray()));
+                        case VertexChannel.Vertex: {
+                            var vec = new Vector3(floatValues.Take(3).ToArray());
+                            vec.X *= -1;
+                            geometry.Positions.Add(vec);
                             break;
+                        }
                         case VertexChannel.Normal:
                             geometry.Normals.Add(new Vector3(floatValues.Take(3).ToArray()));
                             break;
@@ -214,8 +217,9 @@ public static class MeshToHelixConverter {
         var (rX, rY, rZ, rW) = transform.Rotation;
         var (sX, sY, sZ) = transform.Scale;
         var (tX, tY, tZ) = transform.Translation;
-
         var localMatrix = Matrix.Scaling(sX, sY, sZ) * Matrix.RotationQuaternion(new Quaternion(rX, rY, rZ, rW)) * Matrix.Translation(new Vector3(tX, tY, tZ));
+        var mirror = Matrix.Scaling(-1, 1, 1);
+        localMatrix = mirror * localMatrix * mirror;
         var matrix = localMatrix * (parentMatrix ?? Matrix.Identity);
 
         if (parentMatrix.HasValue) {
