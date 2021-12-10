@@ -88,18 +88,19 @@ public static class MeshToHelixConverter {
                             geometry.Positions.Add(vec);
                             break;
                         }
-                        case VertexChannel.Normal:
-                            geometry.Normals.Add(new Vector3(floatValues.Take(3).ToArray()));
+                        case VertexChannel.Normal:{
+                            var vec = new Vector3(floatValues.Take(3).ToArray());
+                            vec.X *= -1;
+                            geometry.Normals.Add(vec);
                             break;
-                        case VertexChannel.Tangent:
-                            geometry.Tangents.Add(new Vector3(floatValues.Take(3).ToArray()));
-                            break;
+                        }
                         case VertexChannel.Color:
                             geometry.Colors.Add(new Color4(floatValues.Take(4).ToArray()));
                             break;
                         case VertexChannel.UV0:
                             geometry.TextureCoordinates.Add(new Vector2(floatValues.Take(2).ToArray()));
                             break;
+                        case VertexChannel.Tangent:
                         case VertexChannel.UV1:
                         case VertexChannel.UV2:
                         case VertexChannel.UV3:

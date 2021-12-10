@@ -252,10 +252,9 @@ public static class SnuggleMeshFile {
 
         var xyvnt = new VertexPositionNormalTangent[mesh.VertexData.VertexCount];
         Array.Fill(xyvnt, new VertexPositionNormalTangent());
-        var cuv = new VertexColor1Texture2[mesh.VertexData.VertexCount];
-        Array.Fill(cuv, new VertexColor1Texture2());
-        var joint = new VertexJoints4[mesh.VertexData.VertexCount];
-        var hasWeights = false;
+        var cuv = new VertexColor1Texture8[mesh.VertexData.VertexCount];
+        Array.Fill(cuv, new VertexColor1Texture8());
+        var joint = new VertexJoints8[mesh.VertexData.VertexCount];
         for (var i = 0; i < mesh.VertexData.VertexCount; ++i) {
             var joints = Span<int>.Empty;
             var weights = Span<float>.Empty;
@@ -283,9 +282,11 @@ public static class SnuggleMeshFile {
                         break;
                     case VertexChannel.Normal:
                         xyvnt[i].Normal = new Vector3(floatValues.Take(3).ToArray());
+                        xyvnt[i].Normal.X *= -1;
                         break;
                     case VertexChannel.Tangent:
                         xyvnt[i].Tangent = new Vector4(floatValues.Take(4).ToArray());
+                        xyvnt[i].Tangent.X *= -1;
                         break;
                     case VertexChannel.Color when options.WriteVertexColors:
                         cuv[i].Color = new Vector4(floatValues.Take(4).ToArray());
@@ -295,6 +296,24 @@ public static class SnuggleMeshFile {
                         break;
                     case VertexChannel.UV1:
                         cuv[i].TexCoord1 = new Vector2(floatValues.Take(2).ToArray());
+                        break;
+                    case VertexChannel.UV2:
+                        cuv[i].TexCoord2 = new Vector2(floatValues.Take(2).ToArray());
+                        break;
+                    case VertexChannel.UV3:
+                        cuv[i].TexCoord3 = new Vector2(floatValues.Take(2).ToArray());
+                        break;
+                    case VertexChannel.UV4:
+                        cuv[i].TexCoord4 = new Vector2(floatValues.Take(2).ToArray());
+                        break;
+                    case VertexChannel.UV5:
+                        cuv[i].TexCoord5 = new Vector2(floatValues.Take(2).ToArray());
+                        break;
+                    case VertexChannel.UV6:
+                        cuv[i].TexCoord6 = new Vector2(floatValues.Take(2).ToArray());
+                        break;
+                    case VertexChannel.UV7:
+                        cuv[i].TexCoord7 = new Vector2(floatValues.Take(2).ToArray());
                         break;
                     case VertexChannel.SkinWeight:
                         weights = floatValues.Take(4).ToArray();
@@ -316,122 +335,72 @@ public static class SnuggleMeshFile {
                 weights = fullWeights;
             }
 
-            var jointsArray = joints.ToArray();
-            var weightsArray = weights.ToArray();
-            if (!hasWeights) {
-                hasWeights = weightsArray.Any(x => x != 0);
-            }
+            var weightRemain = 1.0f;
+            var merged = new ValueTuple<int, float>[8];
+            for (var j = 0; j < 8; ++j) {
+                if (j >= joints.Length) {
+                    merged[j] = new ValueTuple<int, float>(0, j == 7 ? weightRemain : 0);
+                } else {
+                    merged[j] = new ValueTuple<int, float>(joints[j], j == 7 ? weightRemain : weights[j]);
+                }
 
-            joint[i] = new VertexJoints4(jointsArray.Zip(weightsArray).ToArray());
+                weightRemain -= merged[j].Item2;
+                if (weightRemain < 0) weightRemain = 0;
+            }
+            joint[i] = new VertexJoints8(merged);
         }
 
         IMeshBuilder<MaterialBuilder> meshBuilder;
-        if (hasWeights) {
-            var meshBuilderAbs = new MeshBuilder<VertexPositionNormalTangent, VertexColor1Texture2, VertexJoints4>(mesh.Name);
-            meshBuilder = meshBuilderAbs;
-            for (var submeshIndex = 0; submeshIndex < mesh.Submeshes.Count; submeshIndex++) {
-                var submesh = mesh.Submeshes[submeshIndex];
-                var material = new MaterialBuilder($"Submesh{submeshIndex}");
-                CreateMaterial(
-                    material,
-                    materials?.ElementAtOrDefault(submeshIndex),
-                    path,
-                    saved ?? new Dictionary<(long, string), string>(),
-                    deserializationOptions,
-                    exportOptions,
-                    options);
+        var meshBuilderAbs = new MeshBuilder<VertexPositionNormalTangent, VertexColor1Texture8, VertexJoints8>(mesh.Name);
+        meshBuilder = meshBuilderAbs;
+        for (var submeshIndex = 0; submeshIndex < mesh.Submeshes.Count; submeshIndex++) {
+            var submesh = mesh.Submeshes[submeshIndex];
+            var material = new MaterialBuilder($"Submesh{submeshIndex}");
+            CreateMaterial(
+                material,
+                materials?.ElementAtOrDefault(submeshIndex),
+                path,
+                saved ?? new Dictionary<(long, string), string>(),
+                deserializationOptions,
+                exportOptions,
+                options);
 
-                var primitive = meshBuilderAbs.UsePrimitive(material);
+            var primitive = meshBuilderAbs.UsePrimitive(material);
 
-                var indicesPerSurface = submesh.Topology switch {
-                    GfxPrimitiveType.Points => 1,
-                    GfxPrimitiveType.Lines => 2,
-                    GfxPrimitiveType.Triangles => 3,
-                    GfxPrimitiveType.Quads => 4,
-                    GfxPrimitiveType.Strip => throw new NotSupportedException(),
-                    GfxPrimitiveType.TriangleStrip => throw new NotSupportedException(),
-                    _ => throw new NotSupportedException(),
-                };
+            var indicesPerSurface = submesh.Topology switch {
+                GfxPrimitiveType.Points => 1,
+                GfxPrimitiveType.Lines => 2,
+                GfxPrimitiveType.Triangles => 3,
+                GfxPrimitiveType.Quads => 4,
+                GfxPrimitiveType.Strip => throw new NotSupportedException(),
+                GfxPrimitiveType.TriangleStrip => throw new NotSupportedException(),
+                _ => throw new NotSupportedException(),
+            };
 
-                var baseOffset = (int) (submesh.FirstByte / (mesh.IndexFormat == IndexFormat.UInt16 ? 2 : 4));
-                var submeshIndices = indices.Slice(baseOffset, (int) submesh.IndexCount).ToArray();
+            var baseOffset = (int) (submesh.FirstByte / (mesh.IndexFormat == IndexFormat.UInt16 ? 2 : 4));
+            var submeshIndices = indices.Slice(baseOffset, (int) submesh.IndexCount).ToArray();
 
-                for (var i = 0; i < submesh.IndexCount / indicesPerSurface; ++i) {
-                    var index = submeshIndices.Skip(i * indicesPerSurface).Take(indicesPerSurface).Select(x => (xyvnt[x], cuv[x], joint[x])).ToArray();
+            for (var i = 0; i < submesh.IndexCount / indicesPerSurface; ++i) {
+                var index = submeshIndices.Skip(i * indicesPerSurface).Take(indicesPerSurface).Select(x => (xyvnt[x], cuv[x], joint[x])).ToArray();
 
-                    switch (submesh.Topology) {
-                        case GfxPrimitiveType.Triangles:
-                            primitive.AddTriangle(index[0], index[1], index[2]);
-                            break;
-                        case GfxPrimitiveType.Quads:
-                            primitive.AddQuadrangle(index[0], index[1], index[2], index[3]);
-                            break;
-                        case GfxPrimitiveType.Lines:
-                            primitive.AddLine(index[0], index[1]);
-                            break;
-                        case GfxPrimitiveType.Points:
-                            primitive.AddPoint(index[0]);
-                            break;
-                        case GfxPrimitiveType.TriangleStrip:
-                        case GfxPrimitiveType.Strip:
-                            throw new NotSupportedException();
-                        default:
-                            throw new NotSupportedException();
-                    }
-                }
-            }
-        } else {
-            var meshBuilderAbs = new MeshBuilder<VertexPositionNormalTangent, VertexColor1Texture2>(mesh.Name);
-            meshBuilder = meshBuilderAbs;
-            for (var submeshIndex = 0; submeshIndex < mesh.Submeshes.Count; submeshIndex++) {
-                var submesh = mesh.Submeshes[submeshIndex];
-                var material = new MaterialBuilder($"Submesh{submeshIndex}");
-                CreateMaterial(
-                    material,
-                    materials?.ElementAtOrDefault(submeshIndex),
-                    path,
-                    saved ?? new Dictionary<(long, string), string>(),
-                    deserializationOptions,
-                    exportOptions,
-                    options);
-
-                var primitive = meshBuilderAbs.UsePrimitive(material);
-
-                var indicesPerSurface = submesh.Topology switch {
-                    GfxPrimitiveType.Points => 1,
-                    GfxPrimitiveType.Lines => 2,
-                    GfxPrimitiveType.Triangles => 3,
-                    GfxPrimitiveType.Quads => 4,
-                    GfxPrimitiveType.Strip => throw new NotSupportedException(),
-                    GfxPrimitiveType.TriangleStrip => throw new NotSupportedException(),
-                    _ => throw new NotSupportedException(),
-                };
-
-                var baseOffset = (int) (submesh.FirstByte / (mesh.IndexFormat == IndexFormat.UInt16 ? 2 : 4));
-                var submeshIndices = indices.Slice(baseOffset, (int) submesh.IndexCount).ToArray();
-
-                for (var i = 0; i < submesh.IndexCount / indicesPerSurface; ++i) {
-                    var index = submeshIndices.Skip(i * indicesPerSurface).Take(indicesPerSurface).Select(x => (xyvnt[x], cuv[x])).ToArray();
-
-                    switch (submesh.Topology) {
-                        case GfxPrimitiveType.Triangles:
-                            primitive.AddTriangle(index[0], index[1], index[2]);
-                            break;
-                        case GfxPrimitiveType.Quads:
-                            primitive.AddQuadrangle(index[0], index[1], index[2], index[3]);
-                            break;
-                        case GfxPrimitiveType.Lines:
-                            primitive.AddLine(index[0], index[1]);
-                            break;
-                        case GfxPrimitiveType.Points:
-                            primitive.AddPoint(index[0]);
-                            break;
-                        case GfxPrimitiveType.TriangleStrip:
-                        case GfxPrimitiveType.Strip:
-                            throw new NotSupportedException();
-                        default:
-                            throw new NotSupportedException();
-                    }
+                switch (submesh.Topology) {
+                    case GfxPrimitiveType.Triangles:
+                        primitive.AddTriangle(index[2], index[1], index[0]);
+                        break;
+                    case GfxPrimitiveType.Quads:
+                        primitive.AddQuadrangle(index[3], index[2], index[1], index[0]);
+                        break;
+                    case GfxPrimitiveType.Lines:
+                        primitive.AddLine(index[1], index[0]);
+                        break;
+                    case GfxPrimitiveType.Points:
+                        primitive.AddPoint(index[0]);
+                        break;
+                    case GfxPrimitiveType.TriangleStrip:
+                    case GfxPrimitiveType.Strip:
+                        throw new NotSupportedException();
+                    default:
+                        throw new NotSupportedException();
                 }
             }
         }
@@ -453,10 +422,12 @@ public static class SnuggleMeshFile {
 
                         if (shape.HasNormals) {
                             geometryData.NormalDelta = new Vector3(vertex.Normal.X, vertex.Normal.Y, vertex.Normal.Z);
+                            geometryData.NormalDelta.X *= -1;
                         }
 
                         if (shape.HasTangents) {
                             geometryData.TangentDelta = new Vector3(vertex.Tangent.X, vertex.Tangent.Y, vertex.Tangent.Z);
+                            geometryData.TangentDelta.X *= -1;
                         }
 
                         morph.SetVertexDelta(xyvnt[vertex.Index], geometryData);
