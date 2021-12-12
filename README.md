@@ -6,7 +6,7 @@ Unity Processor
 ### Special Thanks
 
 - [Perfare's AssetStudio](https://github.com/Perfare/AssetStudio/) for reference code for meshes, sprites, and textures- including the texture decoder.
-- [DaZombieKiller's TypeTreeGenerator](https://github.com/DaZombieKiller/TypeTreeGenerator) for generating class definitions
+- [DaZombieKiller's TypeTreeDumper](https://github.com/DaZombieKiller/TypeTreeDumper) for generating class definitions
 - [nesrak1's AssetTools.NET](https://github.com/nesrak1/AssetsTools.NET) for parsing class definitions
 
 See [ATTRIBUTION.txt](ATTRIBUTION.txt)
