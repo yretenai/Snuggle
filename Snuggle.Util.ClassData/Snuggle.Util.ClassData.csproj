@@ -6,8 +6,4 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
-    <ItemGroup>
-      <PackageReference Include="AssetsTools.NET" Version="2.0.9" />
-    </ItemGroup>
-
 </Project>
