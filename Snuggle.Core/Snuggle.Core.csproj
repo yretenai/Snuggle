@@ -11,7 +11,7 @@
             <_Parameter1>Snuggle.Tests</_Parameter1>
         </AssemblyAttribute>
         <PackageReference Include="JetBrains.Annotations" Version="2021.3.0" />
-        <PackageReference Include="K4os.Compression.LZ4.Streams" Version="1.2.15" />
+        <PackageReference Include="K4os.Compression.LZ4.Streams" Version="1.2.16" />
         <PackageReference Include="Mono.Cecil" Version="0.11.4" />
         <PackageReference Include="SevenZip" Version="19.0.0" />
     </ItemGroup>
