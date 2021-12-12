@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using DragonLib.CLI;
 using JetBrains.Annotations;
@@ -65,9 +67,6 @@ public record SnuggleFlags : ICLIFlags {
     [CLIFlag("game", Aliases = new[] { "g" }, Category = "General Options", Default = UnityGame.Default, Help = "Game specific modifications")]
     public UnityGame Game { get; set; }
 
-    [CLIFlag("game-options", Aliases = new[] { "G" }, Category = "General Options", Default = null, Help = "Game specific modification options json")]
-    public string? GameOptions { get; set; }
-
     [CLIFlag("output-format", Aliases = new[] { "f" }, Category = "General Options", Default = "{Type}/{Container}/{Id}_{Name}.{Ext}", Help = "Output path format")]
     public string OutputFormat { get; set; } = null!;
 
@@ -82,4 +81,35 @@ public record SnuggleFlags : ICLIFlags {
 
     [CLIFlag("paths", Category = "General Options", Positional = 0, Help = "Paths to load", IsRequired = true)]
     public List<string> Paths { get; set; } = null!;
+
+    public override string ToString() {
+        var sb = new StringBuilder();
+        sb.Append($"{nameof(SnuggleFlags)} {{ ");
+        sb.Append($"{nameof(NoMesh)} = {(NoMesh ? "True" : "False")}, ");
+        sb.Append($"{nameof(NoSkinnedMesh)} = {(NoSkinnedMesh ? "True" : "False")}, ");
+        sb.Append($"{nameof(NoGameObject)} = {(NoGameObject ? "True" : "False")}, ");
+        sb.Append($"{nameof(NoTexture)} = {(NoTexture ? "True" : "False")}, ");
+        sb.Append($"{nameof(NoText)} = {(NoText ? "True" : "False")}, ");
+        sb.Append($"{nameof(NoSprite)} = {(NoSprite ? "True" : "False")}, ");
+        sb.Append($"{nameof(NoMaterials)} = {(NoMaterials ? "True" : "False")}, ");
+        sb.Append($"{nameof(NoVertexColor)} = {(NoVertexColor ? "True" : "False")}, ");
+        sb.Append($"{nameof(NoMorphs)} = {(NoMorphs ? "True" : "False")}, ");
+        sb.Append($"{nameof(NoGameObjectHierarchyUp)} = {(NoGameObjectHierarchyUp ? "True" : "False")}, ");
+        sb.Append($"{nameof(NoGameObjectHierarchyDown)} = {(NoGameObjectHierarchyDown ? "True" : "False")}, ");
+        sb.Append($"{nameof(TextureToDDS)} = {(TextureToDDS ? "True" : "False")}, ");
+        sb.Append($"{nameof(UseDirectXTex)} = {(UseDirectXTex ? "True" : "False")}, ");
+        sb.Append($"{nameof(LowMemory)} = {(LowMemory ? "True" : "False")}, ");
+        sb.Append($"{nameof(LooseMeshes)} = {(LooseMeshes ? "True" : "False")}, ");
+        sb.Append($"{nameof(LooseMaterials)} = {(LooseMaterials ? "True" : "False")}, ");
+        sb.Append($"{nameof(LooseTextures)} = {(LooseTextures ? "True" : "False")}, ");
+        sb.Append($"{nameof(Recursive)} = {(Recursive ? "True" : "False")}, ");
+        sb.Append($"{nameof(Game)} = {Game:G}, ");
+        sb.Append($"{nameof(OutputFormat)} = {OutputFormat}, ");
+        sb.Append($"{nameof(OutputPath)} = {OutputPath}, ");
+        sb.Append($"{nameof(NameFilters)} = [{string.Join(", ", NameFilters.Select(x => x.ToString()))}], ");
+        sb.Append($"{nameof(PathIdFilters)} = [{string.Join(", ", PathIdFilters.Select(x => x.ToString()))}], ");
+        sb.Append($"{nameof(Paths)} = [{string.Join(", ", Paths)}]");
+        sb.Append(" }");
+        return sb.ToString();
+    }
 }

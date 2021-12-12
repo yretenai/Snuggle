@@ -1,5 +1,4 @@
-﻿
-[*]
+﻿[*]
 charset = utf-8
 end_of_line = crlf
 trim_trailing_whitespace = false
@@ -9,6 +8,9 @@ indent_size = 4
 tab_width = 4
 
 [*.cs]
+csharp_new_line_before_catch = false
+csharp_new_line_before_else = false
+csharp_new_line_before_finally = false
 
 # ReSharper properties
 resharper_accessor_owner_body = expression_body
@@ -255,7 +257,7 @@ resharper_nested_ternary_style = autodetect
 resharper_never_outdent_pipe_operators = true
 resharper_new_line_before_enumerators = true
 resharper_normalize_tag_names = false
-resharper_no_indent_inside_elements = html,body,thead,tbody,tfoot
+resharper_no_indent_inside_elements = html, body, thead, tbody, tfoot
 resharper_no_indent_inside_if_element_longer_than = 200
 resharper_object_creation_when_type_evident = target_typed
 resharper_object_creation_when_type_not_evident = explicitly_typed
@@ -301,7 +303,7 @@ resharper_place_type_attribute_on_same_line = false
 resharper_place_type_constraints_on_same_line = true
 resharper_prefer_explicit_discard_declaration = false
 resharper_prefer_separate_deconstructed_variables_declaration = false
-resharper_preserve_spaces_inside_tags = pre,textarea
+resharper_preserve_spaces_inside_tags = pre, textarea
 resharper_qualified_using_at_nested_scope = false
 resharper_quote_style = doublequoted
 resharper_razor_prefer_qualified_reference = true

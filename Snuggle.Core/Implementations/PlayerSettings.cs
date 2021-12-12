@@ -154,7 +154,7 @@ public class PlayerSettings : SerializedObject {
             AndroidMinimumWindowWidth = reader.ReadInt32();
             AndroidMinimumWindowHeight = reader.ReadInt32();
             AndroidFullscreenMode = reader.ReadInt32();
-        }  
+        }
 
         if (SerializedFile.Version < UnityVersionRegister.Unity2018_1) {
             DefaultIsFullScreen = reader.ReadBoolean();
@@ -522,6 +522,7 @@ public class PlayerSettings : SerializedObject {
         ProjectId = string.Empty;
         ProjectName = string.Empty;
         OrganizationId = string.Empty;
+        PlayerDataPath = string.Empty;
     }
 
     public Guid ProductGUID { get; set; }
