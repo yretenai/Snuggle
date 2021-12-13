@@ -7,7 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Library\DragonLib\DragonLib.csproj" />
         <ProjectReference Include="..\Snuggle.Converters\Snuggle.Converters.csproj" />
         <ProjectReference Include="..\Snuggle.Core\Snuggle.Core.csproj" />
     </ItemGroup>
