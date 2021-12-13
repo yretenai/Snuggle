@@ -17,8 +17,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpGLTF.Core", "Library\S
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpGLTF.Toolkit", "Library\SharpGLTF\src\SharpGLTF.Toolkit\SharpGLTF.Toolkit.csproj", "{FAD2B309-9346-4711-9BA6-C89E13C4A3DF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DragonLib", "Library\DragonLib\DragonLib.csproj", "{D5044110-CB78-4005-9E2F-DFED4D7EF226}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Snuggle.Headless", "Snuggle.Headless\Snuggle.Headless.csproj", "{7BDAD5C2-EB28-4255-9B0C-CAA833E3E650}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Snuggle.Native", "Snuggle.Native\Snuggle.Native.csproj", "{4A644649-A767-4F80-8A3D-36C1C4EAC035}"
@@ -56,10 +54,6 @@ Global
 		{FAD2B309-9346-4711-9BA6-C89E13C4A3DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FAD2B309-9346-4711-9BA6-C89E13C4A3DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FAD2B309-9346-4711-9BA6-C89E13C4A3DF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D5044110-CB78-4005-9E2F-DFED4D7EF226}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D5044110-CB78-4005-9E2F-DFED4D7EF226}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D5044110-CB78-4005-9E2F-DFED4D7EF226}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D5044110-CB78-4005-9E2F-DFED4D7EF226}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7BDAD5C2-EB28-4255-9B0C-CAA833E3E650}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7BDAD5C2-EB28-4255-9B0C-CAA833E3E650}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7BDAD5C2-EB28-4255-9B0C-CAA833E3E650}.Release|Any CPU.ActiveCfg = Release|Any CPU
