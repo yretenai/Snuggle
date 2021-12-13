@@ -3,8 +3,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Runtime.InteropServices;
 using DirectXTexNet;
-using DragonLib.Imaging.DXGI;
 using JetBrains.Annotations;
+using Snuggle.Converters.DXGI;
 using Snuggle.Core;
 using Snuggle.Core.Exceptions;
 using Snuggle.Core.Implementations;
@@ -479,7 +479,7 @@ public static class Texture2DConverter {
             throw new IncompleteDeserializationException();
         }
 
-        return DXGI.BuildDDS(texture.TextureFormat.ToD3DPixelFormat(), texture.MipCount, texture.Width, texture.Height, texture.TextureCount, texture.TextureData!.Value.Span);
+        return DDS.BuildDDS(texture.TextureFormat.ToD3DPixelFormat(), texture.MipCount, texture.Width, texture.Height, texture.TextureCount, texture.TextureData!.Value.Span);
     }
 
     public static void FromDDS(Texture2D texture, Stream stream, bool leaveOpen = false) {

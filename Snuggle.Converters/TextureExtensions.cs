@@ -1,6 +1,6 @@
 ﻿using System;
-using DragonLib.Imaging.DXGI;
 using JetBrains.Annotations;
+using Snuggle.Converters.DXGI;
 using Snuggle.Core.Models.Objects.Graphics;
 
 namespace Snuggle.Converters;

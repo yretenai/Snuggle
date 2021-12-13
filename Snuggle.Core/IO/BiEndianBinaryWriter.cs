@@ -154,7 +154,7 @@ public class BiEndianBinaryWriter : BinaryWriter {
 
         var array = enumerable as T[] ?? enumerable.ToArray();
 
-        Write(MemoryMarshal.Cast<T, byte>(array));
+        Write(MemoryMarshal.AsBytes(array.AsSpan()));
     }
 
     public void WriteArray<T>(Span<T> span) where T : struct {
@@ -162,7 +162,7 @@ public class BiEndianBinaryWriter : BinaryWriter {
             throw new NotSupportedException("Cannot invert endianness of arrays");
         }
 
-        Write(MemoryMarshal.Cast<T, byte>(span));
+        Write(MemoryMarshal.AsBytes(span));
     }
 
     public void WriteMemory(Memory<byte>? memory) {
@@ -185,7 +185,7 @@ public class BiEndianBinaryWriter : BinaryWriter {
         if (memory == null) {
             Write(0);
         } else {
-            Write(MemoryMarshal.Cast<T, byte>(memory.Value.Span));
+            Write(MemoryMarshal.AsBytes(memory.Value.Span));
         }
     }
 
@@ -195,6 +195,6 @@ public class BiEndianBinaryWriter : BinaryWriter {
         }
 
         Span<T> span = new[] { value };
-        Write(MemoryMarshal.Cast<T, byte>(span));
+        Write(MemoryMarshal.AsBytes(span));
     }
 }

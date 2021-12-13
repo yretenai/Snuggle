@@ -117,6 +117,6 @@ public static class MeshConverter {
         mesh.IndexFormat = IndexFormat.Uint32;
 
         var triangles = mesh.CompressedMesh.Triangles.Decompress();
-        return MemoryMarshal.Cast<int, byte>(triangles).ToArray();
+        return MemoryMarshal.AsBytes(triangles).ToArray();
     }
 }
