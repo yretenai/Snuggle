@@ -76,7 +76,7 @@ public static class Program {
         }
 
         var collection = new AssetCollection();
-        var options = SnuggleCoreOptions.Default with { Game = flags.Game, Logger = logger, CacheDataIfLZMA = true };
+        var options = SnuggleCoreOptions.Default with { Game = flags.Game, Logger = logger, CacheDataIfLZMA = true, IgnoreClassIds = flags.IgnoreClassIds };
         if (options.Game != UnityGame.Default && gameFlags != default) {
             options.GameOptions.StorageMap[options.Game] = JsonSerializer.SerializeToElement(gameFlags.ToOptions(), SnuggleCoreOptions.JsonOptions);
         }

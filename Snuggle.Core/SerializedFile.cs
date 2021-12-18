@@ -164,16 +164,17 @@ public class SerializedFile : IRenewable {
 
         options ??= Options;
         try {
+            var ignored = options.IgnoreClassIds.Contains(objectInfo.ClassId.ToString()!);
             var shouldLoad = !options.LoadOnDemand;
             if (Objects.TryGetValue(objectInfo.PathId, out var serializedObject)) {
-                if (!serializedObject.NeedsLoad) {
+                if (!serializedObject.NeedsLoad || ignored) {
                     return serializedObject;
                 }
 
                 shouldLoad = true;
             }
 
-            if (shouldLoad && !baseType) {
+            if (shouldLoad && !baseType && !ignored) {
                 serializedObject = ObjectFactory.GetInstance(OpenFile(objectInfo, dataStream, dataStream != null), objectInfo, this);
             } else {
                 serializedObject = new SerializedObject(objectInfo, this) { NeedsLoad = true };
@@ -196,7 +197,8 @@ public class SerializedFile : IRenewable {
     }
 
     public void PreloadObject(UnityObjectInfo objectInfo, SnuggleCoreOptions? options = null, Stream? dataStream = null) {
-        if ((options ?? Options).LoadOnDemand) {
+        var ignored = (options ?? Options).IgnoreClassIds.Contains(objectInfo.ClassId.ToString()!); 
+        if ((options ?? Options).LoadOnDemand || ignored) {
             Objects[objectInfo.PathId] = new SerializedObject(objectInfo, this) { NeedsLoad = true };
         } else {
             Objects[objectInfo.PathId] = ObjectFactory.GetInstance(OpenFile(objectInfo, dataStream, dataStream != null), objectInfo, this);

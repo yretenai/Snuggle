@@ -82,6 +82,9 @@ public record SnuggleFlags : ICLIFlags {
     [CLIFlag("paths", Category = "General Options", Positional = 0, Help = "Paths to load", IsRequired = true)]
     public List<string> Paths { get; set; } = null!;
 
+    [CLIFlag("ignroe", Category = "General Options", Positional = 0, Help = "ClassIds to Ignore", IsRequired = true)]
+    public HashSet<string> IgnoreClassIds { get; set; } = null!;
+
     public override string ToString() {
         var sb = new StringBuilder();
         sb.Append($"{nameof(SnuggleFlags)} {{ ");
@@ -109,6 +112,7 @@ public record SnuggleFlags : ICLIFlags {
         sb.Append($"{nameof(NameFilters)} = [{string.Join(", ", NameFilters.Select(x => x.ToString()))}], ");
         sb.Append($"{nameof(PathIdFilters)} = [{string.Join(", ", PathIdFilters.Select(x => x.ToString()))}], ");
         sb.Append($"{nameof(Paths)} = [{string.Join(", ", Paths)}]");
+        sb.Append($"{nameof(IgnoreClassIds)} = [{string.Join(", ", IgnoreClassIds)}]");
         sb.Append(" }");
         return sb.ToString();
     }

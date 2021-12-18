@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Collections.Generic;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using JetBrains.Annotations;
 using Snuggle.Core.Extensions;
@@ -14,7 +15,8 @@ public record SnuggleCoreOptions(
     bool CacheDataIfLZMA, // this literally takes two years, you want it to be enabled.
     bool LoadOnDemand,
     UnityGame Game) {
-    private const int LatestVersion = 4;
+    public HashSet<string> IgnoreClassIds { get; set; } = new();
+    private const int LatestVersion = 5;
     public int Version { get; set; } = LatestVersion;
     public UnityGameOptions GameOptions { get; set; } = UnityGameOptions.Default;
 
@@ -50,19 +52,23 @@ public record SnuggleCoreOptions(
     public SnuggleCoreOptions Migrate() {
         var options = this;
         if (options.Version <= 1) {
-            options = options with { CacheDataIfLZMA = true, Version = 2 };
+            options = options with { CacheDataIfLZMA = true };
         }
 
-        if (options.Version == 2) {
-            options = options with { LoadOnDemand = false, Version = 3 };
+        if (options.Version <= 2) {
+            options = options with { LoadOnDemand = false };
         }
 
-        if (options.Version == 3) {
-            options = options with { GameOptions = UnityGameOptions.Default, Version = 4 };
+        if (options.Version <= 3) {
+            options = options with { GameOptions = UnityGameOptions.Default };
+        }
+
+        if (options.Version <= 4) {
+            options = options with { IgnoreClassIds = new HashSet<string>() };
         }
 
         options.GameOptions = options.GameOptions.Migrate();
 
-        return options;
+        return options with { Version = LatestVersion };
     }
 }
