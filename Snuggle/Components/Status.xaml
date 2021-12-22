@@ -12,12 +12,8 @@
              d:DataContext="{d:DesignInstance handlers:SnuggleCore}"
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
-        <TextBlock Text="{Binding Status.Message, Mode=OneWay}" Margin="5" />
-        <ProgressBar Grid.Row="1" Value="{Binding Status.Percent, Mode=OneWay}"
+        <ProgressBar Value="{Binding Status.Percent, Mode=OneWay}"
                      IsIndeterminate="{Binding Status.InvalidValue, Mode=OneWay}" />
+        <TextBlock Text="{Binding Status.Message, Mode=OneWay}" Margin="5" />
     </Grid>
 </UserControl>

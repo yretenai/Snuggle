@@ -99,7 +99,10 @@ public static class MeshConverter {
             strides[index] = last + lastInfo.GetSize();
             var length = vertexCount * strides[index];
             vbos[index] = fullBuffer.Slice(offset, (int) length);
-            offset = (int) (offset + length).Align(16);
+            offset += (int) length;
+            if (offset % 16 > 0) {
+                offset += 16 - offset % 16;
+            }
         }
 
         return vbos;
