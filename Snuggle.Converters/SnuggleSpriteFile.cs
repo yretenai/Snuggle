@@ -15,7 +15,6 @@ using Snuggle.Core.Implementations;
 using Snuggle.Core.Models.Objects.Graphics;
 using Snuggle.Core.Models.Objects.Math;
 using Snuggle.Core.Options;
-using Path = SixLabors.ImageSharp.Drawing.Path;
 using Vector2 = Snuggle.Core.Models.Objects.Math.Vector2;
 
 namespace Snuggle.Converters;
