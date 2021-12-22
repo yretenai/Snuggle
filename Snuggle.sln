@@ -23,6 +23,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Snuggle.Native", "Snuggle.N
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Snuggle.Util.ClassData", "Snuggle.Util.ClassData\Snuggle.Util.ClassData.csproj", "{1E34F1DE-B1F5-4B3D-A586-28B825F72656}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Snuggle.glTF", "Snuggle.glTF\Snuggle.glTF.csproj", "{A99D03AD-CB2F-4C55-B9ED-C830833625A0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Snuggle.ActorX", "Snuggle.ActorX\Snuggle.ActorX.csproj", "{235BF107-68CE-43DC-8A87-40617C13AE5A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -64,6 +68,14 @@ Global
 		{4A644649-A767-4F80-8A3D-36C1C4EAC035}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1E34F1DE-B1F5-4B3D-A586-28B825F72656}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1E34F1DE-B1F5-4B3D-A586-28B825F72656}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A99D03AD-CB2F-4C55-B9ED-C830833625A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A99D03AD-CB2F-4C55-B9ED-C830833625A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A99D03AD-CB2F-4C55-B9ED-C830833625A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A99D03AD-CB2F-4C55-B9ED-C830833625A0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{235BF107-68CE-43DC-8A87-40617C13AE5A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{235BF107-68CE-43DC-8A87-40617C13AE5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{235BF107-68CE-43DC-8A87-40617C13AE5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{235BF107-68CE-43DC-8A87-40617C13AE5A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{CFE1A7EA-5168-4982-B2AE-0EC931CCCC93} = {ABB3E12D-EF19-4DFB-9328-E5BBE9D4CA7C}
