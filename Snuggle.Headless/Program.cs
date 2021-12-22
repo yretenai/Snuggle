@@ -139,7 +139,7 @@ public static class Program {
                         break;
                 }
             } catch (Exception e) {
-                logger.Error(e.Message, e);
+                logger.Error($"Failure decoding {asset.PathId} from {Utils.GetStringFromTag(asset.SerializedFile.Tag)}: {e.Message}", e);
             }
 
             if (flags.LowMemory) {

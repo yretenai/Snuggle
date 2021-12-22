@@ -68,7 +68,7 @@ public static class SnuggleTextureFile {
         Image image;
         if (texture.TextureFormat.IsAlphaFirst()) {
             image = Image.WrapMemory<Argb32>(data, texture.Width, texture.Height);
-        } else if (texture.TextureFormat.IsBGRA() || !texture.TextureFormat.HasNativeConversion()) {
+        } else if (texture.TextureFormat.IsBGRA(useDirectXTex)) {
             image = Image.WrapMemory<Bgra32>(data, texture.Width, texture.Height);
         } else {
             image = Image.WrapMemory<Rgba32>(data, texture.Width, texture.Height);

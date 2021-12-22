@@ -162,15 +162,8 @@ public static class SnuggleSpriteFile {
         }
 
         path = System.IO.Path.ChangeExtension(path, ".png");
-        var (data, (width, height), format) = ConvertSprite(sprite, options, exportOptions.UseDirectTex);
-        Image image;
-        if (format.IsAlphaFirst()) {
-            image = Image.WrapMemory<Argb32>(data, width, height);
-        } else if (format.IsBGRA() || !format.HasNativeConversion()) {
-            image = Image.WrapMemory<Bgra32>(data, width, height);
-        } else {
-            image = Image.WrapMemory<Rgba32>(data, width, height);
-        }
+        var (data, (width, height), _) = ConvertSprite(sprite, options, exportOptions.UseDirectTex);
+        var image = Image.WrapMemory<Rgba32>(data, width, height);
         image.SaveAsPng(path);
         
         return path;

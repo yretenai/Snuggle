@@ -19,6 +19,19 @@
                   VirtualizingPanel.CacheLengthUnit="Page" VirtualizingPanel.IsContainerVirtualizable="True"
                   VirtualizingPanel.IsVirtualizingWhenGrouping="True" ScrollViewer.CanContentScroll="True"
                   ScrollViewer.IsDeferredScrollingEnabled="True">
+            <ListView.Resources>
+                <ContextMenu x:Key="Context">
+                    <MenuItem Header="Save Data" Click="ExtractSerialize" />
+                    <MenuItem Header="Save Converted" Click="ExtractConvert" />
+                    <MenuItem Header="Save Bytes" Click="ExtractRaw"/>
+                    <MenuItem Header="Open Location" Click="Resolve" />
+                </ContextMenu>
+            </ListView.Resources>
+            <ListView.ItemContainerStyle>
+                <Style TargetType="{x:Type ListViewItem}" BasedOn="{StaticResource {x:Type ListViewItem}}">
+                    <Setter Property="ContextMenu" Value="{StaticResource Context}"/>
+                </Style>
+            </ListView.ItemContainerStyle>
             <ListView.ItemsPanel>
                 <ItemsPanelTemplate>
                     <VirtualizingStackPanel />

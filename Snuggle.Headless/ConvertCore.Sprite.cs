@@ -16,15 +16,8 @@ public static partial class ConvertCore {
             return;
         }
 
-        var (data, (width, height), format) = SnuggleSpriteFile.ConvertSprite(sprite, ObjectDeserializationOptions.Default, flags.UseDirectXTex);
-        Image image;
-        if (format.IsAlphaFirst()) {
-            image = Image.WrapMemory<Argb32>(data, width, height);
-        } else if (format.IsBGRA() || !format.HasNativeConversion()) {
-            image = Image.WrapMemory<Bgra32>(data, width, height);
-        } else {
-            image = Image.WrapMemory<Rgba32>(data, width, height);
-        }
+        var (data, (width, height), _) = SnuggleSpriteFile.ConvertSprite(sprite, ObjectDeserializationOptions.Default, flags.UseDirectXTex);
+        var image = Image.WrapMemory<Rgba32>(data, width, height);
         var fullPath = Path.Combine(flags.OutputPath, path);
         fullPath.EnsureDirectoryExists();
         image.SaveAsPng(fullPath);

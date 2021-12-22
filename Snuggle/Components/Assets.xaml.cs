@@ -1,9 +1,12 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using Snuggle.Core;
 using Snuggle.Handlers;
 
 namespace Snuggle.Components;
@@ -100,5 +103,49 @@ public partial class Assets {
         SnuggleCore.Instance.OnPropertyChanged(nameof(SnuggleCore.SelectedObject));
         SnuggleCore.Instance.SelectedObjects = selectedItems.Cast<SnuggleObject>().ToList();
         SnuggleCore.Instance.OnPropertyChanged(nameof(SnuggleCore.SelectedObjects));
+    }
+
+
+    private void ExtractRaw(object sender, RoutedEventArgs e) {
+        SnuggleFile.Extract(ExtractMode.Raw, true);
+    }
+
+    private void ExtractConvert(object sender, RoutedEventArgs e) {
+        SnuggleFile.Extract(ExtractMode.Convert, true);
+    }
+
+    private void ExtractSerialize(object sender, RoutedEventArgs e) {
+        SnuggleFile.Extract(ExtractMode.Serialize, true);
+    }
+
+    private void Resolve(object sender, RoutedEventArgs e) {
+        if (sender is not FrameworkElement element) {
+            return;
+        }
+
+        if (element.DataContext is not SnuggleObject snuggleObject) {
+            return;
+        }
+
+        var tag = snuggleObject.GetObject()?.SerializedFile.Tag;
+        if (tag == null) {
+            return;
+        }
+        
+        var path = Utils.GetStringFromTag(tag);
+        try {
+            if (string.IsNullOrEmpty(path) || !File.Exists(path)) {
+                return;
+            }
+
+            var dir = Path.GetDirectoryName(Path.GetFullPath(path))!;
+            if (Environment.OSVersion.Platform == PlatformID.Win32NT) {
+                Process.Start("explorer.exe", $"/e, /select, \"{Path.GetFullPath(path)}\"");
+            } else { // maybe?
+                Process.Start(new ProcessStartInfo { FileName = dir, Verb = "Open", UseShellExecute = true });
+            }
+        } catch {
+            // return
+        }
     }
 }

@@ -28,6 +28,7 @@ public class RGBABitmapSource : BitmapSource {
         HideGreen = rgba.HideGreen;
         HideBlue = rgba.HideBlue;
         HideAlpha = rgba.HideAlpha;
+        BaseFormat = rgba.BaseFormat;
     }
 
     private Memory<byte> Buffer { get; }
@@ -57,7 +58,7 @@ public class RGBABitmapSource : BitmapSource {
         byte[] shuffle;
         if (BaseFormat.IsAlphaFirst()) {
             shuffle = new byte[] { 3, 0, 1, 2 };
-        } else if (BaseFormat.IsBGRA() || !(SnuggleCore.Instance.Settings.ExportOptions.UseDirectTex && BaseFormat.UseDDSConversion()) && BaseFormat.HasNativeConversion()) {
+        } else if (BaseFormat.IsBGRA(SnuggleCore.Instance.Settings.ExportOptions.UseDirectTex)) {
             shuffle = new byte[] { 2, 1, 0, 3 };
         } else {
             shuffle = new byte[] { 0, 1, 2, 3 };
