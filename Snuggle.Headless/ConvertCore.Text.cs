@@ -17,7 +17,7 @@ public static partial class ConvertCore {
         text.Deserialize(ObjectDeserializationOptions.Default);
         var fullPath = Path.Combine(flags.OutputPath, path);
         fullPath.EnsureDirectoryExists();
-        File.WriteAllText(fullPath, text.String);
+        File.WriteAllBytes(fullPath, text.String!.Value.ToArray());
         logger.Info($"Saved {path}");
     }
 }

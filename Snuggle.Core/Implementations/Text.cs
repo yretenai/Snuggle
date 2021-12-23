@@ -18,7 +18,7 @@ public class Text : NamedObject {
         StringStart = reader.BaseStream.Position;
         var size = reader.ReadInt32();
         if (size == 0) {
-            String = string.Empty;
+            String = Memory<byte>.Empty;
         } else {
             reader.BaseStream.Seek(size, SeekOrigin.Current);
         }
@@ -29,7 +29,7 @@ public class Text : NamedObject {
     public Text(UnityObjectInfo info, SerializedFile serializedFile) : base(info, serializedFile) { }
 
     private long StringStart { get; set; }
-    public string? String { get; set; }
+    public Memory<byte>? String { get; set; }
 
     private bool ShouldDeserializeString => StringStart > -1 && String == null;
 
@@ -41,7 +41,8 @@ public class Text : NamedObject {
         reader.BaseStream.Seek(StringStart, SeekOrigin.Begin);
 
         if (ShouldDeserializeString) {
-            String = reader.ReadString32();
+            var size = reader.ReadInt32();
+            String = reader.ReadMemory(size);
         }
     }
 
@@ -51,7 +52,8 @@ public class Text : NamedObject {
         }
 
         base.Serialize(writer, options);
-        writer.WriteString32(String!);
+        writer.Write(String!.Value.Length);
+        writer.WriteMemory(String);
     }
 
     public override void Free() {

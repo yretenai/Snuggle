@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Markup;
@@ -18,7 +19,7 @@ public class TextToStringConverter : MarkupExtension, IValueConverter {
             "DecodeText",
             _ => {
                 text.Deserialize(SnuggleCore.Instance.Settings.ObjectOptions);
-                return text.String;
+                return Encoding.UTF8.GetString(text.String!.Value.Span);
             },
             true);
     }

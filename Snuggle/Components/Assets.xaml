@@ -17,8 +17,7 @@
                   VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.CacheLength="1,1"
                   VirtualizingPanel.ScrollUnit="Item" VirtualizingPanel.VirtualizationMode="Recycling"
                   VirtualizingPanel.CacheLengthUnit="Page" VirtualizingPanel.IsContainerVirtualizable="True"
-                  VirtualizingPanel.IsVirtualizingWhenGrouping="True" ScrollViewer.CanContentScroll="True"
-                  ScrollViewer.IsDeferredScrollingEnabled="True">
+                  VirtualizingPanel.IsVirtualizingWhenGrouping="True" ScrollViewer.CanContentScroll="True">
             <ListView.Resources>
                 <ContextMenu x:Key="Context">
                     <MenuItem Header="Save Data" Click="ExtractSerialize" />

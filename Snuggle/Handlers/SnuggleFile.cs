@@ -31,12 +31,7 @@ public static class SnuggleFile {
             return;
         }
 
-        var directories = selection.FileNames.ToArray();
-        var recent = SnuggleCore.Instance.Settings.RecentDirectories;
-        recent.AddRange(directories);
-        SnuggleCore.Instance.Settings.RecentDirectories = recent.Distinct().TakeLast(5).ToList();
-        SnuggleCore.Instance.SaveOptions();
-        LoadDirectoriesAndFiles(directories);
+        LoadDirectoriesAndFiles(selection.FileNames.ToArray());
     }
 
     public static void LoadFiles() {
@@ -53,12 +48,7 @@ public static class SnuggleFile {
             return;
         }
 
-        var files = selection.FileNames.ToArray();
-        var recent = SnuggleCore.Instance.Settings.RecentFiles;
-        recent.AddRange(files);
-        SnuggleCore.Instance.Settings.RecentFiles = recent.Distinct().TakeLast(5).ToList();
-        SnuggleCore.Instance.SaveOptions();
-        LoadDirectoriesAndFiles(files);
+        LoadDirectoriesAndFiles(selection.FileNames.ToArray());
     }
 
     public static void LoadDirectoriesAndFiles(params string[] entries) {
@@ -68,13 +58,20 @@ public static class SnuggleFile {
             token => {
                 // TODO: Split files.
                 var files = new List<string>();
+                var recentFiles = SnuggleCore.Instance.Settings.RecentFiles;
+                var recentDirectories = SnuggleCore.Instance.Settings.RecentDirectories;
                 foreach (var entry in entries) {
                     if (Directory.Exists(entry)) {
                         files.AddRange(Directory.EnumerateFiles(entry, "*", SearchOption.AllDirectories));
+                        recentDirectories.Add(Path.GetFullPath(entry));
                     } else if (File.Exists(entry)) {
                         files.Add(entry);
+                        recentFiles.Add(Path.GetFullPath(entry));
                     }
                 }
+                SnuggleCore.Instance.Settings.RecentFiles = recentFiles.Distinct().TakeLast(5).ToList();
+                SnuggleCore.Instance.Settings.RecentDirectories = recentDirectories.Distinct().TakeLast(5).ToList();
+                SnuggleCore.Instance.SaveOptions();
 
                 var fileSet = files.ToHashSet();
                 instance.Status.SetProgressMax(fileSet.Count);
@@ -202,7 +199,7 @@ public static class SnuggleFile {
                 }
 
                 resultPath = Path.ChangeExtension(resultPath, ".txt");
-                File.WriteAllText(resultPath, text.String);
+                File.WriteAllBytes(resultPath, text.String!.Value.ToArray());
                 return;
             }
             case GameObject gameObject: {

@@ -166,7 +166,6 @@ public class AssetCollection : IDisposable {
     }
 
     public static void Collect() {
-        Utils.ClearPool();
         GC.Collect();
     }
 
