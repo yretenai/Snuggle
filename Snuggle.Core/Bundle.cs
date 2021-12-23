@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using JetBrains.Annotations;
 using Snuggle.Core.Interfaces;
 using Snuggle.Core.IO;
@@ -160,15 +162,52 @@ public class Bundle : IDisposable, IRenewable {
     private static bool IsBundleFile(BiEndianBinaryReader reader) {
         var pos = reader.BaseStream.Position;
         try {
-            if (reader.PeekChar() != 'U') {
-                return false;
+            var prefix = reader.ReadNullString(0x10);
+            if (prefix.Contains("UnityFS") || prefix.Contains("UnityWeb") || prefix.Contains("UnityRaw") || prefix.Contains("UnityArchive")) {
+                return true;
             }
 
-            return reader.ReadNullString(0x10) is "UnityFS" or "UnityWeb" or "UnityRaw" or "UnityArchive";
+            return NonStandardLookup.ContainsKey(prefix);
         } catch {
             return false;
         } finally {
             reader.BaseStream.Seek(pos, SeekOrigin.Begin);
+        }
+    }
+
+    private static Dictionary<string, (UnityFormat, UnityGame)>? _NonStandardLookup;
+
+    public static IReadOnlyDictionary<string, (UnityFormat Format, UnityGame Game)> NonStandardLookup {
+        get {
+            if (_NonStandardLookup == null) {
+                _NonStandardLookup = new Dictionary<string, (UnityFormat, UnityGame)>();
+                var bundleIdsPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? "./", "bundleIds.csv");
+                if (File.Exists(bundleIdsPath)) {
+                    foreach (var line in File.ReadLines(bundleIdsPath)) {
+                        var trimmed = (line.Contains(';') ? line[..line.IndexOf(';')] : line).Trim();
+                        // minimum length is: 1 for each value and 1 for each separator.
+                        if (trimmed.Length < 5) {
+                            continue;
+                        }
+                        
+                        var parts = trimmed.Split(',', 3, StringSplitOptions.TrimEntries);
+                        if (parts.Any(string.IsNullOrEmpty)) {
+                            continue;
+                        }
+                        
+                        if (!Enum.TryParse<UnityFormat>(parts[1], out var type)) {
+                            type = (UnityFormat) parts[1][0];
+                        }
+
+                        if (!Enum.TryParse<UnityGame>(parts[2], out var game)) {
+                            game = UnityGame.Default;
+                        }
+
+                        _NonStandardLookup[parts[1]] = (type, game);
+                    }
+                }
+            }
+            return new ReadOnlyDictionary<string, (UnityFormat, UnityGame)>(_NonStandardLookup);
         }
     }
 }
