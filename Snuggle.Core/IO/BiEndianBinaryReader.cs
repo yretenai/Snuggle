@@ -186,6 +186,14 @@ public class BiEndianBinaryReader : BinaryReader {
         return span;
     }
 
+    public override bool ReadBoolean() {
+        try {
+            return ReadByte() == 1;
+        } catch {
+            return false;
+        }
+    }
+
     public Span<T> ReadArray<T>(int count) where T : struct {
         Span<T> span = new T[count];
         Read(MemoryMarshal.AsBytes(span));
