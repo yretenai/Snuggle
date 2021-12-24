@@ -97,9 +97,15 @@ public static class Program {
         logger.Info($"Memory Tension: {GC.GetTotalMemory(false).GetHumanReadableBytes()}");
 
         foreach (var asset in collection.Files.SelectMany(x => x.Value.GetAllObjects())) {
-            var passedFilter = !flags.PathIdFilters.Any() && !flags.NameFilters.Any() || flags.PathIdFilters.Contains(asset.PathId) || flags.NameFilters.Any(x => x.IsMatch(asset.ObjectComparableName));
+            if (flags.PathIdFilters.Any() && !flags.PathIdFilters.Contains(asset.PathId)) {
+                continue;
+            }
+            
+            if(flags.NameFilters.Any() && !flags.NameFilters.Any(x => x.IsMatch(asset.ObjectComparableName))) {
+                continue;
+            }
 
-            if (!passedFilter) {
+            if (flags.OnlyCAB && string.IsNullOrWhiteSpace(asset.ObjectContainerPath)) {
                 continue;
             }
 

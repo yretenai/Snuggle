@@ -79,6 +79,9 @@ public record SnuggleFlags : ICLIFlags {
     [CLIFlag("id", Category = "General Options", Help = "Path ID Filters")]
     public List<long> PathIdFilters { get; set; } = null!;
 
+    [CLIFlag("only-cab", Category = "General Options", Default = false, Help = "Only export objects with CAB paths")]
+    public bool OnlyCAB { get; set; }
+
     [CLIFlag("paths", Category = "General Options", Positional = 0, Help = "Paths to load", IsRequired = true)]
     public List<string> Paths { get; set; } = null!;
 
