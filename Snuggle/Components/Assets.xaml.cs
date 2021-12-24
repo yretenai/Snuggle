@@ -70,22 +70,7 @@ public partial class Assets {
     }
 
     private static bool Filter(object o) {
-        if (o is not SnuggleObject SnuggleObject) {
-            return false;
-        }
-
-        if (SnuggleCore.Instance.Filters.Count > 0 && !SnuggleCore.Instance.Filters.Contains(SnuggleObject.ClassId)) {
-            return false;
-        }
-
-        if (!string.IsNullOrWhiteSpace(SnuggleCore.Instance.Search)) {
-            var value = SnuggleCore.Instance.Search;
-            if (!(SnuggleObject.PathId.ToString().Contains(value, StringComparison.InvariantCultureIgnoreCase) || SnuggleObject.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase) || SnuggleObject.Container.Contains(value, StringComparison.InvariantCultureIgnoreCase) || SnuggleObject.SerializedName.Contains(value, StringComparison.InvariantCultureIgnoreCase) || SnuggleObject.ClassId.ToString()?.Contains(value, StringComparison.InvariantCultureIgnoreCase) == true)) {
-                return false;
-            }
-        }
-
-        return true;
+        return o is SnuggleObject snuggleObject && SnuggleFile.Filter(snuggleObject);
     }
 
     private void UpdateSelected(object sender, RoutedEventArgs e) {
@@ -107,15 +92,15 @@ public partial class Assets {
 
 
     private void ExtractRaw(object sender, RoutedEventArgs e) {
-        SnuggleFile.Extract(ExtractMode.Raw, true);
+        SnuggleFile.Extract(ExtractMode.Raw, ExtractFilter.Selected);
     }
 
     private void ExtractConvert(object sender, RoutedEventArgs e) {
-        SnuggleFile.Extract(ExtractMode.Convert, true);
+        SnuggleFile.Extract(ExtractMode.Convert, ExtractFilter.Selected);
     }
 
     private void ExtractSerialize(object sender, RoutedEventArgs e) {
-        SnuggleFile.Extract(ExtractMode.Serialize, true);
+        SnuggleFile.Extract(ExtractMode.Serialize, ExtractFilter.Selected);
     }
 
     private void Resolve(object sender, RoutedEventArgs e) {

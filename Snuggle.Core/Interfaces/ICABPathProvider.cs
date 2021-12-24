@@ -5,5 +5,5 @@ using Snuggle.Core.Models;
 namespace Snuggle.Core.Interfaces;
 
 public interface ICABPathProvider {
-    public Dictionary<PPtr<SerializedObject>, string> GetCABPaths();
+    public IReadOnlyDictionary<PPtr<SerializedObject>, string> GetCABPaths();
 }

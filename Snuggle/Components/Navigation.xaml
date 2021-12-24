@@ -29,9 +29,14 @@
                 <MenuItem Header="_Serialize" Click="ExtractSerialize" Tag="1" />
             </MenuItem>
             <MenuItem Header="_Selected">
-                <MenuItem Header="_Raw" Click="ExtractRaw" />
-                <MenuItem Header="_Convert" Click="ExtractConvert" />
-                <MenuItem Header="_Serialize" Click="ExtractSerialize" />
+                <MenuItem Header="_Raw" Click="ExtractRaw" Tag="0" />
+                <MenuItem Header="_Convert" Click="ExtractConvert" Tag="0" />
+                <MenuItem Header="_Serialize" Click="ExtractSerialize" Tag="0" />
+            </MenuItem>
+            <MenuItem Header="_Filtered">
+                <MenuItem Header="_Raw" Click="ExtractRaw" Tag="2" />
+                <MenuItem Header="_Convert" Click="ExtractConvert" Tag="2" />
+                <MenuItem Header="_Serialize" Click="ExtractSerialize" Tag="2" />
             </MenuItem>
         </MenuItem>
         <MenuItem Header="{Binding FormattedProjectName, Mode=OneWay}" Height="30">

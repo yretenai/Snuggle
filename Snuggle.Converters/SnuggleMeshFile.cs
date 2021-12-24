@@ -91,7 +91,8 @@ public static class SnuggleMeshFile {
             path,
             deserializationOptions,
             exportOptions,
-            options);
+            options,
+            true);
         BuildHashTree(nodeTree, hashTree, gameObject);
         var saved = new Dictionary<(long, string), string>();
         foreach (var (skinnedMesh, materials) in skinnedMeshes) {
@@ -178,7 +179,8 @@ public static class SnuggleMeshFile {
         string? path,
         ObjectDeserializationOptions deserializationOptions,
         SnuggleExportOptions exportOptions,
-        SnuggleMeshExportOptions options) {
+        SnuggleMeshExportOptions options,
+        bool buildModel) {
         if (gameObject.FindComponent(UnityClassId.Transform).Value is not Transform transform) {
             return;
         }
@@ -191,29 +193,31 @@ public static class SnuggleMeshFile {
         var (sX, sY, sZ) = transform.Scale;
         var mirror = Matrix4x4.CreateScale(-1, 1, 1);
         node.LocalMatrix = Matrix4x4.CreateScale(sX, sY, sZ) * Matrix4x4.CreateFromQuaternion(new Quaternion(rX, rY, rZ, rW)) * Matrix4x4.CreateTranslation(new Vector3(tX, tY, tZ));
-        node.LocalMatrix = mirror * node.LocalMatrix * mirror;
+        node.LocalMatrix = mirror * node.LocalMatrix * mirror; // flip
 
-        var materials = new List<Material?>();
-        if (gameObject.FindComponent(UnityClassId.MeshRenderer, UnityClassId.SkinnedMeshRenderer).Value is Renderer renderer) {
-            materials = renderer.Materials.Select(x => x.Value).ToList();
-            if (renderer is SkinnedMeshRenderer skinnedMeshRenderer && skinnedMeshRenderer.Mesh.Value != null) {
-                skinnedMeshRenderer.Mesh.Value.Deserialize(ObjectDeserializationOptions.Default);
-                skinnedMeshes.Add((skinnedMeshRenderer.Mesh.Value, materials));
+        if (buildModel) {
+            var materials = new List<Material?>();
+            if (gameObject.FindComponent(UnityClassId.MeshRenderer, UnityClassId.SkinnedMeshRenderer).Value is Renderer renderer) {
+                materials = renderer.Materials.Select(x => x.Value).ToList();
+                if (renderer is SkinnedMeshRenderer skinnedMeshRenderer && skinnedMeshRenderer.Mesh.Value != null) {
+                    skinnedMeshRenderer.Mesh.Value.Deserialize(ObjectDeserializationOptions.Default);
+                    skinnedMeshes.Add((skinnedMeshRenderer.Mesh.Value, materials));
+                }
             }
-        }
 
-        if (gameObject.FindComponent(UnityClassId.MeshFilter).Value is MeshFilter filter && filter.Mesh.Value != null) {
-            filter.Mesh.Value.Deserialize(ObjectDeserializationOptions.Default);
-            scene.AddRigidMesh(
-                CreateMesh(
-                    filter.Mesh.Value,
-                    materials,
-                    path,
-                    null,
-                    deserializationOptions,
-                    exportOptions,
-                    options),
-                node);
+            if (gameObject.FindComponent(UnityClassId.MeshFilter).Value is MeshFilter filter && filter.Mesh.Value != null) {
+                filter.Mesh.Value.Deserialize(ObjectDeserializationOptions.Default);
+                scene.AddRigidMesh(
+                    CreateMesh(
+                        filter.Mesh.Value,
+                        materials,
+                        path,
+                        null,
+                        deserializationOptions,
+                        exportOptions,
+                        options),
+                    node);
+            }
         }
 
         if (options.FindGameObjectDescendants) {
@@ -233,7 +237,8 @@ public static class SnuggleMeshFile {
                     path,
                     deserializationOptions,
                     exportOptions,
-                    options);
+                    options,
+                    buildModel);
             }
         }
     }

@@ -97,7 +97,7 @@ public class AssetBundle : NamedObject, ICABPathProvider {
 
     public override bool ShouldDeserialize => base.ShouldDeserialize || ShouldDeserializePreloadTable;
 
-    public Dictionary<PPtr<SerializedObject>, string> GetCABPaths() {
+    public IReadOnlyDictionary<PPtr<SerializedObject>, string> GetCABPaths() {
         return Container.DistinctBy(x => x.Value.Asset).ToDictionary(x => x.Value.Asset, x => x.Key);
     }
 

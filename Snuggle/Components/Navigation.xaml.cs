@@ -369,15 +369,18 @@ public partial class Navigation {
     }
 
     private void ExtractRaw(object sender, RoutedEventArgs e) {
-        SnuggleFile.Extract(ExtractMode.Raw, (sender as MenuItem)?.Tag == null);
+        var filter = (ExtractFilter) int.Parse(((string) ((FrameworkElement)sender).Tag));
+        SnuggleFile.Extract(ExtractMode.Raw, filter);
     }
 
     private void ExtractConvert(object sender, RoutedEventArgs e) {
-        SnuggleFile.Extract(ExtractMode.Convert, (sender as MenuItem)?.Tag == null);
+        var filter = (ExtractFilter) int.Parse(((string) ((FrameworkElement)sender).Tag));
+        SnuggleFile.Extract(ExtractMode.Convert, filter);
     }
 
     private void ExtractSerialize(object sender, RoutedEventArgs e) {
-        SnuggleFile.Extract(ExtractMode.Serialize, (sender as MenuItem)?.Tag == null);
+        var filter = (ExtractFilter) int.Parse(((string) ((FrameworkElement)sender).Tag));
+        SnuggleFile.Extract(ExtractMode.Serialize, filter);
     }
 
     private void UpdatePokemonUniteVersion(object sender, RoutedEventArgs e) {

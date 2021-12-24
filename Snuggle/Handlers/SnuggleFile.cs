@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -105,7 +104,7 @@ public static class SnuggleFile {
             false);
     }
 
-    public static void Extract(ExtractMode mode, bool selected) {
+    public static void Extract(ExtractMode mode, ExtractFilter filter) {
         using var selection = new CommonOpenFileDialog {
             IsFolderPicker = true,
             Multiselect = false,
@@ -127,10 +126,36 @@ public static class SnuggleFile {
         var instance = SnuggleCore.Instance;
         instance.Settings.LastSaveDirectory = outputDirectory;
         instance.SaveOptions();
-        instance.WorkerAction("Extract", token => { ExtractOperation((selected ? instance.SelectedObjects : instance.Objects).ToImmutableArray(), outputDirectory, mode, token); }, true);
+        var objects = filter switch {
+            ExtractFilter.Selected => instance.SelectedObjects,
+            ExtractFilter.All => instance.Objects,
+            ExtractFilter.Filtered when string.IsNullOrWhiteSpace(instance.Search) && instance.Filters.Count == 0 => instance.Objects,
+            ExtractFilter.Filtered => instance.Objects.Where(Filter).ToList(),
+            _ => throw new ArgumentOutOfRangeException(nameof(filter), filter, null),
+        };
+        instance.WorkerAction("Extract", token => { ExtractOperation(objects, outputDirectory, mode, token); }, true);
     }
 
-    private static void ExtractOperation(ImmutableArray<SnuggleObject> items, string outputDirectory, ExtractMode mode, CancellationToken token) {
+    public static bool Filter(SnuggleObject snuggleObject) {
+        var search = SnuggleCore.Instance.Search;
+        var filter = SnuggleCore.Instance.Filters;
+
+        if (filter.Count > 0 && !filter.Contains(snuggleObject.ClassId)) {
+            return false;
+        }
+
+        if(!string.IsNullOrWhiteSpace(search)) {
+            return snuggleObject.PathId.ToString().Contains(search, StringComparison.InvariantCultureIgnoreCase) || 
+                   snuggleObject.Name.Contains(search, StringComparison.InvariantCultureIgnoreCase) || 
+                   snuggleObject.Container.Contains(search, StringComparison.InvariantCultureIgnoreCase) || 
+                   snuggleObject.SerializedName.Contains(search, StringComparison.InvariantCultureIgnoreCase) || 
+                   snuggleObject.ClassId.ToString()?.Contains(search, StringComparison.InvariantCultureIgnoreCase) == true;
+        }
+
+        return true;
+    }
+
+    private static void ExtractOperation(IReadOnlyList<SnuggleObject> items, string outputDirectory, ExtractMode mode, CancellationToken token) {
         foreach (var SnuggleObject in items) {
             if (token.IsCancellationRequested) {
                 break;
@@ -153,7 +178,7 @@ public static class SnuggleFile {
                     ExtractRaw(serializedObject, resultDir, resultPath);
                     break;
                 case ExtractMode.Convert:
-                    ExtractConvert(serializedObject, resultDir, resultPath, outputDirectory);
+                    ExtractConvert(serializedObject, resultDir, resultPath);
                     break;
                 case ExtractMode.Serialize:
                     ExtractJson(serializedObject, resultDir, resultPath);
@@ -164,7 +189,7 @@ public static class SnuggleFile {
         }
     }
 
-    private static void ExtractConvert(SerializedObject serializedObject, string resultDir, string resultPath, string outputDirectory) {
+    private static void ExtractConvert(SerializedObject serializedObject, string resultDir, string resultPath) {
         serializedObject.Deserialize(SnuggleCore.Instance.Settings.ObjectOptions);
 
         var instance = SnuggleCore.Instance;
@@ -198,7 +223,11 @@ public static class SnuggleFile {
                     Directory.CreateDirectory(resultDir);
                 }
 
-                resultPath = Path.ChangeExtension(resultPath, ".txt");
+                var ext = ".txt";
+                if (Path.HasExtension(text.ObjectContainerPath)) {
+                    ext = Path.GetExtension(text.ObjectContainerPath);
+                }
+                resultPath = Path.ChangeExtension(resultPath, ext);
                 File.WriteAllBytes(resultPath, text.String!.Value.ToArray());
                 return;
             }
