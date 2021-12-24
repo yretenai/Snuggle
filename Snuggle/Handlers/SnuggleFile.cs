@@ -129,7 +129,7 @@ public static class SnuggleFile {
         var objects = filter switch {
             ExtractFilter.Selected => instance.SelectedObjects,
             ExtractFilter.All => instance.Objects,
-            ExtractFilter.Filtered when string.IsNullOrWhiteSpace(instance.Search) && instance.Filters.Count == 0 => instance.Objects,
+            ExtractFilter.Filtered when string.IsNullOrWhiteSpace(instance.Search) && instance.Filters.Count == 0 && !instance.Settings.ExportOptions.OnlyWithCABPath => instance.Objects,
             ExtractFilter.Filtered => instance.Objects.Where(Filter).ToList(),
             _ => throw new ArgumentOutOfRangeException(nameof(filter), filter, null),
         };
@@ -139,6 +139,10 @@ public static class SnuggleFile {
     public static bool Filter(SnuggleObject snuggleObject) {
         var search = SnuggleCore.Instance.Search;
         var filter = SnuggleCore.Instance.Filters;
+
+        if (SnuggleCore.Instance.Settings.ExportOptions.OnlyWithCABPath && string.IsNullOrWhiteSpace(snuggleObject.Container)) {
+            return false;
+        }
 
         if (filter.Count > 0 && !filter.Contains(snuggleObject.ClassId)) {
             return false;

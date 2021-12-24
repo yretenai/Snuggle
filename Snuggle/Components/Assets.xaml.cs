@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using Snuggle.Core;
+using Snuggle.Core.Options;
 using Snuggle.Handlers;
 
 namespace Snuggle.Components;
@@ -24,7 +25,8 @@ public partial class Assets {
                     dataView.SortDescriptions.Clear();
                     break;
                 }
-                case nameof(SnuggleCore.Filters): {
+                case nameof(SnuggleCore.Filters):
+                case $"{nameof(SnuggleOptions.ExportOptions)}.{nameof(SnuggleExportOptions.OnlyWithCABPath)}": {
                     var dataView = CollectionViewSource.GetDefaultView(Entries.ItemsSource);
                     using var defer = dataView.DeferRefresh();
                     dataView.Filter = Filter;

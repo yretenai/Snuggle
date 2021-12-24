@@ -40,7 +40,7 @@ public static class SnuggleMeshFile {
             exportOptions,
             options);
         scene.AddRigidMesh(meshNode, AffineTransform.Identity);
-        var gltf = scene.ToGltf2(SceneBuilderSchema2Settings.Default with { GeneratorName = "Snuggle" });
+        var gltf = scene.ToGltf2(SceneBuilderSchema2Settings.Default with { GeneratorName = "Snuggle", CopyrightName = mesh.SerializedFile.Assets?.PlayerSettings?.CompanyName ?? string.Empty });
 
         if (gltf.LogicalImages.Any()) {
             path = Path.Combine(path, Path.GetFileName(path));
@@ -117,7 +117,7 @@ public static class SnuggleMeshFile {
                 skin);
         }
 
-        var gltf = scene.ToGltf2(SceneBuilderSchema2Settings.Default with { GeneratorName = "Snuggle" });
+        var gltf = scene.ToGltf2(SceneBuilderSchema2Settings.Default with { GeneratorName = "Snuggle", CopyrightName = gameObject.SerializedFile.Assets?.PlayerSettings?.CompanyName ?? string.Empty  });
 
         if (gltf.LogicalImages.Any()) {
             path = Path.Combine(path, Path.GetFileName(path));

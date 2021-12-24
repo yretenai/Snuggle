@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
 using System.Text.Json.Serialization;
 using JetBrains.Annotations;
@@ -116,7 +117,7 @@ public class SerializedObject : IEquatable<SerializedObject>, ISerialized {
         return true;
     }
 
-    public override string ToString() => Enum.Format(ClassId.GetType(), ClassId, "G");
+    public override string ToString() => string.IsNullOrWhiteSpace(ObjectContainerPath) ? Enum.Format(ClassId.GetType(), ClassId, "G") : Path.GetFileNameWithoutExtension(ObjectContainerPath);
 
     public override bool Equals(object? obj) {
         if (ReferenceEquals(null, obj)) {

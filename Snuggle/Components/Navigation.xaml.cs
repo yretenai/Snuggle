@@ -136,6 +136,7 @@ public partial class Navigation {
             currentProperty.SetValue(SnuggleCore.Instance.Settings, newSettings);
             SnuggleCore.Instance.SaveOptions();
             SnuggleCore.Instance.OnPropertyChanged(objectName);
+            SnuggleCore.Instance.OnPropertyChanged($"{objectName}.{targetProperty.Name}");
         }
     }
 
