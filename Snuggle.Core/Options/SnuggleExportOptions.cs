@@ -13,6 +13,8 @@ Available variables:
     Container - The CAB Path of the object.
     Name - The name of the object.
     ContainerOrName - The path of the object if it is present, otherwise the name.
+    ContainerOrNameWithExt - The path of the object if it is present, otherwise the name; suffixes extension.
+    ContainerOrNameWithoutExt - The path of the object if it is present, otherwise the name; removes extension.
     Ext - The Extension of the object.
     Company - The company name listed in the PlayerSettings (if present.)
     Organization - The Organization Id listed in the PlayerSettings (if present.)

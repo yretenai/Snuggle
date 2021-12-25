@@ -20,6 +20,8 @@ using Snuggle.Core.Models.Objects.Graphics;
 using Snuggle.Core.Options;
 using Material = Snuggle.Core.Implementations.Material;
 using Mesh = Snuggle.Core.Implementations.Mesh;
+using Quaternion = Snuggle.Core.Models.Objects.Math.Quaternion;
+using Vector3 = Snuggle.Core.Models.Objects.Math.Vector3;
 
 namespace Snuggle.Converters;
 
@@ -104,6 +106,7 @@ public static class SnuggleMeshFile {
                 if (!hashTree.TryGetValue(hash, out var hashNode)) {
                     hashNode = new NodeBuilder();
                 }
+
                 skin[i] = (hashNode, mirror * matrix * mirror);
             }
 
@@ -119,7 +122,7 @@ public static class SnuggleMeshFile {
                 skin);
         }
 
-        var gltf = scene.ToGltf2(SceneBuilderSchema2Settings.Default with { GeneratorName = "Snuggle", CopyrightName = gameObject.SerializedFile.Assets?.PlayerSettings?.CompanyName ?? string.Empty  });
+        var gltf = scene.ToGltf2(SceneBuilderSchema2Settings.Default with { GeneratorName = "Snuggle", CopyrightName = gameObject.SerializedFile.Assets?.PlayerSettings?.CompanyName ?? string.Empty });
 
         if (gltf.LogicalImages.Any()) {
             path = Path.Combine(path, Path.GetFileName(path));
@@ -182,9 +185,9 @@ public static class SnuggleMeshFile {
         SnuggleExportOptions exportOptions,
         SnuggleMeshExportOptions options,
         bool buildModel) {
-        var rotation = Core.Models.Objects.Math.Quaternion.Zero; 
-        var translation = Core.Models.Objects.Math.Vector3.Zero; 
-        var scale = Core.Models.Objects.Math.Vector3.One; 
+        var rotation = Quaternion.Zero;
+        var translation = Vector3.Zero;
+        var scale = Vector3.One;
         if (gameObject.FindComponent(UnityClassId.Transform).Value is Transform transform) {
             rotation = transform.Rotation;
             translation = transform.Translation;
@@ -198,7 +201,7 @@ public static class SnuggleMeshFile {
         var (tX, tY, tZ) = translation;
         var (sX, sY, sZ) = scale;
         var mirror = Matrix4x4.CreateScale(-1, 1, 1);
-        node.LocalMatrix = Matrix4x4.CreateScale(sX, sY, sZ) * Matrix4x4.CreateFromQuaternion(new Quaternion(rX, rY, rZ, rW)) * Matrix4x4.CreateTranslation(new Vector3(tX, tY, tZ));
+        node.LocalMatrix = Matrix4x4.CreateScale(sX, sY, sZ) * Matrix4x4.CreateFromQuaternion(new System.Numerics.Quaternion(rX, rY, rZ, rW)) * Matrix4x4.CreateTranslation(new System.Numerics.Vector3(tX, tY, tZ));
         node.LocalMatrix = mirror * node.LocalMatrix * mirror; // flip
 
         if (buildModel) {
@@ -288,11 +291,11 @@ public static class SnuggleMeshFile {
                 var uintValues = value.Select(x => (int) Convert.ChangeType(x, TypeCode.Int32)).Concat(new int[4]);
                 switch (channel) {
                     case VertexChannel.Vertex:
-                        xyvnt[i].Position = new Vector3(floatValues.Take(3).ToArray());
+                        xyvnt[i].Position = new System.Numerics.Vector3(floatValues.Take(3).ToArray());
                         xyvnt[i].Position.X *= -1;
                         break;
                     case VertexChannel.Normal:
-                        xyvnt[i].Normal = new Vector3(floatValues.Take(3).ToArray());
+                        xyvnt[i].Normal = new System.Numerics.Vector3(floatValues.Take(3).ToArray());
                         xyvnt[i].Normal.X *= -1;
                         break;
                     case VertexChannel.Tangent:
@@ -356,8 +359,11 @@ public static class SnuggleMeshFile {
                 }
 
                 weightRemain -= merged[j].Item2;
-                if (weightRemain < 0) weightRemain = 0;
+                if (weightRemain < 0) {
+                    weightRemain = 0;
+                }
             }
+
             joint[i] = new VertexJoints8(merged);
         }
 
@@ -429,15 +435,15 @@ public static class SnuggleMeshFile {
                     for (var vertexIndex = 0; vertexIndex < shape.VertexCount; vertexIndex++) {
                         var vertex = mesh.BlendShapeData.Vertices![(int) (shape.FirstVertex + vertexIndex)];
 
-                        var geometryData = new VertexGeometryDelta { PositionDelta = new Vector3(vertex.Vertex.X, vertex.Vertex.Y, vertex.Vertex.Z) };
+                        var geometryData = new VertexGeometryDelta { PositionDelta = new System.Numerics.Vector3(vertex.Vertex.X, vertex.Vertex.Y, vertex.Vertex.Z) };
 
                         if (shape.HasNormals) {
-                            geometryData.NormalDelta = new Vector3(vertex.Normal.X, vertex.Normal.Y, vertex.Normal.Z);
+                            geometryData.NormalDelta = new System.Numerics.Vector3(vertex.Normal.X, vertex.Normal.Y, vertex.Normal.Z);
                             geometryData.NormalDelta.X *= -1;
                         }
 
                         if (shape.HasTangents) {
-                            geometryData.TangentDelta = new Vector3(vertex.Tangent.X, vertex.Tangent.Y, vertex.Tangent.Z);
+                            geometryData.TangentDelta = new System.Numerics.Vector3(vertex.Tangent.X, vertex.Tangent.Y, vertex.Tangent.Z);
                             geometryData.TangentDelta.X *= -1;
                         }
 
@@ -502,7 +508,7 @@ public static class SnuggleMeshFile {
         }
 
         if (options.WriteMaterial) {
-            SnuggleMaterialFile.Save(material, path);
+            SnuggleMaterialFile.Save(material, path, true);
         }
     }
 }

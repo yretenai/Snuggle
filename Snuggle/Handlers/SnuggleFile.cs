@@ -67,6 +67,7 @@ public static class SnuggleFile {
                         recentFiles.Add(Path.GetFullPath(entry));
                     }
                 }
+
                 SnuggleCore.Instance.Settings.RecentFiles = recentFiles.Distinct().TakeLast(5).ToList();
                 SnuggleCore.Instance.Settings.RecentDirectories = recentDirectories.Distinct().TakeLast(5).ToList();
                 SnuggleCore.Instance.SaveOptions();
@@ -147,12 +148,8 @@ public static class SnuggleFile {
             return false;
         }
 
-        if(!string.IsNullOrWhiteSpace(search)) {
-            return snuggleObject.PathId.ToString().Contains(search, StringComparison.InvariantCultureIgnoreCase) || 
-                   snuggleObject.Name.Contains(search, StringComparison.InvariantCultureIgnoreCase) || 
-                   snuggleObject.Container.Contains(search, StringComparison.InvariantCultureIgnoreCase) || 
-                   snuggleObject.SerializedName.Contains(search, StringComparison.InvariantCultureIgnoreCase) || 
-                   snuggleObject.ClassId.ToString()?.Contains(search, StringComparison.InvariantCultureIgnoreCase) == true;
+        if (!string.IsNullOrWhiteSpace(search)) {
+            return snuggleObject.PathId.ToString().Contains(search, StringComparison.InvariantCultureIgnoreCase) || snuggleObject.Name.Contains(search, StringComparison.InvariantCultureIgnoreCase) || snuggleObject.Container.Contains(search, StringComparison.InvariantCultureIgnoreCase) || snuggleObject.SerializedName.Contains(search, StringComparison.InvariantCultureIgnoreCase) || snuggleObject.ClassId.ToString()?.Contains(search, StringComparison.InvariantCultureIgnoreCase) == true;
         }
 
         return true;
@@ -173,7 +170,7 @@ public static class SnuggleFile {
                 continue;
             }
 
-            var resultPath = Path.Combine(outputDirectory, PathFormatter.Format(SnuggleCore.Instance.Settings.ExportOptions.PathTemplate, ".bytes", serializedObject));
+            var resultPath = Path.Combine(outputDirectory, PathFormatter.Format(SnuggleCore.Instance.Settings.ExportOptions.PathTemplate, "bytes", serializedObject));
             var resultDir = Path.GetDirectoryName(resultPath) ?? "./";
 
             switch (mode) {
@@ -203,7 +200,7 @@ public static class SnuggleFile {
                 return;
             }
             case Material material: {
-                SnuggleMaterialFile.Save(material, resultPath);
+                SnuggleMaterialFile.Save(material, resultPath, false);
                 return;
             }
             case Sprite sprite: {
@@ -234,6 +231,7 @@ public static class SnuggleFile {
                 if (Path.HasExtension(text.ObjectContainerPath)) {
                     ext = Path.GetExtension(text.ObjectContainerPath);
                 }
+
                 resultPath = Path.ChangeExtension(resultPath, ext);
                 File.WriteAllBytes(resultPath, text.String!.Value.ToArray());
                 return;

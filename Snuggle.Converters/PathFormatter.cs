@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using DragonLib;
@@ -44,6 +45,24 @@ public static class PathFormatter {
                 case "CONTAINERORNAME":
                     builder.Append(string.IsNullOrWhiteSpace(asset.ObjectContainerPath) ? asset.ToString().SanitizeDirname() : asset.ObjectContainerPath.SanitizeDirname());
                     break;
+                case "CONTAINERORNAMEWITHEXT": {
+                    var str = string.IsNullOrWhiteSpace(asset.ObjectContainerPath) ? asset.ToString().SanitizeDirname() : asset.ObjectContainerPath.SanitizeDirname();
+                    if (!Path.HasExtension(str)) {
+                        str += $".{ext}";
+                    }
+
+                    builder.Append(str);
+                    break;
+                }
+                case "CONTAINERORNAMEWITHOUTEXT": {
+                    var str = string.IsNullOrWhiteSpace(asset.ObjectContainerPath) ? asset.ToString().SanitizeDirname() : asset.ObjectContainerPath.SanitizeDirname();
+                    if (Path.HasExtension(str)) {
+                        str = Path.ChangeExtension(str, null);
+                    }
+
+                    builder.Append(str);
+                    break;
+                }
                 case "EXT":
                     builder.Append(ext);
                     break;
@@ -78,6 +97,12 @@ public static class PathFormatter {
             builder.Append(templateSpan[gap..]);
         }
 
-        return builder.ToString().TrimStart('/', '\\');
+        var result = builder.ToString().TrimStart('/', '\\');
+
+        if (!Path.HasExtension(result)) {
+            result += $".{ext}";
+        }
+
+        return result;
     }
 }
