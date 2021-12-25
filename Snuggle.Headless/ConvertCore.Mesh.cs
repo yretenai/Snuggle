@@ -9,15 +9,16 @@ namespace Snuggle.Headless;
 
 public static partial class ConvertCore {
     public static void ConvertMesh(SnuggleFlags flags, ILogger logger, Mesh mesh) {
-        var path = PathFormatter.Format(flags.OutputFormat, "gltf", mesh);
-        if (File.Exists(path)) {
-            return;
-        }
 
         mesh.Deserialize(ObjectDeserializationOptions.Default);
 
+        var path = PathFormatter.Format(flags.OutputFormat, "gltf", mesh);
         var fullPath = Path.Combine(flags.OutputPath, path);
+        if (File.Exists(fullPath)) {
+            return;
+        }
         fullPath.EnsureDirectoryExists();
+        
         SnuggleMeshFile.Save(
             mesh,
             fullPath,

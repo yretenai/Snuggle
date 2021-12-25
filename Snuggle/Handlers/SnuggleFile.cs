@@ -173,7 +173,7 @@ public static class SnuggleFile {
                 continue;
             }
 
-            var resultPath = PathFormatter.Format(SnuggleCore.Instance.Settings.ExportOptions.PathTemplate, ".bytes", serializedObject);
+            var resultPath = Path.Combine(outputDirectory, PathFormatter.Format(SnuggleCore.Instance.Settings.ExportOptions.PathTemplate, ".bytes", serializedObject));
             var resultDir = Path.GetDirectoryName(resultPath) ?? "./";
 
             switch (mode) {
@@ -200,6 +200,10 @@ public static class SnuggleFile {
         switch (serializedObject) {
             case Texture2D texture2d: {
                 SnuggleTextureFile.Save(texture2d, resultPath, instance.Settings.ExportOptions, true);
+                return;
+            }
+            case Material material: {
+                SnuggleMaterialFile.Save(material, resultPath);
                 return;
             }
             case Sprite sprite: {

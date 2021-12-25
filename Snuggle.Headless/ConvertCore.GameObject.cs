@@ -10,12 +10,12 @@ namespace Snuggle.Headless;
 public static partial class ConvertCore {
     public static void ConvertGameObject(SnuggleFlags flags, ILogger logger, GameObject gameObject) {
         var path = PathFormatter.Format(flags.OutputFormat, "gltf", gameObject);
-        if (File.Exists(path)) {
+        var fullPath = Path.Combine(flags.OutputPath, path);
+        if (File.Exists(fullPath)) {
             return;
         }
-
-        var fullPath = Path.Combine(flags.OutputPath, path);
         fullPath.EnsureDirectoryExists();
+        
         SnuggleMeshFile.Save(
             gameObject,
             fullPath,

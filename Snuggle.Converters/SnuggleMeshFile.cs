@@ -99,9 +99,11 @@ public static class SnuggleMeshFile {
             var skin = new (NodeBuilder, Matrix4x4)[skinnedMesh.BoneNameHashes.Count];
             for (var i = 0; i < skin.Length; ++i) {
                 var hash = skinnedMesh.BoneNameHashes[i];
-                var hashNode = hashTree[hash];
                 var matrix = skinnedMesh.BindPose!.Value.Span[i].GetNumerics();
                 var mirror = Matrix4x4.CreateScale(-1, 1, 1);
+                if (!hashTree.TryGetValue(hash, out var hashNode)) {
+                    hashNode = new NodeBuilder();
+                }
                 skin[i] = (hashNode, mirror * matrix * mirror);
             }
 
@@ -132,7 +134,7 @@ public static class SnuggleMeshFile {
     }
 
     private static void BuildHashTree(IReadOnlyDictionary<(long, string), NodeBuilder> nodeTree, IDictionary<uint, NodeBuilder> hashTree, GameObject? gameObject) {
-        if (gameObject == null) {
+        if (gameObject == null || !nodeTree.TryGetValue(gameObject.GetCompositeId(), out var node)) {
             return;
         }
 
@@ -140,7 +142,6 @@ public static class SnuggleMeshFile {
         var crc = new CRC();
         var bytes = Encoding.UTF8.GetBytes(name);
         crc.Update(bytes, 0, (uint) bytes.Length);
-        var node = nodeTree[gameObject.GetCompositeId()];
         hashTree[crc.GetDigest()] = node;
         int index;
         while ((index = name.IndexOf("/", StringComparison.Ordinal)) >= 0) {
@@ -181,16 +182,21 @@ public static class SnuggleMeshFile {
         SnuggleExportOptions exportOptions,
         SnuggleMeshExportOptions options,
         bool buildModel) {
-        if (gameObject.FindComponent(UnityClassId.Transform).Value is not Transform transform) {
-            return;
+        var rotation = Core.Models.Objects.Math.Quaternion.Zero; 
+        var translation = Core.Models.Objects.Math.Vector3.Zero; 
+        var scale = Core.Models.Objects.Math.Vector3.One; 
+        if (gameObject.FindComponent(UnityClassId.Transform).Value is Transform transform) {
+            rotation = transform.Rotation;
+            translation = transform.Translation;
+            scale = transform.Scale;
         }
 
         node.Name = gameObject.Name;
         nodeTree[gameObject.GetCompositeId()] = node;
 
-        var (rX, rY, rZ, rW) = transform.Rotation;
-        var (tX, tY, tZ) = transform.Translation;
-        var (sX, sY, sZ) = transform.Scale;
+        var (rX, rY, rZ, rW) = rotation;
+        var (tX, tY, tZ) = translation;
+        var (sX, sY, sZ) = scale;
         var mirror = Matrix4x4.CreateScale(-1, 1, 1);
         node.LocalMatrix = Matrix4x4.CreateScale(sX, sY, sZ) * Matrix4x4.CreateFromQuaternion(new Quaternion(rX, rY, rZ, rW)) * Matrix4x4.CreateTranslation(new Vector3(tX, tY, tZ));
         node.LocalMatrix = mirror * node.LocalMatrix * mirror; // flip
@@ -475,6 +481,7 @@ public static class SnuggleMeshFile {
                 texture.Deserialize(deserializationOptions);
 
                 if (!saved.TryGetValue(texture.GetCompositeId(), out var texPath)) {
+                    // TODO: Calculate relative path and use the whole formatted path
                     texPath = SnuggleTextureFile.Save(texture, Path.Combine(path, Path.GetFileName(PathFormatter.Format(exportOptions.PathTemplate, "bytes", texture))), exportOptions, false);
                 }
 
@@ -495,7 +502,7 @@ public static class SnuggleMeshFile {
         }
 
         if (options.WriteMaterial) {
-            SnuggleMaterialFile.SaveMaterial(material, path);
+            SnuggleMaterialFile.Save(material, path);
         }
     }
 }

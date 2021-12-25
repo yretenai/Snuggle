@@ -15,13 +15,14 @@ public static partial class ConvertCore {
         }
         
         var path = PathFormatter.Format(flags.OutputFormat, ext, text);
-        if (File.Exists(path)) {
+        var fullPath = Path.Combine(flags.OutputPath, path);
+        if (File.Exists(fullPath)) {
             return;
         }
-
-        text.Deserialize(ObjectDeserializationOptions.Default);
-        var fullPath = Path.Combine(flags.OutputPath, path);
         fullPath.EnsureDirectoryExists();
+        
+        text.Deserialize(ObjectDeserializationOptions.Default);
+        
         File.WriteAllBytes(fullPath, text.String!.Value.ToArray());
         logger.Info($"Saved {path}");
     }

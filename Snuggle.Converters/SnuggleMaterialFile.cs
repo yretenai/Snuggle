@@ -10,7 +10,7 @@ using Snuggle.Core.Options;
 namespace Snuggle.Converters;
 
 public static class SnuggleMaterialFile {
-    public static void SaveMaterial(Material? material, string path, bool isDir = true) {
+    public static void Save(Material? material, string path, bool isDir = true) {
         if (material == null) {
             return;
         }
