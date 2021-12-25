@@ -178,22 +178,26 @@ public static class SnuggleFile {
             }
 
             var path = PathFormatter.Format(SnuggleCore.Instance.Settings.ExportOptions.PathTemplate, "bytes", serializedObject);
-            SnuggleCore.Instance.Status.SetStatus($"Saving {Path.ChangeExtension(path, null)}");
+            SnuggleCore.Instance.LogTarget.Info("File", $"Saving {serializedObject.PathId} - {Path.ChangeExtension(path, null)}");
             var resultPath = Path.Combine(outputDirectory, path);
             var resultDir = Path.GetDirectoryName(resultPath) ?? "./";
 
-            switch (mode) {
-                case ExtractMode.Raw:
-                    ExtractRaw(serializedObject, resultDir, resultPath);
-                    break;
-                case ExtractMode.Convert:
-                    ExtractConvert(serializedObject, resultDir, resultPath);
-                    break;
-                case ExtractMode.Serialize:
-                    ExtractJson(serializedObject, resultDir, resultPath);
-                    break;
-                default:
-                    throw new NotSupportedException();
+            try {
+                switch (mode) {
+                    case ExtractMode.Raw:
+                        ExtractRaw(serializedObject, resultDir, resultPath);
+                        break;
+                    case ExtractMode.Convert:
+                        ExtractConvert(serializedObject, resultDir, resultPath);
+                        break;
+                    case ExtractMode.Serialize:
+                        ExtractJson(serializedObject, resultDir, resultPath);
+                        break;
+                    default:
+                        throw new NotSupportedException();
+                }
+            } catch (Exception e) {
+                SnuggleCore.Instance.LogTarget.Error("File", e);
             }
         }
     }

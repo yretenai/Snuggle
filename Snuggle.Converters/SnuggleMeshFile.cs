@@ -105,6 +105,7 @@ public static class SnuggleMeshFile {
                 var mirror = Matrix4x4.CreateScale(-1, 1, 1);
                 if (!hashTree.TryGetValue(hash, out var hashNode)) {
                     hashNode = new NodeBuilder();
+                    node.AddNode(hashNode);
                 }
 
                 skin[i] = (hashNode, mirror * matrix * mirror);
