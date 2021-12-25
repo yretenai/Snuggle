@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "dependencies": {
+    "net6.0": {
+      "DragonLib": {
+        "type": "Direct",
+        "requested": "[2.0.0, )",
+        "resolved": "2.0.0",
+        "contentHash": "ld2Jw6cDkPnMo4jlEPhUOmhPyV6clCqZw+v8NAuit3R46UOwc8MyXAiz3acQX6i/lLham8IK6nFH7KL2WoB2Fw=="
+      },
+      "JetBrains.Annotations": {
+        "type": "Direct",
+        "requested": "[2021.3.0, )",
+        "resolved": "2021.3.0",
+        "contentHash": "Ddxjs5RRjf+c8m9m++WvhW1lz1bqNhsTjWvCLbQN9bvKbkJeR9MhtfNwKgBRRdG2yLHcXFr5Lf7fsvvkiPaDRg=="
+      },
+      "K4os.Compression.LZ4.Streams": {
+        "type": "Direct",
+        "requested": "[1.2.16, )",
+        "resolved": "1.2.16",
+        "contentHash": "+dth4HpAE3Vc0/M3dIoUo5P1faT6PAcQPzAcmLCWg1Acsv+eFKmx3t2d6oaWio2xOB6fUilnTaO6JSuyvNvnjQ==",
+        "dependencies": {
+          "K4os.Compression.LZ4": "1.2.16",
+          "K4os.Hash.xxHash": "1.0.6"
+        }
+      },
+      "Mono.Cecil": {
+        "type": "Direct",
+        "requested": "[0.11.4, )",
+        "resolved": "0.11.4",
+        "contentHash": "IC1h5g0NeJGHIUgzM1P82ld57knhP0IcQfrYITDPXlNpMYGUrsG5TxuaWTjaeqDNQMBDNZkB8L0rBnwsY6JHuQ=="
+      },
+      "SevenZip": {
+        "type": "Direct",
+        "requested": "[19.0.0, )",
+        "resolved": "19.0.0",
+        "contentHash": "+Eeb/uvC0REvMlG1auBqlBMiFiPZs+WizlLroHPSKtBh/V7NR/qOocgk+/7S0lNzciYsurMCeJzUL7LYIqVnWw=="
+      },
+      "K4os.Compression.LZ4": {
+        "type": "Transitive",
+        "resolved": "1.2.16",
+        "contentHash": "XLNQWNayxeMgd1gv0s6kZywM11kww7rTzu3nPGh8fQNblHGbFt79LC1Sk1/QQ8DIJb2Qfl2p+WlLIOWCSuyi8w=="
+      },
+      "K4os.Hash.xxHash": {
+        "type": "Transitive",
+        "resolved": "1.0.6",
+        "contentHash": "jCfNP0inx1sGcP3KSbpiDEH3km2e1sVBjMfKo+V92jr1dL4ZYgA1uhRMl1wAtdGZcbObXIikKqtVlgx3j/CW6g==",
+        "dependencies": {
+          "System.Memory": "4.5.3"
+        }
+      },
+      "System.Memory": {
+        "type": "Transitive",
+        "resolved": "4.5.3",
+        "contentHash": "3oDzvc/zzetpTKWMShs1AADwZjQ/36HnsufHRPcOjyRAAMLDlu2iD33MBI2opxnezcVUtXyqDXXjoFMOU9c7SA=="
+      }
+    }
+  }
+}
