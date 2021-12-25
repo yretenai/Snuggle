@@ -495,14 +495,6 @@ public static class SnuggleMeshFile {
                     materialBuilder.WithBaseColor(new MemoryImage(texPath));
                 } else if (name == "_BumpMap" || name.Contains("Normal")) {
                     materialBuilder.WithNormal(new MemoryImage(texPath));
-                } else if (name.Contains("Spec")) {
-                    materialBuilder.WithSpecularGlossiness(new MemoryImage(texPath));
-                } else if (name.Contains("Metal")) {
-                    materialBuilder.WithMetallicRoughness(new MemoryImage(texPath));
-                } else if (name.Contains("Rough") || name.Contains("Smooth")) {
-                    materialBuilder.WithMetallicRoughness(new MemoryImage(texPath));
-                } else if (name.Contains("Emis")) {
-                    materialBuilder.WithEmissive(new MemoryImage(texPath));
                 }
             }
         }
