@@ -4,10 +4,19 @@ on:
         branches: [ develop ]
     pull_request:
         branches: [ develop ]
+env:
+  NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
 jobs:
     build:
         runs-on: windows-latest
         steps:
+            - name: Cache
+              uses: actions/cache@v2
+              with:
+                path: ${{ github.workspace }}/.nuget/packages
+                key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+                restore-keys: |
+                  ${{ runner.os }}-nuget-
             -   name: Checkout
                 uses: actions/checkout@v2
                 with:
