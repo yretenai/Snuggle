@@ -33,10 +33,10 @@ jobs:
                 run: msbuild Library/AssetStudio/Texture2DDecoderNative/Texture2DDecoderNative.vcxproj /P:Configuration=Release /P:Platform=Win32
             -   name: Build Texture2DDecoderNative (Release, x64)
                 run: msbuild Library/AssetStudio/Texture2DDecoderNative/Texture2DDecoderNative.vcxproj /P:Configuration=Release /P:Platform=x64
-            -   name: Build Texture2DDecoderNative (Debug, x86)
-                run: msbuild Library/AssetStudio/Texture2DDecoderNative/Texture2DDecoderNative.vcxproj /P:Configuration=Debug /P:Platform=Win32
-            -   name: Build Texture2DDecoderNative (Debug, x64)
-                run: msbuild Library/AssetStudio/Texture2DDecoderNative/Texture2DDecoderNative.vcxproj /P:Configuration=Debug /P:Platform=x64
+#             -   name: Build Texture2DDecoderNative (Debug, x86)
+#                 run: msbuild Library/AssetStudio/Texture2DDecoderNative/Texture2DDecoderNative.vcxproj /P:Configuration=Debug /P:Platform=Win32
+#             -   name: Build Texture2DDecoderNative (Debug, x64)
+#                 run: msbuild Library/AssetStudio/Texture2DDecoderNative/Texture2DDecoderNative.vcxproj /P:Configuration=Debug /P:Platform=x64
             -   name: Restore project
                 run: dotnet restore
             -   name: Run tests
@@ -52,23 +52,23 @@ jobs:
                 with:
                     name: snuggle-net6-win-x86-64-rel
                     path: dist/release
-            -   name: Build ReleaseStandalone
-                run: dotnet build Snuggle/Snuggle.csproj -c Release --self-contained -r win-x64 -o dist/release-standalone
-            -   name: Copy Texture2DDecoderNative (ReleaseStandalone, x64)
-                run: xcopy Library\AssetStudio\Texture2DDecoderNative\bin\x64\Release\Texture2DDecoderNative.dll dist\release-standalone /Y
-            -   name: Upload ReleaseStandalone
-                uses: actions/upload-artifact@v2
-                with:
-                    name: snuggle-standalone-win-x64-rel
-                    path: dist/release-standalone
-            -   name: Build Debug
-                run: dotnet build -c Debug -o dist/debug
-            -   name: Copy Texture2DDecoderNative (Debug, x86)
-                run: xcopy Library\AssetStudio\Texture2DDecoderNative\bin\Win32\Debug\Texture2DDecoderNative.dll dist\debug\runtimes\win-x86\native /Y
-            -   name: Copy Texture2DDecoderNative (Debug, x64)
-                run: xcopy Library\AssetStudio\Texture2DDecoderNative\bin\x64\Debug\Texture2DDecoderNative.dll dist\debug\runtimes\win-x64\native /Y
-            -   name: Upload Debug
-                uses: actions/upload-artifact@v2
-                with:
-                    name: snuggle-net6-win-x86-64-dbg
-                    path: dist/debug
+#             -   name: Build ReleaseStandalone
+#                 run: dotnet build Snuggle/Snuggle.csproj -c Release --self-contained -r win-x64 -o dist/release-standalone
+#             -   name: Copy Texture2DDecoderNative (ReleaseStandalone, x64)
+#                 run: xcopy Library\AssetStudio\Texture2DDecoderNative\bin\x64\Release\Texture2DDecoderNative.dll dist\release-standalone /Y
+#             -   name: Upload ReleaseStandalone
+#                 uses: actions/upload-artifact@v2
+#                 with:
+#                     name: snuggle-standalone-win-x64-rel
+#                     path: dist/release-standalone
+#             -   name: Build Debug
+#                 run: dotnet build -c Debug -o dist/debug
+#             -   name: Copy Texture2DDecoderNative (Debug, x86)
+#                 run: xcopy Library\AssetStudio\Texture2DDecoderNative\bin\Win32\Debug\Texture2DDecoderNative.dll dist\debug\runtimes\win-x86\native /Y
+#             -   name: Copy Texture2DDecoderNative (Debug, x64)
+#                 run: xcopy Library\AssetStudio\Texture2DDecoderNative\bin\x64\Debug\Texture2DDecoderNative.dll dist\debug\runtimes\win-x64\native /Y
+#             -   name: Upload Debug
+#                 uses: actions/upload-artifact@v2
+#                 with:
+#                     name: snuggle-net6-win-x86-64-dbg
+#                     path: dist/debug
