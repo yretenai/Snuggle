@@ -316,9 +316,9 @@ public static class Texture2DConverter {
     private static Memory<byte> DecodeRGB24(int width, int height, byte[] data) {
         var memory = new Memory<byte>(new byte[width * height * 4]);
         for (var i = 0; i < width * height; ++i) {
-            memory.Span[i * 4 + 0] = data[i * 4 + 0];
-            memory.Span[i * 4 + 1] = data[i * 4 + 1];
-            memory.Span[i * 4 + 2] = data[i * 4 + 2];
+            memory.Span[i * 4 + 0] = data[i * 3 + 0];
+            memory.Span[i * 4 + 1] = data[i * 3 + 1];
+            memory.Span[i * 4 + 2] = data[i * 3 + 2];
             memory.Span[i * 4 + 3] = 0xFF;
         }
 
@@ -395,7 +395,7 @@ public static class Texture2DConverter {
     private static Memory<byte> DecodeRF(int width, int height, Span<byte> data) {
         var memory = new Memory<byte>(new byte[width * height * 4]);
         for (var i = 0; i < width * height; ++i) {
-            memory.Span[i * 4 + 0] = (byte) (MemoryMarshal.Read<float>(data[(i * 2)..]) * 0xff);
+            memory.Span[i * 4 + 0] = (byte) (MemoryMarshal.Read<float>(data[(i * 4)..]) * 0xff);
             memory.Span[i * 4 + 3] = 0xFF;
         }
 
@@ -405,8 +405,8 @@ public static class Texture2DConverter {
     private static Memory<byte> DecodeRGF(int width, int height, Span<byte> data) {
         var memory = new Memory<byte>(new byte[width * height * 4]);
         for (var i = 0; i < width * height; ++i) {
-            memory.Span[i * 4 + 0] = (byte) (MemoryMarshal.Read<float>(data[(i * 4)..]) * 0xff);
-            memory.Span[i * 4 + 1] = (byte) (MemoryMarshal.Read<float>(data[(i * 4 + 2)..]) * 0xff);
+            memory.Span[i * 4 + 0] = (byte) (MemoryMarshal.Read<float>(data[(i * 8)..]) * 0xff);
+            memory.Span[i * 4 + 1] = (byte) (MemoryMarshal.Read<float>(data[(i * 8 + 4)..]) * 0xff);
             memory.Span[i * 4 + 3] = 0xFF;
         }
 
@@ -416,10 +416,10 @@ public static class Texture2DConverter {
     private static Memory<byte> DecodeRGBAF(int width, int height, Span<byte> data) {
         var memory = new Memory<byte>(new byte[width * height * 4]);
         for (var i = 0; i < width * height; ++i) {
-            memory.Span[i * 4 + 0] = (byte) (MemoryMarshal.Read<float>(data[(i * 8)..]) * 0xff);
-            memory.Span[i * 4 + 1] = (byte) (MemoryMarshal.Read<float>(data[(i * 8 + 2)..]) * 0xff);
-            memory.Span[i * 4 + 2] = (byte) (MemoryMarshal.Read<float>(data[(i * 8 + 4)..]) * 0xff);
-            memory.Span[i * 4 + 3] = (byte) (MemoryMarshal.Read<float>(data[(i * 8 + 6)..]) * 0xff);
+            memory.Span[i * 4 + 0] = (byte) (MemoryMarshal.Read<float>(data[(i * 16)..]) * 0xff);
+            memory.Span[i * 4 + 1] = (byte) (MemoryMarshal.Read<float>(data[(i * 16 + 4)..]) * 0xff);
+            memory.Span[i * 4 + 2] = (byte) (MemoryMarshal.Read<float>(data[(i * 16 + 8)..]) * 0xff);
+            memory.Span[i * 4 + 3] = (byte) (MemoryMarshal.Read<float>(data[(i * 16 + 12)..]) * 0xff);
         }
 
         return memory;

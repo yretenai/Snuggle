@@ -170,7 +170,9 @@ public static class SnuggleFile {
                 continue;
             }
 
-            var resultPath = Path.Combine(outputDirectory, PathFormatter.Format(SnuggleCore.Instance.Settings.ExportOptions.PathTemplate, "bytes", serializedObject));
+            var path = PathFormatter.Format(SnuggleCore.Instance.Settings.ExportOptions.PathTemplate, "bytes", serializedObject);
+            SnuggleCore.Instance.Status.SetStatus($"Saving {Path.ChangeExtension(path, null)}");
+            var resultPath = Path.Combine(outputDirectory, path);
             var resultDir = Path.GetDirectoryName(resultPath) ?? "./";
 
             switch (mode) {
