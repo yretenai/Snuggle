@@ -85,7 +85,7 @@ public record SnuggleFlags : ICLIFlags {
     [CLIFlag("paths", Category = "General Options", Positional = 0, Help = "Paths to load", IsRequired = true)]
     public List<string> Paths { get; set; } = null!;
 
-    [CLIFlag("ignroe", Category = "General Options", Positional = 0, Help = "ClassIds to Ignore", IsRequired = true)]
+    [CLIFlag("ignore", Category = "General Options", Positional = 0, Help = "ClassIds to Ignore", IsRequired = true)]
     public HashSet<string> IgnoreClassIds { get; set; } = null!;
 
     public override string ToString() {
