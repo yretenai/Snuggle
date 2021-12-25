@@ -11,9 +11,17 @@ Available variables:
     Type - The Class ID of the object.
     Size - Byte size of the object.
     Container - The CAB Path of the object.
+    Name - The name of the object.
+    ContainerOrName - The path of the object if it is present, otherwise the name.
     Ext - The Extension of the object.
-    Name - The name of the object.";
-    
+    Company - The company name listed in the PlayerSettings (if present.)
+    Organization - The Organization Id listed in the PlayerSettings (if present.)
+    Project - The project name listed in the PlayerSettings (if present.)
+    Product - The product name listed in the PlayerSettings (if present.)
+    ProductOrProject - The product name listed in the PlayerSettings, otherwise project name (if present.)
+    Version - The bundle version listed in the PlayerSettings (if present.)
+    Game - The game-specific option target.";
+
     private const int LatestVersion = 4;
     public int Version { get; set; } = LatestVersion;
 

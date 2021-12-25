@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using JetBrains.Annotations;
 using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
@@ -698,7 +699,19 @@ public class PlayerSettings : SerializedObject {
     public bool VirtualTexturingSupportEnabled { get; set; }
     public bool UploadClearedTextureDataAfterCreationFromScript { get; set; }
 
+    [JsonIgnore]
     public string CombinedName {
+        get {
+            if (string.IsNullOrEmpty(BundleVersion)) {
+                return Name;
+            }
+
+            return $"{Name} Version {BundleVersion}";
+        }
+    }
+
+    [JsonIgnore]
+    public string Name {
         get {
             var name = ProductName;
             if (string.IsNullOrEmpty(name)) {
@@ -709,11 +722,7 @@ public class PlayerSettings : SerializedObject {
                 return string.Empty;
             }
 
-            if (string.IsNullOrEmpty(BundleVersion)) {
-                return name;
-            }
-
-            return $"{name} Version {BundleVersion}";
+            return name;
         }
     }
 

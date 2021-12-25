@@ -18,7 +18,7 @@ namespace Snuggle.Core.Implementations;
 [UsedImplicitly]
 [ObjectImplementation(UnityClassId.Object)]
 public class SerializedObject : IEquatable<SerializedObject>, ISerialized {
-    public SerializedObject(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : this(info, serializedFile) => IsMutated = false;
+    public SerializedObject(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : this(info, serializedFile) { }
 
     public SerializedObject(UnityObjectInfo info, SerializedFile serializedFile) {
         SerializedFile = serializedFile;

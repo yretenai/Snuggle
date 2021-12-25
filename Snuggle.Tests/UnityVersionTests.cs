@@ -4,13 +4,68 @@ using Snuggle.Core.Models;
 
 namespace Snuggle.Tests;
 
+[TestFixture]
 public class UnityVersionTests {
-    [TestCase("2019.4.15f1", null, null, 2019, 4, 15, UnityBuildType.Final, 1, null)]
-    [TestCase("2019.4.15f1\n2", null, "2019.4.15f1.2", 2019, 4, 15, UnityBuildType.Final, 1, "\n2")]
-    [TestCase("2019.4.15f1-2", null, "2019.4.15f1.2", 2019, 4, 15, UnityBuildType.Final, 1, "-2")]
-    [TestCase("2020.3.18f1c1", null, null, 2020, 3, 18, UnityBuildType.Final, 1, "c1")]
-    [TestCase("5.x.x", "5.0.0", null, 5, 0, 0, UnityBuildType.None, 0, null)]
-    public void ParseTest(string test, string? unsafeTest, string? safeTest, int major, int minor, int build, UnityBuildType type, int revision, string? extra) {
+    [TestCase(
+        "2019.4.15f1",
+        null,
+        null,
+        2019,
+        4,
+        15,
+        UnityBuildType.Final,
+        1,
+        null)]
+    [TestCase(
+        "2019.4.15f1\n2",
+        null,
+        "2019.4.15f1.2",
+        2019,
+        4,
+        15,
+        UnityBuildType.Final,
+        1,
+        "\n2")]
+    [TestCase(
+        "2019.4.15f1-2",
+        null,
+        "2019.4.15f1.2",
+        2019,
+        4,
+        15,
+        UnityBuildType.Final,
+        1,
+        "-2")]
+    [TestCase(
+        "2020.3.18f1c1",
+        null,
+        null,
+        2020,
+        3,
+        18,
+        UnityBuildType.Final,
+        1,
+        "c1")]
+    [TestCase(
+        "5.x.x",
+        "5.0.0",
+        null,
+        5,
+        0,
+        0,
+        UnityBuildType.None,
+        0,
+        null)]
+    public void ParseTest(
+        string test,
+        string? unsafeTest,
+        string? safeTest,
+        int major,
+        int minor,
+        int build,
+        UnityBuildType type,
+        int revision,
+        string? extra) {
         var expectedVersion = new UnityVersion(major, minor, build, type, revision, extra);
         var actualVersion = UnityVersion.Parse(test);
         Assert.AreEqual(expectedVersion, actualVersion);

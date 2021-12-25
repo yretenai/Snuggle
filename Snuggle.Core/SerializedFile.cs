@@ -15,6 +15,13 @@ namespace Snuggle.Core;
 
 [PublicAPI]
 public class SerializedFile : IRenewable {
+#pragma warning disable CS8618
+    [Obsolete("test-only")]
+    internal SerializedFile(SnuggleCoreOptions options) {
+#pragma warning restore CS8618
+        Options = options;
+    }
+
     public SerializedFile(Stream dataStream, object tag, IFileHandler handler, SnuggleCoreOptions options, bool leaveOpen = false) {
         try {
             Tag = tag;
@@ -197,7 +204,7 @@ public class SerializedFile : IRenewable {
     }
 
     public void PreloadObject(UnityObjectInfo objectInfo, SnuggleCoreOptions? options = null, Stream? dataStream = null) {
-        var ignored = (options ?? Options).IgnoreClassIds.Contains(objectInfo.ClassId.ToString()!); 
+        var ignored = (options ?? Options).IgnoreClassIds.Contains(objectInfo.ClassId.ToString()!);
         if ((options ?? Options).LoadOnDemand || ignored) {
             Objects[objectInfo.PathId] = new SerializedObject(objectInfo, this) { NeedsLoad = true };
         } else {
