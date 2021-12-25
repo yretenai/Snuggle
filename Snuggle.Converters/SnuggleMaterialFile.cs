@@ -34,7 +34,7 @@ public static class SnuggleMaterialFile {
 
         matPath.EnsureDirectoryExists();
 
-        var textures = material.SavedProperties.Textures.ToDictionary(x => x.Key, x => new TextureInfo(x.Value));
+        var textures = material.SavedProperties.Textures.Where(x => !x.Value.Texture.IsNull).ToDictionary(x => x.Key, x => new TextureInfo(x.Value));
         var floats = material.SavedProperties.Floats.Select(x => float.IsNormal(x.Value) ? x : new KeyValuePair<string, float>(x.Key, 0));
         var colors = material.SavedProperties.Colors.Select(x => new KeyValuePair<string, ColorRGBA>(x.Key, x.Value.JSONSafe));
 
@@ -43,7 +43,7 @@ public static class SnuggleMaterialFile {
         JsonSerializer.Serialize(materialStream, new { Textures = textures, Floats = floats, Colors = colors }, SnuggleCoreOptions.JsonOptions);
     }
 
-    public record struct TextureInfo(long PathId, string Name, Vector2 Scale, Vector2 Offset) {
-        public TextureInfo(UnityTexEnv env) : this(env.Texture.PathId, env.Texture.Value?.Name ?? "null", env.Scale.JSONSafe, env.Offset.JSONSafe) { }
+    public record struct TextureInfo(long PathId, string? Name, Vector2 Scale, Vector2 Offset) {
+        public TextureInfo(UnityTexEnv env) : this(env.Texture.PathId, string.IsNullOrWhiteSpace(env.Texture.Value?.ObjectContainerPath) ? env.Texture.Value?.Name : env.Texture.Value?.ObjectContainerPath, env.Scale.JSONSafe, env.Offset.JSONSafe) { }
     }
 }
