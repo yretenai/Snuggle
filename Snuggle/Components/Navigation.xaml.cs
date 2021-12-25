@@ -370,17 +370,7 @@ public partial class Navigation {
         instance.WorkerAction(
             "FreeMemory",
             _ => {
-                foreach (var bundle in instance.Collection.Bundles) {
-                    bundle.ClearCache();
-                }
-
-                foreach (var (_, file) in instance.Collection.Files) {
-                    file.Free();
-                }
-
-                SnuggleTextureFile.ClearMemory();
-
-                AssetCollection.Collect();
+                SnuggleCore.Instance.FreeMemory(true);
             },
             true);
     }

@@ -140,11 +140,11 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
         TokenSource.Dispose();
         WorkerThread.Join();
         SelectedObject = null;
-        Collection.Reset();
         Status.Reset();
         Search = string.Empty;
         Filters.Clear();
         SnuggleTextureFile.ClearMemory();
+        Collection.Reset();
         if (respawn) {
             TokenSource = new CancellationTokenSource();
             WorkerThread = new Thread(WorkLoop);
@@ -229,5 +229,21 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
     public void SetOptions(UnityGame game, IUnityGameOptions options) {
         Settings.Options.GameOptions.SetOptions(game, options);
         SaveOptions();
+    }
+
+    public void FreeMemory(bool bundles) {
+        if (bundles) {
+            foreach (var bundle in Collection.Bundles) {
+                bundle.ClearCache();
+            }
+        }
+
+        foreach (var (_, file) in Collection.Files) {
+            file.Free();
+        }
+
+        SnuggleTextureFile.ClearMemory();
+
+        AssetCollection.Collect();
     }
 }

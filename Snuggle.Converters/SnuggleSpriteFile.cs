@@ -56,54 +56,50 @@ public static class SnuggleSpriteFile {
 
     private static Image<Rgba32>? ConvertSprite(Sprite sprite, Texture2D texture, Rect textureRect, Vector2 textureOffset, SpriteSettings settings, bool useDirectXTex) {
         using var originalImage = SnuggleTextureFile.ConvertImage(texture, false, useDirectXTex);
-        if (originalImage != null) {
-            var rectX = (int) Math.Floor(textureRect.X);
-            var rectY = (int) Math.Floor(textureRect.Y);
-            var rectRight = (int) Math.Ceiling(textureRect.X + textureRect.W);
-            var rectBottom = (int) Math.Ceiling(textureRect.Y + textureRect.H);
-            rectRight = Math.Min(rectRight, texture.Width);
-            rectBottom = Math.Min(rectBottom, texture.Height);
-            var rect = new Rectangle(rectX, rectY, rectRight - rectX, rectBottom - rectY);
-            var spriteImage = originalImage.Clone(x => x.Crop(rect));
-            if (settings.Packed == 1) {
-                switch (settings.Rotation) {
-                    case SpritePackingRotation.FlipHorizontal:
-                        spriteImage.Mutate(x => x.Flip(FlipMode.Horizontal));
-                        break;
-                    case SpritePackingRotation.FlipVertical:
-                        spriteImage.Mutate(x => x.Flip(FlipMode.Vertical));
-                        break;
-                    case SpritePackingRotation.Rotate180:
-                        spriteImage.Mutate(x => x.Rotate(180));
-                        break;
-                    case SpritePackingRotation.Rotate90:
-                        spriteImage.Mutate(x => x.Rotate(270));
-                        break;
-                    case SpritePackingRotation.None:
-                        break;
-                    default:
-                        throw new InvalidEnumArgumentException(nameof(settings.Rotation));
-                }
+        var rectX = (int) Math.Floor(textureRect.X);
+        var rectY = (int) Math.Floor(textureRect.Y);
+        var rectRight = (int) Math.Ceiling(textureRect.X + textureRect.W);
+        var rectBottom = (int) Math.Ceiling(textureRect.Y + textureRect.H);
+        rectRight = Math.Min(rectRight, texture.Width);
+        rectBottom = Math.Min(rectBottom, texture.Height);
+        var rect = new Rectangle(rectX, rectY, rectRight - rectX, rectBottom - rectY);
+        var spriteImage = originalImage.Clone(x => x.Crop(rect));
+        if (settings.Packed == 1) {
+            switch (settings.Rotation) {
+                case SpritePackingRotation.FlipHorizontal:
+                    spriteImage.Mutate(x => x.Flip(FlipMode.Horizontal));
+                    break;
+                case SpritePackingRotation.FlipVertical:
+                    spriteImage.Mutate(x => x.Flip(FlipMode.Vertical));
+                    break;
+                case SpritePackingRotation.Rotate180:
+                    spriteImage.Mutate(x => x.Rotate(180));
+                    break;
+                case SpritePackingRotation.Rotate90:
+                    spriteImage.Mutate(x => x.Rotate(270));
+                    break;
+                case SpritePackingRotation.None:
+                    break;
+                default:
+                    throw new InvalidEnumArgumentException(nameof(settings.Rotation));
             }
-
-            if (settings.Mode == SpritePackingMode.Tight) {
-                var triangles = GetTriangles(sprite.RenderData);
-                var polygons = triangles.Select(x => (IPath) new Polygon(new LinearLineSegment(x.Select(y => new PointF(y.X, y.Y)).ToArray()))).ToArray();
-                IPathCollection path = new PathCollection(polygons);
-                var matrix = Matrix3x2.CreateScale(sprite.PixelsToUnits);
-                var (oX, oY) = textureOffset;
-                matrix *= Matrix3x2.CreateTranslation(sprite.Rect.W * sprite.Pivot.X - oX, sprite.Rect.H * sprite.Pivot.Y - oY);
-                path = path.Transform(matrix);
-                var options = new DrawingOptions { GraphicsOptions = new GraphicsOptions { AlphaCompositionMode = PixelAlphaCompositionMode.DestOut } };
-                var rectP = new RectangularPolygon(0, 0, rect.Width, rect.Height);
-                spriteImage.Mutate(x => x.Fill(options, Color.Red, rectP.Clip(path)));
-            }
-
-            spriteImage.Mutate(x => x.Flip(FlipMode.Vertical));
-            return spriteImage;
         }
 
-        return null;
+        if (settings.Mode == SpritePackingMode.Tight) {
+            var triangles = GetTriangles(sprite.RenderData);
+            var polygons = triangles.Select(x => (IPath) new Polygon(new LinearLineSegment(x.Select(y => new PointF(y.X, y.Y)).ToArray()))).ToArray();
+            IPathCollection path = new PathCollection(polygons);
+            var matrix = Matrix3x2.CreateScale(sprite.PixelsToUnits);
+            var (oX, oY) = textureOffset;
+            matrix *= Matrix3x2.CreateTranslation(sprite.Rect.W * sprite.Pivot.X - oX, sprite.Rect.H * sprite.Pivot.Y - oY);
+            path = path.Transform(matrix);
+            var options = new DrawingOptions { GraphicsOptions = new GraphicsOptions { AlphaCompositionMode = PixelAlphaCompositionMode.DestOut } };
+            var rectP = new RectangularPolygon(0, 0, rect.Width, rect.Height);
+            spriteImage.Mutate(x => x.Fill(options, Color.Red, rectP.Clip(path)));
+        }
+
+        spriteImage.Mutate(x => x.Flip(FlipMode.Vertical));
+        return spriteImage;
     }
 
     private static Vector2[][] GetTriangles(SpriteRenderData renderData) {

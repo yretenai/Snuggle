@@ -59,10 +59,10 @@ public static class SnuggleTextureFile {
         image.SaveAsPng(path);
     }
 
-    public static Image<Rgba32>? ConvertImage(Texture2D texture, bool flip, bool useDirectXTex) {
+    public static Image<Rgba32> ConvertImage(Texture2D texture, bool flip, bool useDirectXTex) {
         var data = LoadCachedTexture(texture, useDirectXTex);
         if (data.IsEmpty) {
-            return null;
+            return new Image<Rgba32>(1, 1, new Rgba32(0));
         }
 
         Image image;
@@ -78,7 +78,9 @@ public static class SnuggleTextureFile {
             image.Mutate(context => context.Flip(FlipMode.Vertical));
         }
 
-        return image.CloneAs<Rgba32>();
+        var cloned = image.CloneAs<Rgba32>();
+        image.Dispose();
+        return cloned;
     }
 
     public static void SaveNative(Texture2D texture, string path) {

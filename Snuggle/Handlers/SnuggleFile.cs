@@ -156,9 +156,16 @@ public static class SnuggleFile {
     }
 
     private static void ExtractOperation(IReadOnlyList<SnuggleObject> items, string outputDirectory, ExtractMode mode, CancellationToken token) {
+        var counter = 0;
         foreach (var SnuggleObject in items) {
             if (token.IsCancellationRequested) {
                 break;
+            }
+
+            counter++;
+            if (counter % 1000 == 0) {
+                SnuggleCore.Instance.FreeMemory(false);
+                counter = 0;
             }
 
             var serializedObject = SnuggleObject.GetObject();
