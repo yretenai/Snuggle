@@ -52,7 +52,7 @@ public sealed partial class SpriteRenderer {
     private void Reset(object sender, RoutedEventArgs e) {
         var st = (ScaleTransform) ImageView.LayoutTransform;
         st.ScaleX = 1;
-        st.ScaleY = 0 - st.ScaleX;
+        st.ScaleY = 1;
         var tt = (TranslateTransform) ImageView.RenderTransform;
         tt.X = 0;
         tt.Y = 0;

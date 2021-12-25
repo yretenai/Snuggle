@@ -475,7 +475,7 @@ public static class SnuggleMeshFile {
                 texture.Deserialize(deserializationOptions);
 
                 if (!saved.TryGetValue(texture.GetCompositeId(), out var texPath)) {
-                    texPath = SnuggleTextureFile.Save(texture, Path.Combine(path, texture.Name + "_" + texture.PathId + ".bin"), exportOptions, false);
+                    texPath = SnuggleTextureFile.Save(texture, Path.Combine(path, Path.GetFileName(PathFormatter.Format(exportOptions.PathTemplate, "bytes", texture))), exportOptions, false);
                 }
 
                 if (name == "_MainTex") {

@@ -17,6 +17,7 @@ using Snuggle.Core.Meta;
 using Snuggle.Core.Options;
 using Snuggle.Core.Options.Game;
 using Snuggle.Handlers;
+using Snuggle.Windows;
 
 namespace Snuggle.Components;
 
@@ -36,8 +37,8 @@ public partial class Navigation {
 
         BuildEnumMenu(UnityGameList, UnityGameItems, new[] { instance.Settings.Options.Game }, UpdateGame, CancelGameEvent);
         BuildEnumMenu(RendererTypes, RendererTypeItems, instance.Settings.MeshExportOptions.EnabledRenders, AddRenderer, RemoveRenderer);
-        BuildToggleMenu(SerializationOptions, typeof(SnuggleExportOptions), nameof(SnuggleOptions.ExportOptions));
-        BuildToggleMenu(RendererOptions, typeof(SnuggleMeshExportOptions), nameof(SnuggleOptions.MeshExportOptions));
+        BuildSettingMenu(SerializationOptions, typeof(SnuggleExportOptions), nameof(SnuggleOptions.ExportOptions));
+        BuildSettingMenu(RendererOptions, typeof(SnuggleMeshExportOptions), nameof(SnuggleOptions.MeshExportOptions));
         PopulateGameOptions();
         PopulateRecentItems();
 
@@ -53,7 +54,7 @@ public partial class Navigation {
         };
     }
 
-    private void BuildToggleMenu(MenuItem menu, Type type, string objectName) {
+    private void BuildSettingMenu(MenuItem menu, Type type, string objectName) {
         // typeof(SnuggleOptions).GetProperty(objectName)?.SetValue(SnuggleCore.Instance.Settings, newValue)
         var current = typeof(SnuggleOptions).GetProperty(objectName)!.GetValue(SnuggleCore.Instance.Settings)!;
         var i = 0;
@@ -72,7 +73,7 @@ public partial class Navigation {
         }
 
         foreach (var property in type.GetProperties(BindingFlags.Public | BindingFlags.Instance)) {
-            if (property.PropertyType != typeof(bool)) {
+            if (property.PropertyType != typeof(bool) && property.PropertyType != typeof(string)) {
                 continue;
             }
 
@@ -84,12 +85,37 @@ public partial class Navigation {
                 Tag = (type, objectName, property),
                 Header = SplitName(property.Name),
                 ToolTip = description,
-                IsCheckable = true,
-                IsChecked = property.GetValue(current) is true,
+                IsCheckable = property.PropertyType == typeof(bool),
             };
-            item.Checked += UpdateToggle;
-            item.Unchecked += UpdateToggle;
+
+            if (item.IsCheckable) {
+                item.IsChecked = property.GetValue(current) is true;
+                item.Checked += UpdateToggle;
+                item.Unchecked += UpdateToggle;
+            } else {
+                if (property.PropertyType == typeof(string)) {
+                    item.Click += UpdateStringSetting;
+                }
+            }
+
             menu.Items.Insert(i++, item);
+        }
+    }
+
+    private void UpdateStringSetting(object sender, RoutedEventArgs e) {
+        if (sender is not MenuItem item) {
+            return;
+        }
+
+        var (type, objectName, targetProperty) = item.Tag is (Type, string, PropertyInfo) ? ((Type, string, PropertyInfo)) item.Tag : (null, null, null);
+        var value = GetCurrentSetting(type, objectName, targetProperty);
+        if(value is not string currentString) {
+            currentString = string.Empty;
+        }
+
+        var dialog = new StringParamDialog(currentString, item.ToolTip as string ?? "");
+        if (dialog.ShowDialog() == true) {
+            UpdateSetting(type, objectName, targetProperty, dialog.Text);
         }
     }
 
@@ -99,8 +125,21 @@ public partial class Navigation {
         if (sender is not MenuItem item) {
             return;
         }
-
         var (type, objectName, targetProperty) = item.Tag is (Type, string, PropertyInfo) ? ((Type, string, PropertyInfo)) item.Tag : (null, null, null);
+
+        UpdateSetting(type, objectName, targetProperty, item.IsChecked);
+    }
+
+    private static object? GetCurrentSetting(Type? type, string? objectName, PropertyInfo? targetProperty) {
+        if (type == null || objectName == null || targetProperty == null) {
+            return null;
+        }
+        var currentProperty = typeof(SnuggleOptions).GetProperty(objectName)!;
+        var current = currentProperty.GetValue(SnuggleCore.Instance.Settings)!;
+        return targetProperty.GetValue(current);
+    }
+
+    private static void UpdateSetting(Type? type, string? objectName, PropertyInfo? targetProperty, object value) {
         if (type == null || objectName == null || targetProperty == null) {
             return;
         }
@@ -110,7 +149,7 @@ public partial class Navigation {
         var currentProperty = typeof(SnuggleOptions).GetProperty(objectName)!;
         var current = currentProperty.GetValue(SnuggleCore.Instance.Settings)!;
         foreach (var property in type.GetProperties(BindingFlags.Public | BindingFlags.Instance)) {
-            propertyMap[property.Name] = property == targetProperty ? item.IsChecked : property.GetValue(current);
+            propertyMap[property.Name] = property == targetProperty ? value : property.GetValue(current);
             propertyInfoMap[property.Name] = property;
         }
 
@@ -167,7 +206,7 @@ public partial class Navigation {
     }
 
     private static void BuildEnumMenu<T>(ItemsControl menu, IDictionary<T, MenuItem> items, IReadOnlyCollection<T> currentValue, RoutedEventHandler @checked, RoutedEventHandler @unchecked) where T : struct, Enum {
-        var descriptions = typeof(T).GetFields(BindingFlags.Static | BindingFlags.Public).ToDictionary(x => (T) x.GetValue(null)!, x => x.GetCustomAttribute<DescriptionAttribute>()?.Description ?? SplitName(x.Name));
+        var descriptions = typeof(T).GetFields(BindingFlags.Static | BindingFlags.Public).ToDictionary(x => (T) x.GetValue(null)!, x => x.GetCustomAttribute<DescriptionAttribute>()?.Description.Split('\n').FirstOrDefault() ?? SplitName(x.Name));
         foreach (var value in Enum.GetValues<T>()) {
             var item = new MenuItem {
                 Tag = value, Header = "_" + descriptions[value], IsChecked = currentValue.Any(x => x.Equals(value)), IsCheckable = true,

@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
-using DragonLib;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using Snuggle.Converters;
 using Snuggle.Core;
@@ -174,7 +173,7 @@ public static class SnuggleFile {
                 continue;
             }
 
-            var resultPath = GetResultPath(outputDirectory, serializedObject);
+            var resultPath = PathFormatter.Format(SnuggleCore.Instance.Settings.ExportOptions.PathTemplate, ".bytes", serializedObject);
             var resultDir = Path.GetDirectoryName(resultPath) ?? "./";
 
             switch (mode) {
@@ -271,23 +270,5 @@ public static class SnuggleFile {
             outputResourceStream.SetLength(0);
             outputResourceStream.Write(resource.Span);
         }
-    }
-
-    public static string GetResultPath(string outputDirectory, SerializedObject serializedObject) {
-        var path = outputDirectory;
-        if (SnuggleCore.Instance.Settings.ExportOptions.GroupByType) {
-            path = Path.Combine(path, ((Enum) serializedObject.ClassId).ToString("G"));
-        }
-
-        if (SnuggleCore.Instance.Settings.ExportOptions.UseContainerPaths && !string.IsNullOrWhiteSpace(serializedObject.ObjectContainerPath)) {
-            path = Path.Combine(path, "./" + serializedObject.ObjectContainerPath.SanitizeDirname());
-            if (!string.IsNullOrEmpty(Path.GetExtension(Path.GetFileName(serializedObject.ObjectContainerPath)))) {
-                return path;
-            }
-        }
-
-        path = Path.Combine(path, string.Format(SnuggleCore.Instance.Settings.ExportOptions.NameTemplate, serializedObject, serializedObject.PathId, serializedObject.ClassId));
-
-        return path;
     }
 }
