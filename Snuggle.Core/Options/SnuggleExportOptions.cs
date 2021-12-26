@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using JetBrains.Annotations;
+using Snuggle.Core.Implementations;
 
 namespace Snuggle.Core.Options;
 
@@ -24,12 +25,13 @@ Available variables:
     Version - The bundle version listed in the PlayerSettings (if present.)
     Game - The game-specific option target.";
 
-    public const string DefaultPathTemplate = "{Type}/{Container}/{Id}_{Name}.{Ext}";
+    public const string DefaultPathTemplate = "{ProductOrProject}/{Version}/{ContainerOrNameWithoutExt}_{Id}.{Ext}";
+    public const string DefaultContainerlessPathTemplate = "{ProductOrProject}/{Version}/__unknown/{Type}/{Name}_{Id}.{Ext}";
 
     private const int LatestVersion = 5;
     public int Version { get; set; } = LatestVersion;
 
-    public static SnuggleExportOptions Default { get; } = new(true, DefaultPathTemplate, DefaultPathTemplate, true, false);
+    public static SnuggleExportOptions Default { get; } = new(true, DefaultPathTemplate, DefaultContainerlessPathTemplate, true, false);
 
     public bool NeedsMigration() => Version < LatestVersion;
 
@@ -49,9 +51,13 @@ Available variables:
         }
 
         if (Version < 5) {
-            settings = settings with { ContainerlessPathTemplate = DefaultPathTemplate };
+            settings = settings with { ContainerlessPathTemplate = DefaultContainerlessPathTemplate };
         }
 
         return settings with { Version = LatestVersion };
+    }
+
+    public string DecidePathTemplate(SerializedObject serializedObject) {
+        return serializedObject.HasContainerPath ? PathTemplate : ContainerlessPathTemplate;
     }
 }

@@ -177,7 +177,7 @@ public static class SnuggleFile {
                 continue;
             }
 
-            var path = PathFormatter.Format(SnuggleCore.Instance.Settings.ExportOptions.PathTemplate, "bytes", serializedObject);
+            var path = PathFormatter.Format(SnuggleCore.Instance.Settings.ExportOptions.DecidePathTemplate(serializedObject), "bytes", serializedObject);
             SnuggleCore.Instance.LogTarget.Info("File", $"Saving {serializedObject.PathId} {serializedObject.SerializedFile.Name} - {Path.ChangeExtension(path, null)}");
             SnuggleCore.Instance.Status.SetStatus($"Saving {Path.ChangeExtension(path, null)}");
             var resultPath = Path.Combine(outputDirectory, path);

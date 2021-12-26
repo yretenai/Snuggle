@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -70,6 +71,9 @@ public record SnuggleFlags : ICLIFlags {
     [CLIFlag("output-format", Aliases = new[] { "f" }, Category = "General Options", Default = "{Type}/{Container}/{Id}_{Name}.{Ext}", Help = "Output path format")]
     public string OutputFormat { get; set; } = null!;
 
+    [CLIFlag("containerless-output-format", Aliases = new[] { "F" }, Category = "General Options", Default = null, Help = "Output path format for objects without a container")]
+    public string? ContainerlessOutputFormat { get; set; }
+
     [CLIFlag("output", Aliases = new[] { "o", "out" }, Category = "General Options", Help = "Path to output files to", IsRequired = true)]
     public string OutputPath { get; set; } = null!;
 
@@ -111,6 +115,7 @@ public record SnuggleFlags : ICLIFlags {
         sb.Append($"{nameof(Recursive)} = {(Recursive ? "True" : "False")}, ");
         sb.Append($"{nameof(Game)} = {Game:G}, ");
         sb.Append($"{nameof(OutputFormat)} = {OutputFormat}, ");
+        sb.Append($"{nameof(ContainerlessOutputFormat)} = {ContainerlessOutputFormat ?? "null"}, ");
         sb.Append($"{nameof(OutputPath)} = {OutputPath}, ");
         sb.Append($"{nameof(NameFilters)} = [{string.Join(", ", NameFilters.Select(x => x.ToString()))}], ");
         sb.Append($"{nameof(PathIdFilters)} = [{string.Join(", ", PathIdFilters.Select(x => x.ToString()))}], ");

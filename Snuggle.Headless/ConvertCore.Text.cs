@@ -14,7 +14,7 @@ public static partial class ConvertCore {
             ext = Path.GetExtension(text.ObjectContainerPath)[1..];
         }
 
-        var path = PathFormatter.Format(flags.OutputFormat, ext, text);
+        var path = PathFormatter.Format(text.HasContainerPath ? flags.OutputFormat : flags.ContainerlessOutputFormat ?? flags.OutputFormat, ext, text);
         var fullPath = Path.Combine(flags.OutputPath, path);
         if (File.Exists(fullPath)) {
             return;

@@ -11,7 +11,7 @@ public static partial class ConvertCore {
     public static void ConvertMesh(SnuggleFlags flags, ILogger logger, Mesh mesh) {
         mesh.Deserialize(ObjectDeserializationOptions.Default);
 
-        var path = PathFormatter.Format(flags.OutputFormat, "gltf", mesh);
+        var path = PathFormatter.Format(mesh.HasContainerPath ? flags.OutputFormat : flags.ContainerlessOutputFormat ?? flags.OutputFormat, "gltf", mesh);
         var fullPath = Path.Combine(flags.OutputPath, path);
         if (File.Exists(fullPath)) {
             return;
@@ -23,7 +23,7 @@ public static partial class ConvertCore {
             mesh,
             fullPath,
             ObjectDeserializationOptions.Default,
-            SnuggleExportOptions.Default with { WriteNativeTextures = flags.TextureToDDS, UseDirectTex = flags.UseDirectXTex, OnlyWithCABPath = flags.OnlyCAB },
+            SnuggleExportOptions.Default with { WriteNativeTextures = flags.TextureToDDS, UseDirectTex = flags.UseDirectXTex, OnlyWithCABPath = flags.OnlyCAB, PathTemplate = flags.OutputFormat, ContainerlessPathTemplate = flags.ContainerlessOutputFormat ?? flags.OutputFormat },
             SnuggleMeshExportOptions.Default with {
                 FindGameObjectDescendants = !flags.NoGameObjectHierarchyDown,
                 FindGameObjectParents = !flags.NoGameObjectHierarchyUp,

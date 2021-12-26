@@ -8,7 +8,7 @@ namespace Snuggle.Headless;
 
 public static partial class ConvertCore {
     public static void ConvertMaterial(SnuggleFlags flags, ILogger logger, Material material) {
-        var path = PathFormatter.Format(flags.OutputFormat, "json", material);
+        var path = PathFormatter.Format(material.HasContainerPath ? flags.OutputFormat : flags.ContainerlessOutputFormat ?? flags.OutputFormat, "json", material);
         var fullPath = Path.Combine(flags.OutputPath, path);
         if (File.Exists(fullPath)) {
             return;

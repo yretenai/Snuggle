@@ -69,6 +69,9 @@ public class SerializedObject : IEquatable<SerializedObject>, ISerialized {
     [JsonIgnore]
     public virtual bool ShouldDeserialize => ShouldDeserializeExtraContainers;
 
+    [JsonIgnore]
+    public bool HasContainerPath => string.IsNullOrWhiteSpace(ObjectContainerPath);
+
     public virtual void Deserialize(BiEndianBinaryReader reader, ObjectDeserializationOptions options) {
         foreach (var (_, extraContainer) in ExtraContainers) {
             if (extraContainer is not ISerialized { ShouldDeserialize: true } serialized) {

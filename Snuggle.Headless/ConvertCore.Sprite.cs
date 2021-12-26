@@ -11,7 +11,7 @@ namespace Snuggle.Headless;
 
 public static partial class ConvertCore {
     public static void ConvertSprite(SnuggleFlags flags, ILogger logger, Sprite sprite) {
-        var path = PathFormatter.Format(flags.OutputFormat, "png", sprite);
+        var path = PathFormatter.Format(sprite.HasContainerPath ? flags.OutputFormat : flags.ContainerlessOutputFormat ?? flags.OutputFormat, "png", sprite);
         var fullPath = Path.Combine(flags.OutputPath, path);
         if (File.Exists(fullPath)) {
             return;
