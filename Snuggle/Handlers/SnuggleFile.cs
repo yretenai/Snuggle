@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
@@ -10,6 +11,7 @@ using Snuggle.Converters;
 using Snuggle.Core;
 using Snuggle.Core.Implementations;
 using Snuggle.Core.Interfaces;
+using Snuggle.Core.Models;
 using Snuggle.Core.Options;
 
 namespace Snuggle.Handlers;
@@ -178,7 +180,14 @@ public static class SnuggleFile {
                 continue;
             }
 
-            var path = PathFormatter.Format(SnuggleCore.Instance.Settings.ExportOptions.DecidePathTemplate(serializedObject), "bytes", serializedObject);
+            var ext = mode switch {
+                ExtractMode.Raw => "bytes",
+                ExtractMode.Convert => DetermineExtension(serializedObject.ClassId),
+                ExtractMode.Serialize => "data.json",
+                _ => throw new ArgumentOutOfRangeException(nameof(mode), mode, null),
+            };
+
+            var path = PathFormatter.Format(SnuggleCore.Instance.Settings.ExportOptions.DecidePathTemplate(serializedObject), ext, serializedObject);
             SnuggleCore.Instance.LogTarget.Info("File", $"Saving {serializedObject.PathId} {serializedObject.SerializedFile.Name} - {Path.ChangeExtension(path, null)}");
             SnuggleCore.Instance.Status.SetStatus($"Saving {Path.ChangeExtension(path, null)}");
             var resultPath = Path.Combine(outputDirectory, path);
@@ -206,6 +215,24 @@ public static class SnuggleFile {
         SnuggleCore.Instance.Status.Reset();
     }
 
+    private static string DetermineExtension(object boxedClassId) {
+        if (boxedClassId is UnityClassId classId) {
+            return classId switch {
+                UnityClassId.GameObject => "gltf",
+                UnityClassId.Mesh => "gltf",
+                UnityClassId.MeshFilter => "gltf",
+                UnityClassId.SkinnedMeshRenderer => "gltf",
+                UnityClassId.Texture => "png",
+                UnityClassId.Sprite => "png",
+                UnityClassId.Material => "json",
+                UnityClassId.TextAsset => "txt",
+                _ => "bytes",
+            };
+        }
+
+        return "bytes";
+    }
+
     private static void ExtractConvert(SerializedObject serializedObject, string resultDir, string resultPath) {
         serializedObject.Deserialize(SnuggleCore.Instance.Settings.ObjectOptions);
 
@@ -225,16 +252,28 @@ public static class SnuggleFile {
                 return;
             }
             case Mesh mesh: {
-                SnuggleMeshFile.Save(mesh, resultPath, instance.Settings.ObjectOptions, instance.Settings.ExportOptions, instance.Settings.MeshExportOptions);
+                if (instance.Settings.ExportOptions.UseNewGLTFExporter) {
+                    SnuggleMeshFile.Save(mesh, resultPath, instance.Settings.ObjectOptions, instance.Settings.ExportOptions, instance.Settings.MeshExportOptions);
+                } else {
+                    SnuggleMeshFileLegacy.Save(mesh, resultPath, instance.Settings.ObjectOptions, instance.Settings.ExportOptions, instance.Settings.MeshExportOptions);
+                }
                 return;
             }
             case Component component: {
+                if (component is not SkinnedMeshRenderer and not MeshFilter) {
+                    return;
+                }
+                
                 var gameObject = component.GameObject.Value;
                 if (gameObject == null) {
                     return;
                 }
 
-                SnuggleMeshFile.Save(gameObject, resultPath, instance.Settings.ObjectOptions, instance.Settings.ExportOptions, instance.Settings.MeshExportOptions);
+                if (instance.Settings.ExportOptions.UseNewGLTFExporter) {
+                    SnuggleMeshFile.Save(gameObject, resultPath, instance.Settings.ObjectOptions, instance.Settings.ExportOptions, instance.Settings.MeshExportOptions);
+                } else {
+                    SnuggleMeshFileLegacy.Save(gameObject, resultPath, instance.Settings.ObjectOptions, instance.Settings.ExportOptions, instance.Settings.MeshExportOptions);
+                }
                 return;
             }
             case Text text: {
@@ -254,7 +293,11 @@ public static class SnuggleFile {
                 return;
             }
             case GameObject gameObject: {
-                SnuggleMeshFile.Save(gameObject, resultPath, instance.Settings.ObjectOptions, instance.Settings.ExportOptions, instance.Settings.MeshExportOptions);
+                if (instance.Settings.ExportOptions.UseNewGLTFExporter) {
+                    SnuggleMeshFile.Save(gameObject, resultPath, instance.Settings.ObjectOptions, instance.Settings.ExportOptions, instance.Settings.MeshExportOptions);
+                } else {
+                    SnuggleMeshFileLegacy.Save(gameObject, resultPath, instance.Settings.ObjectOptions, instance.Settings.ExportOptions, instance.Settings.MeshExportOptions);
+                }
                 return;
             }
         }

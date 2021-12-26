@@ -393,6 +393,9 @@
           "SevenZip": "19.0.0"
         }
       },
+      "snuggle.gltf": {
+        "type": "Project"
+      },
       "snuggle.native": {
         "type": "Project"
       }

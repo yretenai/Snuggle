@@ -745,7 +745,8 @@
           "SixLabors.ImageSharp": "1.0.4",
           "SixLabors.ImageSharp.Drawing": "1.0.0-beta13",
           "Snuggle.Core": "1.0.0",
-          "Snuggle.Native": "1.0.0"
+          "Snuggle.Native": "1.0.0",
+          "Snuggle.glTF": "1.0.0"
         }
       },
       "snuggle.core": {
@@ -757,6 +758,9 @@
           "Mono.Cecil": "0.11.4",
           "SevenZip": "19.0.0"
         }
+      },
+      "snuggle.gltf": {
+        "type": "Project"
       },
       "snuggle.native": {
         "type": "Project"

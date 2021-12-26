@@ -19,7 +19,7 @@ public static partial class ConvertCore {
 
         fullPath.EnsureDirectoryExists();
 
-        SnuggleMeshFile.Save(
+        SnuggleMeshFileLegacy.Save(
             mesh,
             fullPath,
             ObjectDeserializationOptions.Default,

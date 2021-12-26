@@ -5,7 +5,7 @@ using Snuggle.Core.Implementations;
 namespace Snuggle.Core.Options;
 
 [PublicAPI]
-public record SnuggleExportOptions([Description("Writes Native 3D textures such as DDS instead of converting them to PNG or TIF")] bool WriteNativeTextures, [Description(SnuggleExportOptions.PathTemplateDescription)] string PathTemplate, [Description(SnuggleExportOptions.PathTemplateDescription)] string ContainerlessPathTemplate, [Description("Use DirectXTex for converting textures")] bool UseDirectTex, [Description("Only display and export objects with CAB paths")] bool OnlyWithCABPath) {
+public record SnuggleExportOptions([Description("Writes Native 3D textures such as DDS instead of converting them to PNG or TIF")] bool WriteNativeTextures, [Description(SnuggleExportOptions.PathTemplateDescription)] string PathTemplate, [Description(SnuggleExportOptions.PathTemplateDescription)] string ContainerlessPathTemplate, [Description("Use DirectXTex for converting textures")] bool UseDirectTex, [Description("Only display and export objects with CAB paths")] bool OnlyWithCABPath, [Description("Use New glTF Logic")] bool UseNewGLTFExporter) {
     private const string PathTemplateDescription = @"Output Path Template
 Available variables:
     Id - The Path ID of the object.
@@ -27,10 +27,10 @@ Available variables:
     public const string DefaultPathTemplate = "{ProductOrProject}/{Version}/{ContainerOrNameWithoutExt}_{Id}.{Ext}";
     public const string DefaultContainerlessPathTemplate = "{ProductOrProject}/{Version}/__unknown/{Type}/{Name}_{Id}.{Ext}";
 
-    private const int LatestVersion = 5;
+    private const int LatestVersion = 6;
     public int Version { get; set; } = LatestVersion;
 
-    public static SnuggleExportOptions Default { get; } = new(true, DefaultPathTemplate, DefaultContainerlessPathTemplate, true, false);
+    public static SnuggleExportOptions Default { get; } = new(true, DefaultPathTemplate, DefaultContainerlessPathTemplate, true, false, false);
 
     public bool NeedsMigration() => Version < LatestVersion;
 
@@ -51,6 +51,10 @@ Available variables:
 
         if (Version < 5) {
             settings = settings with { ContainerlessPathTemplate = DefaultContainerlessPathTemplate };
+        }
+
+        if (Version < 6) {
+            settings = settings with { UseNewGLTFExporter = true };
         }
 
         return settings with { Version = LatestVersion };
