@@ -17,7 +17,7 @@ public static class SnuggleTextureFile {
         old.ReleaseRetainedResources();
     }
 
-    private static ConcurrentDictionary<(long, string), ReadOnlyMemory<byte>> CachedData { get; } = new();
+    private static ConcurrentDictionary<(long, string), ReadOnlyMemory<byte>> CachedData { get; set; } = new();
 
     public static Memory<byte> LoadCachedTexture(Texture2D texture, bool useDirectXTex) {
         var memory = CachedData.GetOrAdd(
@@ -36,6 +36,8 @@ public static class SnuggleTextureFile {
 
     public static void ClearMemory() {
         CachedData.Clear();
+        CachedData = new ConcurrentDictionary<(long, string), ReadOnlyMemory<byte>>();
+        Configuration.Default.MemoryAllocator.ReleaseRetainedResources();
     }
 
     public static string Save(Texture2D texture, string path, SnuggleExportOptions options, bool flip) {

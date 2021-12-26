@@ -156,16 +156,17 @@ public static class SnuggleFile {
     }
 
     private static void ExtractOperation(IReadOnlyList<SnuggleObject> items, string outputDirectory, ExtractMode mode, CancellationToken token) {
-        var counter = 0;
+        SnuggleCore.Instance.Status.SetProgressMax(items.Count);
+        SnuggleCore.Instance.Status.SetProgress(0);
         foreach (var SnuggleObject in items) {
             if (token.IsCancellationRequested) {
                 break;
             }
+            
+            SnuggleCore.Instance.Status.SetProgress(SnuggleCore.Instance.Status.Value + 1);
 
-            counter++;
-            if (counter % 1000 == 0) {
-                SnuggleCore.Instance.FreeMemory(false);
-                counter = 0;
+            if (SnuggleCore.Instance.Status.Value % 1000 == 0) {
+                SnuggleTextureFile.ClearMemory();
             }
 
             var serializedObject = SnuggleObject.GetObject();
@@ -201,6 +202,7 @@ public static class SnuggleFile {
                 SnuggleCore.Instance.LogTarget.Error("File", e);
             }
         }
+        SnuggleCore.Instance.FreeMemory(false);
     }
 
     private static void ExtractConvert(SerializedObject serializedObject, string resultDir, string resultPath) {

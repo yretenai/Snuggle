@@ -166,9 +166,8 @@ public class AssetCollection : IDisposable {
     }
 
     public static void Collect() {
-        for (var generation = 0; generation < GC.MaxGeneration; ++generation) {
-            GC.Collect(generation, GCCollectionMode.Forced, true);
-        }
+        GC.WaitForPendingFinalizers();
+        GC.Collect();
     }
 
     public void LoadAssembly(Stream dataStream, string assemblyLocation, SnuggleCoreOptions options, bool leaveOpen = false) {
