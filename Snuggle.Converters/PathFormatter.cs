@@ -84,9 +84,6 @@ public static class PathFormatter {
                 case "VERSION":
                     builder.Append(asset.SerializedFile.Assets?.PlayerSettings?.BundleVersion.SanitizeDirname());
                     break;
-                case "GAME":
-                    builder.Append(asset.SerializedFile.Options.Game.ToString());
-                    break;
                 default:
                     builder.Append(match.Captures[0].Value.SanitizeDirname());
                     break;
