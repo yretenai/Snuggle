@@ -17,25 +17,10 @@ public class PathFormatterTests {
 #pragma warning restore CS0618
         BlankObject = new NamedObject(BlankObjectInfo, MockFile) { ObjectContainerPath = "CAB/Container/Path.bin", Name = "BlankObject" };
         MockFile.Assets = new AssetCollection();
-        MockFile.Assets.PlayerSettings = new PlayerSettings(BlankObjectInfo, MockFile) {
-            ProductName = "MyGame",
-            CompanyName = "MyCompany",
-            ProjectName = "MyProject",
-            OrganizationId = "MyId",
-            BundleVersion = "1.2.3",
-        };
+        MockFile.Assets.PlayerSettings = new PlayerSettings(BlankObjectInfo, MockFile) { ProductName = "MyGame", CompanyName = "MyCompany", ProjectName = "MyProject", OrganizationId = "MyId", BundleVersion = "1.2.3" };
     }
 
-    private static readonly UnityObjectInfo BlankObjectInfo = new(
-        1,
-        2,
-        3,
-        4,
-        UnityClassId.Object,
-        0,
-        true,
-        -1,
-        true);
+    private static readonly UnityObjectInfo BlankObjectInfo = new(1, 2, 3, 4, UnityClassId.Object, 0, true, -1, true);
 
     private SerializedFile MockFile = null!;
     private SerializedObject BlankObject = null!;
@@ -55,7 +40,6 @@ public class PathFormatterTests {
     [TestCase("/Foo/{Project}/Baz", "Foo/MyProject/Baz.bytes")]
     [TestCase("/Foo/{Product}/Baz", "Foo/MyGame/Baz.bytes")]
     [TestCase("/Foo/{ProductOrProject}/Baz", "Foo/MyGame/Baz.bytes")]
-    [TestCase("/Foo/{Game}/Baz", "Foo/Default/Baz.bytes")]
     [TestCase("/Foo/{Version}/Baz", "Foo/1.2.3/Baz.bytes")]
     [TestCase("/Foo/{DoesNotExist}/Baz", "Foo/{DoesNotExist}/Baz.bytes")]
     [TestCase("{Project}/{Version}/{Type}/{Container}/{Name}.{Ext}", "MyProject/1.2.3/Object/CAB/Container/Path.bin/BlankObject.bytes")]

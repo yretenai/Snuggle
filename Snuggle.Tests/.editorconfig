@@ -1,0 +1,3 @@
+﻿[*.cs]
+resharper_max_initializer_elements_on_line = 10000
+resharper_max_invocation_arguments_on_line = 10000
