@@ -1,6 +1,6 @@
 using System;
 
-namespace Snuggle.Core; 
+namespace Snuggle.Core;
 
 public interface ISingleton<T> where T : class, new() {
     private static Lazy<T> SingletonInstance { get; } = new(() => new T());

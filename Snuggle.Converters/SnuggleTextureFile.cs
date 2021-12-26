@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.IO;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Memory;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using Snuggle.Core.Implementations;
@@ -10,6 +11,12 @@ using Snuggle.Core.Options;
 namespace Snuggle.Converters;
 
 public static class SnuggleTextureFile {
+    static SnuggleTextureFile() {
+        var old = Configuration.Default.MemoryAllocator;
+        Configuration.Default.MemoryAllocator = new SimpleGcMemoryAllocator();
+        old.ReleaseRetainedResources();
+    }
+
     private static ConcurrentDictionary<(long, string), ReadOnlyMemory<byte>> CachedData { get; } = new();
 
     public static Memory<byte> LoadCachedTexture(Texture2D texture, bool useDirectXTex) {

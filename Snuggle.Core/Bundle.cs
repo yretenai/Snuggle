@@ -16,6 +16,7 @@ namespace Snuggle.Core;
 
 [PublicAPI]
 public class Bundle : IDisposable, IRenewable {
+    private static Dictionary<string, (UnityFormat, UnityGame)>? _NonStandardLookup;
     public Bundle(string path, SnuggleCoreOptions options) : this(File.OpenRead(path), path, FileStreamHandler.Instance.Value, options) { }
 
     public Bundle(Stream dataStream, object tag, IFileHandler fileHandler, SnuggleCoreOptions options, bool leaveOpen = false) {
@@ -52,6 +53,41 @@ public class Bundle : IDisposable, IRenewable {
     public long DataStart { get; set; }
     public SnuggleCoreOptions Options { get; init; }
     public Stream? DataStream { get; private set; }
+
+    public static IReadOnlyDictionary<string, (UnityFormat Format, UnityGame Game)> NonStandardLookup {
+        get {
+            if (_NonStandardLookup == null) {
+                _NonStandardLookup = new Dictionary<string, (UnityFormat, UnityGame)>();
+                var bundleIdsPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? "./", "bundleIds.csv");
+                if (File.Exists(bundleIdsPath)) {
+                    foreach (var line in File.ReadLines(bundleIdsPath)) {
+                        var trimmed = (line.Contains(';') ? line[..line.IndexOf(';')] : line).Trim();
+                        // minimum length is: 1 for each value and 1 for each separator.
+                        if (trimmed.Length < 5) {
+                            continue;
+                        }
+
+                        var parts = trimmed.Split(',', 3, StringSplitOptions.TrimEntries);
+                        if (parts.Any(string.IsNullOrEmpty)) {
+                            continue;
+                        }
+
+                        if (!Enum.TryParse<UnityFormat>(parts[1], out var type)) {
+                            type = (UnityFormat) parts[1][0];
+                        }
+
+                        if (!Enum.TryParse<UnityGame>(parts[2], out var game)) {
+                            game = UnityGame.Default;
+                        }
+
+                        _NonStandardLookup[parts[1]] = (type, game);
+                    }
+                }
+            }
+
+            return new ReadOnlyDictionary<string, (UnityFormat, UnityGame)>(_NonStandardLookup);
+        }
+    }
 
     public void Dispose() {
         DataStream?.Dispose();
@@ -172,42 +208,6 @@ public class Bundle : IDisposable, IRenewable {
             return false;
         } finally {
             reader.BaseStream.Seek(pos, SeekOrigin.Begin);
-        }
-    }
-
-    private static Dictionary<string, (UnityFormat, UnityGame)>? _NonStandardLookup;
-
-    public static IReadOnlyDictionary<string, (UnityFormat Format, UnityGame Game)> NonStandardLookup {
-        get {
-            if (_NonStandardLookup == null) {
-                _NonStandardLookup = new Dictionary<string, (UnityFormat, UnityGame)>();
-                var bundleIdsPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? "./", "bundleIds.csv");
-                if (File.Exists(bundleIdsPath)) {
-                    foreach (var line in File.ReadLines(bundleIdsPath)) {
-                        var trimmed = (line.Contains(';') ? line[..line.IndexOf(';')] : line).Trim();
-                        // minimum length is: 1 for each value and 1 for each separator.
-                        if (trimmed.Length < 5) {
-                            continue;
-                        }
-                        
-                        var parts = trimmed.Split(',', 3, StringSplitOptions.TrimEntries);
-                        if (parts.Any(string.IsNullOrEmpty)) {
-                            continue;
-                        }
-                        
-                        if (!Enum.TryParse<UnityFormat>(parts[1], out var type)) {
-                            type = (UnityFormat) parts[1][0];
-                        }
-
-                        if (!Enum.TryParse<UnityGame>(parts[2], out var game)) {
-                            game = UnityGame.Default;
-                        }
-
-                        _NonStandardLookup[parts[1]] = (type, game);
-                    }
-                }
-            }
-            return new ReadOnlyDictionary<string, (UnityFormat, UnityGame)>(_NonStandardLookup);
         }
     }
 }

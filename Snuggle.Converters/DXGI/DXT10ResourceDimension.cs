@@ -1,6 +1,6 @@
 ﻿// ReSharper disable InconsistentNaming
 
-namespace Snuggle.Converters.DXGI; 
+namespace Snuggle.Converters.DXGI;
 
 public enum DXT10ResourceDimension {
     UNKNOWN = 0,

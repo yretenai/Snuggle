@@ -1,4 +1,4 @@
-﻿namespace Snuggle.Converters.DXGI; 
+﻿namespace Snuggle.Converters.DXGI;
 
 public struct DXT10Header {
     public int Format { get; set; }

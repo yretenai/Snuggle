@@ -4,7 +4,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using DragonLib;
 using JetBrains.Annotations;
 using Mono.Cecil;
 using Snuggle.Core.Exceptions;

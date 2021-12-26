@@ -14,8 +14,9 @@ public static partial class ConvertCore {
         if (File.Exists(fullPath)) {
             return;
         }
+
         fullPath.EnsureDirectoryExists();
-        
+
         SnuggleMeshFile.Save(
             gameObject,
             fullPath,

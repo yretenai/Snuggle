@@ -15,8 +15,8 @@ public record SnuggleCoreOptions(
     bool CacheDataIfLZMA, // this literally takes two years, you want it to be enabled.
     bool LoadOnDemand,
     UnityGame Game) {
-    public HashSet<string> IgnoreClassIds { get; set; } = new();
     private const int LatestVersion = 5;
+    public HashSet<string> IgnoreClassIds { get; set; } = new();
     public int Version { get; set; } = LatestVersion;
     public UnityGameOptions GameOptions { get; set; } = UnityGameOptions.Default;
 

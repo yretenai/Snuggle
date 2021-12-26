@@ -13,8 +13,9 @@ public static partial class ConvertCore {
         if (File.Exists(fullPath)) {
             return;
         }
+
         fullPath.EnsureDirectoryExists();
-        
+
         SnuggleMaterialFile.Save(material, fullPath, false);
         logger.Info($"Saved {path}");
     }

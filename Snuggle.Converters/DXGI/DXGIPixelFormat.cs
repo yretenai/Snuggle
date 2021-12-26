@@ -1,6 +1,6 @@
 ﻿// ReSharper disable InconsistentNaming
 
-namespace Snuggle.Converters.DXGI; 
+namespace Snuggle.Converters.DXGI;
 
 public enum DXGIPixelFormat : uint {
     UNKNOWN = 0x00,

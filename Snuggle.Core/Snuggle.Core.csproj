@@ -22,6 +22,7 @@
       <None Update="bundleIds.csv">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
+      <None Remove="Options\.editorconfig" />
     </ItemGroup>
 
 </Project>

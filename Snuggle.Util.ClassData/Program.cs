@@ -25,7 +25,7 @@ public static class Program {
             if (classObject.ReleaseRootNode == null) {
                 continue;
             }
-            
+
             var name = classObject.Name;
             var result = Path.Combine(outputPath, database.Version, name + $"_{classObject.TypeID}.txt");
             var dir = Path.GetDirectoryName(result);
@@ -37,7 +37,7 @@ public static class Program {
 
             if (builder.Length == 0) {
                 continue;
-            } 
+            }
 
             File.WriteAllText(result, builder.ToString());
         }
@@ -55,13 +55,13 @@ public static class Program {
         if (node == null) {
             return;
         }
-        
+
         var typeName = node.TypeName;
         var fieldName = node.Name;
         if (string.IsNullOrEmpty(typeName) || string.IsNullOrEmpty(fieldName)) {
             return;
         }
-        
+
         var isAligned = (node.MetaFlag & 0x4000) != 0 || typeName == "Array";
 
         builder.AppendLine($"{new string(' ', node.Level * 2)}{typeName} {fieldName} {node.ByteSize} {(isAligned ? "Aligned" : string.Empty)}");

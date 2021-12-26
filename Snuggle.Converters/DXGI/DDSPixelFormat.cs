@@ -1,4 +1,4 @@
-﻿namespace Snuggle.Converters.DXGI; 
+﻿namespace Snuggle.Converters.DXGI;
 
 public struct DDSPixelFormat {
     public int Size { get; set; }

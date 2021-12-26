@@ -7,7 +7,7 @@ using Snuggle.Core.Models;
 using Snuggle.Core.Models.Serialization;
 using Snuggle.Core.Options;
 
-namespace Snuggle.Core.Implementations; 
+namespace Snuggle.Core.Implementations;
 
 [PublicAPI]
 [UsedImplicitly]
@@ -21,7 +21,7 @@ public class ResourceManager : SerializedObject, ICABPathProvider {
             var ptr = PPtr<SerializedObject>.FromReader(reader, serializedFile);
             Container[ptr] = key;
         }
-        
+
         count = reader.ReadInt32();
         DependentAssets.EnsureCapacity(count);
         for (var i = 0; i < count; ++i) {
@@ -34,9 +34,11 @@ public class ResourceManager : SerializedObject, ICABPathProvider {
         }
     }
 
-    public ResourceManager(UnityObjectInfo info, SerializedFile serializedFile) : base(info, serializedFile) {
-        
-    }
+    public ResourceManager(UnityObjectInfo info, SerializedFile serializedFile) : base(info, serializedFile) { }
+
+    public Dictionary<PPtr<SerializedObject>, string> Container { get; set; } = new();
+    public Dictionary<PPtr<SerializedObject>, List<PPtr<SerializedObject>>> DependentAssets { get; set; } = new();
+    public IReadOnlyDictionary<PPtr<SerializedObject>, string> GetCABPaths() => Container;
 
     public override void Serialize(BiEndianBinaryWriter writer, AssetSerializationOptions options) {
         writer.Write(Container.Count);
@@ -44,7 +46,7 @@ public class ResourceManager : SerializedObject, ICABPathProvider {
             writer.WriteString32(key);
             value.ToWriter(writer, SerializedFile, options.TargetVersion);
         }
-        
+
         writer.Write(DependentAssets.Count);
         foreach (var (key, dependencies) in DependentAssets) {
             key.ToWriter(writer, SerializedFile, options.TargetVersion);
@@ -54,8 +56,4 @@ public class ResourceManager : SerializedObject, ICABPathProvider {
             }
         }
     }
-
-    public Dictionary<PPtr<SerializedObject>, string> Container { get; set; } = new();
-    public Dictionary<PPtr<SerializedObject>, List<PPtr<SerializedObject>>> DependentAssets { get; set; } = new();
-    public IReadOnlyDictionary<PPtr<SerializedObject>, string> GetCABPaths() => Container;
 }

@@ -22,7 +22,7 @@ public class Sprite : NamedObject {
             var container = GetExtraContainer<UniteSpriteExtension>(UnityClassId.Sprite);
             container.UnknownValue = reader.ReadInt32();
         }
-        
+
         Rect = reader.ReadStruct<Rect>();
         Offset = reader.ReadStruct<Vector2>();
         Border = reader.ReadStruct<Vector4>();

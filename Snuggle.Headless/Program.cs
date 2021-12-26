@@ -100,8 +100,8 @@ public static class Program {
             if (flags.PathIdFilters.Any() && !flags.PathIdFilters.Contains(asset.PathId)) {
                 continue;
             }
-            
-            if(flags.NameFilters.Any() && !flags.NameFilters.Any(x => x.IsMatch(asset.ObjectComparableName))) {
+
+            if (flags.NameFilters.Any() && !flags.NameFilters.Any(x => x.IsMatch(asset.ObjectComparableName))) {
                 continue;
             }
 

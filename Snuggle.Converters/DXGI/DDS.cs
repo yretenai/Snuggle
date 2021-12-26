@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace Snuggle.Converters.DXGI; 
+namespace Snuggle.Converters.DXGI;
 
 public static class DDS {
     public static Span<byte> BuildDDS(DXGIPixelFormat pixel, int mipCount, int width, int height, int frameCount, Span<byte> blob) {
@@ -23,20 +23,17 @@ public static class DDS {
                 RedMask = 0x0000_FF00,
                 GreenMask = 0x00FF_0000,
                 BlueMask = 0xFF00_0000,
-                AlphaMask = 0x0000_00FF
+                AlphaMask = 0x0000_00FF,
             },
             Caps1 = 0x1008,
             Caps2 = 0,
             Caps3 = 0,
             Caps4 = 0,
-            Reserved2 = 0
+            Reserved2 = 0,
         };
         MemoryMarshal.Write(result, ref header);
         var dx10 = new DXT10Header {
-            Format = (int)pixel,
-            Dimension = DXT10ResourceDimension.TEXTURE2D,
-            Misc = 0,
-            Size = Math.Max(1, frameCount)
+            Format = (int) pixel, Dimension = DXT10ResourceDimension.TEXTURE2D, Misc = 0, Size = Math.Max(1, frameCount),
         };
         MemoryMarshal.Write(result[0x80..], ref dx10);
         blob.CopyTo(result[0x94..]);

@@ -15,6 +15,7 @@ using Snuggle.Core.Implementations;
 using Snuggle.Core.Models.Objects.Graphics;
 using Snuggle.Core.Models.Objects.Math;
 using Snuggle.Core.Options;
+using Path = System.IO.Path;
 using Vector2 = Snuggle.Core.Models.Objects.Math.Vector2;
 
 namespace Snuggle.Converters;
@@ -151,16 +152,16 @@ public static class SnuggleSpriteFile {
     }
 
     public static string Save(Sprite sprite, string path, ObjectDeserializationOptions options, SnuggleExportOptions exportOptions) {
-        var dir = System.IO.Path.GetDirectoryName(path);
+        var dir = Path.GetDirectoryName(path);
         if (!string.IsNullOrWhiteSpace(dir) && !Directory.Exists(dir)) {
             Directory.CreateDirectory(dir);
         }
 
-        path = System.IO.Path.ChangeExtension(path, ".png");
+        path = Path.ChangeExtension(path, ".png");
         var (data, (width, height), _) = ConvertSprite(sprite, options, exportOptions.UseDirectTex);
         var image = Image.WrapMemory<Rgba32>(data, width, height);
         image.SaveAsPng(path);
-        
+
         return path;
     }
 }

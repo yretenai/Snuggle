@@ -133,7 +133,7 @@ public record struct UnityVersion(int Major, int Minor = 0, int Build = 0, Unity
         var builder = new StringBuilder(32);
         builder.Append($"{Major}.{Minor}.{Build}");
 
-        if (Type is UnityBuildType.None  or UnityBuildType.Release) {
+        if (Type is UnityBuildType.None or UnityBuildType.Release) {
             return builder.ToString();
         }
 
@@ -144,7 +144,7 @@ public record struct UnityVersion(int Major, int Minor = 0, int Build = 0, Unity
         }
 
         builder.Append(Revision);
-        
+
         if (ExtraVersion == null) {
             return builder.ToString();
         }

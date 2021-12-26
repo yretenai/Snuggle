@@ -134,7 +134,7 @@ public class AssetCollection : IDisposable {
         if (dataStream.Length == 0) {
             return;
         }
-        
+
         try {
             if (Bundle.IsBundleFile(dataStream)) {
                 LoadBundleSequence(dataStream, tag, handler, options, align, leaveOpen);
@@ -209,7 +209,7 @@ public class AssetCollection : IDisposable {
             }
 
             stream.Position = pos;
-            
+
             using var module = ModuleDefinition.ReadModule(new OffsetStream(stream, leaveOpen: true), new ReaderParameters(ReadingMode.Deferred) { InMemory = true });
             return module.Kind == ModuleKind.Dll && module.HasTypes;
         } catch {

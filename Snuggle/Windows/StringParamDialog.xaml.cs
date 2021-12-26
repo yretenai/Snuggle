@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Windows;
 
-namespace Snuggle.Windows; 
+namespace Snuggle.Windows;
 
 public partial class StringParamDialog {
     public static readonly DependencyProperty HeaderProperty = DependencyProperty.Register("Header", typeof(string), typeof(StringParamDialog), new PropertyMetadata(""));
@@ -20,7 +20,7 @@ public partial class StringParamDialog {
         get => (string) GetValue(HeaderProperty);
         set => SetValue(HeaderProperty, value);
     }
-    
+
     public string Text {
         get => (string) GetValue(TextProperty);
         set => SetValue(TextProperty, value);
@@ -40,4 +40,3 @@ public partial class StringParamDialog {
         Close();
     }
 }
-

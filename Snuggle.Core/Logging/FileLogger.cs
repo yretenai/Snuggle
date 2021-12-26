@@ -9,15 +9,9 @@ namespace Snuggle.Core.Logging;
 
 [PublicAPI]
 public sealed class FileLogger : ILogger {
+    public FileLogger(Stream baseStream) => Writer = new StreamWriter(baseStream, Encoding.UTF8);
+
     private StreamWriter Writer { get; }
-
-    public FileLogger(Stream baseStream) {
-        Writer = new StreamWriter(baseStream, Encoding.UTF8);
-    }
-
-    ~FileLogger() {
-        Dispose();
-    }
 
     public void Dispose() {
         Writer.Dispose();
@@ -31,5 +25,9 @@ public sealed class FileLogger : ILogger {
 
         Writer.WriteLine(string.IsNullOrEmpty(category) ? $"[{level:G}] {message}" : $"[{level:G}][{category}] {message}");
         Writer.Flush();
+    }
+
+    ~FileLogger() {
+        Dispose();
     }
 }

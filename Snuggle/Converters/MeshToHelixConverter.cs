@@ -88,7 +88,7 @@ public static class MeshToHelixConverter {
                             geometry.Positions.Add(vec);
                             break;
                         }
-                        case VertexChannel.Normal:{
+                        case VertexChannel.Normal: {
                             var vec = new Vector3(floatValues.Take(3).ToArray());
                             vec.X *= -1;
                             geometry.Normals.Add(vec);
@@ -344,6 +344,7 @@ public static class MeshToHelixConverter {
                         textureData.Span[i * 4 + 1] = bytes[1];
                         textureData.Span[i * 4 + 2] = bytes[0];
                     }
+
                     textureData.Span[i * 4 + 3] = 0xFF;
                 }
             }

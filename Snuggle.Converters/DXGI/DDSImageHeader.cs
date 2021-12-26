@@ -1,4 +1,4 @@
-﻿namespace Snuggle.Converters.DXGI; 
+﻿namespace Snuggle.Converters.DXGI;
 
 public unsafe struct DDSImageHeader {
     public int Magic { get; set; }

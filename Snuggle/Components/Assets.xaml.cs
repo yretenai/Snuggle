@@ -71,9 +71,7 @@ public partial class Assets {
         dataView.SortDescriptions.Add(sd);
     }
 
-    private static bool Filter(object o) {
-        return o is SnuggleObject snuggleObject && SnuggleFile.Filter(snuggleObject);
-    }
+    private static bool Filter(object o) => o is SnuggleObject snuggleObject && SnuggleFile.Filter(snuggleObject);
 
     private void UpdateSelected(object sender, RoutedEventArgs e) {
         var list = (ListView) sender;
@@ -91,7 +89,6 @@ public partial class Assets {
         SnuggleCore.Instance.SelectedObjects = selectedItems.Cast<SnuggleObject>().ToList();
         SnuggleCore.Instance.OnPropertyChanged(nameof(SnuggleCore.SelectedObjects));
     }
-
 
     private void ExtractRaw(object sender, RoutedEventArgs e) {
         SnuggleFile.Extract(ExtractMode.Raw, ExtractFilter.Selected);
@@ -118,7 +115,7 @@ public partial class Assets {
         if (tag == null) {
             return;
         }
-        
+
         var path = Utils.GetStringFromTag(tag);
         try {
             if (string.IsNullOrEmpty(path) || !File.Exists(path)) {

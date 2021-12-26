@@ -8,6 +8,5 @@ namespace Snuggle.Core.Meta;
 public enum UnityGame {
     Default,
 
-    [Description("Pokémon UNITE")]
-    PokemonUnite,
+    [Description("Pokémon UNITE")] PokemonUnite,
 }

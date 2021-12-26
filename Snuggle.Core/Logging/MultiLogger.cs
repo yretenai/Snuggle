@@ -16,15 +16,15 @@ public class MultiLogger : ILogger {
         }
     }
 
-    ~MultiLogger() {
-        Dispose();
-    }
-
     public void Dispose() {
         foreach (var logger in Loggers) {
             logger.Dispose();
         }
 
         GC.SuppressFinalize(this);
+    }
+
+    ~MultiLogger() {
+        Dispose();
     }
 }

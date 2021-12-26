@@ -31,7 +31,7 @@ public record UnityBundle(string Signature, UnityFormat Format, int FormatVersio
         } else {
             format = (UnityFormat) originalSignature[5];
         }
-        
+
         return new UnityBundle(originalSignature, format, reader.ReadInt32(), reader.ReadNullString(), reader.ReadNullString());
     }
 }

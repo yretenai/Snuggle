@@ -1,4 +1,4 @@
-﻿namespace Snuggle.Handlers; 
+﻿namespace Snuggle.Handlers;
 
 public enum ExtractFilter {
     Selected,

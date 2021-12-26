@@ -10,8 +10,6 @@ using System.Windows.Controls;
 using AdonisUI;
 using DragonLib.IO;
 using Microsoft.WindowsAPICodePack.Dialogs;
-using Snuggle.Converters;
-using Snuggle.Core;
 using Snuggle.Core.Implementations;
 using Snuggle.Core.Meta;
 using Snuggle.Core.Options;
@@ -82,10 +80,7 @@ public partial class Navigation {
             }
 
             var item = new MenuItem {
-                Tag = (type, objectName, property),
-                Header = SplitName(property.Name),
-                ToolTip = description,
-                IsCheckable = property.PropertyType == typeof(bool),
+                Tag = (type, objectName, property), Header = SplitName(property.Name), ToolTip = description, IsCheckable = property.PropertyType == typeof(bool),
             };
 
             if (item.IsCheckable) {
@@ -109,7 +104,7 @@ public partial class Navigation {
 
         var (type, objectName, targetProperty) = item.Tag is (Type, string, PropertyInfo) ? ((Type, string, PropertyInfo)) item.Tag : (null, null, null);
         var value = GetCurrentSetting(type, objectName, targetProperty);
-        if(value is not string currentString) {
+        if (value is not string currentString) {
             currentString = string.Empty;
         }
 
@@ -125,6 +120,7 @@ public partial class Navigation {
         if (sender is not MenuItem item) {
             return;
         }
+
         var (type, objectName, targetProperty) = item.Tag is (Type, string, PropertyInfo) ? ((Type, string, PropertyInfo)) item.Tag : (null, null, null);
 
         UpdateSetting(type, objectName, targetProperty, item.IsChecked);
@@ -134,6 +130,7 @@ public partial class Navigation {
         if (type == null || objectName == null || targetProperty == null) {
             return null;
         }
+
         var currentProperty = typeof(SnuggleOptions).GetProperty(objectName)!;
         var current = currentProperty.GetValue(SnuggleCore.Instance.Settings)!;
         return targetProperty.GetValue(current);
@@ -367,12 +364,7 @@ public partial class Navigation {
 
     private void FreeMemory(object sender, RoutedEventArgs e) {
         var instance = SnuggleCore.Instance;
-        instance.WorkerAction(
-            "FreeMemory",
-            _ => {
-                SnuggleCore.Instance.FreeMemory(true);
-            },
-            true);
+        instance.WorkerAction("FreeMemory", _ => { SnuggleCore.Instance.FreeMemory(true); }, true);
     }
 
     private void DumpGameObjectTree(object sender, RoutedEventArgs e) {
@@ -399,17 +391,17 @@ public partial class Navigation {
     }
 
     private void ExtractRaw(object sender, RoutedEventArgs e) {
-        var filter = (ExtractFilter) int.Parse(((string) ((FrameworkElement)sender).Tag));
+        var filter = (ExtractFilter) int.Parse((string) ((FrameworkElement) sender).Tag);
         SnuggleFile.Extract(ExtractMode.Raw, filter);
     }
 
     private void ExtractConvert(object sender, RoutedEventArgs e) {
-        var filter = (ExtractFilter) int.Parse(((string) ((FrameworkElement)sender).Tag));
+        var filter = (ExtractFilter) int.Parse((string) ((FrameworkElement) sender).Tag);
         SnuggleFile.Extract(ExtractMode.Convert, filter);
     }
 
     private void ExtractSerialize(object sender, RoutedEventArgs e) {
-        var filter = (ExtractFilter) int.Parse(((string) ((FrameworkElement)sender).Tag));
+        var filter = (ExtractFilter) int.Parse((string) ((FrameworkElement) sender).Tag);
         SnuggleFile.Extract(ExtractMode.Serialize, filter);
     }
 

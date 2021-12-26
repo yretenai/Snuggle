@@ -10,20 +10,6 @@ namespace Snuggle.Tests;
 
 [TestFixture]
 public class PathFormatterTests {
-    private static readonly UnityObjectInfo BlankObjectInfo = new(
-        1,
-        2,
-        3,
-        4,
-        UnityClassId.Object,
-        0,
-        true,
-        -1,
-        true);
-
-    private SerializedFile MockFile = null!;
-    private SerializedObject BlankObject = null!;
-
     [SetUp]
     public void Setup() {
 #pragma warning disable CS0618
@@ -39,6 +25,20 @@ public class PathFormatterTests {
             BundleVersion = "1.2.3",
         };
     }
+
+    private static readonly UnityObjectInfo BlankObjectInfo = new(
+        1,
+        2,
+        3,
+        4,
+        UnityClassId.Object,
+        0,
+        true,
+        -1,
+        true);
+
+    private SerializedFile MockFile = null!;
+    private SerializedObject BlankObject = null!;
 
     [TestCase("/Foo/Bar/Baz", "Foo/Bar/Baz.bytes")]
     [TestCase("/Foo/{Id}/Baz", "Foo/1/Baz.bytes")]
