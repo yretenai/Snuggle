@@ -203,6 +203,7 @@ public static class SnuggleFile {
             }
         }
         SnuggleCore.Instance.FreeMemory(false);
+        SnuggleCore.Instance.Status.Reset();
     }
 
     private static void ExtractConvert(SerializedObject serializedObject, string resultDir, string resultPath) {
