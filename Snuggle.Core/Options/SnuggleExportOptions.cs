@@ -54,7 +54,7 @@ Available variables:
         }
 
         if (Version < 6) {
-            settings = settings with { UseNewGLTFExporter = true };
+            settings = settings with { UseNewGLTFExporter = false };
         }
 
         return settings with { Version = LatestVersion };
