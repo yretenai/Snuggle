@@ -6,6 +6,7 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using DragonLib;
 using Snuggle.Core.Implementations;
@@ -86,7 +87,6 @@ public static class SnuggleMeshFile {
             gameObject,
             gltf,
             rootNode,
-            scene,
             buffer,
             nodeTree,
             existingMaterials,
@@ -196,7 +196,6 @@ public static class SnuggleMeshFile {
         GameObject gameObject,
         Root gltf,
         Node node,
-        Scene scene,
         Stream buffer,
         Dictionary<(long, string), (Node Node, int Id)> nodeTree,
         Dictionary<(long, string), int> existingMaterials,
@@ -280,7 +279,6 @@ public static class SnuggleMeshFile {
                     child.Value,
                     gltf,
                     childNode,
-                    scene,
                     buffer,
                     nodeTree,
                     existingMaterials,
@@ -337,7 +335,6 @@ public static class SnuggleMeshFile {
         var joints = new ushort[mesh.VertexData.VertexCount][];
         var weights = new Vector4[mesh.VertexData.VertexCount];
 
-        var hasPositions = false;
         var hasNormals = false;
         var hasTangents = false;
         var hasColor = false;
@@ -365,7 +362,6 @@ public static class SnuggleMeshFile {
                     case VertexChannel.Vertex:
                         positions[i] = new Vector3(floatValues.Take(3).ToArray());
                         positions[i].X *= -1;
-                        hasPositions = true;
                         minPos = Vector3.Min(minPos, positions[i]);
                         maxPos = Vector3.Max(maxPos, positions[i]);
                         break;
@@ -426,7 +422,7 @@ public static class SnuggleMeshFile {
         }
 
         var accessors = new Dictionary<VertexChannel, int>();
-        if (hasPositions) {
+        {
             var (accessor, accessorId) = gltf.CreateAccessor(positions, buffer, BufferViewTarget.ArrayBuffer, AccessorType.VEC3, AccessorComponentType.Float);
             accessor.Min = new List<double> { minPos.X, minPos.Y, minPos.Z };
             accessor.Max = new List<double> { maxPos.X, maxPos.Y, maxPos.Z };
@@ -492,9 +488,69 @@ public static class SnuggleMeshFile {
                 primitive.Material = materialId;
             }
 
-            // TODO(naomi): export glTF Morphs 
-
             element.Primitives.Add(primitive);
+        }
+
+        if (options.WriteMorphs && mesh.BlendShapeData.Channels.Count > 0) {
+            var morphNames = new List<string>();
+            var targets = new List<Dictionary<string, int>>();
+            element.Weights = new List<double>();
+            for (var blendIndex = 0; blendIndex < mesh.BlendShapeData.Channels.Count; blendIndex++) {
+                var channel = mesh.BlendShapeData.Channels[blendIndex];
+                morphNames.Add(channel.Name);
+                var morphPositions = new Vector3[positions.Length];
+                var morphNormals = new Vector3[normals.Length];
+                var morphTangents = new Vector3[tangents.Length];
+                var hasMorphNormals = false;
+                var hasMorphTangents = false;
+                minPos = new Vector3(float.MaxValue);
+                maxPos = new Vector3(float.MinValue);
+                for (var frameIndex = 0; frameIndex < channel.Count; frameIndex++) {
+                    var fullIndex = channel.Index + frameIndex;
+                    var shape = mesh.BlendShapeData.Shapes[fullIndex];
+
+                    for (var vertexIndex = 0; vertexIndex < shape.VertexCount; vertexIndex++) {
+                        var vertex = mesh.BlendShapeData.Vertices![(int) (shape.FirstVertex + vertexIndex)];
+
+                        morphPositions[vertex.Index] = new Vector3(-vertex.Vertex.X, vertex.Vertex.Y, vertex.Vertex.Z);
+                        minPos = Vector3.Min(minPos, morphPositions[vertex.Index]);
+                        maxPos = Vector3.Max(maxPos, morphPositions[vertex.Index]);
+
+                        if (shape.HasNormals && hasNormals) {
+                            morphNormals[vertex.Index] = new Vector3(-vertex.Normal.X, vertex.Normal.Y, vertex.Normal.Z);
+                            hasMorphNormals = true;
+                        }
+
+                        if (shape.HasTangents && hasTangents) {
+                            morphTangents[vertex.Index] = new Vector3(-vertex.Tangent.X, vertex.Tangent.Y, vertex.Tangent.Z);
+                            hasMorphTangents = false;
+                        }
+                    }
+                }
+
+                var (morphAccessor, morphAccessorId) = gltf.CreateAccessor(morphPositions, buffer, BufferViewTarget.ArrayBuffer, AccessorType.VEC3, AccessorComponentType.Float);
+                morphAccessor.Min = new List<double> { minPos.X, minPos.Y, minPos.Z };
+                morphAccessor.Max = new List<double> { maxPos.X, maxPos.Y, maxPos.Z };
+                var morph = new Dictionary<string, int> { ["POSITION"] = morphAccessorId };
+                if (hasMorphNormals) {
+                    morph["NORMAL"] = gltf.CreateAccessor(morphNormals, buffer, BufferViewTarget.ArrayBuffer, AccessorType.VEC3, AccessorComponentType.Float).Id;
+                }
+
+                if (hasMorphTangents) {
+                    morph["TANGENT"] = gltf.CreateAccessor(morphTangents, buffer, BufferViewTarget.ArrayBuffer, AccessorType.VEC3, AccessorComponentType.Float).Id;
+                }
+
+                targets.Add(morph);
+                element.Weights.Add(0); // mesh.BlendShapeData.Weights[blendIndex] / 100
+            }
+
+            foreach (var primitive in element.Primitives) {
+                primitive.Targets = targets;
+            }
+
+            if (morphNames.Count > 0) {
+                element.Extras = new Dictionary<string, JsonValue> { { "targetNames", JsonValue.Create(morphNames)! } };
+            }
         }
     }
 
