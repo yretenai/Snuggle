@@ -126,6 +126,33 @@ public class AssetCollection : IDisposable {
     }
 
     public void LoadSerializedFile(string path, SnuggleCoreOptions options) => LoadSerializedFile(File.OpenRead(path), path, FileStreamHandler.Instance.Value, options);
+    
+    public void LoadSplitFile(string split0Path, SnuggleCoreOptions options, string extTemplate = ".split{0}") {
+        var i = 0;
+        var streams = new List<Stream>();
+        while (File.Exists(split0Path + string.Format(extTemplate, i))) {
+            streams.Add(File.OpenRead(split0Path + string.Format(extTemplate, i++)));
+        }
+        
+        LoadSplitFile(streams, options, split0Path);
+    }
+
+    public void LoadSplitFile(List<Stream> streams, SnuggleCoreOptions options, string hintTag = "splitFile", bool leaveOpen = false) {
+        var memory = new MemoryStream();
+        memory.SetLength(streams.Sum(x => x.Length - x.Position));
+        memory.Seek(0, SeekOrigin.Begin);
+
+        foreach (var stream in streams) {
+            stream.CopyTo(memory);
+            if (!leaveOpen) {
+                stream.Close();
+                stream.Dispose();
+            }
+        }
+        
+        memory.Seek(0, SeekOrigin.Begin);
+        LoadFile(memory, hintTag, new MemoryStreamHandler(memory), options, leaveOpen: true);
+    }
 
     public void LoadFile(string path, SnuggleCoreOptions options) => LoadFile(File.OpenRead(path), path, MultiStreamHandler.FileInstance.Value, options);
 

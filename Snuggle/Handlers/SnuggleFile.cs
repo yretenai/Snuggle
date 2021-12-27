@@ -56,7 +56,6 @@ public static class SnuggleFile {
         instance.WorkerAction(
             "LoadDirectoriesAndFiles",
             token => {
-                // TODO: Split files.
                 var files = new List<string>();
                 var recentFiles = SnuggleCore.Instance.Settings.RecentFiles;
                 var recentDirectories = SnuggleCore.Instance.Settings.RecentDirectories;
@@ -84,7 +83,14 @@ public static class SnuggleFile {
                     instance.Status.SetStatus($"Loading {file}");
                     instance.LogTarget.Info($"Loading {Path.GetFileName(file)}");
                     instance.Status.SetProgress(instance.Status.Value + 1);
-                    instance.Collection.LoadFile(file, instance.Settings.Options);
+                    var ext = Path.GetExtension(file);
+                    if (ext.StartsWith(".split")) {
+                        if (ext == ".split0") {
+                            instance.Collection.LoadSplitFile(file, instance.Settings.Options);
+                        }
+                    } else {
+                        instance.Collection.LoadFile(file, instance.Settings.Options);
+                    }
                 }
 
                 instance.Collection.CacheGameObjectClassIds();
