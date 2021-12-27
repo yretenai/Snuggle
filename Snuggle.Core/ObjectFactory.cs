@@ -396,7 +396,7 @@ public static class ObjectFactory {
             // ignored
         }
 
-        // todo: global metadata
+        // TODO(naomi): parse global metadata for MonoBehavior.
 
         return null;
     }

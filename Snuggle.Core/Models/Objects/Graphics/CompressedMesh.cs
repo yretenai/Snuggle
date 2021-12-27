@@ -214,8 +214,8 @@ public record CompressedMesh(
         Memory<byte> data = new byte[channels.Sum(x => x.Value.GetSize()) * vertexCount];
 
         var substreams = new Dictionary<VertexChannel, Memory<byte>>();
-        // TODO: loop over each channel and decompress substream.
-        // TODO: loop over each vertex and reconstruct VBO.
+        // TODO(naomi): loop over each channel and decompress substream.
+        // TODO(naomi): loop over each vertex and reconstruct VBO.
 
         return data;
     }

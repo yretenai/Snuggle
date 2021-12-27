@@ -478,7 +478,6 @@ public static class SnuggleMeshFileLegacy {
                 texture.Deserialize(deserializationOptions);
 
                 if (!saved.TryGetValue(texture.GetCompositeId(), out var texPath)) {
-                    // TODO: Calculate relative path and use the whole formatted path
                     texPath = SnuggleTextureFile.Save(texture, Path.Combine(path, Path.GetFileName(PathFormatter.Format(exportOptions.DecidePathTemplate(texture), "bytes", texture))), exportOptions, false);
                 }
 

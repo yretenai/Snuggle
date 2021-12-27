@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System;
+using System.Text.Json.Serialization;
 
 namespace Snuggle.glTF;
 
@@ -29,4 +30,6 @@ public record Sampler : ChildOfRootProperty {
     /// </summary>
     [JsonPropertyName("wrapT")]
     public WrapMode WrapT { get; set; } = WrapMode.Repeat;
+
+    public override int GetHashCode() => HashCode.Combine(MagnificationFilter, MinificationFilter, WrapS, WrapT);
 }

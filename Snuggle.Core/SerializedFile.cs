@@ -101,7 +101,7 @@ public class SerializedFile : IRenewable {
             prefix + Name,
             prefix + Name + resourceSuffix);
 
-        // TODO.
+        // TODO(naomi): implement serialization
         return false;
     }
 
