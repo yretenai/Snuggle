@@ -132,7 +132,7 @@ public static class SnuggleMeshFileLegacy {
             return;
         }
 
-        var name = GetTransformPath(gameObject);
+        var name = SnuggleMeshFile.GetTransformPath(gameObject, null);
         var crc = new CRC();
         var bytes = Encoding.UTF8.GetBytes(name);
         crc.Update(bytes, 0, (uint) bytes.Length);
@@ -149,20 +149,6 @@ public static class SnuggleMeshFileLegacy {
         foreach (var child in gameObject.Children) {
             BuildHashTree(nodeTree, hashTree, child.Value);
         }
-    }
-
-    private static string GetTransformPath(GameObject? gameObject) {
-        if (gameObject == null) {
-            throw new InvalidOperationException();
-        }
-
-        var name = gameObject.Name;
-
-        if (gameObject.Parent.Value != null) {
-            return GetTransformPath(gameObject.Parent.Value) + "/" + name;
-        }
-
-        return name;
     }
 
     private static void BuildGameObject(

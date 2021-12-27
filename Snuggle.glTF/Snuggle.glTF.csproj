@@ -8,13 +8,13 @@
         <NoWarn>CS1591</NoWarn>
         <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     </PropertyGroup>
-    
+
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-      <DocumentationFile>bin\Debug\Snuggle.glTF.xml</DocumentationFile>
+        <DocumentationFile>bin\Debug\Snuggle.glTF.xml</DocumentationFile>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-      <DocumentationFile>bin\Release\Snuggle.glTF.xml</DocumentationFile>
+        <DocumentationFile>bin\Release\Snuggle.glTF.xml</DocumentationFile>
     </PropertyGroup>
 
 </Project>

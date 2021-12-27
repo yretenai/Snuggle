@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using DragonLib;
@@ -15,10 +16,6 @@ using Snuggle.glTF;
 using Buffer = Snuggle.glTF.Buffer;
 using Material = Snuggle.Core.Implementations.Material;
 using Mesh = Snuggle.Core.Implementations.Mesh;
-using Quaternion = System.Numerics.Quaternion;
-using Vector2 = System.Numerics.Vector2;
-using Vector3 = System.Numerics.Vector3;
-using Vector4 = System.Numerics.Vector4;
 
 namespace Snuggle.Converters;
 
@@ -89,6 +86,7 @@ public static class SnuggleMeshFile {
             gameObject,
             gltf,
             rootNode,
+            scene,
             buffer,
             nodeTree,
             existingMaterials,
@@ -98,16 +96,107 @@ public static class SnuggleMeshFile {
             exportOptions,
             options,
             true);
-        
-        // TODO(naomi): export glTF Skins
+
+        foreach (var (meshNode, skinnedMeshRenderer) in skinnedMeshes) {
+            var meshElement = gltf.Meshes![meshNode.Mesh!.Value];
+            if (!meshElement.Primitives.Any(x => x.Attributes.ContainsKey("JOINTS_0"))) {
+                continue;
+            }
+
+            var hashes = new Dictionary<uint, (long, string)>(skinnedMeshRenderer.Bones.Count);
+            var isValid = true;
+            CreateBoneHash(gameObject, nodeTree, hashes, gameObject);
+            foreach (var t in skinnedMeshRenderer.Bones) {
+                if (!CreateBoneHash(t.Value?.GameObject.Value, nodeTree, hashes, gameObject)) {
+                    isValid = false;
+                    break;
+                }
+            }
+
+            if (!isValid) {
+                break;
+            }
+
+            var matrices = new List<Matrix4x4>();
+            var skinnedMesh = skinnedMeshRenderer.Mesh.Value!;
+            var skin = gltf.CreateSkin();
+            for (var i = 0; i < skinnedMesh.BoneNameHashes.Count; ++i) {
+                if (!CreateBoneJoint(hashes, skinnedMesh.BoneNameHashes[i], nodeTree, skinnedMesh.BindPose!.Value.Span[i].GetNumerics(), matrices, skin)) {
+                    isValid = false;
+                    break;
+                }
+            }
+
+            if (!isValid) {
+                break;
+            }
+
+            skin.Skin.InverseBindMatrices = gltf.CreateAccessor(matrices.ToArray(), buffer, null, AccessorType.MAT4, AccessorComponentType.Float, 0).Id;
+
+            meshNode.Skin = skin.Id;
+        }
 
         SaveGltf(path, gltf, buffer, existingMaterials.Count > 0);
+    }
+
+    private static bool CreateBoneHash(GameObject? boneGameObject, IReadOnlyDictionary<(long, string), (Node Node, int Id)> nodeTree, IDictionary<uint, (long, string)> hashes, GameObject root) {
+        if (boneGameObject == null) {
+            return false;
+        }
+
+        var composite = boneGameObject.GetCompositeId();
+
+        if (!nodeTree.ContainsKey(composite)) {
+            return false;
+        }
+
+        var name = GetTransformPath(boneGameObject, root);
+        var crc = new CRC();
+        var bytes = Encoding.UTF8.GetBytes(name);
+        crc.Update(bytes, 0, (uint) bytes.Length);
+        hashes[crc.GetDigest()] = composite;
+        int index;
+        while ((index = name.IndexOf("/", StringComparison.Ordinal)) >= 0) {
+            name = name[(index + 1)..];
+            crc = new CRC();
+            bytes = Encoding.UTF8.GetBytes(name);
+            crc.Update(bytes, 0, (uint) bytes.Length);
+            hashes[crc.GetDigest()] = composite;
+        }
+
+        return true;
+    }
+
+    private static bool CreateBoneJoint(IReadOnlyDictionary<uint, (long, string)> hashes, uint id, IReadOnlyDictionary<(long, string), (Node Node, int Id)> nodeTree, Matrix4x4 matrix, ICollection<Matrix4x4> matrices, (Skin Skin, int Id) skin) {
+        if (!hashes.TryGetValue(id, out var boneCompositeId) || !nodeTree.TryGetValue(boneCompositeId, out var boneId)) {
+            return false;
+        }
+
+        var mirror = Matrix4x4.CreateScale(-1, 1, 1);
+        matrices.Add(mirror * matrix * mirror);
+        skin.Skin.Joints.Add(boneId.Id);
+        return true;
+    }
+
+    public static string GetTransformPath(GameObject? gameObject, GameObject? rootObject) {
+        if (gameObject == null) {
+            throw new InvalidOperationException();
+        }
+
+        var name = gameObject.Name;
+
+        if ((rootObject == null || gameObject.GetCompositeId() != rootObject.GetCompositeId()) && gameObject.Parent.Value != null) {
+            return GetTransformPath(gameObject.Parent.Value, rootObject) + "/" + name;
+        }
+
+        return name;
     }
 
     private static void CreateNodeTree(
         GameObject gameObject,
         Root gltf,
         Node node,
+        Scene scene,
         Stream buffer,
         Dictionary<(long, string), (Node Node, int Id)> nodeTree,
         Dictionary<(long, string), int> existingMaterials,
@@ -134,7 +223,7 @@ public static class SnuggleMeshFile {
         Matrix4x4.Decompose(matrix, out scale, out rotation, out translation);
         node.Rotation = new List<double> { rotation.X, rotation.Y, rotation.Z, rotation.W };
         node.Scale = new List<double> { scale.X, scale.Y, scale.Z };
-        node.Translation = new List<double> { translation.X, translation.Y, translation.Y };
+        node.Translation = new List<double> { translation.X, translation.Y, translation.Z };
 
         if (buildMeshes) {
             if (gameObject.FindComponent(UnityClassId.MeshRenderer, UnityClassId.SkinnedMeshRenderer).Value is SkinnedMeshRenderer skinnedMeshRenderer && skinnedMeshRenderer.Mesh.Value != null) {
@@ -160,7 +249,7 @@ public static class SnuggleMeshFile {
                 if (gameObject.FindComponent(UnityClassId.MeshRenderer).Value is MeshRenderer renderer) {
                     materials = renderer.Materials.Select(x => x.Value).ToList();
                 }
-                
+
                 filter.Mesh.Value.Deserialize(ObjectDeserializationOptions.Default);
                 var (meshElement, meshId) = gltf.CreateMesh();
                 CreateMeshGeometry(
@@ -185,12 +274,13 @@ public static class SnuggleMeshFile {
                 }
 
                 var (childNode, childId) = node.CreateNode(gltf);
-                nodeTree[gameObject.GetCompositeId()] = (childNode, childId);
+                nodeTree[child.Value.GetCompositeId()] = (childNode, childId);
 
                 CreateNodeTree(
                     child.Value,
                     gltf,
                     childNode,
+                    scene,
                     buffer,
                     nodeTree,
                     existingMaterials,
@@ -230,10 +320,10 @@ public static class SnuggleMeshFile {
                 if (material == null) {
                     continue;
                 }
+
                 CreateMaterial(material, existingMaterials!, gltf, path, deserializationOptions, exportOptions);
             }
         }
-
 
         var vertexStream = MeshConverter.GetVBO(mesh, out var descriptors, out var strides);
         var indexStream = MeshConverter.GetIBO(mesh);
@@ -244,7 +334,7 @@ public static class SnuggleMeshFile {
         var tangents = new Vector4[mesh.VertexData.VertexCount];
         var color = new Vector4[mesh.VertexData.VertexCount];
         var uv = new[] { new Vector2[mesh.VertexData.VertexCount], new Vector2[mesh.VertexData.VertexCount], new Vector2[mesh.VertexData.VertexCount], new Vector2[mesh.VertexData.VertexCount], new Vector2[mesh.VertexData.VertexCount], new Vector2[mesh.VertexData.VertexCount], new Vector2[mesh.VertexData.VertexCount], new Vector2[mesh.VertexData.VertexCount] };
-        var joints = new Vector4I[mesh.VertexData.VertexCount];
+        var joints = new ushort[mesh.VertexData.VertexCount][];
         var weights = new Vector4[mesh.VertexData.VertexCount];
 
         var hasPositions = false;
@@ -258,6 +348,8 @@ public static class SnuggleMeshFile {
         var maxPos = new Vector3(float.MinValue);
 
         for (var i = 0; i < mesh.VertexData.VertexCount; ++i) {
+            var weightsTemp = new float[4];
+            var jointsTemp = new int[4];
             foreach (var (channel, info) in descriptors) {
                 var stride = strides[info.Stream];
                 var offset = i * stride;
@@ -303,43 +395,54 @@ public static class SnuggleMeshFile {
                         hasUV[channel - VertexChannel.UV0] = true;
                         break;
                     case VertexChannel.SkinWeight:
-                        weights[i] = new Vector4(floatValues.Take(4).ToArray());
+                        weightsTemp = floatValues.Take(4).ToArray();
                         hasWeights = true;
                         break;
                     case VertexChannel.SkinBoneIndex:
-                        joints[i] = new Vector4I(uintValues.Take(4).ToArray());
+                        jointsTemp = uintValues.Take(4).ToArray();
                         hasJoints = true;
                         break;
                 }
             }
 
             if ((!hasJoints || !hasWeights) && mesh.Skin?.Count > 0) {
-                joints[i] = new Vector4I(mesh.Skin[i].Indices);
-                weights[i] = new Vector4(mesh.Skin[i].Weights);
+                jointsTemp = mesh.Skin[i].Indices;
+                weightsTemp = mesh.Skin[i].Weights;
                 hasWeights = hasJoints = true;
             }
 
             hasWeights = hasJoints = hasWeights && hasJoints;
+
+            // attempt to fix weights.
+            if (hasWeights) {
+                var ordered = jointsTemp.Zip(weightsTemp).OrderByDescending(x => x.Second).ToArray();
+                joints[i] = ordered.Select(x => (ushort) x.First).ToArray();
+                weights[i] = new Vector4(ordered.Select(x => x.Second).ToArray());
+                var w = Vector4.Dot(weights[i], Vector4.One);
+                if (w != 0.0f && w <= 1.0f) {
+                    weights[i] /= w;
+                }
+            }
         }
 
         var accessors = new Dictionary<VertexChannel, int>();
         if (hasPositions) {
-            var (accessor, accessorId) = gltf.BuildAccessor(positions, buffer, BufferViewTarget.ArrayBuffer, AccessorType.VEC3, AccessorComponentType.Float);
+            var (accessor, accessorId) = gltf.CreateAccessor(positions, buffer, BufferViewTarget.ArrayBuffer, AccessorType.VEC3, AccessorComponentType.Float);
             accessor.Min = new List<double> { minPos.X, minPos.Y, minPos.Z };
             accessor.Max = new List<double> { maxPos.X, maxPos.Y, maxPos.Z };
             accessors[VertexChannel.Vertex] = accessorId;
         }
 
         if (hasNormals) {
-            accessors[VertexChannel.Normal] = gltf.BuildAccessor(normals, buffer, BufferViewTarget.ArrayBuffer, AccessorType.VEC3, AccessorComponentType.Float).Id;
+            accessors[VertexChannel.Normal] = gltf.CreateAccessor(normals, buffer, BufferViewTarget.ArrayBuffer, AccessorType.VEC3, AccessorComponentType.Float).Id;
         }
 
         if (hasTangents) {
-            accessors[VertexChannel.Tangent] = gltf.BuildAccessor(tangents, buffer, BufferViewTarget.ArrayBuffer, AccessorType.VEC4, AccessorComponentType.Float).Id;
+            accessors[VertexChannel.Tangent] = gltf.CreateAccessor(tangents, buffer, BufferViewTarget.ArrayBuffer, AccessorType.VEC4, AccessorComponentType.Float).Id;
         }
 
         if (hasColor) {
-            accessors[VertexChannel.Color] = gltf.BuildAccessor(color, buffer, BufferViewTarget.ArrayBuffer, AccessorType.VEC3, AccessorComponentType.Float).Id;
+            accessors[VertexChannel.Color] = gltf.CreateAccessor(color, buffer, BufferViewTarget.ArrayBuffer, AccessorType.VEC3, AccessorComponentType.Float).Id;
         }
 
         for (var i = 0; i < 8; ++i) {
@@ -347,28 +450,29 @@ public static class SnuggleMeshFile {
                 continue;
             }
 
-            accessors[VertexChannel.UV0 + i] = gltf.BuildAccessor(uv[i], buffer, BufferViewTarget.ArrayBuffer, AccessorType.VEC2, AccessorComponentType.Float).Id;
+            accessors[VertexChannel.UV0 + i] = gltf.CreateAccessor(uv[i], buffer, BufferViewTarget.ArrayBuffer, AccessorType.VEC2, AccessorComponentType.Float).Id;
         }
 
         if (hasJoints && hasWeights) {
-            // joints have to match semantic of the indices.
-            if (indexSemantic == AccessorComponentType.UnsignedShort) {
-                accessors[VertexChannel.SkinBoneIndex] = gltf.BuildAccessor(joints.Select(x => new Vector4S(x)).ToArray(), buffer, BufferViewTarget.ArrayBuffer, AccessorType.VEC4, AccessorComponentType.UnsignedShort).Id;
-            } else {
-                accessors[VertexChannel.SkinBoneIndex] = gltf.BuildAccessor(joints, buffer, BufferViewTarget.ArrayBuffer, AccessorType.VEC4, AccessorComponentType.UnsignedInt).Id;
-            }
-
-            accessors[VertexChannel.SkinWeight] = gltf.BuildAccessor(weights, buffer, BufferViewTarget.ArrayBuffer, AccessorType.VEC4, AccessorComponentType.Float).Id;
+            accessors[VertexChannel.SkinBoneIndex] = gltf.CreateAccessor(
+                    joints,
+                    4,
+                    buffer,
+                    BufferViewTarget.ArrayBuffer,
+                    AccessorType.VEC4,
+                    AccessorComponentType.UnsignedShort,
+                    8)
+                .Id;
+            accessors[VertexChannel.SkinWeight] = gltf.CreateAccessor(weights, buffer, BufferViewTarget.ArrayBuffer, AccessorType.VEC4, AccessorComponentType.Float).Id;
         }
 
-        
         if (indexSemantic == AccessorComponentType.UnsignedInt) {
             ReverseIndices<uint>(indexStream);
         } else {
             ReverseIndices<ushort>(indexStream);
         }
 
-        var indexBuffer = gltf.BuildBufferView(indexStream.Span, buffer, -1, BufferViewTarget.ElementArrayBuffer).Id;
+        var indexBuffer = gltf.CreateBufferView(indexStream.Span, buffer, -1, BufferViewTarget.ElementArrayBuffer).Id;
 
         for (var submeshIndex = 0; submeshIndex < mesh.Submeshes.Count; submeshIndex++) {
             var submesh = mesh.Submeshes[submeshIndex];
@@ -376,20 +480,18 @@ public static class SnuggleMeshFile {
             if (submesh.Topology != GfxPrimitiveType.Triangles) {
                 continue;
             }
-            
-            var primitive = new Primitive {
-                Mode = PrimitiveMode.Triangles,
-            };
+
+            var primitive = new Primitive { Mode = PrimitiveMode.Triangles };
 
             foreach (var (channel, index) in accessors) {
                 primitive.Attributes[ChannelToSemantic[channel]] = index;
             }
 
-            primitive.Indices = gltf.BuildAccessor(indexBuffer, (int) submesh.IndexCount, (int) submesh.FirstByte, AccessorType.SCALAR, indexSemantic).Id;
+            primitive.Indices = gltf.CreateAccessor(indexBuffer, (int) submesh.IndexCount, (int) submesh.FirstByte, AccessorType.SCALAR, indexSemantic).Id;
             if (material != null && existingMaterials!.TryGetValue(material.GetCompositeId(), out var materialId)) {
                 primitive.Material = materialId;
             }
-            
+
             // TODO(naomi): export glTF Morphs 
 
             element.Primitives.Add(primitive);
@@ -412,7 +514,7 @@ public static class SnuggleMeshFile {
         var (materialElement, materialId) = gltf.CreateMaterial(gltf);
         materialElement.Name = material.Name;
         existingMaterials[material.GetCompositeId()] = materialId;
-        
+
         foreach (var (name, texEnv) in material.SavedProperties.Textures) {
             if (texEnv.Texture.Value is not Texture2D texture) {
                 continue;
@@ -421,7 +523,7 @@ public static class SnuggleMeshFile {
             texture.Deserialize(deserializationOptions);
 
             if (!existingMaterials.TryGetValue(texture.GetCompositeId(), out var texId)) {
-                var texPath = Path.GetFileName(PathFormatter.Format(exportOptions.DecidePathTemplate(texture), "png", texture)); 
+                var texPath = Path.GetFileName(PathFormatter.Format(exportOptions.DecidePathTemplate(texture), "png", texture));
                 texPath = Path.GetFileName(SnuggleTextureFile.Save(texture, Path.Combine(path, texPath), exportOptions, false));
                 texId = gltf.CreateTexture(texPath, WrapMode.Repeat, WrapMode.Repeat, null, null).Id;
                 existingMaterials[texture.GetCompositeId()] = texId;
@@ -438,7 +540,7 @@ public static class SnuggleMeshFile {
             materialElement.PBR ??= new PBRMaterial();
             materialElement.PBR.BaseColorTexture = new TextureInfo { TexCoord = 0, Index = mainTexId };
         }
-        
+
         if (material.SavedProperties.Colors.TryGetValue("_Color", out var baseColor) || material.SavedProperties.Colors.TryGetValue("_BaseColor", out baseColor)) {
             materialElement.PBR ??= new PBRMaterial();
             materialElement.PBR.BaseColorFactor = new List<double> { baseColor.R, baseColor.G, baseColor.B, baseColor.A };
@@ -455,6 +557,7 @@ public static class SnuggleMeshFile {
             if (cast.Length - i < 3) {
                 break;
             }
+
             (cast[i + 0], cast[i + 2]) = (cast[i + 2], cast[i + 0]);
         }
     }
@@ -471,10 +574,10 @@ public static class SnuggleMeshFile {
         if (buffer.Length > 0 || makeDirectory) {
             output = Path.Combine(Path.ChangeExtension(output, null), Path.GetFileName(output));
         }
-        output.EnsureDirectoryExists();
-        
-        if (buffer.Length > 0) {
 
+        output.EnsureDirectoryExists();
+
+        if (buffer.Length > 0) {
             var binName = Path.GetFileNameWithoutExtension(output) + ".bin";
             root.Buffers = new List<Buffer> { new() { ByteLength = (int) buffer.Length, Uri = binName } };
             buffer.Position = 0;
@@ -483,42 +586,5 @@ public static class SnuggleMeshFile {
 
         using var file = File.OpenWrite(output);
         JsonSerializer.Serialize(file, root, Options);
-    }
-
-    [StructLayout(LayoutKind.Sequential, Pack = 4)]
-    private struct Vector4I {
-        public readonly int X;
-        public readonly int Y;
-        public readonly int Z;
-        public readonly int W;
-
-        public Vector4I() {
-            X = 0;
-            Y = 0;
-            Z = 0;
-            W = 0;
-        }
-
-        public Vector4I(IReadOnlyList<int> array) {
-            X = array[0];
-            Y = array[1];
-            W = array[2];
-            Z = array[3];
-        }
-    }
-
-    [StructLayout(LayoutKind.Sequential, Pack = 2)]
-    private struct Vector4S {
-        public readonly ushort X;
-        public readonly ushort Y;
-        public readonly ushort Z;
-        public readonly ushort W;
-
-        public Vector4S(Vector4I v4i) {
-            X = (ushort) v4i.X;
-            Y = (ushort) v4i.Y;
-            Z = (ushort) v4i.Z;
-            W = (ushort) v4i.W;
-        }
     }
 }

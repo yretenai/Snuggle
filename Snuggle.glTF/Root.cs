@@ -86,9 +86,25 @@ public record Root : Property {
         return (mesh, id);
     }
 
-    public (Accessor Accessor, int Id) BuildAccessor<T>(T[] array, Stream buffer, BufferViewTarget target, AccessorType type, AccessorComponentType componentType) where T : struct => BuildAccessor(BuildBufferView(MemoryMarshal.AsBytes(array.AsSpan()), buffer, Unsafe.SizeOf<T>(), target).Id, array.Length, 0, type, componentType);
+    public (Accessor Accessor, int Id) CreateAccessor<T>(T[] array, Stream buffer, BufferViewTarget? target, AccessorType type, AccessorComponentType componentType, int? stride = null) where T : struct => CreateAccessor(CreateBufferView(MemoryMarshal.AsBytes(array.AsSpan()), buffer, stride ?? Unsafe.SizeOf<T>(), target).Id, array.Length, 0, type, componentType);
 
-    public (Accessor Accessor, int Id) BuildAccessor(int bufferView, int count, int offset, AccessorType type, AccessorComponentType componentType) {
+    public (Accessor Accessor, int Id) CreateAccessor<T>(
+        T[][] array,
+        int size,
+        Stream buffer,
+        BufferViewTarget? target,
+        AccessorType type,
+        AccessorComponentType componentType,
+        int? stride = null) where T : struct {
+        var tmp = new Span<T>(new T[size * array.Length]);
+        for (var i = 0; i < array.Length; ++i) {
+            array[i].AsSpan().CopyTo(tmp[(i * size)..]);
+        }
+
+        return CreateAccessor(CreateBufferView(MemoryMarshal.AsBytes(tmp), buffer, stride ?? Unsafe.SizeOf<T>(), target).Id, array.Length, 0, type, componentType);
+    }
+
+    public (Accessor Accessor, int Id) CreateAccessor(int bufferView, int count, int offset, AccessorType type, AccessorComponentType componentType) {
         Accessors ??= new List<Accessor>();
         var id = Accessors.Count;
         var accessor = new Accessor {
@@ -102,7 +118,7 @@ public record Root : Property {
         return (accessor, id);
     }
 
-    public (BufferView View, int Id) BuildBufferView(Span<byte> data, Stream buffer, int stride, BufferViewTarget target) {
+    public (BufferView View, int Id) CreateBufferView(Span<byte> data, Stream buffer, int? stride, BufferViewTarget? target) {
         BufferViews ??= new List<BufferView>();
         var id = BufferViews.Count;
         var lastBufferView = BufferViews.LastOrDefault();
@@ -115,7 +131,7 @@ public record Root : Property {
             ByteLength = data.Length,
             ByteOffset = offset,
             Buffer = 0,
-            ByteStride = target == BufferViewTarget.ArrayBuffer ? stride : null,
+            ByteStride = stride is null or <= 0 ? null : stride,
             Target = target,
         };
         BufferViews.Add(bufferView);
@@ -126,24 +142,22 @@ public record Root : Property {
     public (Texture Texture, int Id) CreateTexture(string path, WrapMode wrapX, WrapMode wrapY, MagnificationFilter? mag, MinificationFilter? min) {
         Textures ??= new List<Texture>();
         var id = Textures.Count;
-        var texture = new Texture {
-            Source = CreateImage(path).Id,
-            Sampler = CreateSampler(mag, min, wrapX, wrapY).Id,
-        };
+        var texture = new Texture { Source = CreateImage(path).Id, Sampler = CreateSampler(mag, min, wrapX, wrapY).Id };
         Textures.Add(texture);
         return (texture, id);
-        
     }
 
     private (Sampler Sampler, int Id) CreateSampler(MagnificationFilter? mag, MinificationFilter? min, WrapMode wrapU, WrapMode wrapV) {
         Samplers ??= new List<Sampler>();
-        var id = Samplers.Count;
         var sampler = new Sampler {
-            MinificationFilter = min,
-            MagnificationFilter = mag,
-            WrapS = wrapU,
-            WrapT = wrapV,
+            MinificationFilter = min, MagnificationFilter = mag, WrapS = wrapU, WrapT = wrapV,
         };
+        var id = Samplers.IndexOf(sampler);
+        if (id > -1) {
+            return (Samplers[id], id);
+        }
+
+        id = Samplers.Count;
         Samplers.Add(sampler);
         return (sampler, id);
     }
@@ -151,9 +165,7 @@ public record Root : Property {
     private (Image Source, int Id) CreateImage(string path) {
         Images ??= new List<Image>();
         var id = Images.Count;
-        var image = new Image {
-            Uri = path,
-        };
+        var image = new Image { Uri = path };
         Images.Add(image);
         return (image, id);
     }
@@ -164,5 +176,13 @@ public record Root : Property {
         var material = new Material();
         Materials.Add(material);
         return (material, id);
+    }
+
+    public (Skin Skin, int Id) CreateSkin() {
+        Skins ??= new List<Skin>();
+        var id = Skins.Count;
+        var skin = new Skin();
+        Skins.Add(skin);
+        return (skin, id);
     }
 }
