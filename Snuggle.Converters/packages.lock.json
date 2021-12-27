@@ -374,15 +374,6 @@
         "resolved": "4.5.0",
         "contentHash": "okurQJO6NRE/apDIP23ajJ0hpiNmJ+f0BwOlB/cSqTLQlw5upkf+5+96+iG2Jw40G1fCVCyPz/FhIABUjMR+RQ=="
       },
-      "sharpgltf.core": {
-        "type": "Project"
-      },
-      "sharpgltf.toolkit": {
-        "type": "Project",
-        "dependencies": {
-          "SharpGLTF.Core": "1.0.0"
-        }
-      },
       "snuggle.core": {
         "type": "Project",
         "dependencies": {

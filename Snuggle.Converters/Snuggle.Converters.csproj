@@ -15,8 +15,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Library\SharpGLTF\src\SharpGLTF.Core\SharpGLTF.Core.csproj" />
-        <ProjectReference Include="..\Library\SharpGLTF\src\SharpGLTF.Toolkit\SharpGLTF.Toolkit.csproj" />
         <ProjectReference Include="..\Snuggle.Core\Snuggle.Core.csproj" />
         <ProjectReference Include="..\Snuggle.glTF\Snuggle.glTF.csproj" />
         <ProjectReference Include="..\Snuggle.Native\Snuggle.Native.csproj" />

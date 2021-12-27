@@ -258,28 +258,20 @@ public static class SnuggleFile {
                 return;
             }
             case Mesh mesh: {
-                if (instance.Settings.ExportOptions.UseNewGLTFExporter) {
-                    SnuggleMeshFile.Save(mesh, resultPath, instance.Settings.ObjectOptions, instance.Settings.ExportOptions, instance.Settings.MeshExportOptions);
-                } else {
-                    SnuggleMeshFileLegacy.Save(mesh, resultPath, instance.Settings.ObjectOptions, instance.Settings.ExportOptions, instance.Settings.MeshExportOptions);
-                }
+                SnuggleMeshFile.Save(mesh, resultPath, instance.Settings.ObjectOptions, instance.Settings.ExportOptions, instance.Settings.MeshExportOptions);
                 return;
             }
             case Component component: {
                 if (component is not SkinnedMeshRenderer and not MeshFilter) {
                     return;
                 }
-                
+
                 var gameObject = component.GameObject.Value;
                 if (gameObject == null) {
                     return;
                 }
 
-                if (instance.Settings.ExportOptions.UseNewGLTFExporter) {
-                    SnuggleMeshFile.Save(gameObject, resultPath, instance.Settings.ObjectOptions, instance.Settings.ExportOptions, instance.Settings.MeshExportOptions);
-                } else {
-                    SnuggleMeshFileLegacy.Save(gameObject, resultPath, instance.Settings.ObjectOptions, instance.Settings.ExportOptions, instance.Settings.MeshExportOptions);
-                }
+                SnuggleMeshFile.Save(gameObject, resultPath, instance.Settings.ObjectOptions, instance.Settings.ExportOptions, instance.Settings.MeshExportOptions);
                 return;
             }
             case Text text: {
@@ -299,11 +291,7 @@ public static class SnuggleFile {
                 return;
             }
             case GameObject gameObject: {
-                if (instance.Settings.ExportOptions.UseNewGLTFExporter) {
-                    SnuggleMeshFile.Save(gameObject, resultPath, instance.Settings.ObjectOptions, instance.Settings.ExportOptions, instance.Settings.MeshExportOptions);
-                } else {
-                    SnuggleMeshFileLegacy.Save(gameObject, resultPath, instance.Settings.ObjectOptions, instance.Settings.ExportOptions, instance.Settings.MeshExportOptions);
-                }
+                SnuggleMeshFile.Save(gameObject, resultPath, instance.Settings.ObjectOptions, instance.Settings.ExportOptions, instance.Settings.MeshExportOptions);
                 return;
             }
         }

@@ -727,21 +727,10 @@
           "System.Xml.ReaderWriter": "4.0.11"
         }
       },
-      "sharpgltf.core": {
-        "type": "Project"
-      },
-      "sharpgltf.toolkit": {
-        "type": "Project",
-        "dependencies": {
-          "SharpGLTF.Core": "1.0.0"
-        }
-      },
       "snuggle.converters": {
         "type": "Project",
         "dependencies": {
           "DirectXTexNet": "1.0.3",
-          "SharpGLTF.Core": "1.0.0",
-          "SharpGLTF.Toolkit": "1.0.0",
           "SixLabors.ImageSharp": "1.0.4",
           "SixLabors.ImageSharp.Drawing": "1.0.0-beta13",
           "Snuggle.Core": "1.0.0",
