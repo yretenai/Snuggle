@@ -48,6 +48,10 @@ public static class SnuggleMeshFile {
         };
 
     public static void Save(Mesh mesh, string path, ObjectDeserializationOptions deserializationOptions, SnuggleExportOptions exportOptions, SnuggleMeshExportOptions options) {
+        if (GltfExists(path)) {
+            return;
+        }
+        
         var (gltf, scene, buffer) = CreateGltf(mesh.SerializedFile.Assets?.PlayerSettings);
 
         var (meshNode, _) = scene.CreateNode(gltf);
@@ -70,7 +74,16 @@ public static class SnuggleMeshFile {
         SaveGltf(path, gltf, buffer, false);
     }
 
+    private static bool GltfExists(string path) {
+        path = Path.GetFullPath(path);
+        return File.Exists(path) || File.Exists(Path.Combine(Path.ChangeExtension(path, null), Path.GetFileName(path)));
+    }
+
     public static void Save(GameObject gameObject, string path, ObjectDeserializationOptions deserializationOptions, SnuggleExportOptions exportOptions, SnuggleMeshExportOptions options) {
+        if (GltfExists(path)) {
+            return;
+        }
+        
         var (gltf, scene, buffer) = CreateGltf(gameObject.SerializedFile.Assets?.PlayerSettings);
 
         var (rootNode, rootId) = scene.CreateNode(gltf);

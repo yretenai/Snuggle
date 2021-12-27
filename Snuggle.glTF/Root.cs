@@ -121,10 +121,14 @@ public record Root : Property {
     public (BufferView View, int Id) CreateBufferView(Span<byte> data, Stream buffer, int? stride, BufferViewTarget? target) {
         BufferViews ??= new List<BufferView>();
         var id = BufferViews.Count;
-        var lastBufferView = BufferViews.LastOrDefault();
-        var offset = 0;
-        if (lastBufferView != null) {
-            offset = lastBufferView.ByteOffset + lastBufferView.ByteLength;
+        
+        var offset = (int) buffer.Length;
+        
+        // align to 16.
+        if (offset % 16 > 0) {
+            var delta = 16 - offset % 16;
+            buffer.Write(new byte[delta]);
+            offset += delta;
         }
 
         var bufferView = new BufferView {
