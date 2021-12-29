@@ -145,6 +145,7 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
         Search = string.Empty;
         Filters.Clear();
         SnuggleTextureFile.ClearMemory();
+        SnuggleSpriteFile.ClearMemory();
         Collection.Reset();
         if (respawn) {
             TokenSource = new CancellationTokenSource();
@@ -244,6 +245,7 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
         }
 
         SnuggleTextureFile.ClearMemory();
+        SnuggleSpriteFile.ClearMemory();
 
         AssetCollection.Collect();
     }

@@ -175,6 +175,7 @@ public static class SnuggleFile {
 
             if (SnuggleCore.Instance.Status.Value % 1000 == 0) {
                 SnuggleTextureFile.ClearMemory();
+                SnuggleSpriteFile.ClearMemory();
             }
 
             var serializedObject = SnuggleObject.GetObject();

@@ -22,7 +22,7 @@ namespace Snuggle.Converters;
 
 [PublicAPI]
 public static class SnuggleSpriteFile {
-    private static ConcurrentDictionary<(long, string), (ReadOnlyMemory<byte>, Size, TextureFormat)> CachedData { get; } = new();
+    private static ConcurrentDictionary<(long, string), (ReadOnlyMemory<byte>, Size, TextureFormat)> CachedData { get; set; } = new();
 
     // Perfare's Asset Studio - SpriteHelper.cs.
     public static (Memory<byte> RGBA, Size Size, TextureFormat baseFormat) ConvertSprite(Sprite sprite, ObjectDeserializationOptions options, bool useDirectXTex) {
@@ -53,6 +53,12 @@ public static class SnuggleSpriteFile {
         var newMemory = new Memory<byte>(new byte[memory.Length]);
         memory.CopyTo(newMemory);
         return (newMemory, size, format);
+    }
+
+    public static void ClearMemory() {
+        CachedData.Clear();
+        CachedData = new ConcurrentDictionary<(long, string), (ReadOnlyMemory<byte>, Size, TextureFormat)>();
+        Configuration.Default.MemoryAllocator.ReleaseRetainedResources();
     }
 
     private static Image<Rgba32>? ConvertSprite(Sprite sprite, Texture2D texture, Rect textureRect, Vector2 textureOffset, SpriteSettings settings, bool useDirectXTex) {
@@ -133,7 +139,7 @@ public static class SnuggleSpriteFile {
                 var vertices = new Vector2[submesh.VertexCount];
                 for (var v = 0; v < submesh.VertexCount; v++) {
                     var value = channel.Unpack(buffer[offset..]);
-                    offset += channel.GetSize();
+                    offset += strides[channel.Stream];
                     var floatValues = value.Select(Convert.ToSingle).Concat(new float[4]).Take(2).ToArray();
                     vertices[v] = new Vector2(floatValues[0], floatValues[1]);
                 }
