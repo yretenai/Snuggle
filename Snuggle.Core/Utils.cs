@@ -77,6 +77,23 @@ public static class Utils {
 
     public static string? GetNameFromTag(object? tag) {
         var str = GetStringFromTag(tag);
-        return string.IsNullOrEmpty(str) ? null : Path.GetFileNameWithoutExtension(str);
+        if (string.IsNullOrEmpty(str)) {
+            return null;
+        }
+
+        if (Path.GetExtension(str) == ".split0") {
+            return Path.GetFileNameWithoutExtension(str);
+        }
+
+        return Path.GetFileName(str);
+    }
+
+    public static string? GetNameFromTagWithoutExtension(object? tag) {
+        var str = GetStringFromTag(tag);
+        if (string.IsNullOrEmpty(str)) {
+            return null;
+        }
+
+        return Path.GetFileNameWithoutExtension(str);
     }
 }
