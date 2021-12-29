@@ -36,7 +36,7 @@ public static class SnuggleMaterialFile {
 
         var textures = material.SavedProperties.Textures.Where(x => !x.Value.Texture.IsNull).ToDictionary(x => x.Key, x => new TextureInfo(x.Value));
         var floats = material.SavedProperties.Floats.Select(x => float.IsNormal(x.Value) ? x : new KeyValuePair<string, float>(x.Key, 0));
-        var colors = material.SavedProperties.Colors.Select(x => new KeyValuePair<string, ColorRGBA>(x.Key, x.Value.JSONSafe));
+        var colors = material.SavedProperties.Colors.Select(x => new KeyValuePair<string, ColorRGBA>(x.Key, x.Value.GetJSONSafe()));
 
         using var materialStream = new FileStream(matPath, FileMode.Create);
         using var materialWriter = new StreamWriter(materialStream, Encoding.UTF8);
@@ -44,6 +44,6 @@ public static class SnuggleMaterialFile {
     }
 
     public record struct TextureInfo(long PathId, string? Name, Vector2 Scale, Vector2 Offset) {
-        public TextureInfo(UnityTexEnv env) : this(env.Texture.PathId, string.IsNullOrWhiteSpace(env.Texture.Value?.ObjectContainerPath) ? env.Texture.Value?.Name : env.Texture.Value?.ObjectContainerPath, env.Scale.JSONSafe, env.Offset.JSONSafe) { }
+        public TextureInfo(UnityTexEnv env) : this(env.Texture.PathId, string.IsNullOrWhiteSpace(env.Texture.Value?.ObjectContainerPath) ? env.Texture.Value?.Name : env.Texture.Value?.ObjectContainerPath, env.Scale.GetJSONSafe(), env.Offset.GetJSONSafe()) { }
     }
 }

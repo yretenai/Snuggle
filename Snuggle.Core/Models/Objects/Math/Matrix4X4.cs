@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using System.Text.Json.Serialization;
 using JetBrains.Annotations;
 
 namespace Snuggle.Core.Models.Objects.Math;
@@ -42,18 +41,15 @@ public record struct Matrix4X4(
         0,
         1);
 
-    [JsonIgnore]
-    public Matrix4X4 JSONSafe {
-        get {
-            Span<float> floats = GetFloats();
-            for (var i = 0; i < floats.Length; ++i) {
-                if (!float.IsNormal(floats[i])) {
-                    floats[i] = 0;
-                }
+    public Matrix4X4 GetJSONSafe() {
+        Span<float> floats = GetFloats();
+        for (var i = 0; i < floats.Length; ++i) {
+            if (!float.IsNormal(floats[i])) {
+                floats[i] = 0;
             }
-
-            return MemoryMarshal.Cast<float, Matrix4X4>(floats)[0];
         }
+
+        return MemoryMarshal.Cast<float, Matrix4X4>(floats)[0];
     }
 
     public float[] GetFloats() {
