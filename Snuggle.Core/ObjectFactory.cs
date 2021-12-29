@@ -30,6 +30,7 @@ public static class ObjectFactory {
     public static Type BaseClassIdType { get; } = typeof(UnityClassId);
 
     public static Dictionary<UnityGame, Dictionary<object, Type>> Implementations { get; set; } = new() { { UnityGame.Default, new Dictionary<object, Type>() } };
+    public static Dictionary<object, HashSet<UnityGame>> DisabledDefaultImplementations { get; set; } = new();
 
     public static Dictionary<UnityGame, Type> ClassIdExtensions { get; set; } = new();
 
@@ -62,6 +63,18 @@ public static class ObjectFactory {
             }
 
             gameImplementations[attribute.UnderlyingClassId] = type;
+
+            if (attribute.DisabledGames.Length > 0) {
+                if (!DisabledDefaultImplementations.TryGetValue(attribute.UnderlyingClassId, out var disabledImplemtations)) {
+                    disabledImplemtations = new HashSet<UnityGame>();
+                    DisabledDefaultImplementations[attribute.UnderlyingClassId] = disabledImplemtations;
+                }
+
+                disabledImplemtations.EnsureCapacity(disabledImplemtations.Count + attribute.DisabledGames.Length);
+                foreach (var game in attribute.DisabledGames) {
+                    disabledImplemtations.Add(game);
+                }
+            }
         }
 
         foreach (var (type, attribute) in assembly.GetExportedTypes().Where(x => x.IsEnum).Select(x => (Type: x, Attribute: x.GetCustomAttribute<ClassIdExtensionAttribute>())).Where(x => x.Attribute != null)) {
@@ -103,7 +116,9 @@ public static class ObjectFactory {
 
     private static bool TryFindObjectType(UnityObjectInfo info, SerializedFile serializedFile, object? overrideType, ref UnityGame? overrideGame, out bool hasImplementation, [MaybeNullWhen(false)] out Type type) {
         type = null;
-        if (!Implementations.TryGetValue(overrideGame ?? serializedFile.Options.Game, out var gameImplementations)) {
+        overrideGame ??= serializedFile.Options.Game;
+
+        if (!Implementations.TryGetValue(overrideGame.Value, out var gameImplementations)) {
             overrideGame = UnityGame.Default;
             gameImplementations = Implementations[UnityGame.Default];
         }
@@ -121,6 +136,10 @@ public static class ObjectFactory {
         }
 
         type ??= BaseType;
+
+        if (overrideGame == UnityGame.Default && serializedFile.Options.Game != UnityGame.Default && DisabledDefaultImplementations.TryGetValue(overrideType ?? info.ClassId, out var disabledGames) && disabledGames.Contains(serializedFile.Options.Game)) {
+            type = BaseType;
+        }
 
         return true;
     }
