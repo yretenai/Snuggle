@@ -215,8 +215,7 @@ public class SerializedFile : IRenewable {
     public Bundle? GetBundle() {
         var handler = Handler;
         while (true) {
-            switch (handler)
-            {
+            switch (handler) {
                 case BundleStreamHandler bsh:
                     return bsh.BundleFile;
                 case MultiStreamHandler msh:
