@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Snuggle.Core.Extensions;
@@ -6,6 +7,7 @@ using Snuggle.Core.Meta;
 using Snuggle.Core.Models;
 using Snuggle.Core.Models.Objects.Math;
 using Snuggle.Core.Models.Serialization;
+using Snuggle.Core.Options;
 
 namespace Snuggle.Core.Implementations;
 
@@ -52,4 +54,8 @@ public class SkinnedMeshRenderer : Renderer {
     public PPtr<Transform> RootBone { get; set; }
     public AABB AABB { get; set; }
     public bool DirtyAABB { get; set; }
+
+    public override void Serialize(BiEndianBinaryWriter writer, AssetSerializationOptions options) {
+        throw new NotImplementedException();
+    }
 }

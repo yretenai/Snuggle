@@ -728,6 +728,6 @@ public class PlayerSettings : SerializedObject {
 
     public override void Serialize(BiEndianBinaryWriter writer, AssetSerializationOptions options) {
         base.Serialize(writer, options);
-        throw new NotSupportedException();
+        throw new NotImplementedException();
     }
 }

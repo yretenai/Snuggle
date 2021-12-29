@@ -68,7 +68,7 @@ public static class MeshConverter {
 
     public static Memory<byte>[] GetVBO(Mesh mesh, out Dictionary<VertexChannel, ChannelInfo> channels, out int[] strides) {
         if (mesh.ShouldDeserialize) {
-            throw new IncompleteDeserializationException();
+            throw new IncompleteDeserialization();
         }
 
         Memory<byte> fullBuffer;
@@ -109,7 +109,7 @@ public static class MeshConverter {
 
     public static Memory<byte> GetIBO(Mesh mesh) {
         if (mesh.ShouldDeserialize) {
-            throw new IncompleteDeserializationException();
+            throw new IncompleteDeserialization();
         }
 
         if (mesh.MeshCompression == 0) {

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Snuggle.Core.Extensions;
@@ -7,6 +8,7 @@ using Snuggle.Core.Models;
 using Snuggle.Core.Models.Objects.Graphics;
 using Snuggle.Core.Models.Objects.Math;
 using Snuggle.Core.Models.Serialization;
+using Snuggle.Core.Options;
 
 namespace Snuggle.Core.Implementations;
 
@@ -123,4 +125,8 @@ public class Renderer : Behaviour {
     public int SortingLayerId { get; set; }
     public short SortingLayer { get; set; }
     public short SortingOrder { get; set; }
+
+    public override void Serialize(BiEndianBinaryWriter writer, AssetSerializationOptions options) {
+        throw new NotImplementedException();
+    }
 }

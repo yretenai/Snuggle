@@ -77,7 +77,7 @@ public record VertexData(uint CurrentChannels, uint VertexCount, Dictionary<Vert
 
     public void ToWriter(BiEndianBinaryWriter writer, SerializedFile serializedFile, UnityVersion targetVersion) {
         if (ShouldDeserialize) {
-            throw new IncompleteDeserializationException();
+            throw new IncompleteDeserialization();
         }
 
         if (targetVersion < UnityVersionRegister.Unity2018) {
@@ -91,7 +91,6 @@ public record VertexData(uint CurrentChannels, uint VertexCount, Dictionary<Vert
             channel.ToWriter(writer, serializedFile, targetVersion);
         }
 
-        writer.Write(Data!.Value.Length);
         writer.WriteMemory(Data);
     }
 

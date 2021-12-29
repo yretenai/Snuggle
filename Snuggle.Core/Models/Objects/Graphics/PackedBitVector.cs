@@ -46,7 +46,7 @@ public record PackedBitVector(uint Count, byte BitSize) {
 
     public void ToWriter(BiEndianBinaryWriter writer, SerializedFile serializedFile, UnityVersion targetVersion) {
         if (ShouldDeserialize) {
-            throw new IncompleteDeserializationException();
+            throw new IncompleteDeserialization();
         }
 
         writer.Write(Count);
@@ -55,7 +55,6 @@ public record PackedBitVector(uint Count, byte BitSize) {
             writer.Write(Start);
         }
 
-        writer.Write(Data!.Value.Length);
         writer.WriteMemory(Data);
         writer.Align();
         writer.Write(BitSize);

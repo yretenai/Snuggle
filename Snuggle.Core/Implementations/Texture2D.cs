@@ -136,7 +136,7 @@ public class Texture2D : Texture, ISerializedResource {
 
     public void Serialize(BiEndianBinaryWriter writer, BiEndianBinaryWriter resourceStream, AssetSerializationOptions options) {
         if (ShouldDeserialize) {
-            throw new IncompleteDeserializationException();
+            throw new IncompleteDeserialization();
         }
 
         base.Serialize(writer, options);
@@ -192,7 +192,7 @@ public class Texture2D : Texture, ISerializedResource {
         if (TextureData.Value.Length > options.ResourceDataThreshold) {
             writer.Write(0);
             new StreamingInfo(resourceStream.BaseStream.Position, TextureData.Value.Length, options.ResourceFileName).ToWriter(writer, SerializedFile, options.TargetVersion);
-            resourceStream.WriteMemory(TextureData);
+            resourceStream.Write(TextureData.Value.Span);
             resourceStream.Align(options.Alignment);
         } else {
             new StreamingInfo(writer.BaseStream.Position, TextureData.Value.Length, options.FileName).ToWriter(writer, SerializedFile, options.TargetVersion);

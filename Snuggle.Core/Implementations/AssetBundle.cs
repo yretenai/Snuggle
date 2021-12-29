@@ -122,7 +122,7 @@ public class AssetBundle : NamedObject, ICABPathProvider {
 
     public override void Serialize(BiEndianBinaryWriter writer, AssetSerializationOptions options) {
         if (ShouldDeserialize) {
-            throw new IncompleteDeserializationException();
+            throw new IncompleteDeserialization();
         }
 
         base.Serialize(writer, options);

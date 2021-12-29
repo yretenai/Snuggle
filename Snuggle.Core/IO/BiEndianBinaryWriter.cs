@@ -173,6 +173,7 @@ public class BiEndianBinaryWriter : BinaryWriter {
         if (memory == null) {
             Write(0);
         } else {
+            Write(memory.Value.Length);
             Write(memory.Value.Span);
         }
     }
@@ -185,6 +186,7 @@ public class BiEndianBinaryWriter : BinaryWriter {
         if (memory == null) {
             Write(0);
         } else {
+            Write(memory.Value.Length);
             Write(MemoryMarshal.AsBytes(memory.Value.Span));
         }
     }

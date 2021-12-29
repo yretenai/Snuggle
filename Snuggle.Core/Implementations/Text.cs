@@ -48,11 +48,10 @@ public class Text : NamedObject {
 
     public override void Serialize(BiEndianBinaryWriter writer, AssetSerializationOptions options) {
         if (ShouldDeserialize) {
-            throw new IncompleteDeserializationException();
+            throw new IncompleteDeserialization();
         }
 
         base.Serialize(writer, options);
-        writer.Write(String!.Value.Length);
         writer.WriteMemory(String);
     }
 

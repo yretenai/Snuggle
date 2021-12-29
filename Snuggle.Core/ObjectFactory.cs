@@ -89,7 +89,7 @@ public static class ObjectFactory {
             }
 
             if (type == null) {
-                throw new TypeImplementationNotFoundException(overrideType ?? info.ClassId);
+                throw new TypeImplementationNotFound(overrideType ?? info.ClassId);
             }
 
             using var reader = new BiEndianBinaryReader(stream, serializedFile.Header.IsBigEndian);

@@ -48,7 +48,7 @@ public class MonoBehaviour : Behaviour {
         if (ShouldDeserializeData && ObjectData == null && SerializedFile.Assets != null) {
             var script = Script.Value;
             if (script == null) {
-                throw new PPtrNullReferenceException(UnityClassId.MonoScript);
+                throw new PPtrNullReference(UnityClassId.MonoScript);
             }
 
             var name = script.ToString();
@@ -73,7 +73,7 @@ public class MonoBehaviour : Behaviour {
 
     public override void Serialize(BiEndianBinaryWriter writer, AssetSerializationOptions options) {
         if (ShouldDeserialize) {
-            throw new IncompleteDeserializationException();
+            throw new IncompleteDeserialization();
         }
 
         base.Serialize(writer, options);

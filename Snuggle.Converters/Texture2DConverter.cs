@@ -476,7 +476,7 @@ public static class Texture2DConverter {
 
     public static Span<byte> ToDDS(Texture2D texture) {
         if (texture.ShouldDeserialize) {
-            throw new IncompleteDeserializationException();
+            throw new IncompleteDeserialization();
         }
 
         return DDS.BuildDDS(texture.TextureFormat.ToD3DPixelFormat(), texture.MipCount, texture.Width, texture.Height, texture.TextureCount, texture.TextureData!.Value.Span);

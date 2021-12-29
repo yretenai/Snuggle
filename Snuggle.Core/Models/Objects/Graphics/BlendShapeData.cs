@@ -51,7 +51,7 @@ public record BlendShapeData(List<MeshBlendShape> Shapes, List<MeshBlendShapeCha
 
     public void ToWriter(BiEndianBinaryWriter writer, SerializedFile serializedFile, UnityVersion targetVersion) {
         if (ShouldDeserialize) {
-            throw new IncompleteDeserializationException();
+            throw new IncompleteDeserialization();
         }
 
         writer.Write(Vertices!.Count);

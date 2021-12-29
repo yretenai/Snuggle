@@ -137,7 +137,7 @@ public record SpriteRenderData(
 
     public void ToWriter(BiEndianBinaryWriter writer, SerializedFile serializedFile, UnityVersion targetVersion) {
         if (ShouldDeserialize) {
-            throw new IncompleteDeserializationException();
+            throw new IncompleteDeserialization();
         }
 
         Texture.ToWriter(writer, serializedFile, targetVersion);

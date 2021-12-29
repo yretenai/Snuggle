@@ -67,7 +67,7 @@ public record CompressedMesh(
 
     public void ToWriter(BiEndianBinaryWriter writer, SerializedFile serializedFile, UnityVersion targetVersion) {
         if (ShouldDeserialize) {
-            throw new IncompleteDeserializationException();
+            throw new IncompleteDeserialization();
         }
 
         Vertices.ToWriter(writer, serializedFile, targetVersion);

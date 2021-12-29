@@ -28,7 +28,7 @@ namespace Snuggle.Converters;
 public static class MeshToHelixConverter {
     private static List<Object3D> GetSubmeshes(Mesh mesh, CancellationToken token) {
         if (mesh.ShouldDeserialize) {
-            throw new IncompleteDeserializationException();
+            throw new IncompleteDeserialization();
         }
 
         var vertexStream = MeshConverter.GetVBO(mesh, out var descriptors, out var strides);

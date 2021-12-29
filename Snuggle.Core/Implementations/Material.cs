@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Snuggle.Core.IO;
@@ -5,6 +6,7 @@ using Snuggle.Core.Meta;
 using Snuggle.Core.Models;
 using Snuggle.Core.Models.Objects.Graphics;
 using Snuggle.Core.Models.Serialization;
+using Snuggle.Core.Options;
 
 namespace Snuggle.Core.Implementations;
 
@@ -71,4 +73,8 @@ public class Material : NamedObject {
     public List<string> DisabledShaderPasses { get; set; } = new();
     public UnityPropertySheet SavedProperties { get; set; }
     public List<BuildTextureStackReference> BuildTextureStacks { get; set; } = new();
+
+    public override void Serialize(BiEndianBinaryWriter writer, AssetSerializationOptions options) {
+        throw new NotImplementedException();
+    }
 }
