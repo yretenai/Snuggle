@@ -22,7 +22,10 @@ Available variables:
     Project - The project name listed in the PlayerSettings (if present.)
     Product - The product name listed in the PlayerSettings (if present.)
     ProductOrProject - The product name listed in the PlayerSettings, otherwise project name (if present.)
-    Version - The bundle version listed in the PlayerSettings (if present.)";
+    Version - The bundle version listed in the PlayerSettings (if present.)
+    Tag - The Serialized File tag, usually it's filename.
+    Bundle - The Bundle tag, usually it's filename.
+    BundleOrTag - The bundle tag if present, otherwise the tag.";
 
     public const string DefaultPathTemplate = "{ProductOrProject}/{Version}/{ContainerOrNameWithoutExt}_{Id}.{Ext}";
     public const string DefaultContainerlessPathTemplate = "{ProductOrProject}/{Version}/__unknown/{Type}/{Name}_{Id}.{Ext}";

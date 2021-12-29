@@ -211,4 +211,20 @@ public class SerializedFile : IRenewable {
             Objects[objectInfo.PathId] = ObjectFactory.GetInstance(OpenFile(objectInfo, dataStream, dataStream != null), objectInfo, this);
         }
     }
+
+    public Bundle? GetBundle() {
+        var handler = Handler;
+        while (true) {
+            switch (handler)
+            {
+                case BundleStreamHandler bsh:
+                    return bsh.BundleFile;
+                case MultiStreamHandler msh:
+                    handler = msh.UnderlyingHandler;
+                    continue;
+            }
+
+            return null;
+        }
+    }
 }

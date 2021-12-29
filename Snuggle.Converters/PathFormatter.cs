@@ -4,6 +4,7 @@ using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using DragonLib;
+using Snuggle.Core;
 using Snuggle.Core.Implementations;
 
 namespace Snuggle.Converters;
@@ -83,6 +84,15 @@ public static class PathFormatter {
                     break;
                 case "VERSION":
                     builder.Append(asset.SerializedFile.Assets?.PlayerSettings?.BundleVersion.SanitizeDirname());
+                    break;
+                case "TAG":
+                    builder.Append(Utils.GetNameFromTag(asset.SerializedFile.Tag) ?? string.Empty);
+                    break;
+                case "BUNDLE":
+                    builder.Append(Utils.GetNameFromTag(asset.SerializedFile.GetBundle()?.Tag) ?? string.Empty);
+                    break;
+                case "BUNDLEORTAG":
+                    builder.Append(Utils.GetNameFromTag(asset.SerializedFile.GetBundle()?.Tag) ?? Utils.GetNameFromTag(asset.SerializedFile.Tag) ?? string.Empty);
                     break;
                 default:
                     builder.Append(match.Captures[0].Value.SanitizeDirname());
