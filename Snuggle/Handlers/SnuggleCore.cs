@@ -128,10 +128,6 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
                 } catch (Exception e) {
                     LogTarget.Error("Worker", $"Failed to perform {name} task", e);
                 }
-
-                LogTarget.Info("Worker", $"Memory Tension: {GC.GetTotalMemory(false).GetHumanReadableBytes()}");
-                IsFree = true;
-                Dispatcher.Invoke(() => OnPropertyChanged(nameof(IsFree)));
             }
         } catch (TaskCanceledException) {
             // ignored
@@ -139,6 +135,10 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
             // ignored
         } catch (Exception e) {
             LogTarget.Error("Worker", "Failed to get tasks", e);
+        } finally {
+            LogTarget.Info("Worker", $"Memory Tension: {GC.GetTotalMemory(false).GetHumanReadableBytes()}");
+            IsFree = true;
+            Dispatcher.Invoke(() => OnPropertyChanged(nameof(IsFree)));
         }
     }
 
