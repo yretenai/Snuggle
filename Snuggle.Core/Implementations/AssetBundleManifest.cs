@@ -46,7 +46,6 @@ public class AssetBundleManifest : NamedObject {
             writer.Write(name);
         }
 
-        writer.Write(AssetBundlesWithVariant.Count);
         writer.WriteArray(AssetBundlesWithVariant.ToArray());
 
         writer.Write(AssetBundleInfos.Count);

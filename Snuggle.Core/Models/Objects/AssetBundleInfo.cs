@@ -15,7 +15,6 @@ public record AssetBundleInfo(byte[] Hash, int[] Dependencies) {
 
     public void ToWriter(BiEndianBinaryWriter writer, SerializedFile serializedFile, UnityVersion targetVersion) {
         writer.Write(Hash);
-        writer.Write(Dependencies.Length);
         writer.WriteArray(Dependencies);
     }
 }

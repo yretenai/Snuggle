@@ -46,14 +46,14 @@ public class AnimatorController : RuntimeAnimatorController {
 
     private long ControllerStart { get; set; } = -1;
 
-    // public ControllerConstant? Controller { get; set; } TODO(naomi): ControllerConstant
+    public ControllerConstant? Controller { get; set; }
     public Dictionary<uint, string> Skeleton { get; set; } = new();
     public List<PPtr<SerializedObject>> AnimationClips { get; set; } = new(); // TODO(naomi): AnimationClip
     public StateMachineBehaviourVectorDescription StateMachine { get; set; } = StateMachineBehaviourVectorDescription.Default;
     public List<PPtr<MonoBehaviour>> StateMachineBehaviours { get; set; } = new();
     public bool MultiThreaded { get; set; }
 
-    private bool ShouldDeserializeController => ControllerStart > -1; // && Controller == null; TODO(naomi): Controller
+    private bool ShouldDeserializeController => ControllerStart > -1 && Controller == null;
 
     [JsonIgnore]
     public override bool ShouldDeserialize => ShouldDeserializeController;
@@ -66,6 +66,7 @@ public class AnimatorController : RuntimeAnimatorController {
         base.Deserialize(reader, options);
 
         if (ShouldDeserializeController) {
+            Controller = ControllerConstant.FromReader(reader, options);
             // TODO(naomi): Deserialize Controller
         }
     }
@@ -74,7 +75,7 @@ public class AnimatorController : RuntimeAnimatorController {
         base.Free();
 
         StateMachine.Free();
-        // TODO(naomi): Controller = null;
+        Controller = null;
     }
 
     public override void Serialize(BiEndianBinaryWriter writer, AssetSerializationOptions options) {

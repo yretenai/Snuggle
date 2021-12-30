@@ -1,8 +1,10 @@
-﻿using Snuggle.Core.IO;
+﻿using JetBrains.Annotations;
+using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
 
 namespace Snuggle.Core.Models.Objects.Animation;
 
+[PublicAPI]
 public record StateRange(uint Start, uint Count) {
     public static StateRange Default { get; } = new(0, 0);
 

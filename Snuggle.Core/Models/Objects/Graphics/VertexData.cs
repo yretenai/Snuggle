@@ -85,8 +85,8 @@ public record VertexData(uint CurrentChannels, uint VertexCount, Dictionary<Vert
         }
 
         writer.Write(VertexCount);
-        writer.Write(Channels.Count);
 
+        writer.Write(Channels.Count);
         foreach (var (_, channel) in Channels) {
             channel.ToWriter(writer, serializedFile, targetVersion);
         }

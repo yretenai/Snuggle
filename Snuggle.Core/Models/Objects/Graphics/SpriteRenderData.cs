@@ -158,14 +158,10 @@ public record SpriteRenderData(
                 submesh.ToWriter(writer, serializedFile, targetVersion);
             }
         } else {
-            writer.Write(Vertices?.Length ?? 0);
-            if (Vertices.HasValue) {
-                writer.WriteArray(Vertices.Value.Span);
-            }
+            writer.WriteMemory(Vertices);
         }
 
-        writer.Write(Indices!.Value.Length);
-        writer.WriteArray(Indices.Value.Span);
+        writer.WriteMemory(Indices);
         writer.Align();
 
         if (targetVersion >= UnityVersionRegister.Unity5_6) {
@@ -173,7 +169,6 @@ public record SpriteRenderData(
         }
 
         if (targetVersion >= UnityVersionRegister.Unity2018_1) {
-            writer.Write(BindPose.Count);
             writer.WriteArray(BindPose);
 
             if (targetVersion <= UnityVersionRegister.Unity2018_2) {

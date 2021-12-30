@@ -147,46 +147,56 @@ public class BiEndianBinaryWriter : BinaryWriter {
         Write((byte) 0);
     }
 
-    public void WriteArray<T>(IEnumerable<T> enumerable) where T : struct {
+    public void WriteArray<T>(IEnumerable<T> enumerable, bool writeCount = true) where T : struct {
         if (ShouldInvertEndianness) {
             throw new NotSupportedException("Cannot invert endianness of arrays");
         }
 
         var array = enumerable as T[] ?? enumerable.ToArray();
 
+        if (writeCount) {
+            Write(array.Length);
+        }
+
         Write(MemoryMarshal.AsBytes(array.AsSpan()));
     }
 
-    public void WriteArray<T>(Span<T> span) where T : struct {
+    public void WriteArray<T>(Span<T> span, bool writeCount = true) where T : struct {
         if (ShouldInvertEndianness) {
             throw new NotSupportedException("Cannot invert endianness of arrays");
+        }
+
+        if (writeCount) {
+            Write(span.Length);
         }
 
         Write(MemoryMarshal.AsBytes(span));
     }
 
-    public void WriteMemory(Memory<byte>? memory) {
+    public void WriteMemory(Memory<byte>? memory, bool writeCount = true) {
         if (ShouldInvertEndianness) {
             throw new NotSupportedException("Cannot invert endianness of structs");
         }
 
-        if (memory == null) {
-            Write(0);
-        } else {
-            Write(memory.Value.Length);
+        if (writeCount) {
+            Write(memory?.Length ?? 0);
+        }
+
+        if (memory != null) {
             Write(memory.Value.Span);
         }
     }
 
-    public void WriteMemory<T>(Memory<T>? memory) where T : struct {
+    public void WriteMemory<T>(Memory<T>? memory, bool writeCount = true) where T : struct {
         if (ShouldInvertEndianness) {
             throw new NotSupportedException("Cannot invert endianness of structs");
         }
 
-        if (memory == null) {
-            Write(0);
-        } else {
-            Write(memory.Value.Length);
+        if (writeCount) {
+            Write(memory?.Length ?? 0);
+        }
+
+        if (memory != null) {
             Write(MemoryMarshal.AsBytes(memory.Value.Span));
         }
     }

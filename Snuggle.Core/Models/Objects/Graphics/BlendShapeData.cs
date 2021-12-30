@@ -69,7 +69,6 @@ public record BlendShapeData(List<MeshBlendShape> Shapes, List<MeshBlendShapeCha
             channel.ToWriter(writer, serializedFile, targetVersion);
         }
 
-        writer.Write(Weights.Count);
         writer.WriteArray(Weights);
     }
 
