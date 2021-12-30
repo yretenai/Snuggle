@@ -5,6 +5,7 @@ using Snuggle.Core.Models.Serialization;
 
 namespace Snuggle.Core.Implementations;
 
+// [ObjectImplementation(UnityClassId.Animation)]
 public class Animation : Behaviour {
     public Animation(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) {
         AnimationClip = PPtr<SerializedObject>.FromReader(reader, serializedFile);

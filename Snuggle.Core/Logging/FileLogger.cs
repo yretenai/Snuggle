@@ -9,16 +9,21 @@ namespace Snuggle.Core.Logging;
 
 [PublicAPI]
 public sealed class FileLogger : ILogger {
+    public bool IsDisposed { get; private set; }
     public FileLogger(Stream baseStream) => Writer = new StreamWriter(baseStream, Encoding.UTF8);
 
     private StreamWriter Writer { get; }
 
     public void Dispose() {
         Writer.Dispose();
+        IsDisposed = true;
         GC.SuppressFinalize(this);
     }
 
     public void Log(LogLevel level, string? category, string message, Exception? exception) {
+        if (IsDisposed) {
+            return;
+        }
         if (exception != null) {
             message += $"\n{exception}";
         }

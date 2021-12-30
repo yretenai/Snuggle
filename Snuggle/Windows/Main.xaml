@@ -32,8 +32,8 @@
             </Grid.RowDefinitions>
             <Snuggle:Navigation DataContext="{Binding}" Grid.Column="0" Height="30" />
             <TextBox KeyDown="Search" Width="300" x:Name="SearchBox"
-                     adonisExtensions:WatermarkExtension.Watermark="Search" Visibility="{Binding HasAssetsVisibility}"
-                     Grid.Column="1" />
+                     adonisExtensions:WatermarkExtension.Watermark="Search"
+                     Grid.Column="1" IsEnabled="{Binding IsFree}" />
             <Label Content="{Binding Title}" VerticalAlignment="Center" FontWeight="Bold"
                    HorizontalContentAlignment="Center" Grid.Column="2" />
         </Grid>

@@ -2,7 +2,9 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:renderers="clr-namespace:Snuggle.Components.Renderers"
-             StartupUri="Windows/Main.xaml">
+             StartupUri="Windows/Main.xaml"
+             DispatcherUnhandledException="Crash"
+             Exit="Cleanup">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

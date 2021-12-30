@@ -35,11 +35,7 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
         SettingsFile = Path.Combine(workDir, $"{ProjectName}.json");
         WorkerThread = new Thread(WorkLoop);
         WorkerThread.Start();
-        if (!Directory.Exists(Path.Combine(workDir, "Log"))) {
-            Directory.CreateDirectory(Path.Combine(workDir, "Log"));
-        }
-
-        LogTarget = new MultiLogger { Loggers = { new ConsoleLogger(), new DebugLogger(), new FileLogger(new FileStream(Path.Combine(workDir, "Log", $"SnuggleLog_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds():D}.log"), FileMode.Create)) } };
+        LogTarget = new MultiLogger { Loggers = { new ConsoleLogger(), new DebugLogger(), ((App)Application.Current).Log } };
         SetOptions(File.Exists(SettingsFile) ? SnuggleOptions.FromJson(File.ReadAllText(SettingsFile)) : SnuggleOptions.Default);
         ResourceLocator.SetColorScheme(Application.Current.Resources, Settings.LightMode ? ResourceLocator.LightColorScheme : ResourceLocator.DarkColorScheme);
     }
@@ -57,6 +53,7 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
     public HashSet<object> Filters { get; set; } = new();
     public IReadOnlyList<SnuggleObject> SelectedObjects { get; set; } = Array.Empty<SnuggleObject>();
     public string? Search { get; set; }
+    public bool IsDisposed { get; private set; }
 
     public string Title {
         get {
@@ -86,6 +83,8 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
     public string ProjectName { get; } = Assembly.GetExecutingAssembly().GetName().Name ?? "Snuggle";
     public string FormattedProjectName { get; } = Navigation.SplitName(Assembly.GetExecutingAssembly().GetName().Name ?? "Snuggle");
 
+    public bool IsFree { get; set; } = true;
+
     public void Dispose() {
         Dispose(true);
         GC.SuppressFinalize(this);
@@ -98,6 +97,11 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
     }
 
     protected void Dispose(bool disposing) {
+        if (IsDisposed) {
+            return;
+        }
+
+        IsDisposed = true;
         Reset(false);
 
         if (disposing) {
@@ -114,6 +118,8 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
             foreach (var (name, task) in tasks.GetConsumingEnumerable(TokenSource.Token)) {
                 try {
                     sw.Start();
+                    IsFree = false;
+                    Dispatcher.Invoke(() => OnPropertyChanged(nameof(IsFree)));
                     task(TokenSource.Token);
                     sw.Stop();
                     var elapsed = sw.Elapsed;
@@ -124,6 +130,8 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
                 }
 
                 LogTarget.Info("Worker", $"Memory Tension: {GC.GetTotalMemory(false).GetHumanReadableBytes()}");
+                IsFree = true;
+                Dispatcher.Invoke(() => OnPropertyChanged(nameof(IsFree)));
             }
         } catch (TaskCanceledException) {
             // ignored
@@ -139,7 +147,10 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
         Tasks = new BlockingCollection<(string Name, Action<CancellationToken> Work)>();
         TokenSource.Cancel();
         TokenSource.Dispose();
-        WorkerThread.Join();
+        if (respawn) {
+            WorkerThread.Join();
+        }
+
         SelectedObject = null;
         Status.Reset();
         Search = string.Empty;
@@ -248,5 +259,10 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
         SnuggleSpriteFile.ClearMemory();
 
         AssetCollection.Collect();
+    }
+
+    public static string GetVersion() {
+        var pv = FileVersionInfo.GetVersionInfo(typeof(Bundle).Assembly.Location).ProductVersion;
+        return pv?.Contains('+') == true ? $"{BaseTitle} {pv.Split('+', StringSplitOptions.TrimEntries).Last()}" : string.Empty;
     }
 }

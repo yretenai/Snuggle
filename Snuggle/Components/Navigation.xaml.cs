@@ -39,6 +39,7 @@ public partial class Navigation {
         BuildSettingMenu(RendererOptions, typeof(SnuggleMeshExportOptions), nameof(SnuggleOptions.MeshExportOptions));
         PopulateGameOptions();
         PopulateRecentItems();
+        PopulateItemTypes();
 
         instance.PropertyChanged += (_, args) => {
             switch (args.PropertyName) {
@@ -231,6 +232,11 @@ public partial class Navigation {
             }
 
             letterMenuItem.Items.Add(menuItem);
+        }
+
+        if (Filters.Items.IsEmpty) {
+            var reset = new MenuItem { Header = "Nothing to show" };
+            Filters.Items.Add(reset);
         }
 
         Filters.Visibility = Filters.Items.IsEmpty ? Visibility.Collapsed : Visibility.Visible;

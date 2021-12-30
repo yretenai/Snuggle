@@ -6,6 +6,7 @@ using Snuggle.Core.Models.Serialization;
 
 namespace Snuggle.Core.Implementations;
 
+// [ObjectImplementation(UnityClassId.AnimatorOverrideController)]
 public class AnimatorOverrideController : RuntimeAnimatorController {
     public AnimatorOverrideController(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) {
         Controller = PPtr<AnimatorController>.FromReader(reader, serializedFile);

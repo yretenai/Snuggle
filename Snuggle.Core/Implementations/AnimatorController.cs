@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Json.Serialization;
 using Snuggle.Core.IO;
-using Snuggle.Core.Meta;
 using Snuggle.Core.Models;
 using Snuggle.Core.Models.Objects.Animation;
 using Snuggle.Core.Models.Serialization;
@@ -11,7 +10,7 @@ using Snuggle.Core.Options;
 
 namespace Snuggle.Core.Implementations;
 
-[ObjectImplementation(UnityClassId.AnimatorController)]
+// [ObjectImplementation(UnityClassId.AnimatorController)]
 public class AnimatorController : RuntimeAnimatorController {
     public AnimatorController(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) {
         var controllerSize = reader.ReadInt32();
@@ -67,7 +66,6 @@ public class AnimatorController : RuntimeAnimatorController {
 
         if (ShouldDeserializeController) {
             Controller = ControllerConstant.FromReader(reader, options);
-            // TODO(naomi): Deserialize Controller
         }
     }
 

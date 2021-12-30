@@ -5,6 +5,7 @@ using Snuggle.Core.Models.Serialization;
 
 namespace Snuggle.Core.Implementations;
 
+// [ObjectImplementation(UnityClassId.Animator)]
 public class Animator : Behaviour {
     public Animator(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) {
         Avatar = PPtr<SerializedObject>.FromReader(reader, serializedFile);
