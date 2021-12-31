@@ -7,7 +7,7 @@ public static unsafe partial class Texture2DDecoder {
     private const string LibraryName = "Texture2DDecoderNative";
 
     static Texture2DDecoder() {
-        Helper.Register(Assembly.GetExecutingAssembly());
+        Helper.Register();
     }
 
     public static bool DecodeDXT1(byte[] data, int width, int height, byte[] image) {

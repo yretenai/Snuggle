@@ -19,8 +19,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Snuggle.Util.ClassData", "S
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Snuggle.glTF", "Snuggle.glTF\Snuggle.glTF.csproj", "{BFC08112-A133-42B6-B830-5E49E653ACFE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Snuggle.FMOD", "Snuggle.FMOD\Snuggle.FMOD.csproj", "{AD10300D-1DAE-42EB-A83D-DB34B12D8732}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -58,10 +56,6 @@ Global
 		{BFC08112-A133-42B6-B830-5E49E653ACFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BFC08112-A133-42B6-B830-5E49E653ACFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BFC08112-A133-42B6-B830-5E49E653ACFE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AD10300D-1DAE-42EB-A83D-DB34B12D8732}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AD10300D-1DAE-42EB-A83D-DB34B12D8732}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AD10300D-1DAE-42EB-A83D-DB34B12D8732}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AD10300D-1DAE-42EB-A83D-DB34B12D8732}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 	EndGlobalSection

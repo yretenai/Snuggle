@@ -16,7 +16,6 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Snuggle.Core\Snuggle.Core.csproj"/>
-        <ProjectReference Include="..\Snuggle.FMOD\Snuggle.FMOD.csproj"/>
         <ProjectReference Include="..\Snuggle.glTF\Snuggle.glTF.csproj"/>
         <ProjectReference Include="..\Snuggle.Native\Snuggle.Native.csproj"/>
     </ItemGroup>

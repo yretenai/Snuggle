@@ -6,7 +6,7 @@ using FMOD;
 using Snuggle.Core.Exceptions;
 using Snuggle.Core.Implementations;
 using Snuggle.Core.Interfaces;
-using Snuggle.FMOD;
+using Snuggle.Native;
 
 namespace Snuggle.Converters;
 
