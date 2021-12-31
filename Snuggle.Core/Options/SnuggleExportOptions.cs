@@ -5,7 +5,7 @@ using Snuggle.Core.Implementations;
 namespace Snuggle.Core.Options;
 
 [PublicAPI]
-public record SnuggleExportOptions([Description("Writes Native 3D textures such as DDS instead of converting them to PNG or TIF")] bool WriteNativeTextures, [Description(SnuggleExportOptions.PathTemplateDescription)] string PathTemplate, [Description(SnuggleExportOptions.PathTemplateDescription)] string ContainerlessPathTemplate, [Description("Use DirectXTex for converting textures")] bool UseDirectTex, [Description("Only display and export objects with CAB paths")] bool OnlyWithCABPath) {
+public record SnuggleExportOptions([Description("Writes Native 3D textures such as DDS instead of converting them to PNG or TIF")] bool WriteNativeTextures, [Description(SnuggleExportOptions.PathTemplateDescription)] string PathTemplate, [Description(SnuggleExportOptions.PathTemplateDescription)] string ContainerlessPathTemplate, [Description("Use DirectXTex for converting textures")] bool UseDirectTex, [Description("Only display and export objects with CAB paths")] bool OnlyWithCABPath, [Description("Convert FMOD FSB audio samples to WAV")] bool ConvertFMODToWAVE) {
     private const string PathTemplateDescription = @"Output Path Template
 Available variables:
     Id - The Path ID of the object.
@@ -30,10 +30,10 @@ Available variables:
     public const string DefaultPathTemplate = "{ProductOrProject}/{Version}/{ContainerOrNameWithoutExt}_{Id}.{Ext}";
     public const string DefaultContainerlessPathTemplate = "{ProductOrProject}/{Version}/__unknown/{Type}/{Name}_{Id}.{Ext}";
 
-    private const int LatestVersion = 7;
+    private const int LatestVersion = 8;
     public int Version { get; set; } = LatestVersion;
 
-    public static SnuggleExportOptions Default { get; } = new(true, DefaultPathTemplate, DefaultContainerlessPathTemplate, true, false);
+    public static SnuggleExportOptions Default { get; } = new(true, DefaultPathTemplate, DefaultContainerlessPathTemplate, true, false, true);
 
     public bool NeedsMigration() => Version < LatestVersion;
 
@@ -59,10 +59,12 @@ Available variables:
         // Version 6 added UseNewGLTFExporter,
         // Version 7 removed UseNewGLTFExporter, so the migration is no longer required.
 
+        if (Version < 8) {
+            settings = settings with { ConvertFMODToWAVE = true };
+        }
+
         return settings with { Version = LatestVersion };
     }
 
-    public string DecidePathTemplate(SerializedObject serializedObject) {
-        return serializedObject.HasContainerPath ? PathTemplate : ContainerlessPathTemplate;
-    }
+    public string DecidePathTemplate(SerializedObject serializedObject) => serializedObject.HasContainerPath ? PathTemplate : ContainerlessPathTemplate;
 }

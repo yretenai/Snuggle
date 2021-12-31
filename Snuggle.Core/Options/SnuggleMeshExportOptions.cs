@@ -16,7 +16,7 @@ public record SnuggleMeshExportOptions(
     [Description("Write Material Textures")] bool WriteTexture,
     [Description("Write Material JSON files")] bool WriteMaterial,
     [Description("Write Morph Targets to GLTF")] bool WriteMorphs) {
-    private const int LatestVersion = 2;
+    private const int LatestVersion = 3;
 
     public static SnuggleMeshExportOptions Default { get; } = new(
         true,
@@ -37,6 +37,10 @@ public record SnuggleMeshExportOptions(
 
         if (settings.Version < 2) {
             settings.EnabledRenders.Add(RendererType.Sprite);
+        }
+
+        if (settings.Version < 3) {
+            settings.EnabledRenders.Add(RendererType.Audio);
         }
 
         return settings with { Version = LatestVersion };

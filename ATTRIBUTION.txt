@@ -475,3 +475,11 @@ ImageSharp
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
+
+------------------------------------------------------------------------------------------------------------------------
+
+FMOD Core API
+
+FMOD Core is provided by Firelight Technologies Pty Ltd.
+Copyright (c), Firelight Technologies Pty, Ltd. 2004-2021.
+https://www.fmod.com/core

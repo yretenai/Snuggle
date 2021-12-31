@@ -1,6 +1,10 @@
 {
-  "version": 1,
-  "dependencies": {
-    "net6.0": {}
-  }
+    "version": 1,
+    "dependencies": {
+        "net6.0": {
+            "snuggle.fmod": {
+                "type": "Project"
+            }
+        }
+    }
 }

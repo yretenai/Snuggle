@@ -5,4 +5,5 @@ public enum RendererType {
     Text,
     Texture,
     Sprite,
+    Audio,
 }

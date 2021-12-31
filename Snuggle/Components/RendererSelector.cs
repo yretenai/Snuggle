@@ -21,6 +21,7 @@ public class RendererSelector : DataTemplateSelector {
             Texture2D when SnuggleCore.Instance.Settings.MeshExportOptions.EnabledRenders.Contains(RendererType.Texture) => (DataTemplate) Application.Current.Resources["SnuggleTexture2DRenderer"],
             Sprite when SnuggleCore.Instance.Settings.MeshExportOptions.EnabledRenders.Contains(RendererType.Sprite) => (DataTemplate) Application.Current.Resources["SnuggleSpriteRenderer"],
             Text when SnuggleCore.Instance.Settings.MeshExportOptions.EnabledRenders.Contains(RendererType.Text) => (DataTemplate) Application.Current.Resources["SnuggleTextRenderer"],
+            AudioClip when SnuggleCore.Instance.Settings.MeshExportOptions.EnabledRenders.Contains(RendererType.Audio) => (DataTemplate) Application.Current.Resources["AudioRenderer"],
             _ => (DataTemplate) Application.Current.Resources["SnuggleNullRenderer"],
         };
     }

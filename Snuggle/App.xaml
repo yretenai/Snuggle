@@ -23,6 +23,9 @@
                     <DataTemplate x:Key="SnuggleTextRenderer">
                         <renderers:TextRenderer />
                     </DataTemplate>
+                    <DataTemplate x:Key="SnuggleAudioRenderer">
+                        <renderers:AudioRenderer />
+                    </DataTemplate>
                     <DataTemplate x:Key="SnuggleNullRenderer">
                         <renderers:NullRenderer />
                     </DataTemplate>

@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Reflection;
+using System.Runtime.InteropServices;
 
 namespace Snuggle.Native;
 
@@ -6,7 +7,7 @@ public static unsafe partial class Texture2DDecoder {
     private const string LibraryName = "Texture2DDecoderNative";
 
     static Texture2DDecoder() {
-        Helper.Register();
+        Helper.Register(Assembly.GetExecutingAssembly());
     }
 
     public static bool DecodeDXT1(byte[] data, int width, int height, byte[] image) {

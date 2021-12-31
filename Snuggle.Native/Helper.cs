@@ -3,8 +3,8 @@ using System.Runtime.InteropServices;
 
 namespace Snuggle.Native;
 
-internal static class Helper {
-    private static bool Loaded { get; set; }
+public static class Helper {
+    private static HashSet<Assembly> Loaded { get; } = new();
 
     private static IntPtr Resolver(string libraryName, Assembly assembly, DllImportSearchPath? searchPath) {
         string rid, ext, prefix;
@@ -42,13 +42,11 @@ internal static class Helper {
         return IntPtr.Zero;
     }
 
-    public static void Register() {
-        if (Loaded) {
+    public static void Register(Assembly assembly) {
+        if (!Loaded.Add(assembly)) {
             return;
         }
 
-        NativeLibrary.SetDllImportResolver(typeof(Helper).Assembly, Resolver);
-
-        Loaded = true;
+        NativeLibrary.SetDllImportResolver(assembly, Resolver);
     }
 }
