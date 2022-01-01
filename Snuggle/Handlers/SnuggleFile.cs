@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
@@ -170,7 +169,7 @@ public static class SnuggleFile {
             if (token.IsCancellationRequested) {
                 break;
             }
-            
+
             SnuggleCore.Instance.Status.SetProgress(SnuggleCore.Instance.Status.Value + 1);
 
             if (SnuggleCore.Instance.Status.Value % 1000 == 0) {
@@ -218,6 +217,7 @@ public static class SnuggleFile {
                 SnuggleCore.Instance.LogTarget.Error("File", e);
             }
         }
+
         SnuggleCore.Instance.FreeMemory(false);
         SnuggleCore.Instance.Status.Reset();
     }
@@ -293,6 +293,10 @@ public static class SnuggleFile {
             }
             case GameObject gameObject: {
                 SnuggleMeshFile.Save(gameObject, resultPath, instance.Settings.ObjectOptions, instance.Settings.ExportOptions, instance.Settings.MeshExportOptions);
+                return;
+            }
+            case AudioClip clip: {
+                SnuggleAudioFile.Save(clip, resultPath, instance.Settings.ExportOptions, instance.LogTarget);
                 return;
             }
         }

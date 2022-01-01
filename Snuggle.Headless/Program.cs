@@ -143,6 +143,10 @@ public static class Program {
                         logger.Info($"Processing Sprite {asset}");
                         ConvertCore.ConvertSprite(flags, logger, sprite);
                         break;
+                    case AudioClip clip when !flags.NoAudio:
+                        logger.Info($"Processing Audio {asset}");
+                        ConvertCore.ConvertAudio(flags, logger, clip);
+                        break;
                 }
             } catch (Exception e) {
                 logger.Error($"Failure decoding {asset.PathId} from {Utils.GetStringFromTag(asset.SerializedFile.Tag)}: {e.Message}", e);

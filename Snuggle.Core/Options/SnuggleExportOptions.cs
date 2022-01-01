@@ -5,7 +5,7 @@ using Snuggle.Core.Implementations;
 namespace Snuggle.Core.Options;
 
 [PublicAPI]
-public record SnuggleExportOptions([Description("Writes Native 3D textures such as DDS instead of converting them to PNG or TIF")] bool WriteNativeTextures, [Description(SnuggleExportOptions.PathTemplateDescription)] string PathTemplate, [Description(SnuggleExportOptions.PathTemplateDescription)] string ContainerlessPathTemplate, [Description("Use DirectXTex for converting textures")] bool UseDirectTex, [Description("Only display and export objects with CAB paths")] bool OnlyWithCABPath, [Description("Convert FMOD FSB audio samples to WAV")] bool ConvertFMODToWAVE) {
+public record SnuggleExportOptions([Description("Writes Native 3D textures such as DDS instead of converting them to PNG or TIF")] bool WriteNativeTextures, [Description(SnuggleExportOptions.PathTemplateDescription)] string PathTemplate, [Description(SnuggleExportOptions.PathTemplateDescription)] string ContainerlessPathTemplate, [Description("Use DirectXTex for converting textures")] bool UseDirectTex, [Description("Only display and export objects with CAB paths")] bool OnlyWithCABPath, [Description("Keep audio samples in their native format")] bool WriteNativeAudio) {
     private const string PathTemplateDescription = @"Output Path Template
 Available variables:
     Id - The Path ID of the object.
@@ -60,7 +60,7 @@ Available variables:
         // Version 7 removed UseNewGLTFExporter, so the migration is no longer required.
 
         if (Version < 8) {
-            settings = settings with { ConvertFMODToWAVE = true };
+            settings = settings with { WriteNativeAudio = true };
         }
 
         return settings with { Version = LatestVersion };

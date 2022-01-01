@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -29,6 +28,9 @@ public record SnuggleFlags : ICLIFlags {
     [CLIFlag("no-sprite", Aliases = new[] { "S" }, Category = "General Options", Default = false, Help = "Don't export sprite assets")]
     public bool NoSprite { get; set; }
 
+    [CLIFlag("no-audio", Aliases = new[] { "A" }, Category = "General Options", Default = false, Help = "Don't export audio clip assets")]
+    public bool NoAudio { get; set; }
+
     [CLIFlag("no-materials", Aliases = new[] { "M" }, Category = "General Options", Default = false, Help = "Don't export materials")]
     public bool NoMaterials { get; set; }
 
@@ -45,10 +47,13 @@ public record SnuggleFlags : ICLIFlags {
     public bool NoGameObjectHierarchyDown { get; set; }
 
     [CLIFlag("dds", Category = "General Options", Default = false, Help = "Export textures to DDS when possible, otherwise use PNG")]
-    public bool TextureToDDS { get; set; }
+    public bool WriteNativeTextures { get; set; }
 
     [CLIFlag("use-dxtex", Category = "General Options", Default = false, Help = "Use DirectXTex when possible (only on windows)")]
     public bool UseDirectXTex { get; set; }
+
+    [CLIFlag("fsb", Category = "General Options", Default = false, Help = "Write original audio file formats")]
+    public bool WriteNativeAudio { get; set; }
 
     [CLIFlag("low-memory", Category = "General Options", Default = false, Help = "Low memory mode, at the cost of performance")]
     public bool LowMemory { get; set; }
@@ -101,13 +106,15 @@ public record SnuggleFlags : ICLIFlags {
         sb.Append($"{nameof(NoTexture)} = {(NoTexture ? "True" : "False")}, ");
         sb.Append($"{nameof(NoText)} = {(NoText ? "True" : "False")}, ");
         sb.Append($"{nameof(NoSprite)} = {(NoSprite ? "True" : "False")}, ");
+        sb.Append($"{nameof(NoAudio)} = {(NoAudio ? "True" : "False")}, ");
         sb.Append($"{nameof(NoMaterials)} = {(NoMaterials ? "True" : "False")}, ");
         sb.Append($"{nameof(NoVertexColor)} = {(NoVertexColor ? "True" : "False")}, ");
         sb.Append($"{nameof(NoMorphs)} = {(NoMorphs ? "True" : "False")}, ");
         sb.Append($"{nameof(NoGameObjectHierarchyUp)} = {(NoGameObjectHierarchyUp ? "True" : "False")}, ");
         sb.Append($"{nameof(NoGameObjectHierarchyDown)} = {(NoGameObjectHierarchyDown ? "True" : "False")}, ");
-        sb.Append($"{nameof(TextureToDDS)} = {(TextureToDDS ? "True" : "False")}, ");
+        sb.Append($"{nameof(WriteNativeTextures)} = {(WriteNativeTextures ? "True" : "False")}, ");
         sb.Append($"{nameof(UseDirectXTex)} = {(UseDirectXTex ? "True" : "False")}, ");
+        sb.Append($"{nameof(WriteNativeAudio)} = {(WriteNativeAudio ? "True" : "False")}, ");
         sb.Append($"{nameof(LowMemory)} = {(LowMemory ? "True" : "False")}, ");
         sb.Append($"{nameof(LooseMeshes)} = {(LooseMeshes ? "True" : "False")}, ");
         sb.Append($"{nameof(LooseMaterials)} = {(LooseMaterials ? "True" : "False")}, ");
