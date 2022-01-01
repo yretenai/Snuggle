@@ -15,7 +15,7 @@ public class AudioClip : NamedObject {
         LoadType = (AudioLoadType) reader.ReadInt32();
         Channels = reader.ReadInt32();
         Frequency = reader.ReadInt32();
-        SampleRate = reader.ReadInt32();
+        Bits = reader.ReadInt32();
         Duration = reader.ReadSingle();
         IsTrackerFormat = reader.ReadBoolean();
         if (SerializedFile.Version >= UnityVersionRegister.Unity2020_1) {
@@ -29,8 +29,9 @@ public class AudioClip : NamedObject {
         PreloadAudioData = reader.ReadBoolean();
         LoadInBackground = reader.ReadBoolean();
         Legacy3D = reader.ReadBoolean();
+        reader.Align();
 
-        Resource = StreamingInfo.FromReader(reader, serializedFile);
+        Resource = StreamingInfo.StreamedResourceFromReader(reader, serializedFile);
         Format = (AudioCompressionFormat) reader.ReadInt32();
     }
 
@@ -39,7 +40,7 @@ public class AudioClip : NamedObject {
     public AudioLoadType LoadType { get; set; }
     public int Channels { get; set; }
     public int Frequency { get; set; }
-    public int SampleRate { get; set; }
+    public int Bits { get; set; }
     public float Duration { get; set; }
     public bool IsTrackerFormat { get; set; }
     public bool Ambisonic { get; set; }

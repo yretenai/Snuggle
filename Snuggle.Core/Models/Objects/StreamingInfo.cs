@@ -22,6 +22,14 @@ public record StreamingInfo(long Offset, long Size, string Path) {
         return new StreamingInfo(offset, size, path);
     }
 
+    // why?
+    public static StreamingInfo StreamedResourceFromReader(BiEndianBinaryReader reader, SerializedFile file) {
+        var path = reader.ReadString32();
+        var offset = reader.ReadInt64();
+        var size = reader.ReadInt64();
+        return new StreamingInfo(offset, size, path);
+    }
+
     public void ToWriter(BiEndianBinaryWriter writer, SerializedFile serializedFile, UnityVersion targetVersion) {
         if (targetVersion >= UnityVersionRegister.Unity2020_1) {
             writer.Write(Offset);

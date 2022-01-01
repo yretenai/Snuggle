@@ -18,7 +18,7 @@ namespace Snuggle.Core.Implementations;
 [UsedImplicitly]
 [ObjectImplementation(UnityClassId.Object)]
 public class SerializedObject : IEquatable<SerializedObject>, ISerialized {
-    public SerializedObject(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : this(info, serializedFile) { }
+    public SerializedObject(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : this(info, serializedFile) => IsMutated = false;
 
     public SerializedObject(UnityObjectInfo info, SerializedFile serializedFile) {
         SerializedFile = serializedFile;
@@ -54,6 +54,9 @@ public class SerializedObject : IEquatable<SerializedObject>, ISerialized {
     [JsonIgnore]
     public bool NeedsLoad { get; set; }
 
+    [JsonIgnore]
+    public bool HasContainerPath => !string.IsNullOrWhiteSpace(ObjectContainerPath);
+
     public bool Equals(SerializedObject? other) {
         if (ReferenceEquals(null, other)) {
             return false;
@@ -68,9 +71,6 @@ public class SerializedObject : IEquatable<SerializedObject>, ISerialized {
 
     [JsonIgnore]
     public virtual bool ShouldDeserialize => ShouldDeserializeExtraContainers;
-
-    [JsonIgnore]
-    public bool HasContainerPath => !string.IsNullOrWhiteSpace(ObjectContainerPath);
 
     public virtual void Deserialize(BiEndianBinaryReader reader, ObjectDeserializationOptions options) {
         foreach (var (_, extraContainer) in ExtraContainers) {

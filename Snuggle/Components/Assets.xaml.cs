@@ -83,7 +83,12 @@ public partial class Assets {
 
         SnuggleCore.Instance.SelectedObject = (SnuggleObject) selectedItems[^1]!;
         var serializedObject = SnuggleCore.Instance.SelectedObject.GetObject();
-        serializedObject?.Deserialize(SnuggleCore.Instance.Settings.ObjectOptions);
+        try {
+            serializedObject?.Deserialize(SnuggleCore.Instance.Settings.ObjectOptions);
+        } catch (Exception ex) {
+            SnuggleCore.Instance.LogTarget.Error($"Failed to deserialize {serializedObject?.PathId}", ex);
+            SnuggleCore.Instance.SelectedObject = null;
+        }
 
         SnuggleCore.Instance.OnPropertyChanged(nameof(SnuggleCore.SelectedObject));
         SnuggleCore.Instance.SelectedObjects = selectedItems.Cast<SnuggleObject>().ToList();

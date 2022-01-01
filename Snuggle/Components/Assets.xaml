@@ -23,13 +23,13 @@
                 <ContextMenu x:Key="Context">
                     <MenuItem Header="Save Data" Click="ExtractSerialize" />
                     <MenuItem Header="Save Converted" Click="ExtractConvert" />
-                    <MenuItem Header="Save Bytes" Click="ExtractRaw"/>
+                    <MenuItem Header="Save Bytes" Click="ExtractRaw" />
                     <MenuItem Header="Open Location" Click="Resolve" />
                 </ContextMenu>
             </ListView.Resources>
             <ListView.ItemContainerStyle>
                 <Style TargetType="{x:Type ListViewItem}" BasedOn="{StaticResource {x:Type ListViewItem}}">
-                    <Setter Property="ContextMenu" Value="{StaticResource Context}"/>
+                    <Setter Property="ContextMenu" Value="{StaticResource Context}" />
                 </Style>
             </ListView.ItemContainerStyle>
             <ListView.ItemsPanel>
@@ -44,6 +44,7 @@
                     <GridViewColumn Header="Type" DisplayMemberBinding="{Binding ClassId, Mode=OneWay}" />
                     <GridViewColumn Header="Container" DisplayMemberBinding="{Binding Container, Mode=OneWay}" />
                     <GridViewColumn Header="Asset" DisplayMemberBinding="{Binding SerializedName, Mode=OneWay}" />
+                    <GridViewColumn Header="Meta" DisplayMemberBinding="{Binding Meta, Mode=OneWay}" />
                     <GridViewColumn Header="Size" DisplayMemberBinding="{Binding Size, Mode=OneWay}" />
                 </GridView>
             </ListView.View>

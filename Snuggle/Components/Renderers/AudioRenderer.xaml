@@ -4,9 +4,53 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:implementations="clr-namespace:Snuggle.Core.Implementations;assembly=Snuggle.Core"
+             xmlns:adonisExtensions="clr-namespace:AdonisUI.Extensions;assembly=AdonisUI"
              d:DataContext="{d:DesignInstance implementations:AudioClip}"
              mc:Ignorable="d"
              DataContextChanged="Refresh"
-             d:DesignHeight="300" d:DesignWidth="300">
-    <Grid />
+             d:DesignHeight="300" d:DesignWidth="300"
+             Name="AudioRendererElement">
+    <Grid Margin="10">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <ProgressBar
+            adonisExtensions:ProgressBarExtension.IsProgressAnimationEnabled="False"
+            Value="{Binding Progress, ElementName=AudioRendererElement, UpdateSourceTrigger=PropertyChanged, Mode=OneWay}"
+            Maximum="{Binding ProgressMax, ElementName=AudioRendererElement, UpdateSourceTrigger=PropertyChanged, Mode=OneWay}" />
+        <StackPanel Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" Orientation="Horizontal"
+                    VerticalAlignment="Top" adonisExtensions:LayerExtension.IncreaseLayer="True">
+            <Button FontFamily="{x:Static SystemFonts.IconFontFamily}" FontStyle="{x:Static SystemFonts.IconFontStyle}"
+                    Click="Pause" Margin="10, 0, 0, 0">
+                &#x23F8;&#xFE0F;
+            </Button>
+            <Button FontFamily="{x:Static SystemFonts.IconFontFamily}" FontStyle="{x:Static SystemFonts.IconFontStyle}"
+                    Click="Play" Margin="5, 0, 0, 0">
+                &#x25B6;&#xFE0F;
+            </Button>
+        </StackPanel>
+        <StackPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" HorizontalAlignment="Left" Orientation="Vertical"
+                    VerticalAlignment="Top" Margin="10">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Margin="0, 0, 5, 0">Volume</TextBlock>
+                <Slider
+                    Value="{Binding Volume, ElementName=AudioRendererElement, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                    Width="100" Maximum="1" Minimum="0" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0, 5, 0, 0">
+                <TextBlock
+                    Text="{Binding ProgressTime, ElementName=AudioRendererElement, UpdateSourceTrigger=PropertyChanged, Mode=OneWay}" />
+                <TextBlock>/</TextBlock>
+                <TextBlock
+                    Text="{Binding Time, ElementName=AudioRendererElement, UpdateSourceTrigger=PropertyChanged, Mode=OneWay}" />
+            </StackPanel>
+            <TextBlock Text="{Binding Name, Mode=OneWay}" Margin="0, 5, 0, 0" />
+        </StackPanel>
+    </Grid>
 </UserControl>
