@@ -20,8 +20,8 @@
             <RowDefinition Height="50" />
         </Grid.RowDefinitions>
         <Grid Background="{Binding CanvasBackground, ElementName=Renderer}" ClipToBounds="True">
-            <Canvas x:Name="Root" Width="{Binding Carried.Rect.W}" Height="{Binding Carried.Rect.H}">
-                <Image Width="{Binding Carried.Rect.W}" Height="{Binding Carried.Rect.H}"
+            <Canvas x:Name="Root">
+                <Image Width="{Binding Result.Width}" Height="{Binding Result.Height}"
                        MouseWheel="Zoom" MouseLeftButtonDown="CapturePan" MouseMove="Pan"
                        MouseLeftButtonUp="ReleasePan"
                        Source="{Binding Path=Result}"
