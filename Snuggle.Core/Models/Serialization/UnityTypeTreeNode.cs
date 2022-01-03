@@ -35,7 +35,7 @@ public record UnityTypeTreeNode(
         var index = reader.ReadInt32();
         var flags = (UnityTypeTreeFlags) reader.ReadUInt32();
         var typeHash = 0ul;
-        if (header.FileVersion >= UnitySerializedFileVersion.RefObject) {
+        if (header.FileVersion >= UnitySerializedFileVersion.TypeFlags) {
             typeHash = reader.ReadUInt64();
         }
 
