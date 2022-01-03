@@ -20,13 +20,11 @@
             <RowDefinition Height="50" />
         </Grid.RowDefinitions>
         <Grid Background="{Binding CanvasBackground, ElementName=Renderer}" ClipToBounds="True">
-            <Canvas x:Name="Root">
-                <Image Width="{Binding Result.Width}" Height="{Binding Result.Height}"
-                       MouseWheel="Zoom" MouseLeftButtonDown="CapturePan" MouseMove="Pan"
-                       MouseLeftButtonUp="ReleasePan"
-                       Source="{Binding Path=Result}"
-                       HorizontalAlignment="Left"
-                       VerticalAlignment="Top" Stretch="Fill" x:Name="ImageView">
+            <Canvas x:Name="Root" Width="{Binding Result.Width}" Height="{Binding Result.Height}">
+                <Image Width="{Binding Result.Width}" Height="{Binding Result.Height}" MouseWheel="Zoom"
+                       MouseLeftButtonDown="CapturePan" MouseMove="Pan" MouseLeftButtonUp="ReleasePan"
+                       Source="{Binding Path=Result}" HorizontalAlignment="Left" VerticalAlignment="Top" Stretch="Fill"
+                       x:Name="ImageView">
                     <Image.LayoutTransform>
                         <ScaleTransform ScaleX="1" ScaleY="-1" />
                     </Image.LayoutTransform>
