@@ -38,6 +38,6 @@ public static partial class ConvertCore {
                 WriteVertexColors = !flags.NoVertexColor,
                 WriteMorphs = !flags.NoMorphs,
             });
-        logger.Info($"Saved {path}");
+        logger.Info("IO", $"Saved {path}");
     }
 }

@@ -19,6 +19,6 @@ public static partial class ConvertCore {
         var path = PathFormatter.Format(clip.HasContainerPath ? flags.OutputFormat : flags.ContainerlessOutputFormat ?? flags.OutputFormat, wav ? "wav" : ext[1..], clip);
         var pcm = wav ? SnuggleAudioFile.BuildWAV(clip, logger) : clip.Data.Value.Span;
         File.WriteAllBytes(path, pcm.ToArray());
-        logger.Info($"Saved {path}");
+        logger.Info("IO", $"Saved {path}");
     }
 }

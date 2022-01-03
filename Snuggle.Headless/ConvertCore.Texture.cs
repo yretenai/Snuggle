@@ -27,6 +27,6 @@ public static partial class ConvertCore {
             SnuggleTextureFile.SavePNG(texture, fullPath, flip, flags.UseDirectXTex);
         }
 
-        logger.Info($"Saved {path}");
+        logger.Info("IO", $"Saved {path}");
     }
 }

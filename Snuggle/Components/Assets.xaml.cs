@@ -86,7 +86,7 @@ public partial class Assets {
         try {
             serializedObject?.Deserialize(SnuggleCore.Instance.Settings.ObjectOptions);
         } catch (Exception ex) {
-            SnuggleCore.Instance.LogTarget.Error($"Failed to deserialize {serializedObject?.PathId}", ex);
+            SnuggleCore.Instance.LogTarget.Error("SerializedObject", $"Failed to deserialize {serializedObject?.PathId}", ex);
             SnuggleCore.Instance.SelectedObject = null;
         }
 

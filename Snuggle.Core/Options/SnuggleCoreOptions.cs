@@ -14,8 +14,9 @@ public record SnuggleCoreOptions(
     bool CacheData,
     bool CacheDataIfLZMA, // this literally takes two years, you want it to be enabled.
     bool LoadOnDemand,
+    string? CacheDirectory,
     UnityGame Game) {
-    private const int LatestVersion = 5;
+    private const int LatestVersion = 6;
     public HashSet<string> IgnoreClassIds { get; set; } = new();
     public int Version { get; set; } = LatestVersion;
     public UnityGameOptions GameOptions { get; set; } = UnityGameOptions.Default;
@@ -26,7 +27,7 @@ public record SnuggleCoreOptions(
     [JsonIgnore]
     public ILogger Logger { get; set; } = DebugLogger.Instance;
 
-    public static SnuggleCoreOptions Default { get; } = new(false, true, false, UnityGame.Default);
+    public static SnuggleCoreOptions Default { get; } = new(false, true, false, "Cache", UnityGame.Default);
 
     public static JsonSerializerOptions JsonOptions { get; } = new() {
         WriteIndented = true,
@@ -65,6 +66,10 @@ public record SnuggleCoreOptions(
 
         if (options.Version <= 4) {
             options = options with { IgnoreClassIds = new HashSet<string>() };
+        }
+
+        if (options.Version <= 5) {
+            options = options with { CacheDirectory = "Cache" };
         }
 
         options.GameOptions = options.GameOptions.Migrate();

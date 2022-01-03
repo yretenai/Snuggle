@@ -8,12 +8,12 @@ namespace Snuggle.Core.Logging;
 
 [PublicAPI]
 public sealed class DebugLogger : Singleton<DebugLogger>, ILogger {
-    public void Log(LogLevel level, string? category, string message, Exception? exception) {
+    public void Log(LogLevel level, string category, string message, Exception? exception) {
         if (exception != null) {
             message += $"\n{exception}";
         }
 
-        Debug.WriteLine(string.IsNullOrEmpty(category) ? $"[{level:G}] {message}" : $"[{level:G}][{category}] {message}");
+        Debug.WriteLine($"[{DateTimeOffset.UtcNow:yyyy-MM-dd HH:mm:ss}] [{level:G}] [{category}] {message}");
     }
 
     public void Dispose() { }

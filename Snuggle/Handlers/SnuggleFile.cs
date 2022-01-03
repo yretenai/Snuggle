@@ -80,7 +80,7 @@ public static class SnuggleFile {
                     }
 
                     instance.Status.SetStatus($"Loading {file}");
-                    instance.LogTarget.Info($"Loading {Path.GetFileName(file)}");
+                    instance.LogTarget.Info("IO", $"Loading {Path.GetFileName(file)}");
                     instance.Status.SetProgress(instance.Status.Value + 1);
                     var ext = Path.GetExtension(file);
                     if (ext.StartsWith(".split")) {
@@ -95,13 +95,13 @@ public static class SnuggleFile {
                 instance.Collection.CacheGameObjectClassIds();
                 instance.Status.Reset();
                 instance.Status.SetStatus("Finding container paths...");
-                instance.LogTarget.Info("Finding container paths...");
+                instance.LogTarget.Info("System", "Finding container paths...");
                 instance.Collection.FindResources();
                 instance.Status.SetStatus("Building GameObject Graph...");
-                instance.LogTarget.Info("Building GameObject Graph...");
+                instance.LogTarget.Info("System", "Building GameObject Graph...");
                 instance.Collection.BuildGraph();
                 instance.Status.SetStatus($"Loaded {instance.Collection.Files.Count} files");
-                instance.LogTarget.Info($"Loaded {instance.Collection.Files.Count} files");
+                instance.LogTarget.Info("IO", $"Loaded {instance.Collection.Files.Count} files");
                 instance.WorkerAction("Collect", _ => AssetCollection.Collect(), false);
                 instance.OnPropertyChanged(nameof(SnuggleCore.Objects));
                 instance.OnPropertyChanged(nameof(SnuggleCore.HasAssetsVisibility));
@@ -214,7 +214,7 @@ public static class SnuggleFile {
                         throw new NotSupportedException();
                 }
             } catch (Exception e) {
-                SnuggleCore.Instance.LogTarget.Error("File", e);
+                SnuggleCore.Instance.LogTarget.Error("File", e.Message, e);
             }
         }
 

@@ -4,6 +4,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Snuggle.Core.Interfaces;
 using Snuggle.Core.Models.Bundle;
+using Snuggle.Core.Options;
 
 namespace Snuggle.Core.IO;
 
@@ -22,6 +23,10 @@ public class BundleStreamHandler : IFileHandler {
 
         return BundleFile.OpenFile(path);
     }
+
+    public Stream OpenSubFile(object parent, object tag, SnuggleCoreOptions options) => throw new NotSupportedException();
+
+    public bool FileCreated(object parent, object tag, SnuggleCoreOptions options) => throw new NotSupportedException();
 
     public object GetTag(object baseTag, object parent) => baseTag;
 

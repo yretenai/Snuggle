@@ -35,7 +35,7 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
         SettingsFile = Path.Combine(workDir, $"{ProjectName}.json");
         WorkerThread = new Thread(WorkLoop);
         WorkerThread.Start();
-        LogTarget = new MultiLogger { Loggers = { new ConsoleLogger(), new DebugLogger(), ((App)Application.Current).Log } };
+        LogTarget = new MultiLogger { Loggers = { new ConsoleLogger(), new DebugLogger(), ((App) Application.Current).Log } };
         SetOptions(File.Exists(SettingsFile) ? SnuggleOptions.FromJson(File.ReadAllText(SettingsFile)) : SnuggleOptions.Default);
         ResourceLocator.SetColorScheme(Application.Current.Resources, Settings.LightMode ? ResourceLocator.LightColorScheme : ResourceLocator.DarkColorScheme);
     }
@@ -128,7 +128,7 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
                 } catch (Exception e) {
                     LogTarget.Error("Worker", $"Failed to perform {name} task", e);
                 }
-                
+
                 LogTarget.Info("Worker", $"Memory Tension: {GC.GetTotalMemory(false).GetHumanReadableBytes()}");
                 IsFree = true;
                 Dispatcher.Invoke(() => OnPropertyChanged(nameof(IsFree)));
@@ -177,13 +177,13 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
                 try {
                     if (report) {
                         Instance.Status.SetStatus($"Working on {name}...");
-                        Instance.LogTarget.Info($"Working on {name}...");
+                        Instance.LogTarget.Info("Worker", $"Working on {name}...");
                     }
 
                     action(token);
                     if (report) {
                         Instance.Status.SetStatus($"{name} done.");
-                        Instance.LogTarget.Info($"{name} done.");
+                        Instance.LogTarget.Info("Worker", $"{name} done.");
                     }
                 } catch (Exception e) {
                     Instance.Status.SetStatus($"{name} failed! {e.Message}");
@@ -209,7 +209,7 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
                     tcs.SetCanceled(token);
                 } catch (Exception e) {
                     Instance.Status.SetStatus($"{name} failed! {e.Message}");
-                    Instance.LogTarget.Error($"{name} failed! {e.Message}", e);
+                    Instance.LogTarget.Error("Worker", $"{name} failed! {e.Message}", e);
                     tcs.SetException(e);
                 }
             }));
@@ -245,12 +245,6 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
     }
 
     public void FreeMemory(bool bundles) {
-        if (bundles) {
-            foreach (var bundle in Collection.Bundles) {
-                bundle.ClearCache();
-            }
-        }
-
         foreach (var (_, file) in Collection.Files) {
             file.Free();
         }

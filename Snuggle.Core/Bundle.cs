@@ -39,7 +39,7 @@ public class Bundle : IDisposable, IRenewable {
             Tag = fileHandler.GetTag(tag, this);
 
             if (Options.CacheData || Options.CacheDataIfLZMA && Container.BlockInfos.Any(x => (UnityCompressionType) (x.Flags & UnityBundleBlockInfoFlags.CompressionMask) == UnityCompressionType.LZMA)) {
-                CacheData(reader);
+                SaveContainers(reader);
             }
         } finally {
             if (!leaveOpen) {
@@ -52,7 +52,6 @@ public class Bundle : IDisposable, IRenewable {
     public UnityContainer Container { get; init; }
     public long DataStart { get; set; }
     public SnuggleCoreOptions Options { get; init; }
-    public Stream? DataStream { get; private set; }
 
     public static IReadOnlyDictionary<string, (UnityFormat Format, UnityGame Game)> NonStandardLookup {
         get {
@@ -90,7 +89,6 @@ public class Bundle : IDisposable, IRenewable {
     }
 
     public void Dispose() {
-        DataStream?.Dispose();
         Handler.Dispose();
         GC.SuppressFinalize(this);
     }
@@ -127,31 +125,22 @@ public class Bundle : IDisposable, IRenewable {
         return bundles.ToArray();
     }
 
-    public void CacheData(BiEndianBinaryReader? reader = null) {
-        if (DataStream != null) {
-            return;
-        }
-
-        var shouldDispose = false;
-        if (reader == null) {
-            reader = new BiEndianBinaryReader(Handler.OpenFile(Tag));
-            shouldDispose = true;
-        }
-
-        try {
-            reader.BaseStream.Seek(DataStart, SeekOrigin.Begin);
-
-            DataStream = Container.OpenFile(new UnityBundleBlock(0, Container.BlockInfos.Select(x => x.Size).Sum(), 0, string.Empty), Options, reader);
-        } finally {
-            if (shouldDispose) {
-                reader.Dispose();
+    public void SaveContainers(BiEndianBinaryReader reader) {
+        Stream? data = null;
+        foreach (var block in Container.Blocks) {
+            if (Handler.FileCreated(Tag, block.Path, Options)) {
+                continue;
             }
-        }
-    }
 
-    public void ClearCache() {
-        DataStream?.Dispose();
-        DataStream = null;
+            Options.Logger.Info("Bundle", $"Caching {block.Path}");
+
+            using var stream = Handler.OpenSubFile(Tag, block.Path, Options);
+            data ??= Container.OpenFile(new UnityBundleBlock(0, Container.BlockInfos.Select(x => x.Size).Sum(), 0, string.Empty), Options, reader);
+            using var offset = new OffsetStream(data, block.Offset, block.Size, true);
+            offset.CopyTo(stream);
+        }
+
+        data?.Dispose();
     }
 
     public Stream OpenFile(string path) {
@@ -160,14 +149,14 @@ public class Bundle : IDisposable, IRenewable {
     }
 
     public Stream OpenFile(UnityBundleBlock block) {
-        BiEndianBinaryReader? reader = null;
-        if (DataStream is not { CanRead: true }) {
-            reader = new BiEndianBinaryReader(Handler.OpenFile(Tag), true);
-            reader.BaseStream.Seek(DataStart, SeekOrigin.Begin);
+        if (Handler.FileCreated(Tag, block.Path, Options)) {
+            return Handler.OpenSubFile(Tag, block.Path, Options);
         }
 
-        var data = Container.OpenFile(block, Options, reader, DataStream);
-        reader?.Dispose();
+        var reader = new BiEndianBinaryReader(Handler.OpenFile(Tag), true);
+        reader.BaseStream.Seek(DataStart, SeekOrigin.Begin);
+        var data = Container.OpenFile(block, Options, reader);
+        reader.Dispose();
         data.Seek(0, SeekOrigin.Begin);
         return data;
     }

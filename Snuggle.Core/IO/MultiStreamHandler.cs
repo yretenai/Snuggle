@@ -3,6 +3,7 @@ using System.IO;
 using JetBrains.Annotations;
 using Snuggle.Core.Interfaces;
 using Snuggle.Core.Meta;
+using Snuggle.Core.Options;
 
 namespace Snuggle.Core.IO;
 
@@ -29,6 +30,10 @@ public class MultiStreamHandler : IFileHandler {
 
         return new OffsetStream(stream, offset, size);
     }
+
+    public Stream OpenSubFile(object parent, object tag, SnuggleCoreOptions options) => UnderlyingHandler.OpenSubFile(parent is MultiMetaInfo mmi ? mmi.Tag : tag, tag, options);
+
+    public bool FileCreated(object parent, object tag, SnuggleCoreOptions options) => UnderlyingHandler.FileCreated(parent is MultiMetaInfo mmi ? mmi.Tag : tag, tag, options);
 
     public object GetTag(object baseTag, object parent) {
         if (baseTag is not MultiMetaInfo meta) {

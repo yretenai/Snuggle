@@ -7,7 +7,7 @@ namespace Snuggle.Core.Logging;
 
 [PublicAPI]
 public sealed class NullLogger : Singleton<NullLogger>, ILogger {
-    public void Log(LogLevel level, string? category, string message, Exception? exception) { }
+    public void Log(LogLevel level, string category, string message, Exception? exception) { }
 
     public void Dispose() { }
 }

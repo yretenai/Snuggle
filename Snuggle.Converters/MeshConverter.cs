@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 using JetBrains.Annotations;
+using Snuggle.Core;
 using Snuggle.Core.Exceptions;
 using Snuggle.Core.Implementations;
 using Snuggle.Core.Models.Objects.Graphics;
@@ -36,10 +36,7 @@ public static class MeshConverter {
                 continue;
             }
 
-            var crc = new CRC();
-            var bytes = Encoding.UTF8.GetBytes(gameObject.Name);
-            crc.Update(bytes, 0, (uint) bytes.Length);
-            var hash = crc.GetDigest();
+            var hash = CRC.GetDigest(gameObject.Name);
             transformToBoneHash[child.GetCompositeId()] = hash;
             hashToIndex.Add(hash);
         }

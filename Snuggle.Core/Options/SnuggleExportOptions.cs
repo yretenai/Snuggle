@@ -33,7 +33,7 @@ Available variables:
     private const int LatestVersion = 8;
     public int Version { get; set; } = LatestVersion;
 
-    public static SnuggleExportOptions Default { get; } = new(true, DefaultPathTemplate, DefaultContainerlessPathTemplate, true, false, true);
+    public static SnuggleExportOptions Default { get; } = new(false, DefaultPathTemplate, DefaultContainerlessPathTemplate, true, false, true);
 
     public bool NeedsMigration() => Version < LatestVersion;
 

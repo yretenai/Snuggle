@@ -15,22 +15,18 @@ public record UnityContainer {
     public virtual long Length { get; }
     public virtual long DataStart { get; }
 
-    public Stream OpenFile(string path, SnuggleCoreOptions options, BiEndianBinaryReader? reader = null, Stream? stream = null) => OpenFile(Blocks.FirstOrDefault(x => x.Path.Equals(path, StringComparison.InvariantCultureIgnoreCase)), options, reader, stream);
+    public Stream OpenFile(string path, SnuggleCoreOptions options, BiEndianBinaryReader? reader = null) => OpenFile(Blocks.FirstOrDefault(x => x.Path.Equals(path, StringComparison.InvariantCultureIgnoreCase)), options, reader);
 
-    public Stream OpenFile(UnityBundleBlock? block, SnuggleCoreOptions options, BiEndianBinaryReader? reader = null, Stream? stream = null) {
+    public Stream OpenFile(UnityBundleBlock? block, SnuggleCoreOptions options, BiEndianBinaryReader? reader = null) {
         if (block == null) {
             return Stream.Null;
-        }
-
-        if (stream != null) {
-            return new OffsetStream(stream, block.Offset, block.Size, true);
         }
 
         if (reader == null) {
             throw new NotSupportedException("Cannot read file with no stream or no reader");
         }
 
-        stream = new MemoryStream { Position = 0 };
+        var stream = new MemoryStream { Position = 0 };
         if (DataStart >= 0) {
             reader.BaseStream.Seek(DataStart, SeekOrigin.Begin);
         }

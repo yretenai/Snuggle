@@ -25,6 +25,6 @@ public static partial class ConvertCore {
         text.Deserialize(ObjectDeserializationOptions.Default);
 
         File.WriteAllBytes(fullPath, text.String!.Value.ToArray());
-        logger.Info($"Saved {path}");
+        logger.Info("IO", $"Saved {path}");
     }
 }

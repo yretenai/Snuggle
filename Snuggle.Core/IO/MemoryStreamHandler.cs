@@ -1,6 +1,8 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using JetBrains.Annotations;
 using Snuggle.Core.Interfaces;
+using Snuggle.Core.Options;
 
 namespace Snuggle.Core.IO;
 
@@ -15,6 +17,10 @@ public sealed class MemoryStreamHandler : IFileHandler {
         BaseStream.Position = 0;
         return BaseStream;
     }
+
+    public Stream OpenSubFile(object parent, object tag, SnuggleCoreOptions options) => throw new NotSupportedException();
+
+    public bool FileCreated(object parent, object tag, SnuggleCoreOptions options) => throw new NotSupportedException();
 
     public object GetTag(object baseTag, object parent) => baseTag;
 }

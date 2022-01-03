@@ -23,11 +23,10 @@ public partial class App {
         var logFile = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? "./", "Log", $"SnuggleLog_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds():D}.log");
         logFile.EnsureDirectoryExists();
         Log = new FileLogger(new FileStream(logFile, FileMode.Create));
-        Log.Log(LogLevel.Info, "System", $"(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧ {SnuggleCore.GetVersion()}", null);
-        Log.Log(LogLevel.Info, "System", "System Info:", null);
-        Log.Log(LogLevel.Info, "System", $"\tRuntime: NET {Environment.Version.ToString()}", null);
-        Log.Log(LogLevel.Info, "System", $"\tOS: {Environment.OSVersion}", null);
-        Log.Log(LogLevel.Info, "System", $"\t64-bit: {Environment.Is64BitOperatingSystem}", null);
+        Log.Log(LogLevel.Debug, "System", $"(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧ {SnuggleCore.GetVersion()}", null);
+        Log.Log(LogLevel.Debug, "System", $"net{Environment.Version.ToString()}", null);
+        Log.Log(LogLevel.Debug, "System", $"{Environment.OSVersion}", null);
+        Log.Log(LogLevel.Debug, "System", $"64-bit? {(Environment.Is64BitOperatingSystem ? "yes" : "no")}", null);
 
         AppDomain.CurrentDomain.UnhandledException += Crash;
         AppDomain.CurrentDomain.ProcessExit += Cleanup;
@@ -47,15 +46,9 @@ public partial class App {
         }
     }
 
-    [Flags]
-    private enum CoInit : uint {
-        MultiThreaded = 0x00,
-    }
-
     private void Crash(object sender, EventArgs e) {
         Exception? ex = default;
-        switch (e)
-        {
+        switch (e) {
             case UnhandledExceptionEventArgs { IsTerminating: false }:
                 return;
             case UnhandledExceptionEventArgs ueea:
@@ -80,5 +73,10 @@ public partial class App {
 
         SnuggleCore.Instance.Dispose();
         Log.Dispose();
+    }
+
+    [Flags]
+    private enum CoInit : uint {
+        MultiThreaded = 0x00,
     }
 }

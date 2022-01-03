@@ -40,11 +40,11 @@
             </MenuItem>
         </MenuItem>
         <MenuItem Header="{Binding FormattedProjectName, Mode=OneWay}" Height="30" IsEnabled="{Binding IsFree}">
-            <MenuItem Header="_Cache Memory"
-                      ToolTip="This can significantly increase performance at a heavy memory cost"
+            <MenuItem Header="_Save Containers"
+                      ToolTip="This can significantly increase performance at a heavy storage cost"
                       IsCheckable="True" Click="ToggleCacheData" x:Name="CacheData" />
-            <MenuItem Header="_Cache LZMA Memory"
-                      ToolTip="This always significantly increases performance at a gigantic memory cost"
+            <MenuItem Header="_Save LZMA Containers"
+                      ToolTip="This always significantly increases performance at a gigantic storage cost"
                       IsCheckable="True" Click="ToggleCacheDataLZMA" x:Name="CacheDataIfLZMA" />
             <Separator />
             <MenuItem Header="_Serialization" x:Name="SerializationOptions" />

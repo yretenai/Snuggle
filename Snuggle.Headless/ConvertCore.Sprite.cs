@@ -24,6 +24,6 @@ public static partial class ConvertCore {
 
         image.SaveAsPng(fullPath);
 
-        logger.Info($"Saved {path}");
+        logger.Info("IO", $"Saved {path}");
     }
 }

@@ -126,14 +126,14 @@ public class AssetCollection : IDisposable {
     }
 
     public void LoadSerializedFile(string path, SnuggleCoreOptions options) => LoadSerializedFile(File.OpenRead(path), path, FileStreamHandler.Instance.Value, options);
-    
+
     public void LoadSplitFile(string split0Path, SnuggleCoreOptions options, string extTemplate = ".split{0}") {
         var i = 0;
         var streams = new List<Stream>();
         while (File.Exists(split0Path + string.Format(extTemplate, i))) {
             streams.Add(File.OpenRead(split0Path + string.Format(extTemplate, i++)));
         }
-        
+
         LoadSplitFile(streams, options, split0Path);
     }
 
@@ -149,7 +149,7 @@ public class AssetCollection : IDisposable {
                 stream.Dispose();
             }
         }
-        
+
         memory.Seek(0, SeekOrigin.Begin);
         LoadFile(memory, hintTag, new MemoryStreamHandler(memory), options, leaveOpen: true);
     }
@@ -157,7 +157,7 @@ public class AssetCollection : IDisposable {
     public void LoadFile(string path, SnuggleCoreOptions options) => LoadFile(File.OpenRead(path), path, MultiStreamHandler.FileInstance.Value, options);
 
     private void LoadFile(Stream dataStream, object tag, IFileHandler handler, SnuggleCoreOptions options, int align = 1, bool leaveOpen = false) {
-        options.Logger.Info($"Attempting to load {tag}");
+        options.Logger.Info("Assets", $"Attempting to load {tag}");
         if (dataStream.Length == 0) {
             return;
         }

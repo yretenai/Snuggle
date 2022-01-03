@@ -131,7 +131,7 @@ public static class ObjectFactory {
             }
 
             if (ParserNotFoundWarningSet.Add(overrideType ?? info.ClassId)) {
-                serializedFile.Options.Logger.Warning($"Can't find parser for type {overrideType ?? info.ClassId:G}");
+                serializedFile.Options.Logger.Warning("SerializedObject", $"Can't find parser for type {overrideType ?? info.ClassId:G}");
             }
         }
 

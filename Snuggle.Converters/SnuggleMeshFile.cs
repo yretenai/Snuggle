@@ -4,11 +4,11 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using DragonLib;
+using Snuggle.Core;
 using Snuggle.Core.Implementations;
 using Snuggle.Core.Models;
 using Snuggle.Core.Models.Objects.Graphics;
@@ -51,7 +51,7 @@ public static class SnuggleMeshFile {
         if (GltfExists(path)) {
             return;
         }
-        
+
         var (gltf, scene, buffer) = CreateGltf(mesh.SerializedFile.Assets?.PlayerSettings);
 
         var (meshNode, _) = scene.CreateNode(gltf);
@@ -83,7 +83,7 @@ public static class SnuggleMeshFile {
         if (GltfExists(path)) {
             return;
         }
-        
+
         var (gltf, scene, buffer) = CreateGltf(gameObject.SerializedFile.Assets?.PlayerSettings);
 
         var (rootNode, rootId) = scene.CreateNode(gltf);
@@ -164,17 +164,11 @@ public static class SnuggleMeshFile {
         }
 
         var name = GetTransformPath(boneGameObject, root);
-        var crc = new CRC();
-        var bytes = Encoding.UTF8.GetBytes(name);
-        crc.Update(bytes, 0, (uint) bytes.Length);
-        hashes[crc.GetDigest()] = composite;
+        hashes[CRC.GetDigest(name)] = composite;
         int index;
         while ((index = name.IndexOf("/", StringComparison.Ordinal)) >= 0) {
             name = name[(index + 1)..];
-            crc = new CRC();
-            bytes = Encoding.UTF8.GetBytes(name);
-            crc.Update(bytes, 0, (uint) bytes.Length);
-            hashes[crc.GetDigest()] = composite;
+            hashes[CRC.GetDigest(name)] = composite;
         }
 
         return true;
