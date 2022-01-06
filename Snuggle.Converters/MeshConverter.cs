@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using JetBrains.Annotations;
 using Snuggle.Core;
 using Snuggle.Core.Exceptions;
@@ -63,20 +62,21 @@ public static class MeshConverter {
         return bones;
     }
 
-    public static Memory<byte>[] GetVBO(Mesh mesh, out Dictionary<VertexChannel, ChannelInfo> channels, out int[] strides) {
+    public static Memory<byte>[] GetVBO(Mesh mesh, out uint vertexCount, out Dictionary<VertexChannel, ChannelInfo> channels, out int[] strides) {
         if (mesh.ShouldDeserialize) {
             throw new IncompleteDeserialization();
         }
 
         Memory<byte> fullBuffer;
         if (mesh.MeshCompression == 0) {
+            vertexCount = mesh.VertexData.VertexCount;
             channels = mesh.VertexData.Channels;
             fullBuffer = mesh.VertexData.Data!.Value;
         } else {
-            fullBuffer = mesh.CompressedMesh.Decompress(mesh.VertexData.VertexCount, out channels);
+            fullBuffer = mesh.CompressedMesh.Decompress(out vertexCount, out channels);
         }
 
-        return GetVBO(fullBuffer, mesh.VertexData.VertexCount, channels, out strides);
+        return GetVBO(fullBuffer, vertexCount, channels, out strides);
     }
 
     public static Memory<byte>[] GetVBO(Memory<byte> fullBuffer, uint vertexCount, Dictionary<VertexChannel, ChannelInfo> channels, out int[] strides) {
@@ -116,6 +116,6 @@ public static class MeshConverter {
         mesh.IndexFormat = IndexFormat.Uint32;
 
         var triangles = mesh.CompressedMesh.Triangles.Decompress();
-        return MemoryMarshal.AsBytes(triangles).ToArray();
+        return triangles.AsBytes();
     }
 }

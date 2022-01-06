@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
 using K4os.Compression.LZ4;
 using SevenZip;
 using SevenZip.Compression.LZMA;
@@ -96,4 +97,6 @@ public static class Utils {
 
         return Path.GetFileNameWithoutExtension(str);
     }
+
+    public static Memory<byte> AsBytes<T>(this Memory<T> memory) where T : struct => new Memory<byte>(MemoryMarshal.AsBytes(memory.Span).ToArray());
 }

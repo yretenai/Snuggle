@@ -9,7 +9,7 @@ namespace Snuggle.Core.Models.Objects.Graphics;
 
 [PublicAPI]
 public record ChannelInfo(int Stream, int Offset, VertexFormat Format, VertexDimension Dimension, int ExtraData) {
-    public static ChannelInfo Default { get; } = new(0, 0, VertexFormat.Single, VertexDimension.None, 0);
+    public static ChannelInfo Default => new(0, 0, VertexFormat.Single, VertexDimension.None, 0);
 
     public static ChannelInfo FromReader(BiEndianBinaryReader reader, SerializedFile file) {
         var stream = reader.ReadByte();

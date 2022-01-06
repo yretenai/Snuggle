@@ -330,17 +330,17 @@ public static class SnuggleMeshFile {
             }
         }
 
-        var vertexStream = MeshConverter.GetVBO(mesh, out var descriptors, out var strides);
+        var vertexStream = MeshConverter.GetVBO(mesh, out var vertexCount, out var descriptors, out var strides);
         var indexStream = MeshConverter.GetIBO(mesh);
         var indexSemantic = mesh.IndexFormat == IndexFormat.UInt16 ? AccessorComponentType.UnsignedShort : AccessorComponentType.UnsignedInt;
 
-        var positions = new Vector3[mesh.VertexData.VertexCount];
-        var normals = new Vector3[mesh.VertexData.VertexCount];
-        var tangents = new Vector4[mesh.VertexData.VertexCount];
-        var color = new Vector4[mesh.VertexData.VertexCount];
-        var uv = new[] { new Vector2[mesh.VertexData.VertexCount], new Vector2[mesh.VertexData.VertexCount], new Vector2[mesh.VertexData.VertexCount], new Vector2[mesh.VertexData.VertexCount], new Vector2[mesh.VertexData.VertexCount], new Vector2[mesh.VertexData.VertexCount], new Vector2[mesh.VertexData.VertexCount], new Vector2[mesh.VertexData.VertexCount] };
-        var joints = new ushort[mesh.VertexData.VertexCount][];
-        var weights = new Vector4[mesh.VertexData.VertexCount];
+        var positions = new Vector3[vertexCount];
+        var normals = new Vector3[vertexCount];
+        var tangents = new Vector4[vertexCount];
+        var color = new Vector4[vertexCount];
+        var uv = new[] { new Vector2[vertexCount], new Vector2[vertexCount], new Vector2[vertexCount], new Vector2[vertexCount], new Vector2[vertexCount], new Vector2[vertexCount], new Vector2[vertexCount], new Vector2[vertexCount] };
+        var joints = new ushort[vertexCount][];
+        var weights = new Vector4[vertexCount];
 
         var hasNormals = false;
         var hasTangents = false;
@@ -351,7 +351,7 @@ public static class SnuggleMeshFile {
         var minPos = new Vector3(float.MaxValue);
         var maxPos = new Vector3(float.MinValue);
 
-        for (var i = 0; i < mesh.VertexData.VertexCount; ++i) {
+        for (var i = 0; i < vertexCount; ++i) {
             var weightsTemp = new float[4];
             var jointsTemp = new int[4];
             foreach (var (channel, info) in descriptors) {

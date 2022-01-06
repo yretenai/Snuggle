@@ -19,7 +19,7 @@ public record PackedBitVector(uint Count, byte BitSize) {
     [JsonIgnore]
     public Memory<byte>? Data { get; set; }
 
-    public static PackedBitVector Default { get; } = new(0, 0);
+    public static PackedBitVector Default => new(0, 0);
 
     private bool ShouldDeserializeData => DataStart > -1 && Data == null;
 
@@ -69,7 +69,7 @@ public record PackedBitVector(uint Count, byte BitSize) {
     }
 
     // code taken from AssetStudio, with some edits
-    public Span<int> Decompress(uint? count = null, int offset = 0) {
+    public Memory<int> Decompress(uint? count = null, int offset = 0) {
         count ??= Count;
         if (count > Count) {
             throw new ArgumentOutOfRangeException(nameof(count));
@@ -80,18 +80,21 @@ public record PackedBitVector(uint Count, byte BitSize) {
         }
 
         if (count == 0) {
-            return Span<int>.Empty;
+            return Memory<int>.Empty;
         }
 
         var data = new int[count.Value];
         var bitPos = BitSize * offset;
         var indexPos = bitPos / 8;
+        bitPos %= 8;
         var memory = Data!.Value.Span;
+        var index = 0;
         for (var i = offset; i < count + offset; i++) {
             var bits = 0;
-            data[i] = 0;
+            var currentIndex = index++;
+            data[currentIndex] = 0;
             while (bits < BitSize) {
-                data[i] |= (memory[indexPos] >> bitPos) << bits;
+                data[currentIndex] |= (memory[indexPos] >> bitPos) << bits;
 
                 var num = System.Math.Min(BitSize - bits, 8 - bitPos);
                 bitPos += num;
@@ -103,14 +106,14 @@ public record PackedBitVector(uint Count, byte BitSize) {
                 }
             }
 
-            data[i] &= (1 << BitSize) - 1;
+            data[currentIndex] &= (1 << BitSize) - 1;
         }
 
         return data;
     }
 
     // same as Decompress
-    public Span<float> DecompressSingle(uint? count, int offset = 0) {
+    public Memory<float> DecompressSingle(uint? count = null, int offset = 0) {
         count ??= Count;
         if (count > Count) {
             throw new ArgumentOutOfRangeException(nameof(count));
@@ -121,14 +124,16 @@ public record PackedBitVector(uint Count, byte BitSize) {
         }
 
         if (count == 0) {
-            return Span<float>.Empty;
+            return Memory<float>.Empty;
         }
 
         var data = new float[count.Value];
         var bitPos = BitSize * offset;
         var indexPos = bitPos / 8;
+        bitPos %= 8;
         var memory = Data!.Value.Span;
         var scale = 1.0f / Range;
+        var index = 0;
         for (var i = offset; i < count + offset; i++) {
             var x = 0u;
             var bits = 0;
@@ -144,7 +149,7 @@ public record PackedBitVector(uint Count, byte BitSize) {
             }
 
             x &= (uint) (1 << BitSize) - 1u;
-            data[i] = x / (scale * ((1 << BitSize) - 1)) + Start;
+            data[index++] = x / (scale * ((1 << BitSize) - 1)) + Start;
         }
 
         return data;

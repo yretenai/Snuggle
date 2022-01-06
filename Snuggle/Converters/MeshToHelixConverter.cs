@@ -31,7 +31,7 @@ public static class MeshToHelixConverter {
             throw new IncompleteDeserialization();
         }
 
-        var vertexStream = MeshConverter.GetVBO(mesh, out var descriptors, out var strides);
+        var vertexStream = MeshConverter.GetVBO(mesh, out _, out var descriptors, out var strides);
         var indexStream = MeshConverter.GetIBO(mesh);
 
         var objects = new List<Object3D>();
