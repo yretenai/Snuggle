@@ -29,6 +29,9 @@ public static partial class ConvertCore {
                 WriteTexture = !flags.NoTexture,
                 WriteVertexColors = !flags.NoVertexColor,
                 WriteMorphs = !flags.NoMorphs,
+                MirrorXPosition = !flags.KeepXPos,
+                MirrorXNormal = !flags.KeepXNorm,
+                MirrorXTangent = !flags.KeepXTan,
             });
         logger.Info("IO", $"Saved {path}");
     }

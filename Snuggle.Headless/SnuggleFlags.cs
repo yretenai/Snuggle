@@ -97,6 +97,15 @@ public record SnuggleFlags : ICLIFlags {
     [CLIFlag("ignore", Category = "General Options", Positional = 0, Help = "ClassIds to Ignore", IsRequired = true)]
     public HashSet<string> IgnoreClassIds { get; set; } = null!;
 
+    [CLIFlag("keepxpos", Category = "General Options", Default = false, Help = "Do not mirror mesh X position")]
+    public bool KeepXPos { get; set; }
+
+    [CLIFlag("keepxnorm", Category = "General Options", Default = false, Help = "Do not mirror mesh X normal")]
+    public bool KeepXNorm { get; set; }
+
+    [CLIFlag("keepxtan", Category = "General Options", Default = false, Help = "Do not mirror mesh X tangent")]
+    public bool KeepXTan { get; set; }
+
     public override string ToString() {
         var sb = new StringBuilder();
         sb.Append($"{nameof(SnuggleFlags)} {{ ");
@@ -126,8 +135,12 @@ public record SnuggleFlags : ICLIFlags {
         sb.Append($"{nameof(OutputPath)} = {OutputPath}, ");
         sb.Append($"{nameof(NameFilters)} = [{string.Join(", ", NameFilters.Select(x => x.ToString()))}], ");
         sb.Append($"{nameof(PathIdFilters)} = [{string.Join(", ", PathIdFilters.Select(x => x.ToString()))}], ");
-        sb.Append($"{nameof(Paths)} = [{string.Join(", ", Paths)}]");
-        sb.Append($"{nameof(IgnoreClassIds)} = [{string.Join(", ", IgnoreClassIds)}]");
+        sb.Append($"{nameof(OnlyCAB)} = {(OnlyCAB ? "True" : "False")}, ");
+        sb.Append($"{nameof(Paths)} = [{string.Join(", ", Paths)}], ");
+        sb.Append($"{nameof(IgnoreClassIds)} = [{string.Join(", ", IgnoreClassIds)}], ");
+        sb.Append($"{nameof(KeepXPos)} = {(KeepXPos ? "True" : "False")}, ");
+        sb.Append($"{nameof(KeepXNorm)} = {(KeepXNorm ? "True" : "False")}, ");
+        sb.Append($"{nameof(KeepXTan)} = {(KeepXTan ? "True" : "False")}, ");
         sb.Append(" }");
         return sb.ToString();
     }

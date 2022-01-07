@@ -134,7 +134,7 @@ public static class SnuggleMeshFile {
             var skinnedMesh = skinnedMeshRenderer.Mesh.Value!;
             var skin = gltf.CreateSkin();
             for (var i = 0; i < skinnedMesh.BoneNameHashes.Count; ++i) {
-                if (!CreateBoneJoint(hashes, skinnedMesh.BoneNameHashes[i], nodeTree, skinnedMesh.BindPose!.Value.Span[i].GetNumerics(), matrices, skin)) {
+                if (!CreateBoneJoint(hashes, skinnedMesh.BoneNameHashes[i], nodeTree, skinnedMesh.BindPose!.Value.Span[i].GetNumerics(), matrices, skin, options)) {
                     isValid = false;
                     break;
                 }
@@ -174,13 +174,18 @@ public static class SnuggleMeshFile {
         return true;
     }
 
-    private static bool CreateBoneJoint(IReadOnlyDictionary<uint, (long, string)> hashes, uint id, IReadOnlyDictionary<(long, string), (Node Node, int Id)> nodeTree, Matrix4x4 matrix, ICollection<Matrix4x4> matrices, (Skin Skin, int Id) skin) {
+    private static bool CreateBoneJoint(IReadOnlyDictionary<uint, (long, string)> hashes, uint id, IReadOnlyDictionary<(long, string), (Node Node, int Id)> nodeTree, Matrix4x4 matrix, ICollection<Matrix4x4> matrices, (Skin Skin, int Id) skin, SnuggleMeshExportOptions options) {
         if (!hashes.TryGetValue(id, out var boneCompositeId) || !nodeTree.TryGetValue(boneCompositeId, out var boneId)) {
             return false;
         }
 
-        var mirror = Matrix4x4.CreateScale(-1, 1, 1);
-        matrices.Add(mirror * matrix * mirror);
+        if (options.MirrorXPosition) {
+            var mirror = Matrix4x4.CreateScale(-1, 1, 1);
+            matrices.Add(mirror * matrix * mirror);
+        } else {
+            matrices.Add(matrix);
+        }
+
         skin.Skin.Joints.Add(boneId.Id);
         return true;
     }
@@ -223,14 +228,17 @@ public static class SnuggleMeshFile {
 
         node.Name = gameObject.Name;
 
-        var mirror = Matrix4x4.CreateScale(-1, 1, 1);
-        var matrix = Matrix4x4.CreateScale(scale) * Matrix4x4.CreateFromQuaternion(rotation) * Matrix4x4.CreateTranslation(translation);
-        matrix = mirror * matrix * mirror; // flip
-        Matrix4x4.Decompose(matrix, out scale, out rotation, out translation);
+        if (options.MirrorXPosition) {
+            var mirror = Matrix4x4.CreateScale(-1, 1, 1);
+            var matrix = Matrix4x4.CreateScale(scale) * Matrix4x4.CreateFromQuaternion(rotation) * Matrix4x4.CreateTranslation(translation);
+            matrix = mirror * matrix * mirror; // flip
+            Matrix4x4.Decompose(matrix, out scale, out rotation, out translation);
+        }
+        
         node.Rotation = new List<double> { rotation.X, rotation.Y, rotation.Z, rotation.W };
         node.Scale = new List<double> { scale.X, scale.Y, scale.Z };
         node.Translation = new List<double> { translation.X, translation.Y, translation.Z };
-
+        
         if (buildMeshes) {
             if (gameObject.FindComponent(UnityClassId.MeshRenderer, UnityClassId.SkinnedMeshRenderer).Value is SkinnedMeshRenderer skinnedMeshRenderer && skinnedMeshRenderer.Mesh.Value != null) {
                 skinnedMeshRenderer.Mesh.Value.Deserialize(ObjectDeserializationOptions.Default);
@@ -368,18 +376,27 @@ public static class SnuggleMeshFile {
                 switch (channel) {
                     case VertexChannel.Vertex:
                         positions[i] = new Vector3(floatValues.Take(3).ToArray());
-                        positions[i].X *= -1;
+                        if (options.MirrorXPosition) {
+                            positions[i].X *= -1;
+                        }
+
                         minPos = Vector3.Min(minPos, positions[i]);
                         maxPos = Vector3.Max(maxPos, positions[i]);
                         break;
                     case VertexChannel.Normal:
                         normals[i] = new Vector3(floatValues.Take(3).ToArray());
-                        normals[i].X *= -1;
+                        if (options.MirrorXNormal) {
+                            normals[i].X *= -1;
+                        }
+
                         hasNormals = true;
                         break;
                     case VertexChannel.Tangent:
                         tangents[i] = new Vector4(floatValues.Take(4).ToArray());
-                        tangents[i].X *= -1;
+                        if (options.MirrorXTangent) {
+                            tangents[i].X *= -1;
+                        }
+
                         hasTangents = true;
                         break;
                     case VertexChannel.Color when options.WriteVertexColors:
@@ -519,17 +536,26 @@ public static class SnuggleMeshFile {
                     for (var vertexIndex = 0; vertexIndex < shape.VertexCount; vertexIndex++) {
                         var vertex = mesh.BlendShapeData.Vertices![(int) (shape.FirstVertex + vertexIndex)];
 
-                        morphPositions[vertex.Index] = new Vector3(-vertex.Vertex.X, vertex.Vertex.Y, vertex.Vertex.Z);
+                        morphPositions[vertex.Index] = new Vector3(vertex.Vertex.X, vertex.Vertex.Y, vertex.Vertex.Z);
+                        if (options.MirrorXPosition) {
+                            morphPositions[vertex.Index].X *= -1;
+                        }
                         minPos = Vector3.Min(minPos, morphPositions[vertex.Index]);
                         maxPos = Vector3.Max(maxPos, morphPositions[vertex.Index]);
 
                         if (shape.HasNormals && hasNormals) {
-                            morphNormals[vertex.Index] = new Vector3(-vertex.Normal.X, vertex.Normal.Y, vertex.Normal.Z);
+                            morphNormals[vertex.Index] = new Vector3(vertex.Normal.X, vertex.Normal.Y, vertex.Normal.Z);
+                            if (options.MirrorXNormal) {
+                                morphNormals[vertex.Index].X *= -1;
+                            }
                             hasMorphNormals = true;
                         }
 
                         if (shape.HasTangents && hasTangents) {
-                            morphTangents[vertex.Index] = new Vector3(-vertex.Tangent.X, vertex.Tangent.Y, vertex.Tangent.Z);
+                            morphTangents[vertex.Index] = new Vector3(vertex.Tangent.X, vertex.Tangent.Y, vertex.Tangent.Z);
+                            if (options.MirrorXTangent) {
+                                morphTangents[vertex.Index].X *= -1;
+                            }
                             hasMorphTangents = false;
                         }
                     }

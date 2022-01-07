@@ -15,14 +15,20 @@ public record SnuggleMeshExportOptions(
     [Description("Write Vertex Colors to GLTF")] bool WriteVertexColors,
     [Description("Write Material Textures")] bool WriteTexture,
     [Description("Write Material JSON files")] bool WriteMaterial,
-    [Description("Write Morph Targets to GLTF")] bool WriteMorphs) {
-    private const int LatestVersion = 3;
+    [Description("Write Morph Targets to GLTF")] bool WriteMorphs,
+    [Description("Mirrors the X coordinate for positions")] bool MirrorXPosition,
+    [Description("Mirrors the X coordinate for normals")] bool MirrorXNormal,
+    [Description("Mirrors the X coordinate for tangents")] bool MirrorXTangent) {
+    private const int LatestVersion = 4;
 
     public static SnuggleMeshExportOptions Default { get; } = new(
         true,
         false,
         true,
         false,
+        true,
+        true,
+        true,
         true,
         true,
         true,
@@ -41,6 +47,10 @@ public record SnuggleMeshExportOptions(
 
         if (settings.Version < 3) {
             settings.EnabledRenders.Add(RendererType.Audio);
+        }
+        
+        if (settings.Version < 4) {
+            settings = settings with { MirrorXPosition = true, MirrorXNormal = true, MirrorXTangent = true };
         }
 
         return settings with { Version = LatestVersion };

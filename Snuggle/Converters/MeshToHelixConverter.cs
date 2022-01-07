@@ -35,6 +35,7 @@ public static class MeshToHelixConverter {
         var indexStream = MeshConverter.GetIBO(mesh);
 
         var objects = new List<Object3D>();
+        var options = SnuggleCore.Instance.Settings.MeshExportOptions;
         for (var index = 0; index < mesh.Submeshes.Count; index++) {
             if (token.IsCancellationRequested) {
                 return objects;
@@ -84,13 +85,19 @@ public static class MeshToHelixConverter {
                     switch (channel) {
                         case VertexChannel.Vertex: {
                             var vec = new Vector3(floatValues.Take(3).ToArray());
-                            vec.X *= -1;
+                            if (options.MirrorXPosition) {
+                                vec.X *= -1;
+                            }
+
                             geometry.Positions.Add(vec);
                             break;
                         }
                         case VertexChannel.Normal: {
                             var vec = new Vector3(floatValues.Take(3).ToArray());
-                            vec.X *= -1;
+                            if (options.MirrorXNormal) {
+                                vec.X *= -1;
+                            }
+
                             geometry.Normals.Add(vec);
                             break;
                         }
@@ -219,8 +226,11 @@ public static class MeshToHelixConverter {
         var (sX, sY, sZ) = transform.Scale;
         var (tX, tY, tZ) = transform.Translation;
         var localMatrix = Matrix.Scaling(sX, sY, sZ) * Matrix.RotationQuaternion(new Quaternion(rX, rY, rZ, rW)) * Matrix.Translation(new Vector3(tX, tY, tZ));
-        var mirror = Matrix.Scaling(-1, 1, 1);
-        localMatrix = mirror * localMatrix * mirror;
+        if (SnuggleCore.Instance.Settings.MeshExportOptions.MirrorXPosition) {
+            var mirror = Matrix.Scaling(-1, 1, 1);
+            localMatrix = mirror * localMatrix * mirror;
+        }
+
         var matrix = localMatrix * (parentMatrix ?? Matrix.Identity);
 
         if (parentMatrix.HasValue) {
