@@ -184,11 +184,12 @@ public record CompressedMesh(
 
             var channelInfo = ChannelInfo.Default;
             switch (channel) {
-                case VertexChannel.Vertex:
+                case VertexChannel.Vertex: {
                     channelInfo = new ChannelInfo(0, offset, VertexFormat.Single, VertexDimension.RGB, 0);
                     substreams[channel] = vector.DecompressSingle().AsBytes();
                     break;
-                case VertexChannel.Tangent:
+                }
+                case VertexChannel.Tangent: {
                     channelInfo = new ChannelInfo(0, offset, VertexFormat.Single, VertexDimension.RGBA, 0);
                     var tangentData = vector.DecompressSingle().Span;
                     var tangentSigns = TangentSigns.Decompress().Span;
@@ -221,7 +222,8 @@ public record CompressedMesh(
 
                     substreams[channel] = tangents.AsBytes();
                     break;
-                case VertexChannel.Normal:
+                }
+                case VertexChannel.Normal: {
                     channelInfo = new ChannelInfo(0, offset, VertexFormat.Single, VertexDimension.RGB, 0);
                     var normalData = vector.DecompressSingle().Span;
                     var normalSigns = NormalSigns.Decompress().Span;
@@ -252,10 +254,12 @@ public record CompressedMesh(
 
                     substreams[channel] = normals.AsBytes();
                     break;
-                case VertexChannel.Color:
+                }
+                case VertexChannel.Color: {
                     channelInfo = new ChannelInfo(0, offset, VertexFormat.Color, VertexDimension.RGBA, 0);
                     substreams[channel] = vector.Decompress().AsBytes();
                     break;
+                }
                 case VertexChannel.UV0:
                 case VertexChannel.UV1:
                 case VertexChannel.UV2:
@@ -263,7 +267,7 @@ public record CompressedMesh(
                 case VertexChannel.UV4:
                 case VertexChannel.UV5:
                 case VertexChannel.UV6:
-                case VertexChannel.UV7:
+                case VertexChannel.UV7: {
                     var uvIndex = channel - VertexChannel.UV0;
                     var uvInfo = GetUVInfo(uvIndex);
                     if (uvInfo == VertexDimension.None) {
@@ -273,7 +277,8 @@ public record CompressedMesh(
                     channelInfo = new ChannelInfo(0, offset, VertexFormat.Single, uvInfo, 0);
                     substreams[channel] = vector.DecompressSingle(vertexCount * 2, (int) (uvIndex * 2 * vertexCount)).AsBytes();
                     break;
-                case VertexChannel.SkinBoneIndex:
+                }
+                case VertexChannel.SkinBoneIndex: {
                     channels[VertexChannel.SkinWeight] = new ChannelInfo(0, offset, VertexFormat.Single, VertexDimension.RGBA, 0);
                     offset += channels[VertexChannel.SkinWeight].GetSize();
                     channelInfo = new ChannelInfo(0, offset, VertexFormat.SInt32, VertexDimension.RGBA, 0);
@@ -301,6 +306,7 @@ public record CompressedMesh(
                     substreams[VertexChannel.SkinWeight] = new Memory<byte>(MemoryMarshal.AsBytes(normalizedSkinWeights).ToArray());
                     substreams[channel] = new Memory<byte>(MemoryMarshal.AsBytes(normalizedSkinIndices).ToArray());
                     break;
+                }
                 case VertexChannel.SkinWeight: // handled in boneWeight
                 default:
                     continue;
