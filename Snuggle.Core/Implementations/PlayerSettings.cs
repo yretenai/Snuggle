@@ -301,7 +301,7 @@ public class PlayerSettings : SerializedObject {
                         }
 
                         if (SerializedFile.Version >= UnityVersionRegister.Unity2019_4) {
-                            if (SerializedFile.Options.Game != UnityGame.PokemonUnite || SerializedFile.Options.GameOptions.TryGetOptionsObject<UniteOptions>(UnityGame.PokemonUnite, out var uniteOptions) && uniteOptions.GameVersion >= UniteVersion.Version1_2) {
+                            if (SerializedFile.Options.Game is not UnityGame.PokemonUnite || SerializedFile.Options.GameOptions.TryGetOptionsObject<UniteOptions>(UnityGame.PokemonUnite, out var uniteOptions) && uniteOptions.GameVersion >= UniteVersion.Version1_2) {
                                 StadiaPresentMode = reader.ReadInt32();
                                 StadiaTargetFramerate = reader.ReadInt32();
                             }

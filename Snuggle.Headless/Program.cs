@@ -46,7 +46,7 @@ public static class Program {
         logger.Debug("System", flags.ToString());
         logger.Debug("System", $"Args: {string.Join(' ', Environment.GetCommandLineArgs()[1..])}");
         IGameFlags? gameFlags = null;
-        if (flags.Game != UnityGame.Default && additionalFlags.TryGetValue(flags.Game, out var additionalGameFlags)) {
+        if (flags.Game is not UnityGame.Default && additionalFlags.TryGetValue(flags.Game, out var additionalGameFlags)) {
             gameFlags = CommandLineFlags.ParseFlags(additionalGameFlags) as IGameFlags;
             if (gameFlags != null) {
                 logger.Debug("System", gameFlags.ToString());
@@ -77,7 +77,7 @@ public static class Program {
 
         var collection = new AssetCollection();
         var options = SnuggleCoreOptions.Default with { Game = flags.Game, Logger = logger, CacheDataIfLZMA = true, IgnoreClassIds = flags.IgnoreClassIds };
-        if (options.Game != UnityGame.Default && gameFlags != default) {
+        if (options.Game is not UnityGame.Default && gameFlags != default) {
             options.GameOptions.StorageMap[options.Game] = JsonSerializer.SerializeToElement(gameFlags.ToOptions(), SnuggleCoreOptions.JsonOptions);
         }
 
@@ -157,7 +157,7 @@ public static class Program {
             }
         }
 
-        if (options.Game != UnityGame.Default && options.GameOptions.StorageMap.ContainsKey(options.Game)) {
+        if (options.Game is not UnityGame.Default && options.GameOptions.StorageMap.ContainsKey(options.Game)) {
             logger.Info("System", "Updated Game Settings");
             var jsonOptions = new JsonSerializerOptions(SnuggleCoreOptions.JsonOptions) { WriteIndented = false };
             logger.Info("System", JsonSerializer.Serialize(options.GameOptions.StorageMap[options.Game], jsonOptions));

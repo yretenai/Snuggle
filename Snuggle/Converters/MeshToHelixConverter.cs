@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
@@ -26,6 +27,8 @@ using Transform = Snuggle.Core.Implementations.Transform;
 namespace Snuggle.Converters;
 
 public static class MeshToHelixConverter {
+    private static readonly Regex XAMLSafeCharacters = new("[^a-zA-Z0-9_]", RegexOptions.Compiled);
+
     private static List<Object3D> GetSubmeshes(Mesh mesh, CancellationToken token) {
         if (mesh.ShouldDeserialize) {
             throw new IncompleteDeserialization();
@@ -319,7 +322,7 @@ public static class MeshToHelixConverter {
                     RenderWireframe = SnuggleCore.Instance.Settings.MeshExportOptions.DisplayWireframe,
                     WireframeColor = Colors.Red,
                     Geometry = submesh.Geometry,
-                    Name = submesh.Name.Replace('.', '_'),
+                    Name = XAMLSafeCharacters.Replace(submesh.Name, "_"),
                     Material = material3d,
                     Transform = Transform3D.Identity,
                 });

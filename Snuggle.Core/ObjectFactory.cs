@@ -125,7 +125,7 @@ public static class ObjectFactory {
 
         hasImplementation = gameImplementations.TryGetValue(overrideType ?? info.ClassId, out type);
         if (!hasImplementation) {
-            if (overrideGame != UnityGame.Default) {
+            if (overrideGame is not UnityGame.Default) {
                 overrideGame = UnityGame.Default;
                 return false;
             }
@@ -137,7 +137,7 @@ public static class ObjectFactory {
 
         type ??= BaseType;
 
-        if (overrideGame == UnityGame.Default && serializedFile.Options.Game != UnityGame.Default && DisabledDefaultImplementations.TryGetValue(overrideType ?? info.ClassId, out var disabledGames) && disabledGames.Contains(serializedFile.Options.Game)) {
+        if (overrideGame is UnityGame.Default && serializedFile.Options.Game is not UnityGame.Default && DisabledDefaultImplementations.TryGetValue(overrideType ?? info.ClassId, out var disabledGames) && disabledGames.Contains(serializedFile.Options.Game)) {
             type = BaseType;
         }
 
@@ -167,11 +167,11 @@ public static class ObjectFactory {
         if (memoryUse >= 1.ToMebiByte()) {
             serializedFile.Options.Logger.Warning("Object", $"Using {memoryUse.GetHumanReadableBytes()} of memory to load object {info.PathId} ({overrideType ?? info.ClassId:G}, {overrideGame ?? UnityGame.Default:G}), consider moving some things to ToSerialize()");
         }
-#endif
 
         if (overrideType == null && hasImplementation && reader.Unconsumed > 0 && !serializedObject.ShouldDeserialize) {
             serializedFile.Options.Logger.Warning("Object", $"{reader.Unconsumed} bytes left unconsumed in buffer and object {info.PathId} ({overrideType ?? info.ClassId:G}, {overrideGame ?? UnityGame.Default:G}) is not marked for deserialization! Check implementation");
         }
+#endif
 
         if (serializedObject is ISerializedResource resource) {
             serializedObject.Size += resource.StreamData.Size;

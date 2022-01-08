@@ -20,14 +20,14 @@ public class Renderer : Behaviour {
             reader.Align();
         }
 
-        CastShadows = reader.ReadByte();
-        RecieveShadows = reader.ReadByte();
+        CastShadows = reader.ReadBoolean();
+        RecieveShadows = reader.ReadBoolean();
         if (SerializedFile.Version >= UnityVersionRegister.Unity2017_2) {
-            DynamicOccludee = reader.ReadByte();
+            DynamicOccludee = reader.ReadBoolean();
         }
 
         if (SerializedFile.Version >= UnityVersionRegister.Unity2021_1) {
-            StaticShadowCaster = reader.ReadByte();
+            StaticShadowCaster = reader.ReadBoolean();
         }
 
         if (SerializedFile.Version >= UnityVersionRegister.Unity5_4) {
@@ -100,10 +100,10 @@ public class Renderer : Behaviour {
         LightProbeVolumeOverride = PPtr<GameObject>.Null;
     }
 
-    public byte CastShadows { get; set; }
-    public byte RecieveShadows { get; set; }
-    public byte DynamicOccludee { get; set; }
-    public byte StaticShadowCaster { get; set; }
+    public bool CastShadows { get; set; }
+    public bool RecieveShadows { get; set; }
+    public bool DynamicOccludee { get; set; }
+    public bool StaticShadowCaster { get; set; }
     public byte MotionVectors { get; set; }
     public byte LightProbeUsage { get; set; }
     public byte RayTracingMode { get; set; }

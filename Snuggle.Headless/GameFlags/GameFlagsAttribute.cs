@@ -10,5 +10,5 @@ public class GameFlagsAttribute : Attribute {
     public UnityGame Game { get; }
 
     public override object TypeId => (int) Game;
-    public override bool IsDefaultAttribute() => Game == UnityGame.Default;
+    public override bool IsDefaultAttribute() => Game is UnityGame.Default;
 }
