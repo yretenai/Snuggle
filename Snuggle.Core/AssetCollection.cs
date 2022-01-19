@@ -60,10 +60,10 @@ public class AssetCollection : IDisposable {
             if (block.Flags.HasFlag(UnityBundleBlockFlags.SerializedFile)) {
                 LoadSerializedFile(bundle.OpenFile(block), block, handler, bundle.Options, false, bundle.Header.Version);
             } else {
-                var ext = Path.GetExtension(block.Path)[1..].ToLower();
+                var ext = Path.GetExtension(block.Path).ToLower();
                 switch (ext) {
-                    case "ress":
-                    case "resource":
+                    case ".ress":
+                    case ".resource":
                         Resources[block.Path] = (block, handler);
                         break;
                     default:
