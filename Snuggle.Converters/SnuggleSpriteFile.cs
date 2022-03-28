@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using JetBrains.Annotations;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing;
 using SixLabors.ImageSharp.Drawing.Processing;
@@ -20,7 +19,7 @@ using Vector2 = Snuggle.Core.Models.Objects.Math.Vector2;
 
 namespace Snuggle.Converters;
 
-[PublicAPI]
+
 public static class SnuggleSpriteFile {
     private static ConcurrentDictionary<(long, string), (ReadOnlyMemory<byte>, Size, TextureFormat)> CachedData { get; set; } = new();
 

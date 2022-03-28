@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Json.Serialization;
 using DragonLib.IO;
-using JetBrains.Annotations;
 using Snuggle.Core.Exceptions;
 using Snuggle.Core.Implementations;
 using Snuggle.Core.IO;
@@ -13,7 +12,6 @@ using Snuggle.Core.Options;
 
 namespace Snuggle.Core.Models.Objects.Graphics;
 
-[PublicAPI]
 public record SpriteRenderData(
     PPtr<Texture2D> Texture,
     PPtr<Texture2D> AlphaTexture,

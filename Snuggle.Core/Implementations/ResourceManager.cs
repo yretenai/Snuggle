@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using JetBrains.Annotations;
 using Snuggle.Core.Interfaces;
 using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
@@ -9,8 +8,6 @@ using Snuggle.Core.Options;
 
 namespace Snuggle.Core.Implementations;
 
-[PublicAPI]
-[UsedImplicitly]
 [ObjectImplementation(UnityClassId.ResourceManager)]
 public class ResourceManager : SerializedObject, ICABPathProvider {
     public ResourceManager(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) {

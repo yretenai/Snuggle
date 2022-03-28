@@ -1,12 +1,10 @@
 ﻿using System;
 using System.IO;
-using JetBrains.Annotations;
 using Snuggle.Core.Interfaces;
 using Snuggle.Core.Options;
 
 namespace Snuggle.Core.IO;
 
-[PublicAPI]
 public sealed class MemoryStreamHandler : IFileHandler {
     public MemoryStreamHandler(Stream stream) => BaseStream = stream;
     public Stream BaseStream { get; set; }

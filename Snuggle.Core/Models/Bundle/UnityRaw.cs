@@ -2,14 +2,12 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using JetBrains.Annotations;
 using Snuggle.Core.Interfaces;
 using Snuggle.Core.IO;
 using Snuggle.Core.Options;
 
 namespace Snuggle.Core.Models.Bundle;
 
-[PublicAPI]
 public record UnityRaw(uint Checksum, long MinimumStreamedBytes, long Size, int MinimumBlocks, long TotalSize, long BlockSize) : UnityContainer {
     public byte[] Hash { get; set; } = Array.Empty<byte>();
     public override long Length { get; }

@@ -13,18 +13,17 @@
                              Title="Edit Setting" Height="450" Width="800">
     <Grid Margin="15">
         <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
-        <Label Content="{Binding Header, ElementName=Root}" Grid.ColumnSpan="2" FontWeight="Normal" Margin="0,0,0,15"/>
+        <Label Content="{Binding Header, ElementName=Root}" Grid.ColumnSpan="2" FontWeight="Normal" Margin="0,0,0,15" />
         <TextBox Grid.Row="1" Grid.Column="0" Text="{Binding Text, ElementName=Root}" />
         <Button Grid.Row="1" Grid.Column="1" Margin="5,0,0,0" Padding="25,0" Click="Accept">Save</Button>
         <Button Grid.Row="1" Grid.Column="2" Margin="5,0,0,0" Padding="25,0" Click="Reject">Close</Button>
     </Grid>
 </adonisControls:AdonisWindow>
-

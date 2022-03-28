@@ -4,11 +4,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
-using JetBrains.Annotations;
 
 namespace Snuggle;
 
-[PublicAPI]
+
 public sealed class TaskCompletionNotifier<T> : INotifyPropertyChanged {
     public TaskCompletionNotifier(object? carry, Task<T> task) {
         Task = task;
@@ -39,7 +38,6 @@ public sealed class TaskCompletionNotifier<T> : INotifyPropertyChanged {
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    [NotifyPropertyChangedInvocator]
     private void OnPropertyChanged([CallerMemberName] string? propertyName = null) {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }

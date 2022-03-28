@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text.Json.Serialization;
-using JetBrains.Annotations;
 using Snuggle.Core.Exceptions;
 using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
@@ -11,7 +10,6 @@ using Snuggle.Core.Options;
 
 namespace Snuggle.Core.Models.Objects.Graphics;
 
-[PublicAPI]
 public record CompressedMesh(
     PackedBitVector Vertices,
     PackedBitVector UVs,

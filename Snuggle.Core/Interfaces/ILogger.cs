@@ -1,10 +1,8 @@
 ﻿using System;
-using JetBrains.Annotations;
 using Snuggle.Core.Meta;
 
 namespace Snuggle.Core.Interfaces;
 
-[PublicAPI]
 public interface ILogger : IDisposable {
     public void Log(LogLevel level, string category, string message, Exception? exception);
 

@@ -1,9 +1,7 @@
 using System.ComponentModel;
-using JetBrains.Annotations;
 
 namespace Snuggle.Core.Options.Game;
 
-[PublicAPI]
 public record UniteOptions(UniteVersion GameVersion) : IUnityGameOptions {
     public const int LatestVersion = 1;
     public UniteOptions() : this(UniteVersion.Version1_1) { }

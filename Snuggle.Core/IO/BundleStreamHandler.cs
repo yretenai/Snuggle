@@ -1,14 +1,12 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using JetBrains.Annotations;
 using Snuggle.Core.Interfaces;
 using Snuggle.Core.Models.Bundle;
 using Snuggle.Core.Options;
 
 namespace Snuggle.Core.IO;
 
-[PublicAPI]
 public class BundleStreamHandler : IFileHandler {
     public BundleStreamHandler(Bundle bundleFile) => BundleFile = bundleFile;
 

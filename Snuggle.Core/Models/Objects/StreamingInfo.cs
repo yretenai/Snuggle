@@ -1,14 +1,12 @@
 ﻿using System;
 using System.IO;
 using System.Text.Json.Serialization;
-using JetBrains.Annotations;
 using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
 using Snuggle.Core.Options;
 
 namespace Snuggle.Core.Models.Objects;
 
-[PublicAPI]
 public record StreamingInfo(long Offset, long Size, string Path) {
     public static StreamingInfo Null { get; } = new(0, 0, string.Empty);
 

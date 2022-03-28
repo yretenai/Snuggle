@@ -5,7 +5,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
 using Snuggle.Core.Interfaces;
 using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
@@ -14,7 +13,6 @@ using Snuggle.Core.Options;
 
 namespace Snuggle.Core;
 
-[PublicAPI]
 public class Bundle : IDisposable, IRenewable {
     private static Dictionary<string, (UnityFormat, UnityGame)>? _NonStandardLookup;
     public Bundle(string path, SnuggleCoreOptions options) : this(File.OpenRead(path), path, FileStreamHandler.Instance.Value, options) { }

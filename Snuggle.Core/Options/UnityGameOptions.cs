@@ -1,13 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
-using JetBrains.Annotations;
 using Snuggle.Core.Meta;
 using Snuggle.Core.Options.Game;
 
 namespace Snuggle.Core.Options;
 
-[PublicAPI]
 public record UnityGameOptions {
     public const int LatestVersion = 1;
 

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using JetBrains.Annotations;
 using K4os.Compression.LZ4;
 using Snuggle.Core.Game.Unite;
 using Snuggle.Core.Interfaces;
@@ -11,7 +10,6 @@ using Snuggle.Core.Options;
 
 namespace Snuggle.Core.Models.Bundle;
 
-[PublicAPI]
 public record UnityFS(long Size, int CompressedBlockInfoSize, int BlockInfoSize, UnityFSFlags Flags) : UnityContainer {
     public byte[] Hash { get; set; } = new byte[16];
     public override long Length => Size;

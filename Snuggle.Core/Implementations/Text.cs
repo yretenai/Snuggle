@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Text.Json.Serialization;
-using JetBrains.Annotations;
 using Snuggle.Core.Exceptions;
 using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
@@ -11,7 +10,6 @@ using Snuggle.Core.Options;
 
 namespace Snuggle.Core.Implementations;
 
-[PublicAPI]
 [ObjectImplementation(UnityClassId.TextAsset)]
 public class Text : NamedObject {
     public Text(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) {

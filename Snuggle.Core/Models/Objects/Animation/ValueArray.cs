@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
 using Snuggle.Core.Models.Objects.Math;
@@ -8,7 +7,6 @@ using Snuggle.Core.Options;
 
 namespace Snuggle.Core.Models.Objects.Animation;
 
-[PublicAPI]
 public record ValueArray(List<bool> BoolValues, List<int> IntValues, List<float> FloatValues, List<Vector3> PositionValues, List<Quaternion> RotationValues, List<Vector3> ScaleValues) {
     public static ValueArray Default { get; } = new(new List<bool>(), new List<int>(), new List<float>(), new List<Vector3>(), new List<Quaternion>(), new List<Vector3>());
 

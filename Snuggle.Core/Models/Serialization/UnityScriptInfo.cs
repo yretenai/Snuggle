@@ -1,11 +1,9 @@
 ﻿using System;
-using JetBrains.Annotations;
 using Snuggle.Core.IO;
 using Snuggle.Core.Options;
 
 namespace Snuggle.Core.Models.Serialization;
 
-[PublicAPI]
 public record UnityScriptInfo(int Index, long PathId) {
     public static UnityScriptInfo FromReader(BiEndianBinaryReader reader, UnitySerializedFile header, SnuggleCoreOptions options) {
         if (header.FileVersion >= UnitySerializedFileVersion.BigIdAlwaysEnabled) {

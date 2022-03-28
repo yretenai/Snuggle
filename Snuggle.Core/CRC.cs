@@ -1,10 +1,8 @@
 using System;
 using System.Text;
-using JetBrains.Annotations;
 
 namespace Snuggle.Core;
 
-[PublicAPI]
 public static class CRC {
     private const uint Polynomial = 0xEDB88320;
     public static readonly uint[] Table;

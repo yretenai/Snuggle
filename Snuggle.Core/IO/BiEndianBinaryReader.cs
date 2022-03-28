@@ -4,11 +4,9 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
-using JetBrains.Annotations;
 
 namespace Snuggle.Core.IO;
 
-[PublicAPI]
 public class BiEndianBinaryReader : BinaryReader {
     public BiEndianBinaryReader(Stream input, bool isBigEndian = false, bool leaveOpen = false) : base(input, Encoding.UTF8, leaveOpen) {
         IsBigEndian = isBigEndian;

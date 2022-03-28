@@ -3,7 +3,6 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Windows;
-using JetBrains.Annotations;
 using NAudio.Utils;
 using NAudio.Wave;
 using Snuggle.Converters;
@@ -80,7 +79,7 @@ public sealed partial class AudioRenderer : INotifyPropertyChanged {
     private WaveOutEvent? OutputDevice { get; set; }
     private RawSourceWaveStream? Source { get; set; }
 
-    private Timer Timer { get; set; }
+    private Timer Timer { get; }
     private CancellationTokenSource CancellationTokenSource { get; set; } = new();
 
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -103,7 +102,6 @@ public sealed partial class AudioRenderer : INotifyPropertyChanged {
         DecodeAndPlay(DataContext as AudioClip, CancellationTokenSource.Token);
     }
 
-    [NotifyPropertyChangedInvocator]
     private void OnPropertyChanged([CallerMemberName] string? propertyName = null) {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }

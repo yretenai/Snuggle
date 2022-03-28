@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Text;
-using JetBrains.Annotations;
 using Snuggle.Core.Extensions;
 using Snuggle.Core.IO;
 using Snuggle.Core.Options;
 
 namespace Snuggle.Core.Models.Serialization;
 
-[PublicAPI]
 public record UnityTypeTree(UnityTypeTreeNode[] Nodes, Memory<char> StringBuffer) {
     public static UnityTypeTree FromReader(BiEndianBinaryReader reader, UnitySerializedFile header, SnuggleCoreOptions options) => header.FileVersion is >= UnitySerializedFileVersion.TypeTreeBlob or UnitySerializedFileVersion.TypeTreeBlobBeta ? FromReaderBlob(reader, header, options) : FromReaderLegacy(reader, header, options);
 

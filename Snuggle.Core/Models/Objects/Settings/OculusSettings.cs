@@ -1,10 +1,8 @@
-﻿using JetBrains.Annotations;
-using Snuggle.Core.IO;
+﻿using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
 
 namespace Snuggle.Core.Models.Objects.Settings;
 
-[PublicAPI]
 public record OculusSettings(bool SharedDepthBuffer, bool DashSupport, bool LowOverheadMode, bool ProtectedContext, bool V2Signing) {
     public static OculusSettings Default { get; } = new(false, false, false, false, false);
 

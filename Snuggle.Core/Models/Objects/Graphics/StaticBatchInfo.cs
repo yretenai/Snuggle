@@ -1,11 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Snuggle.Core.IO;
 
 namespace Snuggle.Core.Models.Objects.Graphics;
 
-[PublicAPI]
 public record StaticBatchInfo(ushort FirstSubmesh, ushort SubmeshCount) {
     public static StaticBatchInfo Default { get; } = new(0, 1);
 

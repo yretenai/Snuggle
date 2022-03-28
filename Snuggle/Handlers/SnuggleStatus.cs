@@ -1,11 +1,10 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
 using Snuggle.Core.Interfaces;
 
 namespace Snuggle.Handlers;
 
-[PublicAPI]
+
 public class SnuggleStatus : IStatusReporter, INotifyPropertyChanged {
     public string Message { get; private set; } = string.Empty;
 
@@ -58,7 +57,6 @@ public class SnuggleStatus : IStatusReporter, INotifyPropertyChanged {
         OnPropertyChanged(nameof(Percent));
     }
 
-    [NotifyPropertyChangedInvocator]
     protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null) {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }

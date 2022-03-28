@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
-using JetBrains.Annotations;
 using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
 using Snuggle.Core.Models;
@@ -12,8 +11,6 @@ using Snuggle.Core.Options;
 
 namespace Snuggle.Core.Implementations;
 
-[PublicAPI]
-[UsedImplicitly]
 [ObjectImplementation(UnityClassId.GameObject)]
 public class GameObject : SerializedObject {
     public GameObject(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) {

@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Linq;
 using System.Runtime.InteropServices;
-using JetBrains.Annotations;
 using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
 
 namespace Snuggle.Core.Models.Objects.Graphics;
 
-[PublicAPI]
 public record ChannelInfo(int Stream, int Offset, VertexFormat Format, VertexDimension Dimension, int ExtraData) {
     public static ChannelInfo Default => new(0, 0, VertexFormat.Single, VertexDimension.None, 0);
 

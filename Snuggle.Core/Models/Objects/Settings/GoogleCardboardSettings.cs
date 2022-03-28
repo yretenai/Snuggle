@@ -1,9 +1,7 @@
-﻿using JetBrains.Annotations;
-using Snuggle.Core.IO;
+﻿using Snuggle.Core.IO;
 
 namespace Snuggle.Core.Models.Objects.Settings;
 
-[PublicAPI]
 public record GoogleCardboardSettings(int DepthFormat, bool EnableTransitionView) {
     public static GoogleCardboardSettings Default { get; } = new(0, false);
 

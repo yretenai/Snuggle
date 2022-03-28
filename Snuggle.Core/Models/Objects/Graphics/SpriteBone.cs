@@ -1,12 +1,10 @@
 ﻿using System;
-using JetBrains.Annotations;
 using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
 using Snuggle.Core.Models.Objects.Math;
 
 namespace Snuggle.Core.Models.Objects.Graphics;
 
-[PublicAPI]
 public record SpriteBone(
     string Name,
     Guid Guid,

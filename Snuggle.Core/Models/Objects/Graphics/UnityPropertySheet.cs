@@ -1,11 +1,9 @@
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Snuggle.Core.IO;
 using Snuggle.Core.Models.Objects.Math;
 
 namespace Snuggle.Core.Models.Objects.Graphics;
 
-[PublicAPI]
 public record UnityPropertySheet(Dictionary<string, UnityTexEnv> Textures, Dictionary<string, float> Floats, Dictionary<string, ColorRGBA> Colors) {
     public static UnityPropertySheet Default { get; } = new(new Dictionary<string, UnityTexEnv>(), new Dictionary<string, float>(), new Dictionary<string, ColorRGBA>());
 
@@ -35,7 +33,6 @@ public record UnityPropertySheet(Dictionary<string, UnityTexEnv> Textures, Dicti
     }
 }
 
-[PublicAPI]
 public record BuildTextureStackReference(string GroupName, string ItemName) {
     public static BuildTextureStackReference Default { get; set; } = new(string.Empty, string.Empty);
 

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using JetBrains.Annotations;
 using Snuggle.Core.Implementations;
 using Snuggle.Core.Interfaces;
 using Snuggle.Core.IO;
@@ -13,7 +12,6 @@ using Snuggle.Core.Options;
 
 namespace Snuggle.Core;
 
-[PublicAPI]
 public class SerializedFile : IRenewable {
 #pragma warning disable CS8618
     [Obsolete("test-only")]

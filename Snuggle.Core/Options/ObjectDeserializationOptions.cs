@@ -1,12 +1,10 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
-using JetBrains.Annotations;
 
 namespace Snuggle.Core.Options;
 
 public delegate (string Path, SnuggleCoreOptions Options) RequestAssemblyPath(string assemblyName);
 
-[PublicAPI]
 public record ObjectDeserializationOptions {
     private const int LatestVersion = 1;
 

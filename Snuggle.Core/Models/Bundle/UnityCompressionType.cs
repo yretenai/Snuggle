@@ -1,8 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿namespace Snuggle.Core.Models.Bundle;
 
-namespace Snuggle.Core.Models.Bundle;
-
-[PublicAPI]
 public enum UnityCompressionType : uint {
     None,
     LZMA,

@@ -231,11 +231,11 @@ public static class SnuggleMeshFile {
             matrix = mirror * matrix * mirror; // flip
             Matrix4x4.Decompose(matrix, out scale, out rotation, out translation);
         }
-        
+
         node.Rotation = new List<double> { rotation.X, rotation.Y, rotation.Z, rotation.W };
         node.Scale = new List<double> { scale.X, scale.Y, scale.Z };
         node.Translation = new List<double> { translation.X, translation.Y, translation.Z };
-        
+
         if (buildMeshes) {
             if (gameObject.FindComponent(UnityClassId.MeshRenderer, UnityClassId.SkinnedMeshRenderer).Value is SkinnedMeshRenderer skinnedMeshRenderer && skinnedMeshRenderer.Mesh.Value != null) {
                 skinnedMeshRenderer.Mesh.Value.Deserialize(ObjectDeserializationOptions.Default);
@@ -537,6 +537,7 @@ public static class SnuggleMeshFile {
                         if (options.MirrorXPosition) {
                             morphPositions[vertex.Index].X *= -1;
                         }
+
                         minPos = Vector3.Min(minPos, morphPositions[vertex.Index]);
                         maxPos = Vector3.Max(maxPos, morphPositions[vertex.Index]);
 
@@ -545,6 +546,7 @@ public static class SnuggleMeshFile {
                             if (options.MirrorXNormal) {
                                 morphNormals[vertex.Index].X *= -1;
                             }
+
                             hasMorphNormals = true;
                         }
 
@@ -553,6 +555,7 @@ public static class SnuggleMeshFile {
                             if (options.MirrorXTangent) {
                                 morphTangents[vertex.Index].X *= -1;
                             }
+
                             hasMorphTangents = false;
                         }
                     }

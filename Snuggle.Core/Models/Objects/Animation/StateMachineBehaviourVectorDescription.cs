@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json.Serialization;
-using JetBrains.Annotations;
 using Snuggle.Core.Exceptions;
 using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
@@ -10,7 +9,6 @@ using Snuggle.Core.Options;
 
 namespace Snuggle.Core.Models.Objects.Animation;
 
-[PublicAPI]
 public record StateMachineBehaviourVectorDescription(Dictionary<StateKey, StateRange> BehaviourRanges) {
     public static StateMachineBehaviourVectorDescription Default { get; } = new(new Dictionary<StateKey, StateRange>());
 

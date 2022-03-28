@@ -1,10 +1,8 @@
-﻿using JetBrains.Annotations;
-using Snuggle.Core.IO;
+﻿using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
 
 namespace Snuggle.Core.Models.Objects.Settings;
 
-[PublicAPI]
 public record VRSettings(GoogleCardboardSettings Cardboard, GoogleDaydreamSettings Daydream, HoloLensVRSettings HoloLens, LuminSettings Lumin, OculusSettings Oculus, bool Enable360StereoCapture) {
     public static VRSettings Default { get; } = new(GoogleCardboardSettings.Default, GoogleDaydreamSettings.Default, HoloLensVRSettings.Default, LuminSettings.Default, OculusSettings.Default, false);
 

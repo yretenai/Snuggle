@@ -1,11 +1,9 @@
 ﻿using System;
-using JetBrains.Annotations;
 using Snuggle.Core.IO;
 using Snuggle.Core.Options;
 
 namespace Snuggle.Core.Models.Serialization;
 
-[PublicAPI]
 public record UnitySerializedType(
     object ClassId,
     bool IsStrippedType,

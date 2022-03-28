@@ -1,11 +1,9 @@
 ﻿using System;
-using JetBrains.Annotations;
 using Snuggle.Core.IO;
 using Snuggle.Core.Options;
 
 namespace Snuggle.Core.Models.Bundle;
 
-[PublicAPI]
 public record UnityBundleBlock(long Offset, long Size, UnityBundleBlockFlags Flags, string Path) {
     public static UnityBundleBlock FromReader(BiEndianBinaryReader reader, int fsFlags, SnuggleCoreOptions options) {
         var offset = reader.ReadInt64();

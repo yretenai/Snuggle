@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Snuggle.Core.Extensions;
 using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
@@ -11,7 +10,6 @@ using Snuggle.Core.Options;
 
 namespace Snuggle.Core.Implementations;
 
-[PublicAPI]
 [ObjectImplementation(UnityClassId.SkinnedMeshRenderer)]
 public class SkinnedMeshRenderer : Renderer {
     public SkinnedMeshRenderer(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) {

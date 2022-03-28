@@ -1,12 +1,10 @@
 ﻿using System;
-using JetBrains.Annotations;
 using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
 using Snuggle.Core.Options;
 
 namespace Snuggle.Core.Models.Bundle;
 
-[PublicAPI]
 public record UnityBundle(string Signature, UnityFormat Format, int FormatVersion, string EngineVersion, string EngineRevision) {
     public UnityVersion? Version { get; } = UnityVersion.ParseSafe(EngineVersion);
     public UnityVersion? Revision { get; } = UnityVersion.ParseSafe(EngineRevision);

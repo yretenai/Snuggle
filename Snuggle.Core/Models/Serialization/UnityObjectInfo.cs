@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
-using JetBrains.Annotations;
 using Snuggle.Core.IO;
 using Snuggle.Core.Options;
 
 namespace Snuggle.Core.Models.Serialization;
 
-[PublicAPI]
 public record UnityObjectInfo(
     long PathId,
     long Offset,

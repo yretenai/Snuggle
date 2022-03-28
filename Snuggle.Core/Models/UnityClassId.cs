@@ -1,9 +1,7 @@
-﻿using JetBrains.Annotations;
-using Snuggle.Core.Meta;
+﻿using Snuggle.Core.Meta;
 
 namespace Snuggle.Core.Models;
 
-[PublicAPI]
 [ClassIdExtension(UnityGame.Default)]
 public enum UnityClassId {
     Object = 0,

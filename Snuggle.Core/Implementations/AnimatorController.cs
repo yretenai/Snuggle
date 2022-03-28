@@ -43,7 +43,7 @@ public class AnimatorController : RuntimeAnimatorController {
 
     public AnimatorController(UnityObjectInfo info, SerializedFile serializedFile) : base(info, serializedFile) { }
 
-    private long ControllerStart { get; set; } = -1;
+    private long ControllerStart { get; } = -1;
 
     public ControllerConstant? Controller { get; set; }
     public Dictionary<uint, string> Skeleton { get; set; } = new();

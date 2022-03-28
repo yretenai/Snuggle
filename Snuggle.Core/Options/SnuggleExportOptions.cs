@@ -1,10 +1,8 @@
 ﻿using System.ComponentModel;
-using JetBrains.Annotations;
 using Snuggle.Core.Implementations;
 
 namespace Snuggle.Core.Options;
 
-[PublicAPI]
 public record SnuggleExportOptions([Description("Writes Native 3D textures such as DDS instead of converting them to PNG or TIF")] bool WriteNativeTextures, [Description(SnuggleExportOptions.PathTemplateDescription)] string PathTemplate, [Description(SnuggleExportOptions.PathTemplateDescription)] string ContainerlessPathTemplate, [Description("Use DirectXTex for converting textures")] bool UseDirectTex, [Description("Only display and export objects with CAB paths")] bool OnlyWithCABPath, [Description("Keep audio samples in their native format")] bool WriteNativeAudio) {
     private const string PathTemplateDescription = @"Output Path Template
 Available variables:

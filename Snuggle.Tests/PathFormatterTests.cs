@@ -25,25 +25,7 @@ public class PathFormatterTests {
     private SerializedFile MockFile = null!;
     private SerializedObject BlankObject = null!;
 
-    [TestCase("/Foo/Bar/Baz", "Foo/Bar/Baz.bytes")]
-    [TestCase("/Foo/{Id}/Baz", "Foo/1/Baz.bytes")]
-    [TestCase("/Foo/{Type}/Baz", "Foo/Object/Baz.bytes")]
-    [TestCase("/Foo/{Size}/Baz", "Foo/3/Baz.bytes")]
-    [TestCase("/Foo/Bar/{Name}", "Foo/Bar/BlankObject.bytes")]
-    [TestCase("/Foo/{Container}/Baz", "Foo/CAB/Container/Path.bin/Baz.bytes")]
-    [TestCase("/Foo/{ContainerOrName}/Baz", "Foo/CAB/Container/Path.bin/Baz.bytes")]
-    [TestCase("/Foo/{ContainerOrNameWithExt}", "Foo/CAB/Container/Path.bin")]
-    [TestCase("/Foo/{ContainerOrNameWithoutExt}/Baz", "Foo/CAB/Container/Path/Baz.bytes")]
-    [TestCase("/Foo/Bar/Baz.{Ext}", "Foo/Bar/Baz.bytes")]
-    [TestCase("/Foo/{Company}/Baz", "Foo/MyCompany/Baz.bytes")]
-    [TestCase("/Foo/{Organization}/Baz", "Foo/MyId/Baz.bytes")]
-    [TestCase("/Foo/{Project}/Baz", "Foo/MyProject/Baz.bytes")]
-    [TestCase("/Foo/{Product}/Baz", "Foo/MyGame/Baz.bytes")]
-    [TestCase("/Foo/{ProductOrProject}/Baz", "Foo/MyGame/Baz.bytes")]
-    [TestCase("/Foo/{Version}/Baz", "Foo/1.2.3/Baz.bytes")]
-    [TestCase("/Foo/{DoesNotExist}/Baz", "Foo/{DoesNotExist}/Baz.bytes")]
-    [TestCase("{Project}/{Version}/{Type}/{Container}/{Name}.{Ext}", "MyProject/1.2.3/Object/CAB/Container/Path.bin/BlankObject.bytes")]
-    [TestCase("{ProductOrProject}/{Version}/{Type}/{ContainerOrNameWithExt}", "MyGame/1.2.3/Object/CAB/Container/Path.bin")]
+    [TestCase("/Foo/Bar/Baz", "Foo/Bar/Baz.bytes"), TestCase("/Foo/{Id}/Baz", "Foo/1/Baz.bytes"), TestCase("/Foo/{Type}/Baz", "Foo/Object/Baz.bytes"), TestCase("/Foo/{Size}/Baz", "Foo/3/Baz.bytes"), TestCase("/Foo/Bar/{Name}", "Foo/Bar/BlankObject.bytes"), TestCase("/Foo/{Container}/Baz", "Foo/CAB/Container/Path.bin/Baz.bytes"), TestCase("/Foo/{ContainerOrName}/Baz", "Foo/CAB/Container/Path.bin/Baz.bytes"), TestCase("/Foo/{ContainerOrNameWithExt}", "Foo/CAB/Container/Path.bin"), TestCase("/Foo/{ContainerOrNameWithoutExt}/Baz", "Foo/CAB/Container/Path/Baz.bytes"), TestCase("/Foo/Bar/Baz.{Ext}", "Foo/Bar/Baz.bytes"), TestCase("/Foo/{Company}/Baz", "Foo/MyCompany/Baz.bytes"), TestCase("/Foo/{Organization}/Baz", "Foo/MyId/Baz.bytes"), TestCase("/Foo/{Project}/Baz", "Foo/MyProject/Baz.bytes"), TestCase("/Foo/{Product}/Baz", "Foo/MyGame/Baz.bytes"), TestCase("/Foo/{ProductOrProject}/Baz", "Foo/MyGame/Baz.bytes"), TestCase("/Foo/{Version}/Baz", "Foo/1.2.3/Baz.bytes"), TestCase("/Foo/{DoesNotExist}/Baz", "Foo/{DoesNotExist}/Baz.bytes"), TestCase("{Project}/{Version}/{Type}/{Container}/{Name}.{Ext}", "MyProject/1.2.3/Object/CAB/Container/Path.bin/BlankObject.bytes"), TestCase("{ProductOrProject}/{Version}/{Type}/{ContainerOrNameWithExt}", "MyGame/1.2.3/Object/CAB/Container/Path.bin")]
     public void TestFormat(string template, string expected) {
 #pragma warning disable CS0618
         Assert.AreEqual(expected, PathFormatter.Format(template, "bytes", BlankObject));

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json.Serialization;
-using JetBrains.Annotations;
 using Snuggle.Core.Exceptions;
 using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
@@ -10,7 +9,6 @@ using Snuggle.Core.Options;
 
 namespace Snuggle.Core.Models.Objects.Graphics;
 
-[PublicAPI]
 public enum VertexChannel {
     Vertex = 0,
     Normal = 1,
@@ -28,7 +26,6 @@ public enum VertexChannel {
     SkinBoneIndex = 13,
 }
 
-[PublicAPI]
 public record VertexData(uint CurrentChannels, uint VertexCount, Dictionary<VertexChannel, ChannelInfo> Channels) {
     private long DataStart { get; init; } = -1;
 

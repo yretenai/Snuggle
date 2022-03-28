@@ -3,7 +3,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Runtime.InteropServices;
 using DirectXTexNet;
-using JetBrains.Annotations;
 using Snuggle.Converters.DXGI;
 using Snuggle.Core;
 using Snuggle.Core.Exceptions;
@@ -16,7 +15,7 @@ using Snuggle.Native;
 
 namespace Snuggle.Converters;
 
-[PublicAPI]
+
 public static class Texture2DConverter {
     public static bool SupportsDDS(Texture2D texture) => texture.TextureFormat.CanSupportDDS();
     public static bool UseDDSConversion(TextureFormat textureFormat) => Environment.OSVersion.Platform == PlatformID.Win32NT && textureFormat.CanSupportDDS();

@@ -1,11 +1,9 @@
-﻿using JetBrains.Annotations;
-using Snuggle.Core.IO;
+﻿using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
 using Snuggle.Core.Options;
 
 namespace Snuggle.Core.Models.Objects.Animation;
 
-[PublicAPI]
 public record HumanPoseMask(uint Word0, uint Word1) {
     public static HumanPoseMask Default { get; } = new(0, 0);
 

@@ -1,11 +1,9 @@
-﻿using JetBrains.Annotations;
-using Snuggle.Core.Implementations;
+﻿using Snuggle.Core.Implementations;
 using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
 
 namespace Snuggle.Core.Models.Objects;
 
-[PublicAPI]
 public record ComponentPair(object ClassId, PPtr<Component> Ptr) {
     public static ComponentPair FromReader(BiEndianBinaryReader reader, SerializedFile file) {
         object classId = UnityClassId.Unknown;

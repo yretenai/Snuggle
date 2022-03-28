@@ -1,14 +1,12 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using JetBrains.Annotations;
 using Snuggle.Core.IO;
 using Snuggle.Core.Models.Bundle;
 using Snuggle.Core.Options;
 
 namespace Snuggle.Core.Interfaces;
 
-[PublicAPI]
 public record UnityContainer {
     public UnityBundleBlockInfo[] BlockInfos { get; set; } = Array.Empty<UnityBundleBlockInfo>();
     public UnityBundleBlock[] Blocks { get; set; } = Array.Empty<UnityBundleBlock>();

@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using JetBrains.Annotations;
 using Snuggle.Core.Extensions;
 using Snuggle.Core.Interfaces;
 using Snuggle.Core.Logging;
@@ -9,7 +8,6 @@ using Snuggle.Core.Meta;
 
 namespace Snuggle.Core.Options;
 
-[PublicAPI]
 public record SnuggleCoreOptions(
     bool CacheData,
     bool CacheDataIfLZMA, // this literally takes two years, you want it to be enabled.

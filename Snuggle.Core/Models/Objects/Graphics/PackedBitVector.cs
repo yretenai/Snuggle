@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Text.Json.Serialization;
-using JetBrains.Annotations;
 using Snuggle.Core.Exceptions;
 using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
@@ -9,7 +8,6 @@ using Snuggle.Core.Options;
 
 namespace Snuggle.Core.Models.Objects.Graphics;
 
-[PublicAPI]
 public record PackedBitVector(uint Count, byte BitSize) {
     private long DataStart { get; init; } = -1;
     public float Range { get; init; } = 1.0f;

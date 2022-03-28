@@ -1,8 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿namespace Snuggle.Core.Extensions;
 
-namespace Snuggle.Core.Extensions;
-
-[PublicAPI]
 public static class ValueExtensions {
     public static long ToTebiByte(this int value) => value * 1024 * 1024 * 1024 * 1024;
 

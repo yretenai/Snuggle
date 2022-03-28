@@ -1,10 +1,8 @@
-﻿using JetBrains.Annotations;
-using Snuggle.Core.IO;
+﻿using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
 
 namespace Snuggle.Core.Models.Objects;
 
-[PublicAPI]
 public record AssetBundleInfo(byte[] Hash, int[] Dependencies) {
     public static AssetBundleInfo FromReader(BiEndianBinaryReader reader, SerializedFile file) {
         var hash = reader.ReadBytes(16);

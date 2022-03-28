@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.Json.Serialization;
-using JetBrains.Annotations;
 using Snuggle.Core.Implementations;
 using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
@@ -11,7 +10,6 @@ using Snuggle.Core.Models.Serialization;
 
 namespace Snuggle.Core.Models;
 
-[PublicAPI]
 public record PPtr<T>(int FileId, long PathId) where T : SerializedObject {
     // ReSharper disable once UseDeconstructionOnParameter
     private PPtr(PPtrEnclosure enclosure) : this(enclosure.FileId, enclosure.PathId) { }

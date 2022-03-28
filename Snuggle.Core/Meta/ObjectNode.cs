@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Mono.Cecil;
 using Snuggle.Core.Models.Serialization;
 
 namespace Snuggle.Core.Meta;
 
-[PublicAPI]
 public record ObjectNode(string Name, string TypeName, int Size, bool IsAligned, bool IsBoolean) {
     public static ObjectNode Empty { get; } = new(string.Empty, string.Empty, 0, false, false);
     public List<ObjectNode> Properties { get; set; } = new();

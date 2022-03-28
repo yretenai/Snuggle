@@ -1,12 +1,10 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
-using JetBrains.Annotations;
 using Snuggle.Core.Meta;
 using Snuggle.Core.Models.Bundle;
 
 namespace Snuggle.Core.Options;
 
-[PublicAPI]
 public record BundleSerializationOptions(int BlockSize, UnityCompressionType CompressionType, UnityCompressionType BlockCompressionType) {
     private const int LatestVersion = 1;
     public static BundleSerializationOptions LZMA { get; } = new(int.MaxValue, UnityCompressionType.None, UnityCompressionType.LZMA);

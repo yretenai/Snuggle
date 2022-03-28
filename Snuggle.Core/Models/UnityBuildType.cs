@@ -1,8 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿namespace Snuggle.Core.Models;
 
-namespace Snuggle.Core.Models;
-
-[PublicAPI]
 public enum UnityBuildType {
     None = 0,
     Release = 'r',

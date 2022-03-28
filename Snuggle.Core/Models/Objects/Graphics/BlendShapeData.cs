@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Text.Json.Serialization;
-using JetBrains.Annotations;
 using Snuggle.Core.Exceptions;
 using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
@@ -9,7 +8,6 @@ using Snuggle.Core.Options;
 
 namespace Snuggle.Core.Models.Objects.Graphics;
 
-[PublicAPI]
 public record BlendShapeData(List<MeshBlendShape> Shapes, List<MeshBlendShapeChannel> Channels, List<float> Weights) {
     private long VerticesStart { get; init; } = -1;
 

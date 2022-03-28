@@ -1,10 +1,8 @@
-﻿using JetBrains.Annotations;
-using Snuggle.Core.IO;
+﻿using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
 
 namespace Snuggle.Core.Models.Objects.Settings;
 
-[PublicAPI]
 public record HoloLensVRSettings(int DepthFormat, bool DepthBufferSharingEnabled) {
     public static HoloLensVRSettings Default { get; } = new(0, false);
 

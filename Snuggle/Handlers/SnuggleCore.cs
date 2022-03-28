@@ -13,7 +13,6 @@ using System.Windows;
 using System.Windows.Threading;
 using AdonisUI;
 using DragonLib;
-using JetBrains.Annotations;
 using Snuggle.Components;
 using Snuggle.Converters;
 using Snuggle.Core;
@@ -25,7 +24,7 @@ using Snuggle.Core.Options.Game;
 
 namespace Snuggle.Handlers;
 
-[PublicAPI]
+
 public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisposable {
     private object SaveLock = new();
 
@@ -216,7 +215,6 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
         return tcs.Task;
     }
 
-    [NotifyPropertyChangedInvocator]
     public virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null) {
         Dispatcher.Invoke(() => { PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)); });
     }

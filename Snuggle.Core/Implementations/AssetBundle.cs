@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using JetBrains.Annotations;
 using Snuggle.Core.Exceptions;
 using Snuggle.Core.Game.Unite;
 using Snuggle.Core.Interfaces;
@@ -16,8 +15,6 @@ using Snuggle.Core.Options.Game;
 
 namespace Snuggle.Core.Implementations;
 
-[PublicAPI]
-[UsedImplicitly]
 [ObjectImplementation(UnityClassId.AssetBundle)]
 public class AssetBundle : NamedObject, ICABPathProvider {
     public AssetBundle(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) {

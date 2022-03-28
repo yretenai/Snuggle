@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Linq;
-using JetBrains.Annotations;
 using Snuggle.Core.Models;
 
 namespace Snuggle.Core.Meta;
 
-[PublicAPI]
 [AttributeUsage(AttributeTargets.Class, Inherited = false)]
 public class ObjectImplementationAttribute : Attribute {
     public ObjectImplementationAttribute(object classId, UnityGame game = UnityGame.Default) {

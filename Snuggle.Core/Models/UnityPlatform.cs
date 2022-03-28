@@ -1,8 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿namespace Snuggle.Core.Models;
 
-namespace Snuggle.Core.Models;
-
-[PublicAPI]
 public enum UnityPlatform {
     NoTarget = -2,
     Unknown = -1,

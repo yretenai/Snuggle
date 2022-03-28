@@ -1,9 +1,7 @@
-﻿using JetBrains.Annotations;
-using Mono.Cecil;
+﻿using Mono.Cecil;
 
 namespace Snuggle.Core.Extensions;
 
-[PublicAPI]
 public static class CecilExtensions {
     public static bool IsAssignableTo(this TypeDefinition definition, string name) => definition.FullName == name || definition.BaseType != null && definition.BaseType.Resolve().IsAssignableTo(name);
 

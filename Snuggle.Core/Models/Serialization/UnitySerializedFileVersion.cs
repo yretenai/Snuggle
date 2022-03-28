@@ -1,9 +1,7 @@
-﻿using JetBrains.Annotations;
-
-namespace Snuggle.Core.Models.Serialization;
+﻿namespace Snuggle.Core.Models.Serialization;
 
 #pragma warning disable CA1069
-[PublicAPI]
+
 public enum UnitySerializedFileVersion : uint {
     Invalid = 0,
     InitialVersion = 1,

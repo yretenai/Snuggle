@@ -1,11 +1,9 @@
-﻿using JetBrains.Annotations;
-using Snuggle.Core.Implementations;
+﻿using Snuggle.Core.Implementations;
 using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
 
 namespace Snuggle.Core.Models.Objects.Graphics;
 
-[PublicAPI]
 public record SecondarySpriteTexture(PPtr<Texture2D> Texture, string Name) {
     public static SecondarySpriteTexture Default { get; } = new(PPtr<Texture2D>.Null, string.Empty);
 

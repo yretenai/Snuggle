@@ -1,13 +1,11 @@
 ﻿using System;
 using System.IO;
-using JetBrains.Annotations;
 using Snuggle.Core.Interfaces;
 using Snuggle.Core.Meta;
 using Snuggle.Core.Options;
 
 namespace Snuggle.Core.IO;
 
-[PublicAPI]
 public class MultiStreamHandler : IFileHandler {
     public MultiStreamHandler(IFileHandler handler) => UnderlyingHandler = handler;
 

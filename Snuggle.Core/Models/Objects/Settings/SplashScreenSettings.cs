@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using JetBrains.Annotations;
 using Snuggle.Core.Implementations;
 using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
@@ -7,7 +6,6 @@ using Snuggle.Core.Models.Objects.Math;
 
 namespace Snuggle.Core.Models.Objects.Settings;
 
-[PublicAPI]
 public record SplashScreenSettings(
     ColorRGBA BackgroundColor,
     bool Show,

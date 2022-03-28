@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using DragonLib;
-using JetBrains.Annotations;
 using Mono.Cecil;
 using Snuggle.Core.Exceptions;
 using Snuggle.Core.Extensions;
@@ -19,7 +18,6 @@ using Snuggle.Core.Options;
 
 namespace Snuggle.Core;
 
-[PublicAPI]
 public static class ObjectFactory {
     static ObjectFactory() {
         LoadImplementationTypes(Assembly.GetExecutingAssembly());

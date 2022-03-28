@@ -1,8 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿namespace Snuggle.Core.Models.Objects.Audio;
 
-namespace Snuggle.Core.Models.Objects.Audio;
-
-[PublicAPI]
 public enum AudioCompressionFormat {
     PCM,
     Vorbis,

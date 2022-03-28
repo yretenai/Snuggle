@@ -2,12 +2,10 @@
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
-using JetBrains.Annotations;
 using Snuggle.Core.Models;
 
 namespace Snuggle.Core.Meta;
 
-[PublicAPI]
 public record struct UnityVersion(int Major, int Minor = 0, int Build = 0, UnityBuildType Type = UnityBuildType.Release, int Revision = 0, string? ExtraVersion = null) : IComparable<UnityVersion>, IComparable<int> {
     public static UnityVersion MaxValue { get; } = new(int.MaxValue, int.MaxValue, int.MaxValue);
     public static UnityVersion MinValue { get; } = new(0);

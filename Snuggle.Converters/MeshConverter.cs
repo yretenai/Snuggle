@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Snuggle.Core;
 using Snuggle.Core.Exceptions;
 using Snuggle.Core.Implementations;
@@ -9,7 +8,7 @@ using Snuggle.Core.Models.Objects.Graphics;
 
 namespace Snuggle.Converters;
 
-[PublicAPI]
+
 public static class MeshConverter {
     private static Dictionary<int, int> CreateBoneHierarchy(Mesh mesh, Renderer? renderer) {
         var bones = new Dictionary<int, int>();

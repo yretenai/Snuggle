@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using JetBrains.Annotations;
 
 namespace Snuggle.Core.Models.Objects.Math;
 
-[PublicAPI]
 public record struct Matrix4X4(
     float M11,
     float M21,

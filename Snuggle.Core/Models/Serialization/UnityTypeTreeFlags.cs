@@ -1,9 +1,7 @@
 ﻿using System;
-using JetBrains.Annotations;
 
 namespace Snuggle.Core.Models.Serialization;
 
-[PublicAPI]
 [Flags]
 public enum UnityTypeTreeFlags : uint {
     None = 0x0,

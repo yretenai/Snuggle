@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
-using JetBrains.Annotations;
 using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
 using Snuggle.Core.Models;
@@ -13,7 +12,6 @@ using Snuggle.Core.Options.Game;
 
 namespace Snuggle.Core.Implementations;
 
-[PublicAPI]
 [ObjectImplementation(UnityClassId.PlayerSettings)]
 public class PlayerSettings : SerializedObject {
     public PlayerSettings(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : this(info, serializedFile) {

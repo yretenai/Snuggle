@@ -1,12 +1,10 @@
 ﻿using System.Text;
 using DragonLib.CLI;
-using JetBrains.Annotations;
 using Snuggle.Core.Meta;
 using Snuggle.Core.Options.Game;
 
 namespace Snuggle.Headless.GameFlags;
 
-[PublicAPI]
 [GameFlags(UnityGame.PokemonUnite)]
 public record UniteFlags : IGameFlags {
     [CLIFlag("--game-version", Aliases = new[] { "gv" }, Category = "Unite Options", Default = UniteVersion.Version1_2, Help = "Pokemon UNITE Game Version")]

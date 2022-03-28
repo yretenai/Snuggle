@@ -1,9 +1,7 @@
-﻿using JetBrains.Annotations;
-using Snuggle.Core.Models;
+﻿using Snuggle.Core.Models;
 
 namespace Snuggle.Core.Meta;
 
-[PublicAPI]
 public static class UnityVersionRegister {
     public static readonly UnityVersion Unity2021_2 = new(2021, 2);
     public static readonly UnityVersion Unity2021_1 = new(2021, 1);

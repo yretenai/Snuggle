@@ -1,11 +1,9 @@
-﻿using JetBrains.Annotations;
-using Snuggle.Core.Implementations;
+﻿using Snuggle.Core.Implementations;
 using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
 
 namespace Snuggle.Core.Models.Objects;
 
-[PublicAPI]
 public record AssetInfo(int PreloadIndex, int PreloadSize, PPtr<SerializedObject> Asset) {
     public static AssetInfo Default { get; } = new(0, 0, PPtr<SerializedObject>.Null);
 

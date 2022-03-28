@@ -4,7 +4,6 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using FMOD;
-using JetBrains.Annotations;
 using Snuggle.Core.Exceptions;
 using Snuggle.Core.Implementations;
 using Snuggle.Core.Interfaces;
@@ -13,7 +12,7 @@ using Snuggle.Native;
 
 namespace Snuggle.Converters;
 
-[PublicAPI]
+
 public static class SnuggleAudioFile {
     public enum WaveFormatType : ushort {
         PCM = 1,
@@ -203,17 +202,14 @@ public static class SnuggleAudioFile {
         }
     }
 
-    [PublicAPI]
     [StructLayout(LayoutKind.Sequential, Pack = 4)]
     private record struct WaveRIFF(uint Id, int Size, uint Format) {
         public WaveRIFF(int size) : this(0x46464952, size, 0x45564157) { }
     }
 
-    [PublicAPI]
     [StructLayout(LayoutKind.Sequential, Pack = 4)]
     private record struct WaveChunk(uint Id, int Size);
 
-    [PublicAPI]
     [StructLayout(LayoutKind.Sequential, Pack = 2)]
     private record struct WaveFormat(
         uint Id,

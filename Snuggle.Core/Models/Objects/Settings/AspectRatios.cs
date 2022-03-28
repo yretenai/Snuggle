@@ -1,9 +1,7 @@
-﻿using JetBrains.Annotations;
-using Snuggle.Core.IO;
+﻿using Snuggle.Core.IO;
 
 namespace Snuggle.Core.Models.Objects.Settings;
 
-[PublicAPI]
 public record AspectRatios(bool FourThirds, bool FiveFourths, bool LCD, bool HD, bool Others) {
     public static AspectRatios Default { get; } = new(true, true, true, true, true);
 

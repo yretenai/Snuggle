@@ -1,10 +1,8 @@
-﻿using JetBrains.Annotations;
-using Snuggle.Core.IO;
+﻿using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
 
 namespace Snuggle.Core.Models.Objects.Graphics;
 
-[PublicAPI]
 public record MeshBlendShape(uint FirstVertex, uint VertexCount, bool HasNormals, bool HasTangents) {
     public static MeshBlendShape Default { get; } = new(0, 0, false, false);
 

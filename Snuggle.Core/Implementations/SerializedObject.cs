@@ -4,7 +4,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text.Json.Serialization;
-using JetBrains.Annotations;
 using Snuggle.Core.Interfaces;
 using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
@@ -14,8 +13,6 @@ using Snuggle.Core.Options;
 
 namespace Snuggle.Core.Implementations;
 
-[PublicAPI]
-[UsedImplicitly]
 [ObjectImplementation(UnityClassId.Object)]
 public class SerializedObject : IEquatable<SerializedObject>, ISerialized {
     public SerializedObject(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : this(info, serializedFile) => IsMutated = false;

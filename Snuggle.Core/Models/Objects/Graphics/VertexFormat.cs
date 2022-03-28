@@ -1,8 +1,5 @@
-using JetBrains.Annotations;
-
 namespace Snuggle.Core.Models.Objects.Graphics;
 
-[PublicAPI]
 public enum VertexFormat : byte {
     Single = 0,
     Half = 1,

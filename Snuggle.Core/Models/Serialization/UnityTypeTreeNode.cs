@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using DragonLib;
-using JetBrains.Annotations;
 using Snuggle.Core.IO;
 using Snuggle.Core.Options;
 
 namespace Snuggle.Core.Models.Serialization;
 
-[PublicAPI]
 public record UnityTypeTreeNode(
     int Version,
     int Level,

@@ -1,9 +1,7 @@
-﻿using JetBrains.Annotations;
-using Snuggle.Core.IO;
+﻿using Snuggle.Core.IO;
 
 namespace Snuggle.Core.Models.Objects.Settings;
 
-[PublicAPI]
 public record LuminSettings(int DepthFormat, int FrameTiming, bool EnableGLCache, uint GLCacheMaxBlobSize, uint GLCacheMaxFileSize) {
     public static LuminSettings Default { get; } = new(0, 0, false, 0, 0);
 

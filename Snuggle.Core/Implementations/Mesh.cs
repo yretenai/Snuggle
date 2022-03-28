@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json.Serialization;
-using JetBrains.Annotations;
 using Snuggle.Core.Extensions;
 using Snuggle.Core.Game.Unite;
 using Snuggle.Core.Interfaces;
@@ -18,7 +17,6 @@ using Snuggle.Core.Options;
 
 namespace Snuggle.Core.Implementations;
 
-[PublicAPI]
 [ObjectImplementation(UnityClassId.Mesh)]
 public class Mesh : NamedObject, ISerializedResource {
     public Mesh(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) {

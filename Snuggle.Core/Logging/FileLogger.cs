@@ -1,13 +1,11 @@
 ﻿using System;
 using System.IO;
 using System.Text;
-using JetBrains.Annotations;
 using Snuggle.Core.Interfaces;
 using Snuggle.Core.Meta;
 
 namespace Snuggle.Core.Logging;
 
-[PublicAPI]
 public sealed class FileLogger : ILogger {
     public FileLogger(Stream baseStream) => Writer = new StreamWriter(baseStream, Encoding.UTF8);
     public bool IsDisposed { get; private set; }

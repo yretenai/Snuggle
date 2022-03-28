@@ -1,8 +1,5 @@
-using JetBrains.Annotations;
-
 namespace Snuggle.Core.Models.Objects.Math;
 
-[PublicAPI]
 public record struct Vector4(float X, float Y, float Z, float W) {
     public static Vector4 Zero { get; } = new(0, 0, 0, 0);
 

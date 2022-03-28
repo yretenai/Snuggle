@@ -1,8 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿namespace Snuggle.Core.Models.Objects.Graphics;
 
-namespace Snuggle.Core.Models.Objects.Graphics;
-
-[PublicAPI]
 public enum SpritePackingRotation {
     None = 0,
     FlipHorizontal = 1,

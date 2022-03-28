@@ -1,5 +1,4 @@
 ﻿using System;
-using JetBrains.Annotations;
 using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
 using Snuggle.Core.Models;
@@ -8,8 +7,6 @@ using Snuggle.Core.Options;
 
 namespace Snuggle.Core.Implementations;
 
-[PublicAPI]
-[UsedImplicitly]
 [ObjectImplementation(UnityClassId.MeshFilter)]
 public class MeshFilter : Component {
     public MeshFilter(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) => Mesh = PPtr<Mesh>.FromReader(reader, serializedFile);

@@ -1,10 +1,8 @@
-﻿using JetBrains.Annotations;
-using Snuggle.Core.IO;
+﻿using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
 
 namespace Snuggle.Core.Models.Objects.Graphics;
 
-[PublicAPI]
 public record BoneWeight(float[] Weights, int[] Indices) {
     public static BoneWeight Default => new(new float[] { 0, 0, 0, 0 }, new[] { 0, 0, 0, 0 });
 

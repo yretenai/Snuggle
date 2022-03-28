@@ -1,13 +1,11 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
-using JetBrains.Annotations;
 using Snuggle.Core.Interfaces;
 using Snuggle.Core.Options;
 
 namespace Snuggle.Core.IO;
 
-[PublicAPI]
 public class FileStreamHandler : IFileHandler {
     public static Lazy<FileStreamHandler> Instance { get; } = new();
 

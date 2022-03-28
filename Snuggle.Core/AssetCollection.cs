@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using JetBrains.Annotations;
 using Mono.Cecil;
 using Snuggle.Core.Implementations;
 using Snuggle.Core.Interfaces;
@@ -15,7 +14,6 @@ using Snuggle.Core.Options;
 
 namespace Snuggle.Core;
 
-[PublicAPI]
 public class AssetCollection : IDisposable {
     public List<Bundle> Bundles { get; } = new();
     public AssemblyResolver Assemblies { get; set; } = new();

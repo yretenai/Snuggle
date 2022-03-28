@@ -1,9 +1,7 @@
 ﻿using DragonLib.IO;
-using JetBrains.Annotations;
 
 namespace Snuggle.Core.Models.Objects.Graphics;
 
-[PublicAPI]
 public record struct SpriteSettings {
     public static SpriteSettings Default { get; } = new() { Packed = 0, Mode = SpritePackingMode.Tight, Rotation = SpritePackingRotation.None, Type = SpriteMeshType.FullRectangle };
 

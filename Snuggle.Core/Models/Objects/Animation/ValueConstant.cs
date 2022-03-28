@@ -1,11 +1,9 @@
-﻿using JetBrains.Annotations;
-using Snuggle.Core.IO;
+﻿using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
 using Snuggle.Core.Options;
 
 namespace Snuggle.Core.Models.Objects.Animation;
 
-[PublicAPI]
 public record ValueConstant(uint Id, uint TypeId, uint Type, uint Index) {
     public static ValueConstant FromReader(BiEndianBinaryReader reader, ObjectDeserializationOptions options) {
         var id = reader.ReadUInt32();

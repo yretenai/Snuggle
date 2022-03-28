@@ -11,22 +11,22 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Snuggle.Converters\Snuggle.Converters.csproj"/>
-        <ProjectReference Include="..\Snuggle.Core\Snuggle.Core.csproj"/>
+        <ProjectReference Include="..\Snuggle.Converters\Snuggle.Converters.csproj" />
+        <ProjectReference Include="..\Snuggle.Core\Snuggle.Core.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="AdonisUI" Version="1.17.1"/>
-        <PackageReference Include="AdonisUI.ClassicTheme" Version="1.17.1"/>
-        <PackageReference Include="HelixToolkit.Core.Wpf" Version="2.20.0"/>
-        <PackageReference Include="HelixToolkit.SharpDX.Core.Wpf" Version="2.20.0"/>
-        <PackageReference Include="NAudio" Version="2.0.1"/>
-        <PackageReference Include="SixLabors.ImageSharp" Version="1.0.4"/>
-        <PackageReference Include="WindowsAPICodePack-Core" Version="1.1.2" NoWarn="NU1701"/>
-        <PackageReference Include="WindowsAPICodePack-Shell" Version="1.1.1" NoWarn="NU1701"/>
+        <PackageReference Include="AdonisUI" Version="1.17.1" />
+        <PackageReference Include="AdonisUI.ClassicTheme" Version="1.17.1" />
+        <PackageReference Include="HelixToolkit.Core.Wpf" Version="2.20.2" />
+        <PackageReference Include="HelixToolkit.SharpDX.Core.Wpf" Version="2.20.2" />
+        <PackageReference Include="NAudio" Version="2.0.1" />
+        <PackageReference Include="SixLabors.ImageSharp" Version="2.1.0" />
+        <PackageReference Include="WindowsAPICodePack-Core" Version="1.1.2" NoWarn="NU1701" />
+        <PackageReference Include="WindowsAPICodePack-Shell" Version="1.1.1" NoWarn="NU1701" />
     </ItemGroup>
 
     <Target Name="CustomAfterBuild" AfterTargets="AfterBuild">
-        <Copy SourceFiles="$(SolutionDir)ATTRIBUTION.txt" DestinationFolder="$(TargetDir)" ContinueOnError="true"/>
+        <Copy SourceFiles="$(SolutionDir)ATTRIBUTION.txt" DestinationFolder="$(TargetDir)" ContinueOnError="true" />
     </Target>
 </Project>

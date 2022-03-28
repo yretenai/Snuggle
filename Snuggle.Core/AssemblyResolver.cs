@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Mono.Cecil;
 
 namespace Snuggle.Core;
 
-[PublicAPI]
 // this is functionally identical to DefaultAssemblyResolver, except that it doesn't consider versions.
 public class AssemblyResolver : BaseAssemblyResolver {
     public AssemblyResolver() {
