@@ -58,6 +58,7 @@ public static class SnuggleAudioFile {
             return (".fsb", true);
         }
 
+        // ReSharper disable once ConvertIfStatementToReturnStatement
         if (BinaryPrimitives.ReadUInt16BigEndian(clip.Data.Value.Span) is >= 0xFFF0 and <= 0xFFFF) {
             return (".m4a", false);
         }
@@ -101,6 +102,7 @@ public static class SnuggleAudioFile {
             return Span<byte>.Empty;
         }
 
+        // ReSharper disable once ConvertIfStatementToReturnStatement
         if (BinaryPrimitives.ReadUInt32BigEndian(clip.Data.Value.Span) == 0x46534235) { // 46534235 = 'FSB5' -- FMOD Sample Bank version 5
             return GetFMODPCM(clip, logger, ref info);
         }

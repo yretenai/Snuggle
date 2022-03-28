@@ -29,10 +29,6 @@ public record SnuggleObject(
         };
 
     public SerializedObject? GetObject(bool baseType = false) {
-        if (!SnuggleCore.Instance.Collection.Files.TryGetValue(SerializedName, out var serializedFile)) {
-            return null;
-        }
-
-        return serializedFile.GetObject(PathId, baseType: baseType);
+        return !SnuggleCore.Instance.Collection.Files.TryGetValue(SerializedName, out var serializedFile) ? null : serializedFile.GetObject(PathId, baseType: baseType);
     }
 }

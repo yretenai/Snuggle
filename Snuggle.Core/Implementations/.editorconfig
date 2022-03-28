@@ -1,0 +1,4 @@
+﻿[*.cs]
+resharper_convert_if_statement_to_conditional_ternary_expression_highlighting = none
+resharper_member_can_be_protected_global_highlighting = none
+resharper_unused_member_in_super_global_highlighting = none

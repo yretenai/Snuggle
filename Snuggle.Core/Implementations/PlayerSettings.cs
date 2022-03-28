@@ -700,31 +700,10 @@ public class PlayerSettings : SerializedObject {
     public bool UploadClearedTextureDataAfterCreationFromScript { get; set; }
 
     [JsonIgnore]
-    public string CombinedName {
-        get {
-            if (string.IsNullOrEmpty(BundleVersion)) {
-                return Name;
-            }
-
-            return $"{Name} Version {BundleVersion}";
-        }
-    }
+    public string CombinedName => string.IsNullOrEmpty(BundleVersion) ? Name : $"{Name} Version {BundleVersion}";
 
     [JsonIgnore]
-    public string Name {
-        get {
-            var name = ProductName;
-            if (string.IsNullOrEmpty(name)) {
-                name = ProjectName;
-            }
-
-            if (string.IsNullOrEmpty(name)) {
-                return string.Empty;
-            }
-
-            return name;
-        }
-    }
+    public string Name => string.IsNullOrEmpty(ProductName) ? ProjectName : ProductName;
 
     public override void Serialize(BiEndianBinaryWriter writer, AssetSerializationOptions options) {
         base.Serialize(writer, options);

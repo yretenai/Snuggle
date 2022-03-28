@@ -215,11 +215,11 @@ public static class MeshToHelixConverter {
 
     private static void AddGameObjectNode(
         GameObject gameObject,
-        Collection<Element3D> collection,
+        ICollection<Element3D> collection,
         Matrix? parentMatrix,
         LineBuilder builder,
         BillboardText3D labels,
-        Dictionary<(long, string), (List<Object3D> submeshes, List<(Texture2D? texture, Memory<byte> textureData)>)> meshData,
+        IReadOnlyDictionary<(long, string), (List<Object3D> submeshes, List<(Texture2D? texture, Memory<byte> textureData)>)> meshData,
         CancellationToken token) {
         if (gameObject.FindComponent(UnityClassId.Transform).Value is not Transform transform) {
             return;

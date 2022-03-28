@@ -14,11 +14,10 @@ public partial class Main {
         SnuggleCore.Instance.Dispatcher = Dispatcher.CurrentDispatcher;
 
         SnuggleCore.Instance.PropertyChanged += (_, args) => {
-            switch (args.PropertyName) {
-                case nameof(SnuggleCore.Filters):
-                    SearchBox.Text = SnuggleCore.Instance.Search;
-                    break;
-            }
+            SearchBox.Text = args.PropertyName switch {
+                nameof(SnuggleCore.Filters) => SnuggleCore.Instance.Search,
+                _ => SearchBox.Text,
+            };
         };
     }
 

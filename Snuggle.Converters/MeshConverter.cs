@@ -26,34 +26,28 @@ public static class MeshConverter {
 
         foreach (var childPtr in skinnedMeshRenderer.Bones) {
             var child = childPtr.Value;
-            if (child == null) {
-                continue;
-            }
 
-            var gameObject = child.GameObject.Value;
+            var gameObject = child?.GameObject.Value;
             if (gameObject == null) {
                 continue;
             }
 
             var hash = CRC.GetDigest(gameObject.Name);
-            transformToBoneHash[child.GetCompositeId()] = hash;
+            transformToBoneHash[child!.GetCompositeId()] = hash;
             hashToIndex.Add(hash);
         }
 
         for (var index = 0; index < skinnedMeshRenderer.Bones.Count; index++) {
             var childPtr = skinnedMeshRenderer.Bones[index];
             var child = childPtr.Value;
-            if (child == null) {
-                continue;
-            }
 
-            var gameObject = child.GameObject.Value;
+            var gameObject = child?.GameObject.Value;
             if (gameObject == null) {
                 continue;
             }
 
             if (skinnedMeshRenderer.RootBone.IsSame(child)) {
-                bones[index] = hashToIndex.IndexOf(transformToBoneHash[child.Parent.GetCompositeId()]);
+                bones[index] = hashToIndex.IndexOf(transformToBoneHash[child!.Parent.GetCompositeId()]);
             } else {
                 bones[index] = -1;
             }

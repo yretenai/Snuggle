@@ -162,7 +162,7 @@ public static class SnuggleFile {
         return true;
     }
 
-    private static void ExtractOperation(IReadOnlyList<SnuggleObject> items, string outputDirectory, ExtractMode mode, CancellationToken token) {
+    private static void ExtractOperation(IReadOnlyCollection<SnuggleObject> items, string outputDirectory, ExtractMode mode, CancellationToken token) {
         SnuggleCore.Instance.Status.SetProgressMax(items.Count);
         SnuggleCore.Instance.Status.SetProgress(0);
         foreach (var SnuggleObject in items) {

@@ -17,7 +17,7 @@ public record Accessor : ChildOfRootProperty {
     ///     the component datatype. This property <b>MUST NOT</b> be defined when `bufferView` is undefined.
     /// </summary>
     [JsonPropertyName("byteOffset")]
-    public int ByteOffset { get; set; } = 0;
+    public int ByteOffset { get; set; }
 
     /// <summary>
     ///     The datatype of the accessor's components. UNSIGNED_INT type <b>MUST NOT</b> be used for any accessor that is

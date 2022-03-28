@@ -10,7 +10,7 @@ public record BufferView : ChildOfRootProperty {
 
     /// <summary>The offset into the buffer in bytes.</summary>
     [JsonPropertyName("byteOffset")]
-    public int ByteOffset { get; set; } = 0;
+    public int ByteOffset { get; set; }
 
     /// <summary>The length of the bufferView in bytes.</summary>
     [JsonPropertyName("byteLength")]

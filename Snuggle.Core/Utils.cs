@@ -82,21 +82,13 @@ public static class Utils {
             return null;
         }
 
-        if (Path.GetExtension(str) == ".split0") {
-            return Path.GetFileNameWithoutExtension(str);
-        }
-
-        return Path.GetFileName(str);
+        return Path.GetExtension(str) == ".split0" ? Path.GetFileNameWithoutExtension(str) : Path.GetFileName(str);
     }
 
     public static string? GetNameFromTagWithoutExtension(object? tag) {
         var str = GetStringFromTag(tag);
-        if (string.IsNullOrEmpty(str)) {
-            return null;
-        }
-
-        return Path.GetFileNameWithoutExtension(str);
+        return string.IsNullOrEmpty(str) ? null : Path.GetFileNameWithoutExtension(str);
     }
 
-    public static Memory<byte> AsBytes<T>(this Memory<T> memory) where T : struct => new Memory<byte>(MemoryMarshal.AsBytes(memory.Span).ToArray());
+    public static Memory<byte> AsBytes<T>(this Memory<T> memory) where T : struct => new(MemoryMarshal.AsBytes(memory.Span).ToArray());
 }

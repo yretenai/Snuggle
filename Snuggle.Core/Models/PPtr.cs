@@ -13,6 +13,7 @@ namespace Snuggle.Core.Models;
 
 [PublicAPI]
 public record PPtr<T>(int FileId, long PathId) where T : SerializedObject {
+    // ReSharper disable once UseDeconstructionOnParameter
     private PPtr(PPtrEnclosure enclosure) : this(enclosure.FileId, enclosure.PathId) { }
 
     public static PPtr<T> Null => new(0, 0);

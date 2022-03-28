@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text.Json.Serialization;
@@ -174,7 +173,7 @@ public record Root : Property {
         return (image, id);
     }
 
-    public (Material Material, int Id) CreateMaterial(Root gltf) {
+    public (Material Material, int Id) CreateMaterial() {
         Materials ??= new List<Material>();
         var id = Materials.Count;
         var material = new Material();

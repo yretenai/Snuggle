@@ -133,11 +133,8 @@ public static class SnuggleMeshFile {
             var matrices = new List<Matrix4x4>();
             var skinnedMesh = skinnedMeshRenderer.Mesh.Value!;
             var skin = gltf.CreateSkin();
-            for (var i = 0; i < skinnedMesh.BoneNameHashes.Count; ++i) {
-                if (!CreateBoneJoint(hashes, skinnedMesh.BoneNameHashes[i], nodeTree, skinnedMesh.BindPose!.Value.Span[i].GetNumerics(), matrices, skin, options)) {
-                    isValid = false;
-                    break;
-                }
+            if (skinnedMesh.BoneNameHashes.Where((t, i) => !CreateBoneJoint(hashes, t, nodeTree, skinnedMesh.BindPose!.Value.Span[i].GetNumerics(), matrices, skin, options)).Any()) {
+                isValid = false;
             }
 
             if (!isValid) {
@@ -209,9 +206,9 @@ public static class SnuggleMeshFile {
         Root gltf,
         Node node,
         Stream buffer,
-        Dictionary<(long, string), (Node Node, int Id)> nodeTree,
-        Dictionary<(long, string), int> existingMaterials,
-        List<(Node MeshNode, SkinnedMeshRenderer Data)> skinnedMeshes,
+        IDictionary<(long, string), (Node Node, int Id)> nodeTree,
+        IDictionary<(long, string), int> existingMaterials,
+        ICollection<(Node MeshNode, SkinnedMeshRenderer Data)> skinnedMeshes,
         string path,
         ObjectDeserializationOptions deserializationOptions,
         SnuggleExportOptions exportOptions,
@@ -319,8 +316,8 @@ public static class SnuggleMeshFile {
 
     private static void CreateMeshGeometry(
         Mesh mesh,
-        List<Material?>? materials,
-        Dictionary<(long, string), int>? existingMaterials,
+        IList<Material?>? materials,
+        IDictionary<(long, string), int>? existingMaterials,
         glTF.Mesh element,
         Root gltf,
         Stream buffer,
@@ -373,6 +370,7 @@ public static class SnuggleMeshFile {
                 var value = info.Unpack(data);
                 var floatValues = value.Select(x => (float) Convert.ChangeType(x, TypeCode.Single)).Concat(new float[4]);
                 var uintValues = value.Select(x => (int) Convert.ChangeType(x, TypeCode.Int32)).Concat(new int[4]);
+                // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
                 switch (channel) {
                     case VertexChannel.Vertex:
                         positions[i] = new Vector3(floatValues.Take(3).ToArray());
@@ -519,8 +517,7 @@ public static class SnuggleMeshFile {
             var morphNames = new List<string>();
             var targets = new List<Dictionary<string, int>>();
             element.Weights = new List<double>();
-            for (var blendIndex = 0; blendIndex < mesh.BlendShapeData.Channels.Count; blendIndex++) {
-                var channel = mesh.BlendShapeData.Channels[blendIndex];
+            foreach (var channel in mesh.BlendShapeData.Channels) {
                 morphNames.Add(channel.Name);
                 var morphPositions = new Vector3[positions.Length];
                 var morphNormals = new Vector3[normals.Length];
@@ -587,7 +584,7 @@ public static class SnuggleMeshFile {
         }
     }
 
-    private static void CreateMaterial(Material material, Dictionary<(long, string), int> existingMaterials, Root gltf, string path, ObjectDeserializationOptions deserializationOptions, SnuggleExportOptions exportOptions) {
+    private static void CreateMaterial(Material material, IDictionary<(long, string), int> existingMaterials, Root gltf, string path, ObjectDeserializationOptions deserializationOptions, SnuggleExportOptions exportOptions) {
         if (existingMaterials.ContainsKey(material.GetCompositeId())) {
             return;
         }
@@ -600,7 +597,7 @@ public static class SnuggleMeshFile {
 
         var mainTexId = -1;
         var normalTexId = -1;
-        var (materialElement, materialId) = gltf.CreateMaterial(gltf);
+        var (materialElement, materialId) = gltf.CreateMaterial();
         materialElement.Name = material.Name;
         existingMaterials[material.GetCompositeId()] = materialId;
 

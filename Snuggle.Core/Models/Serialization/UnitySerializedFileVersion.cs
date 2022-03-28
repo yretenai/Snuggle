@@ -2,6 +2,7 @@
 
 namespace Snuggle.Core.Models.Serialization;
 
+#pragma warning disable CA1069
 [PublicAPI]
 public enum UnitySerializedFileVersion : uint {
     Invalid = 0,
@@ -35,3 +36,4 @@ public enum UnitySerializedFileVersion : uint {
     LargeFiles = 22,
     Latest = LargeFiles,
 }
+#pragma warning restore CA1069

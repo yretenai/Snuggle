@@ -35,11 +35,7 @@ public static class Helper {
         }
 
         libPath = Path.Combine(local, "runtimes", $"{rid}-{(Environment.Is64BitProcess ? "x64" : "x86")}", "native", libName);
-        if (File.Exists(libPath)) {
-            return NativeLibrary.Load(libPath);
-        }
-
-        return IntPtr.Zero;
+        return File.Exists(libPath) ? NativeLibrary.Load(libPath) : IntPtr.Zero;
     }
 
     public static void Register() {

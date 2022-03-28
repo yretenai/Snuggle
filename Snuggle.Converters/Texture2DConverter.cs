@@ -60,6 +60,7 @@ public static class Texture2DConverter {
         }
 
         var textureData = texture2D.TextureData.Value.Span.ToArray();
+        // ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault
         switch (texture2D.TextureFormat) {
             case TextureFormat.DXT1Crunched when UnpackCrunch(texture2D.SerializedFile.Version, texture2D.TextureFormat, textureData, out var data): {
                 return DecodeDXT1(texture2D.Width, texture2D.Height, data);

@@ -53,7 +53,7 @@ public partial class Navigation {
         };
     }
 
-    private void BuildSettingMenu(MenuItem menu, Type type, string objectName) {
+    private static void BuildSettingMenu(ItemsControl menu, Type type, string objectName) {
         // typeof(SnuggleOptions).GetProperty(objectName)?.SetValue(SnuggleCore.Instance.Settings, newValue)
         var current = typeof(SnuggleOptions).GetProperty(objectName)!.GetValue(SnuggleCore.Instance.Settings)!;
         var i = 0;
@@ -98,7 +98,7 @@ public partial class Navigation {
         }
     }
 
-    private void UpdateStringSetting(object sender, RoutedEventArgs e) {
+    private static void UpdateStringSetting(object sender, RoutedEventArgs e) {
         if (sender is not MenuItem item) {
             return;
         }
