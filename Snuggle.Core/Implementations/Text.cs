@@ -26,7 +26,7 @@ public class Text : NamedObject {
 
     public Text(UnityObjectInfo info, SerializedFile serializedFile) : base(info, serializedFile) { }
 
-    private long StringStart { get; set; }
+    private long StringStart { get; }
     public Memory<byte>? String { get; set; }
 
     private bool ShouldDeserializeString => StringStart > -1 && String == null;

@@ -4,7 +4,6 @@ using Snuggle.Core.Models.Objects.Graphics;
 
 namespace Snuggle.Converters;
 
-
 public static class TextureExtensions {
     public static bool CanSupportDDS(this TextureFormat format) => format != TextureFormat.RGB24 && format is >= TextureFormat.RG16 and <= TextureFormat.R8 or < TextureFormat.DXT1Crunched;
     public static bool UseDDSConversion(this TextureFormat textureFormat) => Environment.OSVersion.Platform == PlatformID.Win32NT && textureFormat.CanSupportDDS();

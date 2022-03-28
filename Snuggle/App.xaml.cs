@@ -35,7 +35,7 @@ public partial class App {
     public FileLogger Log { get; }
 
     [DllImport("Ole32.dll", CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Auto, SetLastError = true)]
-    private static extern int CoInitializeEx([In, Optional]  IntPtr pvReserved, [In] CoInit dwCoInit);
+    private static extern int CoInitializeEx([In, Optional] IntPtr pvReserved, [In] CoInit dwCoInit);
 
     public static void OpenWindow<T>() where T : Window, new() {
         var existing = Current.Windows.OfType<T>().FirstOrDefault();

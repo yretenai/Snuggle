@@ -32,7 +32,7 @@ public class MonoBehaviour : Behaviour {
     [JsonIgnore]
     public ObjectNode? ObjectData { get; set; }
 
-    private long DataStart { get; init; } = -1;
+    private long DataStart { get; } = -1;
 
     private bool ShouldDeserializeData => DataStart > -1 && Data == null && !Script.IsNull;
 

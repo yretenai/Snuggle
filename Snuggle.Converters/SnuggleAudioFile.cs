@@ -12,7 +12,6 @@ using Snuggle.Native;
 
 namespace Snuggle.Converters;
 
-
 public static class SnuggleAudioFile {
     public enum WaveFormatType : ushort {
         PCM = 1,

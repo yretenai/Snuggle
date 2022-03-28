@@ -15,7 +15,7 @@ public class BiEndianBinaryReader : BinaryReader {
 
     public bool IsBigEndian { get; set; }
 
-    public Encoding Encoding { get; private init; }
+    public Encoding Encoding { get; }
 
     protected bool ShouldInvertEndianness => BitConverter.IsLittleEndian ? IsBigEndian : !IsBigEndian;
     public long Unconsumed => BaseStream.Length - BaseStream.Position;

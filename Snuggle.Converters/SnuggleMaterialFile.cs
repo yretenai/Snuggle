@@ -43,7 +43,6 @@ public static class SnuggleMaterialFile {
         JsonSerializer.Serialize(materialStream, new { Textures = textures, Floats = floats, Colors = colors }, SnuggleCoreOptions.JsonOptions);
     }
 
-    
     public record struct TextureInfo(long PathId, string? Name, Vector2 Scale, Vector2 Offset) {
         public TextureInfo(UnityTexEnv env) : this(env.Texture.PathId, string.IsNullOrWhiteSpace(env.Texture.Value?.ObjectContainerPath) ? env.Texture.Value?.Name : env.Texture.Value?.ObjectContainerPath, env.Scale.GetJSONSafe(), env.Offset.GetJSONSafe()) { }
     }

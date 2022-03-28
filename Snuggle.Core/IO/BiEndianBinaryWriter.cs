@@ -17,7 +17,7 @@ public class BiEndianBinaryWriter : BinaryWriter {
 
     public bool IsBigEndian { get; set; }
 
-    public Encoding Encoding { get; private init; }
+    public Encoding Encoding { get; }
 
     protected bool ShouldInvertEndianness => BitConverter.IsLittleEndian ? IsBigEndian : !IsBigEndian;
 

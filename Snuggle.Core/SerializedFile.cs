@@ -65,7 +65,7 @@ public class SerializedFile : IRenewable {
     public AssetCollection? Assets { get; set; }
     public string Name { get; set; } = string.Empty;
 
-    private Dictionary<long, SerializedObject> Objects { get; init; }
+    private Dictionary<long, SerializedObject> Objects { get; }
 
     public object Tag { get; set; }
     public IFileHandler Handler { get; set; }

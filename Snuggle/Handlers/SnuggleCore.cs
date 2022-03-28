@@ -24,9 +24,8 @@ using Snuggle.Core.Options.Game;
 
 namespace Snuggle.Handlers;
 
-
 public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisposable {
-    private object SaveLock = new();
+    private readonly object SaveLock = new();
 
     public SnuggleCore() {
         Dispatcher = Dispatcher.CurrentDispatcher;

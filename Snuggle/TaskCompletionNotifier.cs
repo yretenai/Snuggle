@@ -7,7 +7,6 @@ using System.Windows.Threading;
 
 namespace Snuggle;
 
-
 public sealed class TaskCompletionNotifier<T> : INotifyPropertyChanged {
     public TaskCompletionNotifier(object? carry, Task<T> task) {
         Task = task;

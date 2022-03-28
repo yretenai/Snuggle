@@ -77,7 +77,7 @@ public class AssetBundle : NamedObject, ICABPathProvider {
         MainAsset = new AssetInfo(0, 0, PPtr<SerializedObject>.Null);
     }
 
-    private long PreloadStart { get; set; }
+    private long PreloadStart { get; }
     public Memory<PPtr<SerializedObject>>? PreloadTable { get; set; }
     public List<KeyValuePair<string, AssetInfo>> Container { get; set; } = new();
     public Dictionary<int, uint> ClassInfos { get; set; } = new();

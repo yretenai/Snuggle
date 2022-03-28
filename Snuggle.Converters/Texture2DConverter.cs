@@ -15,7 +15,6 @@ using Snuggle.Native;
 
 namespace Snuggle.Converters;
 
-
 public static class Texture2DConverter {
     public static bool SupportsDDS(Texture2D texture) => texture.TextureFormat.CanSupportDDS();
     public static bool UseDDSConversion(TextureFormat textureFormat) => Environment.OSVersion.Platform == PlatformID.Win32NT && textureFormat.CanSupportDDS();

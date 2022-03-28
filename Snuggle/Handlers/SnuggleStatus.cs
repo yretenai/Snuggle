@@ -4,7 +4,6 @@ using Snuggle.Core.Interfaces;
 
 namespace Snuggle.Handlers;
 
-
 public class SnuggleStatus : IStatusReporter, INotifyPropertyChanged {
     public string Message { get; private set; } = string.Empty;
 

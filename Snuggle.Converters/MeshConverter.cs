@@ -8,7 +8,6 @@ using Snuggle.Core.Models.Objects.Graphics;
 
 namespace Snuggle.Converters;
 
-
 public static class MeshConverter {
     private static Dictionary<int, int> CreateBoneHierarchy(Mesh mesh, Renderer? renderer) {
         var bones = new Dictionary<int, int>();

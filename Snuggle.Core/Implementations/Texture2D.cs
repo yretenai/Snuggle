@@ -110,8 +110,8 @@ public class Texture2D : Texture, ISerializedResource {
     public GLTextureSettings TextureSettings { get; set; }
     public LightmapFormat LightmapFormat { get; set; }
     public ColorSpace ColorSpace { get; set; }
-    private long TextureDataStart { get; init; } = -1;
-    private long PlatformDataStart { get; init; } = -1;
+    private long TextureDataStart { get; } = -1;
+    private long PlatformDataStart { get; } = -1;
 
     [JsonIgnore]
     public Memory<byte>? PlatformData { get; set; }

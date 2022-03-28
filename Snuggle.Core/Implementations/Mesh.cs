@@ -114,12 +114,12 @@ public class Mesh : NamedObject, ISerializedResource {
         StreamData = StreamingInfo.Null;
     }
 
-    private long BindPoseStart { get; init; } = -1;
-    private long VariableBoneCountWeightsStart { get; init; } = -1;
-    private long IndicesStart { get; init; } = -1;
-    private long SkinStart { get; init; } = -1;
-    private long BakedConvexCollisionMeshStart { get; init; } = -1;
-    private long BakedTriangleCollisionMeshStart { get; init; } = -1;
+    private long BindPoseStart { get; } = -1;
+    private long VariableBoneCountWeightsStart { get; } = -1;
+    private long IndicesStart { get; } = -1;
+    private long SkinStart { get; } = -1;
+    private long BakedConvexCollisionMeshStart { get; } = -1;
+    private long BakedTriangleCollisionMeshStart { get; } = -1;
 
     public List<Submesh> Submeshes { get; set; } = new();
     public BlendShapeData BlendShapeData { get; set; }
