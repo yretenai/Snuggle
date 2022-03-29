@@ -29,7 +29,7 @@ Available variables:
     public const string DefaultContainerlessPathTemplate = "{ProductOrProject}/{Version}/__unknown/{Type}/{Name}_{Id}.{Ext}";
 
     private const int LatestVersion = 8;
-    public int Version { get; set; } = LatestVersion;
+    public int Version { get; init; } = LatestVersion;
 
     public static SnuggleExportOptions Default { get; } = new(false, DefaultPathTemplate, DefaultContainerlessPathTemplate, true, false, true);
 

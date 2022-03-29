@@ -85,15 +85,15 @@ public class GameObject : SerializedObject {
 
     public void CacheClassIds() {
         var components = new List<ComponentPair>();
-        foreach (var componentPtr in Components) {
-            if (!componentPtr.ClassId.Equals(UnityClassId.Unknown)) {
-                components.Add(componentPtr);
-                continue;
+        foreach (var (classId, pPtr) in Components) {
+            var value = pPtr.Info?.ClassId ?? classId;
+
+            var tag = default(string);
+            if (pPtr.Value is MonoBehaviour monoBehaviour) {
+                tag = string.IsNullOrEmpty(monoBehaviour.Name) ? monoBehaviour.Script?.Value?.ToString() : monoBehaviour.Name;
             }
 
-            var value = componentPtr.Ptr.Info?.ClassId ?? componentPtr.ClassId;
-
-            components.Add(new ComponentPair(value, componentPtr.Ptr));
+            components.Add(new ComponentPair(value, pPtr) { Tag = tag });
         }
 
         Components = components;

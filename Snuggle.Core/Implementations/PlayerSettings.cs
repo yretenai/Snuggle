@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
@@ -13,6 +14,7 @@ using Snuggle.Core.Options.Game;
 namespace Snuggle.Core.Implementations;
 
 [ObjectImplementation(UnityClassId.PlayerSettings)]
+[SuppressMessage("ReSharper", "PropertyCanBeMadeInitOnly.Global")]
 public class PlayerSettings : SerializedObject {
     public PlayerSettings(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : this(info, serializedFile) {
         IsMutated = false;

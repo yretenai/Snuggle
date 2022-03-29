@@ -6,6 +6,7 @@ using Snuggle.Core.Models;
 
 namespace Snuggle.Core.Meta;
 
+// ReSharper disable once StructCanBeMadeReadOnly
 public record struct UnityVersion(int Major, int Minor = 0, int Build = 0, UnityBuildType Type = UnityBuildType.Release, int Revision = 0, string? ExtraVersion = null) : IComparable<UnityVersion>, IComparable<int> {
     public static UnityVersion MaxValue { get; } = new(int.MaxValue, int.MaxValue, int.MaxValue);
     public static UnityVersion MinValue { get; } = new(0);

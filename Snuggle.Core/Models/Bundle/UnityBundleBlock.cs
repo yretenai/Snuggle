@@ -52,12 +52,12 @@ public record UnityBundleBlock(long Offset, long Size, UnityBundleBlockFlags Fla
 
         var offset = 0L;
         foreach (var block in blocks) {
-            block.ToWriter(writer, header, options, serializationOptions, offset);
+            block.ToWriter(writer, header, offset);
             offset += block.Size; // Alignment? ModCheck
         }
     }
 
-    private void ToWriter(BiEndianBinaryWriter writer, UnityBundle header, SnuggleCoreOptions options, BundleSerializationOptions serializationOptions, long offset) {
+    private void ToWriter(BiEndianBinaryWriter writer, UnityBundle header, long offset) {
         if (header.Format == UnityFormat.FS) {
             writer.Write(offset);
             writer.Write(Size);

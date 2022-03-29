@@ -1,10 +1,14 @@
-﻿using Snuggle.Core.Implementations;
+﻿using System.Text.Json.Serialization;
+using Snuggle.Core.Implementations;
 using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
 
 namespace Snuggle.Core.Models.Objects;
 
 public record ComponentPair(object ClassId, PPtr<Component> Ptr) {
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? Tag { get; set; }
+    
     public static ComponentPair FromReader(BiEndianBinaryReader reader, SerializedFile file) {
         object classId = UnityClassId.Unknown;
         if (file.Version < UnityVersionRegister.Unity5_5) {

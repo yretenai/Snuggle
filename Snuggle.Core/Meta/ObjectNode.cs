@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using Mono.Cecil;
+using Snuggle.Core.Implementations;
 using Snuggle.Core.Models.Serialization;
 
 namespace Snuggle.Core.Meta;
 
 public record ObjectNode(string Name, string TypeName, int Size, bool IsAligned, bool IsBoolean) {
     public static ObjectNode Empty { get; } = new(string.Empty, string.Empty, 0, false, false);
-    public List<ObjectNode> Properties { get; set; } = new();
+    public List<ObjectNode> Properties { get; init; } = new();
 
     public static ObjectNode FromUnityTypeTree(UnityTypeTree tree) => tree.Nodes.Length == 0 ? Empty : FromUnityTypeTreeNode(tree.Nodes[0], tree.Nodes.Skip(1).ToArray());
 
@@ -29,4 +30,17 @@ public record ObjectNode(string Name, string TypeName, int Size, bool IsAligned,
     }
 
     public static ObjectNode FromCecil(TypeDefinition type) => throw new NotImplementedException();
+
+    public static ObjectNode FromCecil(AssemblyDefinition assembly, MonoScript script) {
+        var objectNode = new ObjectNode("Base", "MonoBehavior", -1, false, false) {
+            Properties = new List<ObjectNode> { // these all get skipped.
+                new("m_GameObject", "PPtr`1", 12, false, false),
+                new("m_Enabled", "UInt8", 1, true, true),
+                new("m_Script", "PPtr`1", 12, false, false),
+                new("m_Name", "string", -1, false, false),
+            },
+        };
+
+        return objectNode;
+    }
 }

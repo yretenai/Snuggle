@@ -63,7 +63,7 @@ public class SerializedFile : IRenewable {
     public string UserInformation { get; init; } = string.Empty;
     public UnityVersion Version { get; set; }
     public AssetCollection? Assets { get; set; }
-    public string Name { get; set; } = string.Empty;
+    public string Name { get; init; } = string.Empty;
 
     private Dictionary<long, SerializedObject> Objects { get; }
 
@@ -141,7 +141,7 @@ public class SerializedFile : IRenewable {
         }
     }
 
-    public void FindResources(SerializedObject? resourceManager) {
+    public void FindResources() {
         foreach (var serializedObject in Objects.Values) {
             switch (serializedObject) {
                 case ICABPathProvider cab: {

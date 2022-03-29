@@ -218,7 +218,7 @@ public static class SnuggleFile {
             }
         }
 
-        SnuggleCore.Instance.FreeMemory(false);
+        SnuggleCore.Instance.FreeMemory();
         SnuggleCore.Instance.Status.Reset();
     }
 

@@ -133,7 +133,7 @@ public class Bundle : IDisposable, IRenewable {
             Options.Logger.Info("Bundle", $"Caching {block.Path}");
 
             using var stream = Handler.OpenSubFile(Tag, block.Path, Options);
-            data ??= Container.OpenFile(new UnityBundleBlock(0, Container.BlockInfos.Select(x => x.Size).Sum(), 0, string.Empty), Options, reader);
+            data ??= Container.OpenFile(new UnityBundleBlock(0, Container.BlockInfos.Select(x => x.Size).Sum(), 0, string.Empty), reader);
             using var offset = new OffsetStream(data, block.Offset, block.Size, true);
             offset.CopyTo(stream);
         }
@@ -153,7 +153,7 @@ public class Bundle : IDisposable, IRenewable {
 
         var reader = new BiEndianBinaryReader(Handler.OpenFile(Tag), true);
         reader.BaseStream.Seek(DataStart, SeekOrigin.Begin);
-        var data = Container.OpenFile(block, Options, reader);
+        var data = Container.OpenFile(block, reader);
         reader.Dispose();
         data.Seek(0, SeekOrigin.Begin);
         return data;

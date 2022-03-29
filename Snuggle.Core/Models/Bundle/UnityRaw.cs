@@ -10,8 +10,8 @@ namespace Snuggle.Core.Models.Bundle;
 
 public record UnityRaw(uint Checksum, long MinimumStreamedBytes, long Size, int MinimumBlocks, long TotalSize, long BlockSize) : UnityContainer {
     public byte[] Hash { get; set; } = Array.Empty<byte>();
-    public override long Length { get; }
-    public override long DataStart => Size;
+    public override long Length => TotalSize;
+    protected override long DataStart => Size;
 
     public override void ToWriter(BiEndianBinaryWriter writer, UnityBundle header, SnuggleCoreOptions options, UnityBundleBlock[] blocks, Stream blockStream, BundleSerializationOptions serializationOptions) {
         throw new NotImplementedException();
@@ -40,7 +40,7 @@ public record UnityRaw(uint Checksum, long MinimumStreamedBytes, long Size, int 
 
         var unityRaw = new UnityRaw(checksum, minimumBytes, size, minimumBlockInfos, totalSize, blockSize) { Hash = hash, BlockInfos = blockInfos };
         var testBlock = new UnityBundleBlock(0, header.FormatVersion >= 3 ? blockSize : blockInfos[0].Size, 0, string.Empty);
-        using var blockReader = new BiEndianBinaryReader(unityRaw.OpenFile(testBlock, options, reader), true);
+        using var blockReader = new BiEndianBinaryReader(unityRaw.OpenFile(testBlock, reader), true);
         var blockCount = blockReader.ReadInt32();
         unityRaw.Blocks = UnityBundleBlock.ArrayFromReader(blockReader, header, 0, blockCount, options);
         return unityRaw;

@@ -259,7 +259,7 @@ public class AssetCollection : IDisposable {
 
     public void FindResources() {
         foreach (var file in Files.Values) {
-            file.FindResources(default);
+            file.FindResources();
         }
     }
 

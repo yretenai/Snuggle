@@ -220,9 +220,9 @@ public static class SnuggleAudioFile {
         ushort BlockAlign,
         ushort BitRate) {
         public const uint DATA = 0x61746164;
-        public WaveFormat(WaveFormatType type, ushort channels, int sampleRate, ushort bitRate) : this(type, channels, sampleRate, bitRate * sampleRate * channels / 8, (ushort) (bitRate * channels / 8), bitRate) { }
+        private WaveFormat(WaveFormatType type, ushort channels, int sampleRate, ushort bitRate) : this(type, channels, sampleRate, bitRate * sampleRate * channels / 8, (ushort) (bitRate * channels / 8), bitRate) { }
 
-        public WaveFormat(WaveFormatType type, ushort channels, int sampleRate, int byteRate, ushort BlockAlign, ushort bitRate) : this(
+        private WaveFormat(WaveFormatType type, ushort channels, int sampleRate, int byteRate, ushort BlockAlign, ushort bitRate) : this(
             0x20746D66,
             16,
             type,

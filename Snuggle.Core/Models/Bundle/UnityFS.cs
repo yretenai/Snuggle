@@ -13,7 +13,7 @@ namespace Snuggle.Core.Models.Bundle;
 public record UnityFS(long Size, int CompressedBlockInfoSize, int BlockInfoSize, UnityFSFlags Flags) : UnityContainer {
     public byte[] Hash { get; set; } = new byte[16];
     public override long Length => Size;
-    public override long DataStart => -1;
+    protected override long DataStart => -1;
 
     public override void ToWriter(BiEndianBinaryWriter writer, UnityBundle header, SnuggleCoreOptions options, UnityBundleBlock[] blocks, Stream blockStream, BundleSerializationOptions serializationOptions) {
         var start = writer.BaseStream.Position;

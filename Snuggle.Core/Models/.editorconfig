@@ -1,0 +1,4 @@
+﻿[*.cs]
+resharper_property_can_be_made_init_only_global_highlighting = none
+resharper_unused_parameter_global_highlighting = none
+resharper_struct_can_be_made_read_only_highlighting = none

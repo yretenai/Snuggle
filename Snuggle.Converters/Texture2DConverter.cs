@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -276,9 +277,9 @@ public static class Texture2DConverter {
         return !Texture2DDecoder.DecodeASTC(data, width, height, blocksize, blocksize, buff) ? Memory<byte>.Empty : buff;
     }
 
-    private static Memory<byte> DecodeA8(int width, int height, byte[] data) {
+    private static Memory<byte> DecodeA8(int width, int height, IReadOnlyList<byte> data) {
         var memory = new Memory<byte>(new byte[width * height * 4]);
-        for (var i = 0; i < data.Length; ++i) {
+        for (var i = 0; i < data.Count; ++i) {
             memory.Span[i * 4] = data[i];
             memory.Span[i * 4 + 3] = 0xFF;
         }
@@ -312,7 +313,7 @@ public static class Texture2DConverter {
         return memory;
     }
 
-    private static Memory<byte> DecodeRGB24(int width, int height, byte[] data) {
+    private static Memory<byte> DecodeRGB24(int width, int height, IReadOnlyList<byte> data) {
         var memory = new Memory<byte>(new byte[width * height * 4]);
         for (var i = 0; i < width * height; ++i) {
             memory.Span[i * 4 + 0] = data[i * 3 + 0];
@@ -426,7 +427,7 @@ public static class Texture2DConverter {
 
     private static byte ClampByte(int x) => (byte) (byte.MaxValue < x ? byte.MaxValue : x > byte.MinValue ? x : byte.MinValue);
 
-    private static Memory<byte> DecodeYUY2(int width, int height, byte[] data) {
+    private static Memory<byte> DecodeYUY2(int width, int height, IReadOnlyList<byte> data) {
         var memory = new Memory<byte>(new byte[width * height * 4]);
         var p = 0;
         var o = 0;

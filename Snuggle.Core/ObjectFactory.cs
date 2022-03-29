@@ -182,7 +182,11 @@ public static class ObjectFactory {
         var start = reader.BaseStream.Position;
         object? value = null;
         try {
-            if (node.TypeName.StartsWith("PPtr<") || node.TypeName == "PPtr`1") {
+            if (node.TypeName.StartsWith("PPtr<")) {
+                var ptr = PPtr<SerializedObject>.FromReader(reader, file);
+                ptr.Tag = node.TypeName.Split('<')[1][..^1];
+                value = ptr;
+            } else if (node.TypeName == "PPtr`1") {
                 value = PPtr<SerializedObject>.FromReader(reader, file);
             } else {
                 switch (node.TypeName.ToLowerInvariant()) {
@@ -379,7 +383,7 @@ public static class ObjectFactory {
         return null;
     }
 
-    public static ObjectNode? FindObjectNode(string name, MonoScript script, AssetCollection collection, RequestAssemblyPath? callback) {
+    public static ObjectNode? FindObjectNode(MonoScript script, AssetCollection collection, RequestAssemblyPath? callback) {
         try {
             var assemblyName = script.AssemblyName;
             if (assemblyName.EndsWith(".dll")) {
@@ -399,103 +403,14 @@ public static class ObjectFactory {
                 }
             }
 
-            var objectNode = new ObjectNode("Base", "MonoBehavior", -1, false, false) {
-                Properties = new List<ObjectNode> { // these all get skipped.
-                    new("m_GameObject", "PPtr`1", 12, false, false), new("m_Enabled", "UInt8", 1, true, true), new("m_Script", "PPtr`1", 12, false, false), new("m_Name", "string", -1, false, false),
-                },
-            };
-
             if (collection.Assemblies.HasAssembly(assemblyName)) {
-                objectNode.Properties.AddRange(GetObjectType(collection.Assemblies.Resolve(assemblyName), script));
-                return objectNode;
+                return ObjectNode.FromCecil(collection.Assemblies.Resolve(assemblyName), script);
             }
         } catch {
             // ignored
         }
 
-        // TODO(naomi): parse global metadata for MonoBehavior.
-
         return null;
     }
-
-    private static List<ObjectNode> GetObjectType(AssemblyDefinition assembly, MonoScript script) => throw new NotImplementedException();
-
-    // There's a lot of fucky stuff with how Unity determines fields.
-
-    private static List<ObjectNode> GetObjectType(TypeReference? reference, Dictionary<string, List<ObjectNode>> cache) {
-        if (reference == null) {
-            return new List<ObjectNode>();
-        }
-
-        if (!cache.TryGetValue(reference.FullName, out var cached)) {
-            throw new NotImplementedException();
-        }
-
-        return cached;
-    }
-
-    private static ObjectNode CreateObjectNode(string name, TypeReference? typeReference, Dictionary<string, List<ObjectNode>> cache) {
-        if (typeReference == null) {
-            throw new NotSupportedException("Type reference is null");
-        }
-
-        var typeDefinition = typeReference.Resolve();
-        if (typeReference.FullName.StartsWith("System.Collections.Generic.List`1") || typeReference.IsArray) {
-            var arrayType = typeReference.IsArray ? ((ArrayType) typeReference).ElementType : ((GenericInstanceType) typeReference).GenericArguments[0];
-            return new ObjectNode(name, "vector", -1, false, false) { Properties = new List<ObjectNode> { new("Array", "Array", -1, true, false) { Properties = new List<ObjectNode> { new("count", "int", 4, false, false), CreateObjectNode("data", arrayType, cache) } } } };
-        }
-
-        if (typeReference.FullName.StartsWith("System.Collections.Generic.Dictionary`2")) {
-            var generics = ((GenericInstanceType) typeReference).GenericArguments;
-            var keyType = generics[0].Resolve();
-            var valueType = generics[1].Resolve();
-            return new ObjectNode(name, "map", -1, false, false) { Properties = new List<ObjectNode> { new("Array", "Array", -1, true, false) { Properties = new List<ObjectNode> { new("count", "int", 4, false, false), new("data", "pair", -1, false, false) { Properties = new List<ObjectNode> { CreateObjectNode("first", keyType, cache), CreateObjectNode("second", valueType, cache) } } } } } };
-        }
-
-        if (typeReference.Namespace == "System") {
-            switch (typeReference.Name) {
-                case "String":
-                    return new ObjectNode(name, "string", -1, false, false);
-                case "Boolean":
-                case "UInt8":
-                case "Char":
-                    return new ObjectNode(name, "byte", 1, true, typeReference.Name[0] == 'B');
-                case "Int8":
-                    return new ObjectNode(name, "sbyte", 1, true, false);
-                case "UInt16":
-                    return new ObjectNode(name, "unsigned short", 2, true, false);
-                case "Int16":
-                    return new ObjectNode(name, "short", 2, true, false);
-                case "UInt32":
-                    return new ObjectNode(name, "unsigned int", 4, false, false);
-                case "Int32":
-                    return new ObjectNode(name, "int", 4, false, false);
-                case "UInt64":
-                    return new ObjectNode(name, "unsigned long long", 8, false, false);
-                case "Int64":
-                    return new ObjectNode(name, "long long", 8, false, false);
-                case "Single":
-                    return new ObjectNode(name, "float", 4, false, false);
-                case "Double":
-                    return new ObjectNode(name, "double", 8, false, false);
-                case "Guid":
-                    return new ObjectNode(name, "Guid", 8, false, false);
-            }
-        }
-
-        if (typeDefinition.IsEnum) {
-            return new ObjectNode(name, "int", 4, false, false);
-        }
-
-        if (typeReference.FullName == "UnityEngine.Hash128") {
-            return new ObjectNode(name, "Hash128", 16, false, false);
-        }
-
-        // ReSharper disable once ConvertIfStatementToReturnStatement
-        if (typeDefinition.IsAssignableTo("UnityEngine.Object")) {
-            return new ObjectNode(name, "PPtr`1", 12, false, false);
-        }
-
-        return new ObjectNode(name, typeReference.Name, typeDefinition.ClassSize, false, false) { Properties = GetObjectType(typeDefinition, cache) };
-    }
+    
 }

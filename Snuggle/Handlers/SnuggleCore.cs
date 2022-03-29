@@ -48,7 +48,7 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
     private BlockingCollection<(string Name, Action<CancellationToken> Work)> Tasks { get; set; } = new();
     public List<SnuggleObject> Objects => Collection.Files.SelectMany(x => x.Value.GetAllObjects()).Select(x => new SnuggleObject(x)).ToList();
     public SnuggleObject? SelectedObject { get; set; }
-    public HashSet<object> Filters { get; set; } = new();
+    public HashSet<object> Filters { get; init; } = new();
     public IReadOnlyList<SnuggleObject> SelectedObjects { get; set; } = Array.Empty<SnuggleObject>();
     public string? Search { get; set; }
     public bool IsDisposed { get; private set; }
@@ -241,7 +241,7 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
         SaveOptions();
     }
 
-    public void FreeMemory(bool bundles) {
+    public void FreeMemory() {
         foreach (var (_, file) in Collection.Files) {
             file.Free();
         }

@@ -8,14 +8,14 @@ using Snuggle.Core.Options;
 namespace Snuggle.Core.Interfaces;
 
 public record UnityContainer {
-    public UnityBundleBlockInfo[] BlockInfos { get; set; } = Array.Empty<UnityBundleBlockInfo>();
-    public UnityBundleBlock[] Blocks { get; set; } = Array.Empty<UnityBundleBlock>();
-    public virtual long Length { get; }
-    public virtual long DataStart { get; }
+    public UnityBundleBlockInfo[] BlockInfos { get; protected set; } = Array.Empty<UnityBundleBlockInfo>();
+    public UnityBundleBlock[] Blocks { get; protected set; } = Array.Empty<UnityBundleBlock>();
+    public virtual long Length => -1;
+    protected virtual long DataStart => -1;
 
-    public Stream OpenFile(string path, SnuggleCoreOptions options, BiEndianBinaryReader? reader = null) => OpenFile(Blocks.FirstOrDefault(x => x.Path.Equals(path, StringComparison.InvariantCultureIgnoreCase)), options, reader);
+    public Stream OpenFile(string path, SnuggleCoreOptions options, BiEndianBinaryReader? reader = null) => OpenFile(Blocks.FirstOrDefault(x => x.Path.Equals(path, StringComparison.InvariantCultureIgnoreCase)), reader);
 
-    public Stream OpenFile(UnityBundleBlock? block, SnuggleCoreOptions options, BiEndianBinaryReader? reader = null) {
+    public Stream OpenFile(UnityBundleBlock? block, BiEndianBinaryReader? reader = null) {
         if (block == null) {
             return Stream.Null;
         }

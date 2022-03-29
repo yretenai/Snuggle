@@ -9,51 +9,6 @@ using Snuggle.Core.Models.Objects.Graphics;
 namespace Snuggle.Converters;
 
 public static class MeshConverter {
-    private static Dictionary<int, int> CreateBoneHierarchy(Mesh mesh, Renderer? renderer) {
-        var bones = new Dictionary<int, int>();
-        if (renderer == null) {
-            return bones;
-        }
-
-        if (renderer is not SkinnedMeshRenderer skinnedMeshRenderer) {
-            return bones;
-        }
-
-        var transformToBoneHash = new Dictionary<(long, string), uint>();
-        var hashToIndex = new List<uint>();
-
-        foreach (var childPtr in skinnedMeshRenderer.Bones) {
-            var child = childPtr.Value;
-
-            var gameObject = child?.GameObject.Value;
-            if (gameObject == null) {
-                continue;
-            }
-
-            var hash = CRC.GetDigest(gameObject.Name);
-            transformToBoneHash[child!.GetCompositeId()] = hash;
-            hashToIndex.Add(hash);
-        }
-
-        for (var index = 0; index < skinnedMeshRenderer.Bones.Count; index++) {
-            var childPtr = skinnedMeshRenderer.Bones[index];
-            var child = childPtr.Value;
-
-            var gameObject = child?.GameObject.Value;
-            if (gameObject == null) {
-                continue;
-            }
-
-            if (skinnedMeshRenderer.RootBone.IsSame(child)) {
-                bones[index] = hashToIndex.IndexOf(transformToBoneHash[child!.Parent.GetCompositeId()]);
-            } else {
-                bones[index] = -1;
-            }
-        }
-
-        return bones;
-    }
-
     public static Memory<byte>[] GetVBO(Mesh mesh, out uint vertexCount, out Dictionary<VertexChannel, ChannelInfo> channels, out int[] strides) {
         if (mesh.ShouldDeserialize) {
             throw new IncompleteDeserialization();

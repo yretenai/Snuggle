@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
@@ -107,7 +108,7 @@ public static class SnuggleSpriteFile {
         return spriteImage;
     }
 
-    private static Vector2[][] GetTriangles(SpriteRenderData renderData) {
+    private static IEnumerable<Vector2[]> GetTriangles(SpriteRenderData renderData) {
         if (renderData.Vertices is { IsEmpty: false }) { //5.6 down
             var vertices = renderData.Vertices.Value.Span;
             var indices = renderData.Indices!.Value.Span;

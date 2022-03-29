@@ -43,7 +43,7 @@ public record SnuggleMeshExportOptions(
         true);
 
     public HashSet<RendererType> EnabledRenders { get; set; } = Enum.GetValues<RendererType>().ToHashSet();
-    public int Version { get; set; } = LatestVersion;
+    public int Version { get; init; } = LatestVersion;
     public bool NeedsMigration() => Version < LatestVersion;
 
     public SnuggleMeshExportOptions Migrate() {

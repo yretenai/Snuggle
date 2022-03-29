@@ -12,7 +12,7 @@ namespace Snuggle.Core.Models.Objects.Animation;
 public record StateMachineBehaviourVectorDescription(Dictionary<StateKey, StateRange> BehaviourRanges) {
     public static StateMachineBehaviourVectorDescription Default { get; } = new(new Dictionary<StateKey, StateRange>());
 
-    private long IndicesStart { get; set; } = -1;
+    private long IndicesStart { get; init; } = -1;
     public Memory<uint>? Indices { get; set; }
     private bool ShouldDeserializeIndices => IndicesStart > -1 && Indices == null;
 

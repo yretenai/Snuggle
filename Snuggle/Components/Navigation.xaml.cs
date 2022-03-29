@@ -370,7 +370,7 @@ public partial class Navigation {
 
     private void FreeMemory(object sender, RoutedEventArgs e) {
         var instance = SnuggleCore.Instance;
-        instance.WorkerAction("FreeMemory", _ => { SnuggleCore.Instance.FreeMemory(true); }, true);
+        instance.WorkerAction("FreeMemory", _ => { SnuggleCore.Instance.FreeMemory(); }, true);
     }
 
     private void DumpGameObjectTree(object sender, RoutedEventArgs e) {

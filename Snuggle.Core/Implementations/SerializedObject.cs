@@ -15,6 +15,7 @@ namespace Snuggle.Core.Implementations;
 
 [ObjectImplementation(UnityClassId.Object)]
 public class SerializedObject : IEquatable<SerializedObject>, ISerialized {
+    // ReSharper disable once UnusedParameter.Local
     public SerializedObject(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : this(info, serializedFile) => IsMutated = false;
 
     public SerializedObject(UnityObjectInfo info, SerializedFile serializedFile) {
@@ -49,7 +50,7 @@ public class SerializedObject : IEquatable<SerializedObject>, ISerialized {
     public Dictionary<object, object> ExtraContainers { get; } = new();
 
     [JsonIgnore]
-    public bool NeedsLoad { get; set; }
+    public bool NeedsLoad { get; init; }
 
     [JsonIgnore]
     public bool HasContainerPath => !string.IsNullOrWhiteSpace(ObjectContainerPath);
