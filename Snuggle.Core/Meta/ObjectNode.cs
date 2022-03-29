@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Mono.Cecil;
-using Snuggle.Core.Implementations;
 using Snuggle.Core.Models.Serialization;
 
 namespace Snuggle.Core.Meta;
@@ -29,18 +27,17 @@ public record ObjectNode(string Name, string TypeName, int Size, bool IsAligned,
         return objectNode;
     }
 
-    public static ObjectNode FromCecil(TypeDefinition type) => throw new NotImplementedException();
-
-    public static ObjectNode FromCecil(AssemblyDefinition assembly, MonoScript script) {
+    public static ObjectNode FromCecil(TypeDefinition type) {
+        var converter = new TypeDefinitionConverter(type);
         var objectNode = new ObjectNode("Base", "MonoBehavior", -1, false, false) {
             Properties = new List<ObjectNode> { // these all get skipped.
-                new("m_GameObject", "PPtr`1", 12, false, false),
+                new("m_GameObject", "PPtr<GameObject>", 12, false, false),
                 new("m_Enabled", "UInt8", 1, true, true),
-                new("m_Script", "PPtr`1", 12, false, false),
+                new("m_Script", "PPtr<MonoScript>", 12, false, false),
                 new("m_Name", "string", -1, false, false),
             },
         };
-
+        objectNode.Properties.AddRange(converter.ConvertToObjectNodes());
         return objectNode;
     }
 }

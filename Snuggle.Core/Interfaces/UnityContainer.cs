@@ -13,7 +13,7 @@ public record UnityContainer {
     public virtual long Length => -1;
     protected virtual long DataStart => -1;
 
-    public Stream OpenFile(string path, SnuggleCoreOptions options, BiEndianBinaryReader? reader = null) => OpenFile(Blocks.FirstOrDefault(x => x.Path.Equals(path, StringComparison.InvariantCultureIgnoreCase)), reader);
+    public Stream OpenFile(string path, BiEndianBinaryReader? reader = null) => OpenFile(Blocks.FirstOrDefault(x => x.Path.Equals(path, StringComparison.InvariantCultureIgnoreCase)), reader);
 
     public Stream OpenFile(UnityBundleBlock? block, BiEndianBinaryReader? reader = null) {
         if (block == null) {

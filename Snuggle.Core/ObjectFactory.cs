@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using DragonLib;
-using Mono.Cecil;
 using Snuggle.Core.Exceptions;
 using Snuggle.Core.Extensions;
 using Snuggle.Core.Implementations;
@@ -13,6 +12,7 @@ using Snuggle.Core.Interfaces;
 using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
 using Snuggle.Core.Models;
+using Snuggle.Core.Models.Objects.Math;
 using Snuggle.Core.Models.Serialization;
 using Snuggle.Core.Options;
 
@@ -269,6 +269,38 @@ public static class ObjectFactory {
                         value = reader.ReadBytes(16);
                         break;
                     }
+                    case "animationcurve": {
+                        // todo(naomi): value = reader.ReadStruct<AnimationCurve>();
+                        throw new NotImplementedException();
+                    }
+                    case "gradient": {
+                        // todo(naomi): value = reader.ReadStruct<Gradient>();
+                        throw new NotImplementedException();
+                    }
+                    case "guistyle": {
+                        // todo(naomi): value = reader.ReadStruct<GUIStyle>();
+                        throw new NotImplementedException();
+                    }
+                    case "rectoffset": {
+                        value = reader.ReadStruct<RectOffset>();
+                        break;
+                    }
+                    case "color32": {
+                        value = reader.ReadStruct<Color32>();
+                        break;
+                    }
+                    case "matrix4x4": {
+                        value = reader.ReadStruct<Matrix4X4>();
+                        break;
+                    }
+                    case "sphericalharmonicsl2": {
+                        value = reader.ReadArray<float>(3 * 9).ToArray(); // todo(naomi): SphericalHarmonicsL2 3x9 float
+                        break;
+                    }
+                    case "propertyname": {
+                        value = reader.ReadString32();
+                        break;
+                    }
                     case "typelessdata": {
                         var size = reader.ReadInt32();
                         value = reader.ReadBytes(size);
@@ -383,8 +415,12 @@ public static class ObjectFactory {
         return null;
     }
 
-    public static ObjectNode? FindObjectNode(MonoScript script, AssetCollection collection, RequestAssemblyPath? callback) {
+    public static ObjectNode? FindObjectNode(string name, MonoScript script, AssetCollection collection, RequestAssemblyPath? callback) {
         try {
+            if (collection.Types.TryGetValue(name, out var cachedType)) {
+                return cachedType;
+            }
+
             var assemblyName = script.AssemblyName;
             if (assemblyName.EndsWith(".dll")) {
                 assemblyName = assemblyName[..^4];
@@ -404,7 +440,10 @@ public static class ObjectFactory {
             }
 
             if (collection.Assemblies.HasAssembly(assemblyName)) {
-                return ObjectNode.FromCecil(collection.Assemblies.Resolve(assemblyName), script);
+                var assembly = collection.Assemblies.Resolve(assemblyName).MainModule;
+                var objectNode = ObjectNode.FromCecil(assembly.GetType(name));
+                collection.Types[name] = objectNode;
+                return objectNode;
             }
         } catch {
             // ignored
@@ -412,5 +451,4 @@ public static class ObjectFactory {
 
         return null;
     }
-    
 }
