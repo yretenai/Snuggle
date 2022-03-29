@@ -270,6 +270,8 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
         foreach (var (_, file) in Collection.Files) {
             file.Free();
         }
+        
+        Collection.ClearCaches();
 
         SnuggleTextureFile.ClearMemory();
         SnuggleSpriteFile.ClearMemory();

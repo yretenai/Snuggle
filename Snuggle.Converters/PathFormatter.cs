@@ -94,6 +94,11 @@ public static class PathFormatter {
                 case "BUNDLEORTAG":
                     builder.Append(Utils.GetNameFromTagWithoutExtension(asset.SerializedFile.GetBundle()?.Tag) ?? Utils.GetNameFromTag(asset.SerializedFile.Tag) ?? string.Empty);
                     break;
+                case "SCRIPT":
+                    if (asset is MonoBehaviour monoBehaviour && monoBehaviour.Script.Value is not null) {
+                        builder.Append(monoBehaviour.Script.Value);
+                    }
+                    break;
                 default:
                     builder.Append(match.Captures[0].Value.SanitizeDirname());
                     break;

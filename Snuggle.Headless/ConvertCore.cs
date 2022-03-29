@@ -9,6 +9,8 @@ public static partial class ConvertCore {
             file.Free();
         }
 
+        assetCollection.ClearCaches();
+
         SnuggleTextureFile.ClearMemory();
         SnuggleSpriteFile.ClearMemory();
 

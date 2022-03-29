@@ -31,7 +31,7 @@ public record SnuggleCoreOptions(
         WriteIndented = true,
         DefaultIgnoreCondition = JsonIgnoreCondition.Never,
         AllowTrailingCommas = true,
-        NumberHandling = JsonNumberHandling.AllowReadingFromString,
+        NumberHandling = JsonNumberHandling.AllowReadingFromString | JsonNumberHandling.WriteAsString,
         Converters = { new JsonStringEnumConverter(), new JsonMemoryConverterFactory() },
     };
 

@@ -147,6 +147,14 @@ public static class Program {
                         logger.Info("Assets", $"Processing Audio {asset}");
                         ConvertCore.ConvertAudio(flags, logger, clip);
                         break;
+                    case MonoBehaviour monoBehaviour when !flags.NoScript:
+                        if (flags.ScriptFilters.Any() && (monoBehaviour.Script.Value == null || !flags.ScriptFilters.Any(x => x.IsMatch(monoBehaviour.Script.Value.ObjectComparableName)))) {
+                            continue;
+                        }
+
+                        logger.Info("Assets", $"Processing MonoBehaviour {asset}");
+                        ConvertCore.ConvertMonoBehaviour(flags, logger, monoBehaviour);
+                        break;
                 }
             } catch (Exception e) {
                 logger.Error("System", $"Failure decoding {asset.PathId} from {Utils.GetStringFromTag(asset.SerializedFile.Tag)}: {e.Message}", e);

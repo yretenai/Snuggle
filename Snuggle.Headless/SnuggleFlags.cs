@@ -10,28 +10,28 @@ namespace Snuggle.Headless;
 
 [SuppressMessage("ReSharper", "PropertyCanBeMadeInitOnly.Global")]
 public record SnuggleFlags : ICLIFlags {
-    [CLIFlag("no-mesh", Aliases = new[] { "m" }, Category = "General Options", Default = false, Help = "Don't export rigid meshes (can still export through game objects)")]
+    [CLIFlag("no-mesh", Aliases = new[] { "m" }, Category = "General Options", Default = false, Help = "Do not export rigid meshes (can still export through game objects)")]
     public bool NoMesh { get; set; }
 
-    [CLIFlag("no-rigged-meshes", Aliases = new[] { "s" }, Category = "General Options", Default = false, Help = "Don't export rigged meshes (can still export through game objects)")]
+    [CLIFlag("no-rigged-meshes", Aliases = new[] { "s" }, Category = "General Options", Default = false, Help = "Do not export rigged meshes (can still export through game objects)")]
     public bool NoSkinnedMesh { get; set; }
 
-    [CLIFlag("no-game-object", Aliases = new[] { "b" }, Category = "General Options", Default = false, Help = "Don't export game objects")]
+    [CLIFlag("no-game-object", Aliases = new[] { "b" }, Category = "General Options", Default = false, Help = "Do not export game objects")]
     public bool NoGameObject { get; set; }
 
-    [CLIFlag("no-texture", Aliases = new[] { "T" }, Category = "General Options", Default = false, Help = "Don't export textures")]
+    [CLIFlag("no-texture", Aliases = new[] { "T" }, Category = "General Options", Default = false, Help = "Do not export textures")]
     public bool NoTexture { get; set; }
 
-    [CLIFlag("no-text", Aliases = new[] { "t" }, Category = "General Options", Default = false, Help = "Don't export text assets")]
+    [CLIFlag("no-text", Aliases = new[] { "t" }, Category = "General Options", Default = false, Help = "Do not export text assets")]
     public bool NoText { get; set; }
 
-    [CLIFlag("no-sprite", Aliases = new[] { "S" }, Category = "General Options", Default = false, Help = "Don't export sprite assets")]
+    [CLIFlag("no-sprite", Aliases = new[] { "S" }, Category = "General Options", Default = false, Help = "Do not export sprite assets")]
     public bool NoSprite { get; set; }
 
-    [CLIFlag("no-audio", Aliases = new[] { "A" }, Category = "General Options", Default = false, Help = "Don't export audio clip assets")]
+    [CLIFlag("no-audio", Aliases = new[] { "A" }, Category = "General Options", Default = false, Help = "Do not export audio clip assets")]
     public bool NoAudio { get; set; }
 
-    [CLIFlag("no-materials", Aliases = new[] { "M" }, Category = "General Options", Default = false, Help = "Don't export materials")]
+    [CLIFlag("no-materials", Aliases = new[] { "M" }, Category = "General Options", Default = false, Help = "Do not export materials")]
     public bool NoMaterials { get; set; }
 
     [CLIFlag("no-vertex-color", Aliases = new[] { "c" }, Category = "General Options", Default = false, Help = "Do not write vertex colors")]
@@ -39,6 +39,9 @@ public record SnuggleFlags : ICLIFlags {
 
     [CLIFlag("no-morphs", Aliases = new[] { "O" }, Category = "General Options", Default = false, Help = "Do not write morphs")]
     public bool NoMorphs { get; set; }
+
+    [CLIFlag("no-script", Aliases = new[] { "B" }, Category = "General Options", Default = false, Help = "Do not export MonoBehaviour data")]
+    public bool NoScript { get; set; }
 
     [CLIFlag("dont-scan-up", Category = "General Options", Default = false, Help = "Do not scan for game object hierarchy ancestors.")]
     public bool NoGameObjectHierarchyUp { get; set; }
@@ -85,6 +88,9 @@ public record SnuggleFlags : ICLIFlags {
     [CLIFlag("name", Category = "General Options", Help = "Game Object Name/Container Path Filters", Extra = RegexOptions.CultureInvariant | RegexOptions.Compiled)]
     public List<Regex> NameFilters { get; set; } = null!;
 
+    [CLIFlag("script", Category = "General Options", Help = "Script Class Filters", Extra = RegexOptions.CultureInvariant | RegexOptions.Compiled)]
+    public List<Regex> ScriptFilters { get; set; } = null!;
+
     [CLIFlag("id", Category = "General Options", Help = "Path ID Filters")]
     public List<long> PathIdFilters { get; set; } = null!;
 
@@ -119,6 +125,7 @@ public record SnuggleFlags : ICLIFlags {
         sb.Append($"{nameof(NoMaterials)} = {(NoMaterials ? "True" : "False")}, ");
         sb.Append($"{nameof(NoVertexColor)} = {(NoVertexColor ? "True" : "False")}, ");
         sb.Append($"{nameof(NoMorphs)} = {(NoMorphs ? "True" : "False")}, ");
+        sb.Append($"{nameof(NoScript)} = {(NoScript ? "True" : "False")}, ");
         sb.Append($"{nameof(NoGameObjectHierarchyUp)} = {(NoGameObjectHierarchyUp ? "True" : "False")}, ");
         sb.Append($"{nameof(NoGameObjectHierarchyDown)} = {(NoGameObjectHierarchyDown ? "True" : "False")}, ");
         sb.Append($"{nameof(WriteNativeTextures)} = {(WriteNativeTextures ? "True" : "False")}, ");
@@ -134,6 +141,7 @@ public record SnuggleFlags : ICLIFlags {
         sb.Append($"{nameof(ContainerlessOutputFormat)} = {ContainerlessOutputFormat ?? "null"}, ");
         sb.Append($"{nameof(OutputPath)} = {OutputPath}, ");
         sb.Append($"{nameof(NameFilters)} = [{string.Join(", ", NameFilters.Select(x => x.ToString()))}], ");
+        sb.Append($"{nameof(ScriptFilters)} = [{string.Join(", ", ScriptFilters.Select(x => x.ToString()))}], ");
         sb.Append($"{nameof(PathIdFilters)} = [{string.Join(", ", PathIdFilters.Select(x => x.ToString()))}], ");
         sb.Append($"{nameof(OnlyCAB)} = {(OnlyCAB ? "True" : "False")}, ");
         sb.Append($"{nameof(Paths)} = [{string.Join(", ", Paths)}], ");

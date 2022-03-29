@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Mono.Cecil;
 using Unity.CecilTools;
+using Unity.CecilTools.Extensions;
 using Unity.SerializationLogic;
 
 namespace Snuggle.Core.Meta;
@@ -155,30 +156,30 @@ public class TypeDefinitionConverter {
                 align = false;
             }
 
-            nodes.Add(new ObjectNode(name, primitiveName, -1, align, primitiveName == "bool"));
+            nodes.Add(new ObjectNode(name, primitiveName, -1, align, primitiveName == "bool", false, null));
         } else if (IsSystemString(typeRef)) {
-            nodes.Add(new ObjectNode(name, "string", -1, false, false));
+            nodes.Add(new ObjectNode(name, "string", -1, false, false, false, null));
         } else if (IsEnum(typeRef)) {
-            nodes.Add(new ObjectNode(name, "SInt32", 4, align, false));
+            nodes.Add(new ObjectNode(name, "SInt32", 4, align, false, false, GetEnumNames(typeRef)));
         } else if (CecilUtils.IsGenericList(typeRef) || typeRef.IsArray) {
             var elementRef = typeRef.IsArray ? typeRef.GetElementType() : CecilUtils.ElementTypeOfCollection(typeRef);
-            var array = new ObjectNode("Array", "Array", -1, false, false) {
+            var array = new ObjectNode("Array", "Array", -1, false, false, false, null) {
                 Properties = {
-                    new ObjectNode("int", "size", 4, false, false),
+                    new ObjectNode("int", "size", 4, false, false, false, null),
                 },
             };
             array.Properties.AddRange(TypeRefToObjectNodes(elementRef, "data", true));
-            nodes.Add(new ObjectNode(name, elementRef.Name, -1, align, false) {
+            nodes.Add(new ObjectNode(name, $"Array<{typeRef.FullName}>", -1, align, false, true, null) {
                 Properties = new List<ObjectNode> {
                     array,
                 },
             });
         } else if (UnityEngineTypePredicates.IsUnityEngineObject(typeRef)) {
-            nodes.Add(new ObjectNode(name, $"PPtr<{typeRef.Name}>", 12, false, false));
+            nodes.Add(new ObjectNode(name, $"PPtr<{typeRef.Name}>", 12, false, false, false, null));
         } else if (UnityEngineTypePredicates.IsSerializableUnityClass(typeRef) || UnityEngineTypePredicates.IsSerializableUnityStruct(typeRef)) {
-            nodes.Add(new ObjectNode(name, typeRef.Name, -1, false, false));
+            nodes.Add(new ObjectNode(name, typeRef.Name, -1, false, false, false, null));
         } else {
-            var obj = new ObjectNode(name, typeRef.Name, -1, align, false);
+            var obj = new ObjectNode(name, $"${typeRef.FullName}", -1, align, false, false, null);
             var typeDef = typeRef.Resolve();
             var typeDefinitionConverter = new TypeDefinitionConverter(typeDef);
             obj.Properties.AddRange(typeDefinitionConverter.ConvertToObjectNodes());
@@ -186,5 +187,29 @@ public class TypeDefinitionConverter {
         }
 
         return nodes;
+    }
+
+    private static Dictionary<int, string>? GetEnumNames(TypeReference typeRef) {
+        if (!typeRef.IsEnum()) {
+            return null;
+        }
+
+        var type = typeRef.Resolve();
+
+        var enums = new Dictionary<int, string>();
+        foreach (var field in type.Fields) {
+            if (field.HasConstant) {
+                try {
+                    var enumValue = Convert.ToInt32(field.Constant);
+                    if (!enums.ContainsKey(enumValue)) {
+                        enums[enumValue] = field.Name;
+                    }
+                } catch {
+                    return null;
+                }
+            }
+        }
+
+        return enums;
     }
 }

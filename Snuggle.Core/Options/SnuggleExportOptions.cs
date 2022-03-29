@@ -23,7 +23,8 @@ Available variables:
     Version - The bundle version listed in the PlayerSettings (if present.)
     Tag - The Serialized File tag, usually it's filename.
     Bundle - The Bundle tag, usually it's filename.
-    BundleOrTag - The bundle tag if present, otherwise the tag.";
+    BundleOrTag - The bundle tag if present, otherwise the tag.
+    Script - The full class name if present on a MonoBehaviour";
 
     public const string DefaultPathTemplate = "{ProductOrProject}/{Version}/{ContainerOrNameWithoutExt}_{Id}.{Ext}";
     public const string DefaultContainerlessPathTemplate = "{ProductOrProject}/{Version}/__unknown/{Type}/{Name}_{Id}.{Ext}";

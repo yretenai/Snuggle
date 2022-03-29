@@ -232,7 +232,12 @@ public static class ObjectFactory {
                     case "sint32":
                     case "int32": {
                         var tmp = reader.ReadInt32();
-                        value = node.IsBoolean ? tmp == 1 : tmp;
+                        if (node.EnumValues != null && node.EnumValues.TryGetValue(tmp, out var enumValue)) {
+                            value = enumValue;
+                        } else {
+                            value = node.IsBoolean ? tmp == 1 : tmp;
+                        }
+
                         break;
                     }
                     case "filesize":
@@ -387,8 +392,8 @@ public static class ObjectFactory {
                     }
                 }
             }
-        } catch {
-            // ignored! Log this!
+        } catch(Exception e) {
+            file.Options.Logger.Error("Object", $"Failed deserializing field {node}", e);
         }
 
         if (node.Size > 0) {

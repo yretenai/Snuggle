@@ -49,6 +49,7 @@ public class AssetCollection : IDisposable {
         Files.Clear();
         Resources.Clear();
         GameObjectTree.Clear();
+        Types.Clear();
         Collect();
     }
 
@@ -193,6 +194,10 @@ public class AssetCollection : IDisposable {
     public static void Collect() {
         GC.WaitForPendingFinalizers();
         GC.Collect();
+    }
+    
+    public void ClearCaches() {
+        Types.Clear();
     }
 
     public void LoadAssembly(Stream dataStream, string assemblyLocation, SnuggleCoreOptions options, bool leaveOpen = false) {

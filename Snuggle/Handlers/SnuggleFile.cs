@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -156,7 +157,16 @@ public static class SnuggleFile {
         }
 
         if (!string.IsNullOrWhiteSpace(search)) {
-            return snuggleObject.PathId.ToString().Contains(search, StringComparison.InvariantCultureIgnoreCase) || snuggleObject.Name.Contains(search, StringComparison.InvariantCultureIgnoreCase) || snuggleObject.Container.Contains(search, StringComparison.InvariantCultureIgnoreCase) || snuggleObject.SerializedName.Contains(search, StringComparison.InvariantCultureIgnoreCase) || snuggleObject.ClassId.ToString()?.Contains(search, StringComparison.InvariantCultureIgnoreCase) == true;
+            if (long.TryParse(search, NumberStyles.Number, null, out var numberSearch)) {
+                if (snuggleObject.PathId == numberSearch) {
+                    return true;
+                }
+            }
+            
+            return snuggleObject.Name.Contains(search, StringComparison.InvariantCultureIgnoreCase) || 
+                   snuggleObject.Container.Contains(search, StringComparison.InvariantCultureIgnoreCase) || 
+                   snuggleObject.SerializedName.Contains(search, StringComparison.InvariantCultureIgnoreCase) || 
+                   snuggleObject.ClassId.ToString()?.Contains(search, StringComparison.InvariantCultureIgnoreCase) == true;
         }
 
         return true;
