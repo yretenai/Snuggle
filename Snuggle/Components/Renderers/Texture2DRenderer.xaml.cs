@@ -9,6 +9,7 @@ namespace Snuggle.Components.Renderers;
 
 public sealed partial class Texture2DRenderer {
     public static readonly DependencyProperty CanvasBackgroundProperty = DependencyProperty.Register("CanvasBackground", typeof(Brush), typeof(Texture2DRenderer), new PropertyMetadata(new SolidColorBrush(Colors.White)));
+    public static readonly DependencyProperty RenderingModeProperty = DependencyProperty.Register("RenderingMode", typeof(BitmapScalingMode), typeof(SpriteRenderer), new PropertyMetadata(BitmapScalingMode.Fant));
 
     public Texture2DRenderer() {
         InitializeComponent();
@@ -23,10 +24,17 @@ public sealed partial class Texture2DRenderer {
         set => SetValue(CanvasBackgroundProperty, value);
     }
 
+    public BitmapScalingMode RenderingMode {
+        get => (BitmapScalingMode) GetValue(RenderingModeProperty);
+        set => SetValue(RenderingModeProperty, value);
+    }
+
+    public BitmapScalingMode[] ScalingModes { get; } = { BitmapScalingMode.Linear, BitmapScalingMode.Fant, BitmapScalingMode.NearestNeighbor };
+
     private void Zoom(object sender, MouseWheelEventArgs e) {
         var st = (ScaleTransform) ImageView.LayoutTransform;
         var zoom = e.Delta > 0 ? .2 : -.2;
-        st.ScaleX = Math.Clamp(st.ScaleX + zoom, 0.2, 3);
+        st.ScaleX = Math.Clamp(st.ScaleX + zoom, 0.2, 10);
         st.ScaleY = 0 - st.ScaleX;
     }
 

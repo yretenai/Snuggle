@@ -168,7 +168,7 @@ public class TypeDefinitionConverter {
                 },
             };
             array.Properties.AddRange(TypeRefToObjectNodes(elementRef, "data", true));
-            nodes.Add(new ObjectNode(name, typeRef.Name, -1, align, false) {
+            nodes.Add(new ObjectNode(name, elementRef.Name, -1, align, false) {
                 Properties = new List<ObjectNode> {
                     array,
                 },
@@ -178,10 +178,11 @@ public class TypeDefinitionConverter {
         } else if (UnityEngineTypePredicates.IsSerializableUnityClass(typeRef) || UnityEngineTypePredicates.IsSerializableUnityStruct(typeRef)) {
             nodes.Add(new ObjectNode(name, typeRef.Name, -1, false, false));
         } else {
-            nodes.Add(new ObjectNode(name, typeRef.Name, -1, align, false));
+            var obj = new ObjectNode(name, typeRef.Name, -1, align, false);
             var typeDef = typeRef.Resolve();
             var typeDefinitionConverter = new TypeDefinitionConverter(typeDef);
-            nodes.AddRange(typeDefinitionConverter.ConvertToObjectNodes());
+            obj.Properties.AddRange(typeDefinitionConverter.ConvertToObjectNodes());
+            nodes.Add(obj);
         }
 
         return nodes;

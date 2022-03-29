@@ -380,6 +380,9 @@ public static class ObjectFactory {
                         }
 
                         value = dict;
+                        if (dict.Count == 1 && dict.TryGetValue("Array", out var arrayValue)) {
+                            value = arrayValue;
+                        }
                         break;
                     }
                 }
@@ -431,7 +434,15 @@ public static class ObjectFactory {
                     return null;
                 }
 
-                var (path, options) = callback.Invoke(assemblyName);
+                var (path, options) = callback.Invoke(script.AssemblyName);
+                if (string.IsNullOrEmpty(path)) {
+                    return null;
+                }
+
+                if (options == null) {
+                    return null;
+                }
+                
                 collection.LoadFile(path, options);
 
                 if (!collection.Assemblies.HasAssembly(assemblyName)) {

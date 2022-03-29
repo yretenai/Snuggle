@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
@@ -9,6 +10,7 @@ namespace Snuggle.Components.Renderers;
 
 public sealed partial class SpriteRenderer {
     public static readonly DependencyProperty CanvasBackgroundProperty = DependencyProperty.Register("CanvasBackground", typeof(Brush), typeof(SpriteRenderer), new PropertyMetadata(new SolidColorBrush(Colors.White)));
+    public static readonly DependencyProperty RenderingModeProperty = DependencyProperty.Register("RenderingMode", typeof(BitmapScalingMode), typeof(SpriteRenderer), new PropertyMetadata(BitmapScalingMode.Fant));
 
     public SpriteRenderer() {
         InitializeComponent();
@@ -23,10 +25,17 @@ public sealed partial class SpriteRenderer {
         set => SetValue(CanvasBackgroundProperty, value);
     }
 
+    public BitmapScalingMode RenderingMode {
+        get => (BitmapScalingMode) GetValue(RenderingModeProperty);
+        set => SetValue(RenderingModeProperty, value);
+    }
+
+    public BitmapScalingMode[] ScalingModes { get; } = { BitmapScalingMode.Linear, BitmapScalingMode.Fant, BitmapScalingMode.NearestNeighbor };
+
     private void Zoom(object sender, MouseWheelEventArgs e) {
         var st = (ScaleTransform) ImageView.LayoutTransform;
         var zoom = e.Delta > 0 ? .2 : -.2;
-        st.ScaleY = st.ScaleX = Math.Clamp(st.ScaleX + zoom, 0.2, 3);
+        st.ScaleY = st.ScaleX = Math.Clamp(st.ScaleX + zoom, 0.2, 10);
     }
 
     private void CapturePan(object sender, MouseButtonEventArgs e) {

@@ -9,26 +9,26 @@ public record ObjectNode(string Name, string TypeName, int Size, bool IsAligned,
     public static ObjectNode Empty { get; } = new(string.Empty, string.Empty, 0, false, false);
     public List<ObjectNode> Properties { get; init; } = new();
 
-    public static ObjectNode FromUnityTypeTree(UnityTypeTree tree) => tree.Nodes.Length == 0 ? Empty : FromUnityTypeTreeNode(tree.Nodes[0], tree.Nodes.Skip(1).ToArray());
+    public static ObjectNode FromUnityTypeTree(UnityTypeTree typeTree) => typeTree.Nodes.Length == 0 ? Empty : FromUnityTypeTreeNode(typeTree.Nodes[0], typeTree.Nodes.Skip(1).ToArray());
 
-    public static ObjectNode FromUnityTypeTreeNode(UnityTypeTreeNode node, UnityTypeTreeNode[] nodes) {
-        var objectNode = new ObjectNode(node.Name, node.Type, node.Size, node.Flags.HasFlag(UnityTypeTreeFlags.AlignValue), node.Flags.HasFlag(UnityTypeTreeFlags.Boolean));
-        for (var i = 0; i < nodes.Length; ++i) {
-            var subNode = nodes[i];
-            if (node.Level >= subNode.Level) {
+    public static ObjectNode FromUnityTypeTreeNode(UnityTypeTreeNode rootNode, UnityTypeTreeNode[] subNodes) {
+        var objectNode = new ObjectNode(rootNode.Name, rootNode.Type, rootNode.Size, rootNode.Flags.HasFlag(UnityTypeTreeFlags.AlignValue), rootNode.Flags.HasFlag(UnityTypeTreeFlags.Boolean));
+        for (var i = 0; i < subNodes.Length; ++i) {
+            var subNode = subNodes[i];
+            if (rootNode.Level >= subNode.Level) {
                 break;
             }
 
-            if (subNode.Level == node.Level + 1) {
-                objectNode.Properties.Add(FromUnityTypeTreeNode(subNode, nodes.Skip(i + 1).TakeWhile(x => x.Level > node.Level + 1).ToArray()));
+            if (subNode.Level == rootNode.Level + 1) {
+                objectNode.Properties.Add(FromUnityTypeTreeNode(subNode, subNodes.Skip(i + 1).TakeWhile(x => x.Level > rootNode.Level + 1).ToArray()));
             }
         }
 
         return objectNode;
     }
 
-    public static ObjectNode FromCecil(TypeDefinition type) {
-        var converter = new TypeDefinitionConverter(type);
+    public static ObjectNode FromCecil(TypeDefinition typeDefinition) {
+        var converter = new TypeDefinitionConverter(typeDefinition);
         var objectNode = new ObjectNode("Base", "MonoBehavior", -1, false, false) {
             Properties = new List<ObjectNode> { // these all get skipped.
                 new("m_GameObject", "PPtr<GameObject>", 12, false, false),

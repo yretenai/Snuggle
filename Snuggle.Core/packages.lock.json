@@ -47,6 +47,12 @@
         "type": "Transitive",
         "resolved": "4.5.3",
         "contentHash": "3oDzvc/zzetpTKWMShs1AADwZjQ/36HnsufHRPcOjyRAAMLDlu2iD33MBI2opxnezcVUtXyqDXXjoFMOU9c7SA=="
+      },
+      "snuggle.unitycs": {
+        "type": "Project",
+        "dependencies": {
+          "Mono.Cecil": "0.11.4"
+        }
       }
     }
   }

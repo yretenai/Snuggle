@@ -475,24 +475,16 @@
       },
       "SixLabors.Fonts": {
         "type": "Transitive",
-        "resolved": "1.0.0-beta15",
-        "contentHash": "Gk4KMoJtbsA5/bp40kIr82NpBuNPQqFVz0RcwhFDDGCwdGZrDAV2q/pq3b14eJ/kQzVYBYQZ9hc5h9jbH2rURA==",
-        "dependencies": {
-          "System.IO.Compression": "4.3.0",
-          "System.IO.UnmanagedMemoryStream": "4.3.0",
-          "System.Numerics.Vectors": "4.5.0",
-          "System.Runtime.CompilerServices.Unsafe": "4.7.0",
-          "System.Threading.Tasks.Parallel": "4.3.0",
-          "System.ValueTuple": "4.5.0"
-        }
+        "resolved": "1.0.0-beta16",
+        "contentHash": "nv2wE6mjaoLb2t+fpba3tdGftZJgYEC11uRPyGPFL3gt/WDsHfUVRqtDTUThIMo0RTt0iCckHSPp2Oc+WI3iWg=="
       },
       "SixLabors.ImageSharp.Drawing": {
         "type": "Transitive",
-        "resolved": "1.0.0-beta13",
-        "contentHash": "YvGptEWWc9o6V8NMJ99x1283pH9T50zIvckSfdGr/apbIDlI2/VuBEHuhUY5MHTqCQyeSiaAG/t2uXk3Vff/7g==",
+        "resolved": "1.0.0-beta14",
+        "contentHash": "2mFbk5s9iu8fWiWyhbMo8VwHst2cw8LACQe36Fn6hlXkUwCEkyGVvdcdtHPQru7ESSnziW47Lt7Jkoay55RBcQ==",
         "dependencies": {
-          "SixLabors.Fonts": "1.0.0-beta15",
-          "SixLabors.ImageSharp": "1.0.3"
+          "SixLabors.Fonts": "1.0.0-beta16",
+          "SixLabors.ImageSharp": "2.0.0"
         }
       },
       "System.AppContext": {
@@ -788,22 +780,6 @@
           "System.Runtime": "4.3.0"
         }
       },
-      "System.IO.UnmanagedMemoryStream": {
-        "type": "Transitive",
-        "resolved": "4.3.0",
-        "contentHash": "tS89nK7pw8ebkkEfWujA05+ZReHKzz39W+bcX1okVR0GJCJuzPyfYfQZyiLSrjp121BB5J4uewZQiUTKri2pSQ==",
-        "dependencies": {
-          "System.Buffers": "4.3.0",
-          "System.Diagnostics.Debug": "4.3.0",
-          "System.IO": "4.3.0",
-          "System.IO.FileSystem.Primitives": "4.3.0",
-          "System.Resources.ResourceManager": "4.3.0",
-          "System.Runtime": "4.3.0",
-          "System.Runtime.InteropServices": "4.3.0",
-          "System.Threading": "4.3.0",
-          "System.Threading.Tasks": "4.3.0"
-        }
-      },
       "System.Linq": {
         "type": "Transitive",
         "resolved": "4.3.0",
@@ -901,11 +877,6 @@
           "System.Runtime": "4.3.0",
           "System.Threading.Tasks": "4.3.0"
         }
-      },
-      "System.Numerics.Vectors": {
-        "type": "Transitive",
-        "resolved": "4.5.0",
-        "contentHash": "QQTlPTl06J/iiDbJCiepZ4H//BVraReU4O4EoRw1U02H5TLUIT7xn3GnDp9AXPSlJUDyFs4uWjWafNX6WrAojQ=="
       },
       "System.ObjectModel": {
         "type": "Transitive",
@@ -1381,11 +1352,6 @@
           "System.Runtime": "4.3.0"
         }
       },
-      "System.ValueTuple": {
-        "type": "Transitive",
-        "resolved": "4.5.0",
-        "contentHash": "okurQJO6NRE/apDIP23ajJ0hpiNmJ+f0BwOlB/cSqTLQlw5upkf+5+96+iG2Jw40G1fCVCyPz/FhIABUjMR+RQ=="
-      },
       "System.Xml.ReaderWriter": {
         "type": "Transitive",
         "resolved": "4.3.0",
@@ -1473,7 +1439,7 @@
         "dependencies": {
           "DirectXTexNet": "1.0.3",
           "SixLabors.ImageSharp": "2.1.0",
-          "SixLabors.ImageSharp.Drawing": "1.0.0-beta13",
+          "SixLabors.ImageSharp.Drawing": "1.0.0-beta14",
           "Snuggle.Core": "1.0.0",
           "Snuggle.Native": "1.0.0",
           "Snuggle.glTF": "1.0.0"
@@ -1485,7 +1451,8 @@
           "DragonLib": "2.0.0",
           "K4os.Compression.LZ4.Streams": "1.2.16",
           "Mono.Cecil": "0.11.4",
-          "SevenZip": "19.0.0"
+          "SevenZip": "19.0.0",
+          "Snuggle.UnityCs": "1.0.0"
         }
       },
       "snuggle.gltf": {
@@ -1493,6 +1460,12 @@
       },
       "snuggle.native": {
         "type": "Project"
+      },
+      "snuggle.unitycs": {
+        "type": "Project",
+        "dependencies": {
+          "Mono.Cecil": "0.11.4"
+        }
       }
     }
   }

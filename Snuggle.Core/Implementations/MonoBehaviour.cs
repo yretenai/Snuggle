@@ -80,7 +80,17 @@ public class MonoBehaviour : Behaviour {
 
     public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Script, Name, Data);
 
-    public override string ToString() => string.IsNullOrEmpty(Name) ? base.ToString() : Name;
+    public override string ToString() {
+        if (!string.IsNullOrEmpty(Name)) {
+            return Name;
+        }
+
+        if (Script.Value != null) {
+            return Script.Value.ToString();
+        }
+
+        return base.ToString();
+    }
 
     public override void Free() {
         if (IsMutated) {

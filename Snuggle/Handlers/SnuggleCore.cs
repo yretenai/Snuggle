@@ -13,6 +13,7 @@ using System.Windows;
 using System.Windows.Threading;
 using AdonisUI;
 using DragonLib;
+using Microsoft.WindowsAPICodePack.Dialogs;
 using Snuggle.Components;
 using Snuggle.Converters;
 using Snuggle.Core;
@@ -35,6 +36,7 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
         WorkerThread.Start();
         LogTarget = new MultiLogger { Loggers = { new ConsoleLogger(), new DebugLogger(), ((App) Application.Current).Log } };
         SetOptions(File.Exists(SettingsFile) ? SnuggleOptions.FromJson(File.ReadAllText(SettingsFile)) : SnuggleOptions.Default);
+        RegisterHandlers();
         ResourceLocator.SetColorScheme(Application.Current.Resources, Settings.LightMode ? ResourceLocator.LightColorScheme : ResourceLocator.DarkColorScheme);
     }
 
@@ -239,6 +241,29 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
     public void SetOptions(UnityGame game, IUnityGameOptions options) {
         Settings.Options.GameOptions.SetOptions(game, options);
         SaveOptions();
+    }
+
+    private void RegisterHandlers() {
+        Settings.ObjectOptions.RequestAssemblyCallback = RequestAssembly;
+    }
+
+    private (string? Path, SnuggleCoreOptions? Options) RequestAssembly(string assemblyName) {
+        if (!OperatingSystem.IsWindows()) {
+            return (null, null);
+        }
+        
+        using var selection = new CommonOpenFileDialog {
+            IsFolderPicker = false,
+            Multiselect = false,
+            DefaultFileName = assemblyName,
+            AllowNonFileSystemItems = false,
+            InitialDirectory = Path.GetDirectoryName(Settings.RecentFiles.LastOrDefault()),
+            Title = "Select Assembly",
+            ShowPlacesList = true,
+        };
+        selection.Filters.Add(new CommonFileDialogFilter("Assembly", "*.dll"));
+
+        return selection.ShowDialog() != CommonFileDialogResult.Ok ? (null, null) : (selection.FileName, Settings.Options);
     }
 
     public void FreeMemory() {

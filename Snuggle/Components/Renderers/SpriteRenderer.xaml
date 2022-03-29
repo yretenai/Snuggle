@@ -13,6 +13,7 @@
              SnapsToDevicePixels="False">
     <UserControl.Resources>
         <converters:SpriteToBitmapConverter x:Key="BitmapConverter" />
+        <converters:ScalingModeToText x:Key="ScalingModeToText"/>
     </UserControl.Resources>
     <Grid DataContext="{Binding Converter={StaticResource BitmapConverter}, Mode=OneWay}">
         <Grid.RowDefinitions>
@@ -24,7 +25,7 @@
                 <Image Width="{Binding Result.Width}" Height="{Binding Result.Height}" MouseWheel="Zoom"
                        MouseLeftButtonDown="CapturePan" MouseMove="Pan" MouseLeftButtonUp="ReleasePan"
                        Source="{Binding Path=Result}" HorizontalAlignment="Left" VerticalAlignment="Top" Stretch="Fill"
-                       x:Name="ImageView">
+                       x:Name="ImageView" RenderOptions.BitmapScalingMode="{Binding RenderingMode, ElementName=Renderer}">
                     <Image.LayoutTransform>
                         <ScaleTransform ScaleX="1" ScaleY="1" />
                     </Image.LayoutTransform>
@@ -49,6 +50,14 @@
                 <ToggleButton Margin="7.5,0" IsChecked="True" Click="ToggleColor" x:Name="Green">G</ToggleButton>
                 <ToggleButton Margin="7.5,0" IsChecked="True" Click="ToggleColor" x:Name="Blue">B</ToggleButton>
                 <ToggleButton Margin="7.5,0" IsChecked="True" Click="ToggleColor" x:Name="Alpha">A</ToggleButton>
+                <ComboBox Margin="7.5, 0" SelectedItem="{Binding RenderingMode, ElementName=Renderer, Mode=TwoWay}" 
+                          ItemsSource="{Binding ScalingModes, ElementName=Renderer, Mode=OneWay}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Converter={StaticResource ScalingModeToText}}"/>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
             </StackPanel>
         </Grid>
     </Grid>

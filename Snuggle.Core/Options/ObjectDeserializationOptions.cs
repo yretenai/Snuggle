@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace Snuggle.Core.Options;
 
-public delegate (string Path, SnuggleCoreOptions Options) RequestAssemblyPath(string assemblyName);
+public delegate (string? Path, SnuggleCoreOptions? Options) RequestAssemblyPath(string assemblyName);
 
 public record ObjectDeserializationOptions {
     private const int LatestVersion = 1;
