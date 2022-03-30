@@ -399,6 +399,7 @@ public static class ObjectFactory {
             }
         } catch (Exception e) {
             file.Options.Logger.Error("Object", $"Failed deserializing field {node}", e);
+            throw;
         }
 
         if (node.Size > 0) {
