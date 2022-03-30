@@ -12,6 +12,8 @@ using Snuggle.Core.Interfaces;
 using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
 using Snuggle.Core.Models;
+using Snuggle.Core.Models.Objects.Animation;
+using Snuggle.Core.Models.Objects.Graphics;
 using Snuggle.Core.Models.Objects.Math;
 using Snuggle.Core.Models.Serialization;
 using Snuggle.Core.Options;
@@ -275,16 +277,18 @@ public static class ObjectFactory {
                         break;
                     }
                     case "animationcurve": {
-                        // todo(naomi): value = reader.ReadStruct<AnimationCurve>();
-                        throw new NotImplementedException();
+                        value = AnimationCurve<float>.FromReader(reader, file);
+                        break;
+
+                        ;
                     }
                     case "gradient": {
-                        // todo(naomi): value = reader.ReadStruct<Gradient>();
-                        throw new NotImplementedException();
+                        value = Gradient.FromReader(reader, file);
+                        break;
                     }
                     case "guistyle": {
-                        // todo(naomi): value = reader.ReadStruct<GUIStyle>();
-                        throw new NotImplementedException();
+                        value = GUIStyle.FromReader(reader, file);
+                        break;
                     }
                     case "rectoffset": {
                         value = reader.ReadStruct<RectOffset>();
@@ -388,11 +392,12 @@ public static class ObjectFactory {
                         if (dict.Count == 1 && dict.TryGetValue("Array", out var arrayValue)) {
                             value = arrayValue;
                         }
+
                         break;
                     }
                 }
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             file.Options.Logger.Error("Object", $"Failed deserializing field {node}", e);
         }
 
@@ -447,7 +452,7 @@ public static class ObjectFactory {
                 if (options == null) {
                     return null;
                 }
-                
+
                 collection.LoadFile(path, options);
 
                 if (!collection.Assemblies.HasAssembly(assemblyName)) {

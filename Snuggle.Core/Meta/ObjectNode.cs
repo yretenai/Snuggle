@@ -28,7 +28,7 @@ public record ObjectNode(string Name, string TypeName, int Size, bool IsAligned,
     }
 
     public static ObjectNode FromCecil(TypeDefinition typeDefinition) {
-        var converter = new TypeDefinitionConverter(typeDefinition);
+        var converter = new TypeDefinitionConverter(typeDefinition, typeDefinition);
         var objectNode = new ObjectNode("Base", "MonoBehavior", -1, false, false, false, null) {
             Properties = new List<ObjectNode> { // these all get skipped.
                 new("m_GameObject", "PPtr<GameObject>", 12, false, false, false, null),

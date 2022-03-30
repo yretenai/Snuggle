@@ -557,8 +557,11 @@ namespace Unity.SerializationLogic
             return UnityEngineTypePredicates.IsUnityEngineObject(typeReference);
         }
 
-        public static bool IsNonSerialized(TypeReference typeDeclaration)
-        {
+        public static bool IsNonSerialized(TypeReference typeDeclaration) {
+            if (IsCallbackReceiver(typeDeclaration)) {
+                return false;
+            }
+            
             if (typeDeclaration == null)
                 return true;
             if (typeDeclaration.HasGenericParameters)
@@ -577,6 +580,10 @@ namespace Unity.SerializationLogic
             if (typeDeclaration.IsEnum())
                 return true;
             return false;
+        }
+
+        private static bool IsCallbackReceiver(TypeReference typeDeclaration) {
+            return CecilUtils.AllInterfacesImplementedBy(typeDeclaration.CheckedResolve()).Any(x => x.FullName == "UnityEngine.ISerializationCallbackReceiver");
         }
 
         public static bool ShouldImplementIDeserializable(TypeReference typeDeclaration)

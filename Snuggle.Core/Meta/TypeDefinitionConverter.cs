@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Mono.Cecil;
+using Mono.Cecil.Rocks;
 using Unity.CecilTools;
 using Unity.CecilTools.Extensions;
 using Unity.SerializationLogic;
@@ -10,10 +11,12 @@ namespace Snuggle.Core.Meta;
 
 public class TypeDefinitionConverter {
     private readonly TypeDefinition TypeDef;
+    private readonly TypeReference TypeRef;
     private readonly TypeResolver TypeResolver;
 
-    public TypeDefinitionConverter(TypeDefinition typeDef) {
+    public TypeDefinitionConverter(TypeDefinition typeDef, TypeReference typeRef) {
         TypeDef = typeDef;
+        TypeRef = typeRef;
         TypeResolver = new TypeResolver(null);
     }
 
@@ -53,7 +56,35 @@ public class TypeDefinitionConverter {
     }
 
     private bool WillUnitySerialize(FieldDefinition fieldDefinition) {
-        var resolvedFieldType = TypeResolver.Resolve(fieldDefinition.FieldType);
+        var resolvedFieldType = default(TypeReference);
+        if (TypeRef is GenericInstanceType genericInstanceType) {
+            if (fieldDefinition.FieldType.IsGenericParameter) {
+                var genericIndex = TypeDef.GenericParameters.Select((x, i) => (x, i)).FirstOrDefault(x => x.x.Name == fieldDefinition.FieldType.Name).i;
+                resolvedFieldType = genericInstanceType.GenericArguments.ElementAtOrDefault(genericIndex);
+                fieldDefinition.FieldType = resolvedFieldType;
+            }
+
+            if (fieldDefinition.FieldType is GenericInstanceType { ContainsGenericParameter: true } fieldGenericInstanceType) {
+                var genericTypes = TypeDef.GenericParameters.Select((x, i) => (x.Name, i)).ToDictionary(x => x.Item1, x => x.i);
+                var generics = new TypeReference[fieldGenericInstanceType.GenericArguments.Count];
+                for (var index = 0; index < fieldGenericInstanceType.GenericArguments.Count; index++) {
+                    var genericArgument = fieldGenericInstanceType.GenericArguments[index];
+                    if (genericArgument.DeclaringType.Resolve() == TypeDef && genericTypes.TryGetValue(genericArgument.Name, out var genericIndex)) {
+                        generics[index] = genericInstanceType.GenericArguments[genericIndex];
+                    } else {
+                        generics[index] = genericArgument;
+                    }
+                }
+
+                var baseType = fieldGenericInstanceType.GetElementType();
+                var fixedType = baseType.MakeGenericInstanceType(generics);
+                resolvedFieldType = TypeResolver.Resolve(fixedType);
+                fieldDefinition.FieldType = resolvedFieldType;
+            }
+        }
+
+        resolvedFieldType ??= TypeResolver.Resolve(fieldDefinition.FieldType);
+
         if (UnitySerializationLogic.ShouldNotTryToResolve(resolvedFieldType)) {
             return false;
         }
@@ -181,7 +212,7 @@ public class TypeDefinitionConverter {
         } else {
             var obj = new ObjectNode(name, $"${typeRef.FullName}", -1, align, false, false, null);
             var typeDef = typeRef.Resolve();
-            var typeDefinitionConverter = new TypeDefinitionConverter(typeDef);
+            var typeDefinitionConverter = new TypeDefinitionConverter(typeDef, typeRef);
             obj.Properties.AddRange(typeDefinitionConverter.ConvertToObjectNodes());
             nodes.Add(obj);
         }

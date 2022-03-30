@@ -12,6 +12,7 @@ using Snuggle.Core.Implementations;
 using Snuggle.Core.Interfaces;
 using Snuggle.Core.Logging;
 using Snuggle.Core.Meta;
+using Snuggle.Core.Models;
 using Snuggle.Core.Options;
 using Snuggle.Headless.GameFlags;
 
@@ -41,7 +42,12 @@ public static class Program {
             return 1;
         }
 
-        ILogger logger = ConsoleLogger.Instance;
+        ILogger logger = new MultiLogger {
+            Loggers = new List<ILogger> {
+                ConsoleLogger.Instance,
+                FileLogger.Create(Assembly.GetExecutingAssembly(), "Snuggle.Headless"),
+            },
+        };
 
         logger.Debug("System", flags.ToString());
         logger.Debug("System", $"Args: {string.Join(' ', Environment.GetCommandLineArgs()[1..])}");
@@ -76,6 +82,17 @@ public static class Program {
         }
 
         var collection = new AssetCollection();
+
+        if (flags.ExclusiveClassIds.Any()) {
+            foreach (var classId in Enum.GetNames<UnityClassId>()) {
+                if (flags.ExclusiveClassIds.Contains(classId)) {
+                    continue;
+                }
+
+                flags.IgnoreClassIds.Add(classId);
+            }
+        }
+
         var options = SnuggleCoreOptions.Default with { Game = flags.Game, Logger = logger, CacheDataIfLZMA = true, IgnoreClassIds = flags.IgnoreClassIds };
         if (options.Game is not UnityGame.Default && gameFlags != default) {
             options.GameOptions.StorageMap[options.Game] = JsonSerializer.SerializeToElement(gameFlags.ToOptions(), SnuggleCoreOptions.JsonOptions);
@@ -107,6 +124,10 @@ public static class Program {
 
             if (flags.OnlyCAB && string.IsNullOrWhiteSpace(asset.ObjectContainerPath)) {
                 continue;
+            }
+
+            if (flags.DataOnly) {
+                ConvertCore.ConvertObject(flags, logger, asset);
             }
 
             try {
@@ -149,6 +170,10 @@ public static class Program {
                         break;
                     case MonoBehaviour monoBehaviour when !flags.NoScript:
                         if (flags.ScriptFilters.Any() && (monoBehaviour.Script.Value == null || !flags.ScriptFilters.Any(x => x.IsMatch(monoBehaviour.Script.Value.ObjectComparableName)))) {
+                            continue;
+                        }
+
+                        if (flags.AssemblyFilters.Any() && (monoBehaviour.Script.Value == null || !flags.AssemblyFilters.Any(x => x.IsMatch(monoBehaviour.Script.Value.AssemblyName)))) {
                             continue;
                         }
 

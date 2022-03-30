@@ -43,10 +43,13 @@ public record SnuggleFlags : ICLIFlags {
     [CLIFlag("no-script", Aliases = new[] { "B" }, Category = "General Options", Default = false, Help = "Do not export MonoBehaviour data")]
     public bool NoScript { get; set; }
 
-    [CLIFlag("dont-scan-up", Category = "General Options", Default = false, Help = "Do not scan for game object hierarchy ancestors.")]
+    [CLIFlag("data", Category = "General Options", Default = false, Help = "Do not convert, export serialization data instead")]
+    public bool DataOnly { get; set; }
+
+    [CLIFlag("dont-scan-up", Category = "General Options", Default = false, Help = "Do not scan for game object hierarchy ancestors")]
     public bool NoGameObjectHierarchyUp { get; set; }
 
-    [CLIFlag("dont-scan-down", Category = "General Options", Default = false, Help = "Do not scan for game object hierarchy descendants.")]
+    [CLIFlag("dont-scan-down", Category = "General Options", Default = false, Help = "Do not scan for game object hierarchy descendants")]
     public bool NoGameObjectHierarchyDown { get; set; }
 
     [CLIFlag("dds", Category = "General Options", Default = false, Help = "Export textures to DDS when possible, otherwise use PNG")]
@@ -91,6 +94,9 @@ public record SnuggleFlags : ICLIFlags {
     [CLIFlag("script", Category = "General Options", Help = "Script Class Filters", Extra = RegexOptions.CultureInvariant | RegexOptions.Compiled)]
     public List<Regex> ScriptFilters { get; set; } = null!;
 
+    [CLIFlag("assembly", Category = "General Options", Help = "Script Assembly Filters", Extra = RegexOptions.CultureInvariant | RegexOptions.Compiled)]
+    public List<Regex> AssemblyFilters { get; set; } = null!;
+
     [CLIFlag("id", Category = "General Options", Help = "Path ID Filters")]
     public List<long> PathIdFilters { get; set; } = null!;
 
@@ -100,8 +106,11 @@ public record SnuggleFlags : ICLIFlags {
     [CLIFlag("paths", Category = "General Options", Positional = 0, Help = "Paths to load", IsRequired = true)]
     public List<string> Paths { get; set; } = null!;
 
-    [CLIFlag("ignore", Category = "General Options", Positional = 0, Help = "ClassIds to Ignore", IsRequired = true)]
+    [CLIFlag("ignore", Category = "General Options", Help = "ClassIds to Ignore")]
     public HashSet<string> IgnoreClassIds { get; set; } = null!;
+
+    [CLIFlag("exclusive", Category = "General Options", Help = "ClassIds to deserialize")]
+    public HashSet<string> ExclusiveClassIds { get; set; } = null!;
 
     [CLIFlag("keepxpos", Category = "General Options", Default = false, Help = "Do not mirror mesh X position")]
     public bool KeepXPos { get; set; }
@@ -114,42 +123,45 @@ public record SnuggleFlags : ICLIFlags {
 
     public override string ToString() {
         var sb = new StringBuilder();
-        sb.Append($"{nameof(SnuggleFlags)} {{ ");
-        sb.Append($"{nameof(NoMesh)} = {(NoMesh ? "True" : "False")}, ");
-        sb.Append($"{nameof(NoSkinnedMesh)} = {(NoSkinnedMesh ? "True" : "False")}, ");
-        sb.Append($"{nameof(NoGameObject)} = {(NoGameObject ? "True" : "False")}, ");
-        sb.Append($"{nameof(NoTexture)} = {(NoTexture ? "True" : "False")}, ");
-        sb.Append($"{nameof(NoText)} = {(NoText ? "True" : "False")}, ");
-        sb.Append($"{nameof(NoSprite)} = {(NoSprite ? "True" : "False")}, ");
-        sb.Append($"{nameof(NoAudio)} = {(NoAudio ? "True" : "False")}, ");
-        sb.Append($"{nameof(NoMaterials)} = {(NoMaterials ? "True" : "False")}, ");
-        sb.Append($"{nameof(NoVertexColor)} = {(NoVertexColor ? "True" : "False")}, ");
-        sb.Append($"{nameof(NoMorphs)} = {(NoMorphs ? "True" : "False")}, ");
-        sb.Append($"{nameof(NoScript)} = {(NoScript ? "True" : "False")}, ");
-        sb.Append($"{nameof(NoGameObjectHierarchyUp)} = {(NoGameObjectHierarchyUp ? "True" : "False")}, ");
-        sb.Append($"{nameof(NoGameObjectHierarchyDown)} = {(NoGameObjectHierarchyDown ? "True" : "False")}, ");
-        sb.Append($"{nameof(WriteNativeTextures)} = {(WriteNativeTextures ? "True" : "False")}, ");
-        sb.Append($"{nameof(UseDirectXTex)} = {(UseDirectXTex ? "True" : "False")}, ");
-        sb.Append($"{nameof(WriteNativeAudio)} = {(WriteNativeAudio ? "True" : "False")}, ");
-        sb.Append($"{nameof(LowMemory)} = {(LowMemory ? "True" : "False")}, ");
-        sb.Append($"{nameof(LooseMeshes)} = {(LooseMeshes ? "True" : "False")}, ");
-        sb.Append($"{nameof(LooseMaterials)} = {(LooseMaterials ? "True" : "False")}, ");
-        sb.Append($"{nameof(LooseTextures)} = {(LooseTextures ? "True" : "False")}, ");
-        sb.Append($"{nameof(Recursive)} = {(Recursive ? "True" : "False")}, ");
-        sb.Append($"{nameof(Game)} = {Game:G}, ");
-        sb.Append($"{nameof(OutputFormat)} = {OutputFormat}, ");
-        sb.Append($"{nameof(ContainerlessOutputFormat)} = {ContainerlessOutputFormat ?? "null"}, ");
-        sb.Append($"{nameof(OutputPath)} = {OutputPath}, ");
-        sb.Append($"{nameof(NameFilters)} = [{string.Join(", ", NameFilters.Select(x => x.ToString()))}], ");
-        sb.Append($"{nameof(ScriptFilters)} = [{string.Join(", ", ScriptFilters.Select(x => x.ToString()))}], ");
-        sb.Append($"{nameof(PathIdFilters)} = [{string.Join(", ", PathIdFilters.Select(x => x.ToString()))}], ");
-        sb.Append($"{nameof(OnlyCAB)} = {(OnlyCAB ? "True" : "False")}, ");
-        sb.Append($"{nameof(Paths)} = [{string.Join(", ", Paths)}], ");
-        sb.Append($"{nameof(IgnoreClassIds)} = [{string.Join(", ", IgnoreClassIds)}], ");
-        sb.Append($"{nameof(KeepXPos)} = {(KeepXPos ? "True" : "False")}, ");
-        sb.Append($"{nameof(KeepXNorm)} = {(KeepXNorm ? "True" : "False")}, ");
-        sb.Append($"{nameof(KeepXTan)} = {(KeepXTan ? "True" : "False")}, ");
-        sb.Append(" }");
+        sb.AppendLine($"{nameof(SnuggleFlags)} {{");
+        sb.AppendLine($"  {nameof(NoMesh)} = {(NoMesh ? "True" : "False")},");
+        sb.AppendLine($"  {nameof(NoSkinnedMesh)} = {(NoSkinnedMesh ? "True" : "False")},");
+        sb.AppendLine($"  {nameof(NoGameObject)} = {(NoGameObject ? "True" : "False")},");
+        sb.AppendLine($"  {nameof(NoTexture)} = {(NoTexture ? "True" : "False")},");
+        sb.AppendLine($"  {nameof(NoText)} = {(NoText ? "True" : "False")},");
+        sb.AppendLine($"  {nameof(NoSprite)} = {(NoSprite ? "True" : "False")},");
+        sb.AppendLine($"  {nameof(NoAudio)} = {(NoAudio ? "True" : "False")},");
+        sb.AppendLine($"  {nameof(NoMaterials)} = {(NoMaterials ? "True" : "False")},");
+        sb.AppendLine($"  {nameof(NoVertexColor)} = {(NoVertexColor ? "True" : "False")},");
+        sb.AppendLine($"  {nameof(NoMorphs)} = {(NoMorphs ? "True" : "False")},");
+        sb.AppendLine($"  {nameof(NoScript)} = {(NoScript ? "True" : "False")},");
+        sb.AppendLine($"  {nameof(DataOnly)} = {(DataOnly ? "True" : "False")},");
+        sb.AppendLine($"  {nameof(NoGameObjectHierarchyUp)} = {(NoGameObjectHierarchyUp ? "True" : "False")},");
+        sb.AppendLine($"  {nameof(NoGameObjectHierarchyDown)} = {(NoGameObjectHierarchyDown ? "True" : "False")},");
+        sb.AppendLine($"  {nameof(WriteNativeTextures)} = {(WriteNativeTextures ? "True" : "False")},");
+        sb.AppendLine($"  {nameof(UseDirectXTex)} = {(UseDirectXTex ? "True" : "False")},");
+        sb.AppendLine($"  {nameof(WriteNativeAudio)} = {(WriteNativeAudio ? "True" : "False")},");
+        sb.AppendLine($"  {nameof(LowMemory)} = {(LowMemory ? "True" : "False")},");
+        sb.AppendLine($"  {nameof(LooseMeshes)} = {(LooseMeshes ? "True" : "False")},");
+        sb.AppendLine($"  {nameof(LooseMaterials)} = {(LooseMaterials ? "True" : "False")},");
+        sb.AppendLine($"  {nameof(LooseTextures)} = {(LooseTextures ? "True" : "False")},");
+        sb.AppendLine($"  {nameof(Recursive)} = {(Recursive ? "True" : "False")},");
+        sb.AppendLine($"  {nameof(Game)} = {Game:G},");
+        sb.AppendLine($"  {nameof(OutputFormat)} = {OutputFormat},");
+        sb.AppendLine($"  {nameof(ContainerlessOutputFormat)} = {ContainerlessOutputFormat ?? "null"},");
+        sb.AppendLine($"  {nameof(OutputPath)} = {OutputPath},");
+        sb.AppendLine($"  {nameof(NameFilters)} = [{string.Join(", ", NameFilters.Select(x => x.ToString()))}],");
+        sb.AppendLine($"  {nameof(ScriptFilters)} = [{string.Join(", ", ScriptFilters.Select(x => x.ToString()))}],");
+        sb.AppendLine($"  {nameof(AssemblyFilters)} = [{string.Join(", ", AssemblyFilters.Select(x => x.ToString()))}],");
+        sb.AppendLine($"  {nameof(PathIdFilters)} = [{string.Join(", ", PathIdFilters.Select(x => x.ToString()))}],");
+        sb.AppendLine($"  {nameof(OnlyCAB)} = {(OnlyCAB ? "True" : "False")},");
+        sb.AppendLine($"  {nameof(Paths)} = [{string.Join(", ", Paths)}],");
+        sb.AppendLine($"  {nameof(IgnoreClassIds)} = [{string.Join(", ", IgnoreClassIds)}],");
+        sb.AppendLine($"  {nameof(ExclusiveClassIds)} = [{string.Join(", ", ExclusiveClassIds)}],");
+        sb.AppendLine($"  {nameof(KeepXPos)} = {(KeepXPos ? "True" : "False")},");
+        sb.AppendLine($"  {nameof(KeepXNorm)} = {(KeepXNorm ? "True" : "False")},");
+        sb.AppendLine($"  {nameof(KeepXTan)} = {(KeepXTan ? "True" : "False")}");
+        sb.Append('}');
         return sb.ToString();
     }
 }

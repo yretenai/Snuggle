@@ -26,6 +26,5 @@ public static partial class ConvertCore {
         monoBehaviour.Deserialize(ObjectDeserializationOptions.Default);
 
         File.WriteAllBytes(fullPath, JsonSerializer.SerializeToUtf8Bytes(monoBehaviour, SnuggleCoreOptions.JsonOptions));
-        logger.Info("IO", $"Saved {path}");
     }
 }

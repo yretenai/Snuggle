@@ -1,11 +1,9 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Threading;
-using DragonLib;
 using Snuggle.Core.Logging;
 using Snuggle.Core.Meta;
 using Snuggle.Handlers;
@@ -20,14 +18,7 @@ public partial class App {
 
     public App() {
         InitializeComponent();
-        var logFile = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? "./", "Log", $"SnuggleLog_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds():D}.log");
-        logFile.EnsureDirectoryExists();
-        Log = new FileLogger(new FileStream(logFile, FileMode.Create));
-        Log.Log(LogLevel.Debug, "System", $"(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧ {SnuggleCore.GetVersion()}", null);
-        Log.Log(LogLevel.Debug, "System", $"net{Environment.Version.ToString()}", null);
-        Log.Log(LogLevel.Debug, "System", $"{Environment.OSVersion}", null);
-        Log.Log(LogLevel.Debug, "System", $"64-bit? {(Environment.Is64BitOperatingSystem ? "yes" : "no")}", null);
-
+        Log = FileLogger.Create(Assembly.GetExecutingAssembly(), SnuggleCore.BaseTitle);
         AppDomain.CurrentDomain.UnhandledException += Crash;
         AppDomain.CurrentDomain.ProcessExit += Cleanup;
     }

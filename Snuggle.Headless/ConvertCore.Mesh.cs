@@ -41,6 +41,5 @@ public static partial class ConvertCore {
                 MirrorXNormal = !flags.KeepXNorm,
                 MirrorXTangent = !flags.KeepXTan,
             });
-        logger.Info("IO", $"Saved {path}");
     }
 }

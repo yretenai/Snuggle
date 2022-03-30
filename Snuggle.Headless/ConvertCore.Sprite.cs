@@ -23,7 +23,5 @@ public static partial class ConvertCore {
         var image = Image.WrapMemory<Rgba32>(data, width, height);
 
         image.SaveAsPng(fullPath);
-
-        logger.Info("IO", $"Saved {path}");
     }
 }

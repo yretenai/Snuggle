@@ -69,7 +69,7 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
         }
     }
 
-    private const string BaseTitle = "Snuggle";
+    internal const string BaseTitle = "Snuggle";
     private string SettingsFile { get; }
 
 #if DEBUG
@@ -251,7 +251,7 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
         if (!OperatingSystem.IsWindows()) {
             return (null, null);
         }
-        
+
         using var selection = new CommonOpenFileDialog {
             IsFolderPicker = false,
             Multiselect = false,
@@ -270,17 +270,12 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
         foreach (var (_, file) in Collection.Files) {
             file.Free();
         }
-        
+
         Collection.ClearCaches();
 
         SnuggleTextureFile.ClearMemory();
         SnuggleSpriteFile.ClearMemory();
 
         AssetCollection.Collect();
-    }
-
-    public static string GetVersion() {
-        var pv = FileVersionInfo.GetVersionInfo(typeof(Bundle).Assembly.Location).ProductVersion;
-        return pv?.Contains('+') == true ? $"{BaseTitle} {pv.Split('+', StringSplitOptions.TrimEntries).Last()}" : string.Empty;
     }
 }

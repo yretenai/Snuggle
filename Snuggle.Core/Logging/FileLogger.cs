@@ -1,6 +1,10 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Text;
+using DragonLib;
 using Snuggle.Core.Interfaces;
 using Snuggle.Core.Meta;
 
@@ -33,5 +37,18 @@ public sealed class FileLogger : ILogger {
 
     ~FileLogger() {
         Dispose();
+    }
+
+    public static FileLogger Create(Assembly assembly, string title) {
+        var logFile = Path.Combine(Path.GetDirectoryName(assembly.Location) ?? "./", "Log", $"SnuggleLog_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds():D}.log");
+        logFile.EnsureDirectoryExists();
+        var log = new FileLogger(new FileStream(logFile, FileMode.Create));
+        var pv = FileVersionInfo.GetVersionInfo(typeof(Bundle).Assembly.Location).ProductVersion;
+        var version = pv?.Contains('+') == true ? pv.Split('+', StringSplitOptions.TrimEntries).Last() : string.Empty;
+        log.Log(LogLevel.Debug, "System", $"(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧ {title} {version}".Trim(), null);
+        log.Log(LogLevel.Debug, "System", $"net{Environment.Version.ToString()}", null);
+        log.Log(LogLevel.Debug, "System", $"{Environment.OSVersion}", null);
+        log.Log(LogLevel.Debug, "System", $"64-bit? {(Environment.Is64BitOperatingSystem ? "yes" : "no")}", null);
+        return log;
     }
 }
