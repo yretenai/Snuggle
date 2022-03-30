@@ -5,7 +5,6 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:implementations="clr-namespace:Snuggle.Core.Implementations;assembly=Snuggle.Core"
              xmlns:converters="clr-namespace:Snuggle.Converters"
-             xmlns:system="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300"
              d:DataContext="{d:DesignInstance implementations:Texture2D}"

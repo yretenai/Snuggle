@@ -9,7 +9,7 @@ namespace Snuggle.Components.Renderers;
 
 public sealed partial class Texture2DRenderer {
     public static readonly DependencyProperty CanvasBackgroundProperty = DependencyProperty.Register("CanvasBackground", typeof(Brush), typeof(Texture2DRenderer), new PropertyMetadata(new SolidColorBrush(Colors.White)));
-    public static readonly DependencyProperty RenderingModeProperty = DependencyProperty.Register("RenderingMode", typeof(BitmapScalingMode), typeof(SpriteRenderer), new PropertyMetadata(BitmapScalingMode.Fant));
+    public static readonly DependencyProperty RenderingModeProperty = DependencyProperty.Register("RenderingMode", typeof(BitmapScalingMode), typeof(Texture2DRenderer), new PropertyMetadata(BitmapScalingMode.Fant));
 
     public Texture2DRenderer() {
         InitializeComponent();

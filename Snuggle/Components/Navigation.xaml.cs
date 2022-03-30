@@ -243,23 +243,38 @@ public partial class Navigation {
     }
 
     private void PopulateRecentItems() {
-        var instance = SnuggleCore.Instance;
-        RecentItems.Items.Clear();
-        foreach (var item in instance.Settings.RecentFiles.Select(recentFile => new MenuItem { Tag = recentFile, Header = "_" + recentFile })) {
-            item.Click += LoadDirectoryOrFile;
-            RecentItems.Items.Add(item);
-        }
+        try {
+            var instance = SnuggleCore.Instance;
+            RecentItems.Items.Clear();
+            foreach (var item in instance.Settings.RecentFiles.Select(recentFile => new MenuItem { IsEnabled = File.Exists(recentFile), Tag = recentFile, Header = "_" + recentFile })) {
+                item.Click += LoadDirectoryOrFile;
+                RecentItems.Items.Add(item);
+            }
 
-        if (!RecentItems.Items.IsEmpty && instance.Settings.RecentDirectories.Count > 0) {
+            if (!RecentItems.Items.IsEmpty && instance.Settings.RecentDirectories.Count > 0) {
+                RecentItems.Items.Add(new Separator());
+            }
+
+            foreach (var item in instance.Settings.RecentDirectories.Select(recentDirectory => new MenuItem { IsEnabled = Directory.Exists(recentDirectory), Tag = recentDirectory, Header = "_" + recentDirectory })) {
+                item.Click += LoadDirectoryOrFile;
+                RecentItems.Items.Add(item);
+            }
+
+            if (RecentItems.Items.IsEmpty) {
+                return;
+            }
+
             RecentItems.Items.Add(new Separator());
+            var clear = new MenuItem { Header = "Clear Recent Items" };
+            clear.Click += ClearRecentValues;
+            RecentItems.Items.Add(clear);
+        } finally {
+            RecentItems.Visibility = RecentItems.Items.IsEmpty ? Visibility.Collapsed : Visibility.Visible;
         }
+    }
 
-        foreach (var item in instance.Settings.RecentDirectories.Select(recentDirectory => new MenuItem { Tag = recentDirectory, Header = "_" + recentDirectory })) {
-            item.Click += LoadDirectoryOrFile;
-            RecentItems.Items.Add(item);
-        }
-
-        RecentItems.Visibility = RecentItems.Items.IsEmpty ? Visibility.Collapsed : Visibility.Visible;
+    private static void ClearRecentValues(object sender, RoutedEventArgs e) {
+        SnuggleCore.Instance.SetOptions(SnuggleCore.Instance.Settings with { RecentFiles = new List<string>(), RecentDirectories = new List<string>()});
     }
 
     private static void ToggleFilter(object sender, RoutedEventArgs e) {
