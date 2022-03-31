@@ -128,6 +128,7 @@ public static class Program {
 
             if (flags.DataOnly) {
                 ConvertCore.ConvertObject(flags, logger, asset);
+                continue;
             }
 
             try {

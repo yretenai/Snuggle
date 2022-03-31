@@ -249,14 +249,15 @@ namespace Unity.SerializationLogic
             // Resolving types is more complex and slower than checking their names or attributes,
             // thus keep those checks below
             var typeReference = typeResolver.Resolve(fieldDefinition.FieldType);
+            var typeDefinition = typeReference.Resolve();
 
             //the type of the field must be serializable in the first place.
 
-            if (typeReference.MetadataType == MetadataType.String)
+            if (typeDefinition.MetadataType == MetadataType.String)
                 return true;
 
-            if (typeReference.IsValueType)
-                return IsValueTypeSerializable(typeReference);
+            if (typeDefinition.IsValueType)
+                return IsValueTypeSerializable(typeDefinition);
 
             if (typeReference is ArrayType || CecilUtils.IsGenericList(typeReference))
             {
@@ -265,10 +266,10 @@ namespace Unity.SerializationLogic
             }
 
 
-            if (!IsReferenceTypeSerializable(typeReference) && !HasSerializeReferenceAttribute(fieldDefinition))
+            if (!IsReferenceTypeSerializable(typeDefinition) && !HasSerializeReferenceAttribute(fieldDefinition))
                 return false;
 
-            if (IsDelegate(typeReference))
+            if (IsDelegate(typeDefinition))
                 return false;
 
             return true;
@@ -439,11 +440,12 @@ namespace Unity.SerializationLogic
 
         private static bool IsTypeSerializable(TypeReference typeReference)
         {
-            if (typeReference.MetadataType == MetadataType.String)
+            var typeDefinition = typeReference.Resolve();
+            if (typeDefinition.MetadataType == MetadataType.String)
                 return true;
-            if (typeReference.IsValueType)
-                return IsValueTypeSerializable(typeReference);
-            return IsReferenceTypeSerializable(typeReference);
+            if (typeDefinition.IsValueType)
+                return IsValueTypeSerializable(typeDefinition);
+            return IsReferenceTypeSerializable(typeDefinition);
         }
 
         private static bool IsGenericDictionary(TypeReference typeReference)
