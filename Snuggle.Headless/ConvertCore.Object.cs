@@ -25,6 +25,6 @@ public static partial class ConvertCore {
 
         serializedObject.Deserialize(ObjectDeserializationOptions.Default);
 
-        File.WriteAllBytes(fullPath, JsonSerializer.SerializeToUtf8Bytes(serializedObject, SnuggleCoreOptions.JsonOptions));
+        File.WriteAllBytes(fullPath, JsonSerializer.SerializeToUtf8Bytes(serializedObject, serializedObject.GetType(), SnuggleCoreOptions.JsonOptions));
     }
 }

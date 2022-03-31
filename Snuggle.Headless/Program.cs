@@ -7,12 +7,14 @@ using System.Text.Json;
 using DragonLib;
 using DragonLib.CLI;
 using DragonLib.IO;
+using Snuggle.Converters;
 using Snuggle.Core;
 using Snuggle.Core.Implementations;
 using Snuggle.Core.Interfaces;
 using Snuggle.Core.Logging;
 using Snuggle.Core.Meta;
 using Snuggle.Core.Models;
+using Snuggle.Core.Models.Serialization;
 using Snuggle.Core.Options;
 using Snuggle.Headless.GameFlags;
 
@@ -113,7 +115,25 @@ public static class Program {
         AssetCollection.Collect();
         logger.Info("System", $"Memory Tension: {GC.GetTotalMemory(false).GetHumanReadableBytes()}");
 
+        if (flags.DumpSerializedInfo) {
+            foreach (var (_, file) in collection.Files) {
+                var ext = "json";
+                var path = PathFormatter.Format(flags.OutputFormat, ext, new SerializedObject(new UnityObjectInfo(0, 0, 0, 0, UnityClassId.Object, 0, false, 0, false), file));
+                var fullPath = Path.Combine(flags.OutputPath, path);
+                if (File.Exists(fullPath)) {
+                    continue;
+                }
+
+                fullPath.EnsureDirectoryExists();
+                File.WriteAllBytes(fullPath, JsonSerializer.SerializeToUtf8Bytes(new { file.ExternalInfos, file.Tag, file.Name, file.UserInformation }, SnuggleCoreOptions.JsonOptions));
+            }
+        }
+
         foreach (var asset in collection.Files.SelectMany(x => x.Value.GetAllObjects())) {
+            if (asset.GetType().FullName == typeof(SerializedObject).FullName) {
+                continue;
+            }
+            
             if (flags.PathIdFilters.Any() && !flags.PathIdFilters.Contains(asset.PathId)) {
                 continue;
             }
@@ -126,7 +146,10 @@ public static class Program {
                 continue;
             }
 
-            if (flags.DataOnly) {
+            if (flags.DataOnly || flags.GameObjectOnly) {
+                if (flags.GameObjectOnly && asset is not GameObject) {
+                    continue;
+                }
                 ConvertCore.ConvertObject(flags, logger, asset);
                 continue;
             }
@@ -181,6 +204,11 @@ public static class Program {
                         logger.Info("Assets", $"Processing MonoBehaviour {asset}");
                         ConvertCore.ConvertMonoBehaviour(flags, logger, monoBehaviour);
                         break;
+                    case ICABPathProvider cabPathProvider when !flags.NoCAB:
+                        logger.Info("Assets", $"Processing CAB Path Provider {asset}");
+                        ConvertCore.ConvertCABPathProvider(flags, logger, cabPathProvider);
+                        break;
+                        
                 }
             } catch (Exception e) {
                 logger.Error("System", $"Failure decoding {asset.PathId} from {Utils.GetStringFromTag(asset.SerializedFile.Tag)}: {e.Message}", e);

@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using DragonLib;
+using DragonLib.IO;
 using Snuggle.Core.Exceptions;
 using Snuggle.Core.Extensions;
 using Snuggle.Core.Implementations;
@@ -182,7 +183,7 @@ public static class ObjectFactory {
 
     public static object? CreateObject(BiEndianBinaryReader reader, ObjectNode node, SerializedFile file, string? skipUntil = null) {
         var start = reader.BaseStream.Position;
-        object? value = null;
+        object? value;
         try {
             if (node.TypeName.StartsWith("PPtr<")) {
                 var ptr = PPtr<SerializedObject>.FromReader(reader, file);
@@ -279,8 +280,6 @@ public static class ObjectFactory {
                     case "animationcurve": {
                         value = AnimationCurve<float>.FromReader(reader, file);
                         break;
-
-                        ;
                     }
                     case "gradient": {
                         value = Gradient.FromReader(reader, file);
@@ -429,7 +428,7 @@ public static class ObjectFactory {
         return null;
     }
 
-    public static ObjectNode? FindObjectNode(string name, MonoScript script, AssetCollection collection, RequestAssemblyPath? callback) {
+    public static ObjectNode? FindObjectNode(string name, MonoScript script, AssetCollection collection, RequestAssemblyPath? callback, ILogger logger) {
         try {
             if (collection.Types.TryGetValue(name, out var cachedType)) {
                 return cachedType;
@@ -467,8 +466,8 @@ public static class ObjectFactory {
                 collection.Types[name] = objectNode;
                 return objectNode;
             }
-        } catch {
-            // ignored
+        } catch(Exception e) {
+            Logger.Error("Object", "Failed to convert Cecil type", e);
         }
 
         return null;

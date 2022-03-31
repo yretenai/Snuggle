@@ -160,13 +160,13 @@ public class TypeDefinitionConverter {
 
         var typeDef = typeRef.Resolve();
         if (!IsStruct(TypeDef) || !UnityEngineTypePredicates.IsUnityEngineValueType(TypeDef)) {
-            if (IsStruct(typeDef) || RequiresAlignment(typeDef)) {
+            if (IsStruct(typeDef) || RequiresAlignment(typeRef)) {
                 align = true;
             }
         }
 
         var nodes = new List<ObjectNode>();
-        if (typeDef.IsPrimitive) {
+        if (typeRef.IsPrimitive) {
             var primitiveName = typeRef.Name;
             primitiveName = primitiveName switch {
                 "Boolean" => "bool",
@@ -193,8 +193,8 @@ public class TypeDefinitionConverter {
             nodes.Add(new ObjectNode(name, "string", -1, false, false, false, null));
         } else if (IsEnum(typeDef)) {
             nodes.Add(new ObjectNode(name, "SInt32", 4, align, false, false, GetEnumNames(typeDef)));
-        } else if (CecilUtils.IsGenericList(typeRef) || typeDef.IsArray) {
-            var elementRef = typeDef.IsArray ? typeDef.GetElementType() : CecilUtils.ElementTypeOfCollection(typeRef);
+        } else if (CecilUtils.IsGenericList(typeRef) || typeRef.IsArray) {
+            var elementRef = typeRef.IsArray ? typeRef.GetElementType() : CecilUtils.ElementTypeOfCollection(typeRef);
             var array = new ObjectNode("Array", "Array", -1, false, false, false, null) {
                 Properties = {
                     new ObjectNode("int", "size", 4, false, false, false, null),
@@ -208,7 +208,7 @@ public class TypeDefinitionConverter {
             });
         } else if (UnityEngineTypePredicates.IsUnityEngineObject(typeRef)) {
             nodes.Add(new ObjectNode(name, $"PPtr<{typeRef.Name}>", 12, false, false, false, null));
-        } else if (UnityEngineTypePredicates.IsSerializableUnityClass(typeDef) || UnityEngineTypePredicates.IsSerializableUnityStruct(typeDef)) {
+        } else if (UnityEngineTypePredicates.IsSerializableUnityClass(typeRef) || UnityEngineTypePredicates.IsSerializableUnityStruct(typeRef)) {
             nodes.Add(new ObjectNode(name, typeRef.Name, -1, false, false, false, null));
         } else {
             var obj = new ObjectNode(name, $"${typeRef.FullName}", -1, align, false, false, null);

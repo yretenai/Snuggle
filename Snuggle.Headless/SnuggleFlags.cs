@@ -43,8 +43,17 @@ public record SnuggleFlags : ICLIFlags {
     [CLIFlag("no-script", Aliases = new[] { "B" }, Category = "General Options", Default = false, Help = "Do not export MonoBehaviour data")]
     public bool NoScript { get; set; }
 
+    [CLIFlag("no-cab", Category = "General Options", Default = false, Help = "Do not export ICABPathProvider data")]
+    public bool NoCAB { get; set; }
+
     [CLIFlag("data", Category = "General Options", Default = false, Help = "Do not convert, export serialization data instead")]
     public bool DataOnly { get; set; }
+
+    [CLIFlag("prefab", Category = "General Options", Default = false, Help = "Only export GameObjects as prefabs")]
+    public bool GameObjectOnly { get; set; }
+
+    [CLIFlag("dump", Category = "General Options", Default = false, Help = "Dump SerializedFile Info")]
+    public bool DumpSerializedInfo { get; set; }
 
     [CLIFlag("dont-scan-up", Category = "General Options", Default = false, Help = "Do not scan for game object hierarchy ancestors")]
     public bool NoGameObjectHierarchyUp { get; set; }
@@ -135,7 +144,10 @@ public record SnuggleFlags : ICLIFlags {
         sb.AppendLine($"  {nameof(NoVertexColor)} = {(NoVertexColor ? "True" : "False")},");
         sb.AppendLine($"  {nameof(NoMorphs)} = {(NoMorphs ? "True" : "False")},");
         sb.AppendLine($"  {nameof(NoScript)} = {(NoScript ? "True" : "False")},");
+        sb.AppendLine($"  {nameof(NoCAB)} = {(NoCAB ? "True" : "False")},");
         sb.AppendLine($"  {nameof(DataOnly)} = {(DataOnly ? "True" : "False")},");
+        sb.AppendLine($"  {nameof(GameObjectOnly)} = {(GameObjectOnly ? "True" : "False")},");
+        sb.AppendLine($"  {nameof(DumpSerializedInfo)} = {(DumpSerializedInfo ? "True" : "False")},");
         sb.AppendLine($"  {nameof(NoGameObjectHierarchyUp)} = {(NoGameObjectHierarchyUp ? "True" : "False")},");
         sb.AppendLine($"  {nameof(NoGameObjectHierarchyDown)} = {(NoGameObjectHierarchyDown ? "True" : "False")},");
         sb.AppendLine($"  {nameof(WriteNativeTextures)} = {(WriteNativeTextures ? "True" : "False")},");
