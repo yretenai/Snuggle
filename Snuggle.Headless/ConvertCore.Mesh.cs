@@ -2,18 +2,17 @@
 using DragonLib;
 using Snuggle.Converters;
 using Snuggle.Core.Implementations;
-using Snuggle.Core.Interfaces;
 using Snuggle.Core.Options;
 
 namespace Snuggle.Headless;
 
 public static partial class ConvertCore {
-    public static void ConvertMesh(SnuggleFlags flags, ILogger logger, Mesh mesh) {
+    public static void ConvertMesh(SnuggleFlags flags, Mesh mesh) {
         mesh.Deserialize(ObjectDeserializationOptions.Default);
 
         var path = PathFormatter.Format(mesh.HasContainerPath ? flags.OutputFormat : flags.ContainerlessOutputFormat ?? flags.OutputFormat, "gltf", mesh);
         var fullPath = Path.Combine(flags.OutputPath, path);
-        if (File.Exists(fullPath)) {
+        if (!flags.Overwrite && File.Exists(fullPath)) {
             return;
         }
 

@@ -10,7 +10,7 @@ using Snuggle.Core.Options;
 namespace Snuggle.Headless;
 
 public static partial class ConvertCore {
-    public static void ConvertCABPathProvider(SnuggleFlags flags, ILogger logger, ICABPathProvider cabPathProvider) {
+    public static void ConvertCABPathProvider(SnuggleFlags flags, ICABPathProvider cabPathProvider) {
         var ext = "json";
         var objectVer = (SerializedObject) cabPathProvider;
         if (Path.HasExtension(objectVer.ObjectContainerPath)) {
@@ -19,7 +19,7 @@ public static partial class ConvertCore {
 
         var path = PathFormatter.Format(objectVer.HasContainerPath ? flags.OutputFormat : flags.ContainerlessOutputFormat ?? flags.OutputFormat, ext, objectVer);
         var fullPath = Path.Combine(flags.OutputPath, path);
-        if (File.Exists(fullPath)) {
+        if (!flags.Overwrite && File.Exists(fullPath)) {
             return;
         }
 

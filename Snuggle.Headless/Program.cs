@@ -150,7 +150,8 @@ public static class Program {
                 if (flags.GameObjectOnly && asset is not GameObject) {
                     continue;
                 }
-                ConvertCore.ConvertObject(flags, logger, asset);
+                logger.Info("Assets", $"Dumping Data for asset {asset}");
+                ConvertCore.ConvertObject(flags, asset);
                 continue;
             }
 
@@ -158,35 +159,35 @@ public static class Program {
                 switch (asset) {
                     case Texture2D texture when flags.LooseTextures:
                         logger.Info("Assets", $"Processing Texture {asset}");
-                        ConvertCore.ConvertTexture(flags, logger, texture, true);
+                        ConvertCore.ConvertTexture(flags, texture, true);
                         break;
                     case Mesh mesh when flags.LooseMeshes:
                         logger.Info("Assets", $"Processing Mesh {asset}");
-                        ConvertCore.ConvertMesh(flags, logger, mesh);
+                        ConvertCore.ConvertMesh(flags, mesh);
                         break;
                     case GameObject gameObject when !flags.NoGameObject:
                         logger.Info("Assets", $"Processing GameObject {asset}");
-                        ConvertCore.ConvertGameObject(flags, logger, gameObject);
+                        ConvertCore.ConvertGameObject(flags, gameObject);
                         break;
                     case MeshRenderer renderer when !flags.NoMesh && renderer.GameObject.Value is not null:
                         logger.Info("Assets", $"Processing GameObject {renderer.GameObject.Value}");
-                        ConvertCore.ConvertGameObject(flags, logger, renderer.GameObject.Value);
+                        ConvertCore.ConvertGameObject(flags, renderer.GameObject.Value);
                         break;
                     case SkinnedMeshRenderer renderer when !flags.NoSkinnedMesh && renderer.GameObject.Value is not null:
                         logger.Info("Assets", $"Processing GameObject {renderer.GameObject.Value}");
-                        ConvertCore.ConvertGameObject(flags, logger, renderer.GameObject.Value);
+                        ConvertCore.ConvertGameObject(flags, renderer.GameObject.Value);
                         break;
                     case Material material when flags.LooseMaterials:
                         logger.Info("Assets", $"Processing Material {asset}");
-                        ConvertCore.ConvertMaterial(flags, logger, material);
+                        ConvertCore.ConvertMaterial(flags, material);
                         break;
                     case Text text when !flags.NoText:
                         logger.Info("Assets", $"Processing Text {asset}");
-                        ConvertCore.ConvertText(flags, logger, text);
+                        ConvertCore.ConvertText(flags, text);
                         break;
                     case Sprite sprite when !flags.NoSprite:
                         logger.Info("Assets", $"Processing Sprite {asset}");
-                        ConvertCore.ConvertSprite(flags, logger, sprite);
+                        ConvertCore.ConvertSprite(flags, sprite);
                         break;
                     case AudioClip clip when !flags.NoAudio:
                         logger.Info("Assets", $"Processing Audio {asset}");
@@ -202,11 +203,11 @@ public static class Program {
                         }
 
                         logger.Info("Assets", $"Processing MonoBehaviour {asset}");
-                        ConvertCore.ConvertMonoBehaviour(flags, logger, monoBehaviour);
+                        ConvertCore.ConvertMonoBehaviour(flags, monoBehaviour);
                         break;
                     case ICABPathProvider cabPathProvider when !flags.NoCAB:
                         logger.Info("Assets", $"Processing CAB Path Provider {asset}");
-                        ConvertCore.ConvertCABPathProvider(flags, logger, cabPathProvider);
+                        ConvertCore.ConvertCABPathProvider(flags, cabPathProvider);
                         break;
                         
                 }

@@ -2,16 +2,15 @@
 using DragonLib;
 using Snuggle.Converters;
 using Snuggle.Core.Implementations;
-using Snuggle.Core.Interfaces;
 using Snuggle.Core.Options;
 
 namespace Snuggle.Headless;
 
 public static partial class ConvertCore {
-    public static void ConvertGameObject(SnuggleFlags flags, ILogger logger, GameObject gameObject) {
+    public static void ConvertGameObject(SnuggleFlags flags, GameObject gameObject) {
         var path = PathFormatter.Format(gameObject.HasContainerPath ? flags.OutputFormat : flags.ContainerlessOutputFormat ?? flags.OutputFormat, "gltf", gameObject);
         var fullPath = Path.Combine(flags.OutputPath, path);
-        if (File.Exists(fullPath)) {
+        if (!flags.Overwrite && File.Exists(fullPath)) {
             return;
         }
 

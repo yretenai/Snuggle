@@ -97,6 +97,9 @@ public record SnuggleFlags : ICLIFlags {
     [CLIFlag("output", Aliases = new[] { "o", "out" }, Category = "General Options", Help = "Path to output files to", IsRequired = true)]
     public string OutputPath { get; set; } = null!;
 
+    [CLIFlag("overwrite", Category = "General Options", Default = false, Help = "Overwrite files if they already exist")]
+    public bool Overwrite { get; set; }
+
     [CLIFlag("name", Category = "General Options", Help = "Game Object Name/Container Path Filters", Extra = RegexOptions.CultureInvariant | RegexOptions.Compiled)]
     public List<Regex> NameFilters { get; set; } = null!;
 
@@ -162,6 +165,7 @@ public record SnuggleFlags : ICLIFlags {
         sb.AppendLine($"  {nameof(OutputFormat)} = {OutputFormat},");
         sb.AppendLine($"  {nameof(ContainerlessOutputFormat)} = {ContainerlessOutputFormat ?? "null"},");
         sb.AppendLine($"  {nameof(OutputPath)} = {OutputPath},");
+        sb.AppendLine($"  {nameof(Overwrite)} = {(Overwrite ? "True" : "False")},");
         sb.AppendLine($"  {nameof(NameFilters)} = [{string.Join(", ", NameFilters.Select(x => x.ToString()))}],");
         sb.AppendLine($"  {nameof(ScriptFilters)} = [{string.Join(", ", ScriptFilters.Select(x => x.ToString()))}],");
         sb.AppendLine($"  {nameof(AssemblyFilters)} = [{string.Join(", ", AssemblyFilters.Select(x => x.ToString()))}],");

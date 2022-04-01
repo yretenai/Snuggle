@@ -74,11 +74,13 @@ public static class SnuggleTextureFile {
             return new Image<Rgba32>(1, 1, new Rgba32(0));
         }
 
-        Image image;
+        Image<Rgba32> image;
         if (texture.TextureFormat.IsAlphaFirst()) {
-            image = Image.WrapMemory<Argb32>(data, texture.Width, texture.Height);
+            using var temp = Image.WrapMemory<Argb32>(data, texture.Width, texture.Height);
+            image = temp.CloneAs<Rgba32>();
         } else if (texture.TextureFormat.IsBGRA(useDirectXTex)) {
-            image = Image.WrapMemory<Bgra32>(data, texture.Width, texture.Height);
+            using var temp = Image.WrapMemory<Bgra32>(data, texture.Width, texture.Height);
+            image = temp.CloneAs<Rgba32>();
         } else {
             image = Image.WrapMemory<Rgba32>(data, texture.Width, texture.Height);
         }
@@ -87,9 +89,7 @@ public static class SnuggleTextureFile {
             image.Mutate(context => context.Flip(FlipMode.Vertical));
         }
 
-        var cloned = image.CloneAs<Rgba32>();
-        image.Dispose();
-        return cloned;
+        return image;
     }
 
     public static void SaveNative(Texture2D texture, string path) {

@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Net;
 using Snuggle.Converters;
 using Snuggle.Core.Implementations;
 using Snuggle.Core.Interfaces;
@@ -17,7 +18,12 @@ public static partial class ConvertCore {
         }
 
         var path = PathFormatter.Format(clip.HasContainerPath ? flags.OutputFormat : flags.ContainerlessOutputFormat ?? flags.OutputFormat, wav ? "wav" : ext[1..], clip);
+        var fullPath = Path.GetFullPath(path);
+        if (!flags.Overwrite && File.Exists(fullPath)) {
+            return;
+        }
+        
         var pcm = wav ? SnuggleAudioFile.BuildWAV(clip, logger) : clip.Data.Value.Span;
-        File.WriteAllBytes(path, pcm.ToArray());
+        File.WriteAllBytes(fullPath, pcm.ToArray());
     }
 }
