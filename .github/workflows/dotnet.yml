@@ -29,10 +29,8 @@ jobs:
                     include-prerelease: true
             -   name: Add msbuild to PATH
                 uses: microsoft/setup-msbuild@v1.0.2
-            -   name: Build Texture2DDecoderNative (Release, x86)
-                run: msbuild Library/AssetStudio/Texture2DDecoderNative/Texture2DDecoderNative.vcxproj /P:Configuration=Release /P:Platform=Win32
-            -   name: Build Texture2DDecoderNative (Release, x64)
-                run: msbuild Library/AssetStudio/Texture2DDecoderNative/Texture2DDecoderNative.vcxproj /P:Configuration=Release /P:Platform=x64
+            -   name: Build Texture2DDecoderNative
+                run: ./Build-SnuggleNativeLibs.ps1
             -   name: Restore project
                 run: dotnet restore
             -   name: Run tests
