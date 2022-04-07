@@ -27,7 +27,7 @@ Available variables:
     Script - The full class name if present on a MonoBehaviour";
 
     public const string DefaultPathTemplate = "{ProductOrProject}/{Version}/{ContainerOrNameWithoutExt}_{Id}.{Ext}";
-    public const string DefaultContainerlessPathTemplate = "{ProductOrProject}/{Version}/__unknown/{Type}/{Name}_{Id}.{Ext}";
+    public const string DefaultContainerlessPathTemplate = "{ProductOrProject}/{Version}/{Tag}/__unknown/{Type}/{Name}_{Id}.{Ext}";
 
     private const int LatestVersion = 8;
     public int Version { get; init; } = LatestVersion;

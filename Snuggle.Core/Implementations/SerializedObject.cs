@@ -44,7 +44,7 @@ public class SerializedObject : IEquatable<SerializedObject>, ISerialized {
     [JsonIgnore]
     public string ObjectComparableName => ToString();
 
-    [JsonIgnore]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public string ObjectContainerPath { get; set; } = string.Empty;
 
     public Dictionary<object, object> ExtraContainers { get; } = new();

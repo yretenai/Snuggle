@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
@@ -15,11 +16,11 @@ using Snuggle.Core.Options;
 namespace Snuggle.Core;
 
 public class AssetCollection : IDisposable {
-    public List<Bundle> Bundles { get; } = new();
+    public ConcurrentBag<Bundle> Bundles { get; } = new();
     public AssemblyResolver Assemblies { get; set; } = new();
-    public Dictionary<string, ObjectNode> Types { get; } = new();
-    public Dictionary<string, SerializedFile> Files { get; } = new(StringComparer.InvariantCultureIgnoreCase);
-    public Dictionary<string, (object Tag, IFileHandler Handler)> Resources { get; } = new(StringComparer.InvariantCultureIgnoreCase);
+    public ConcurrentDictionary<string, ObjectNode> Types { get; } = new();
+    public ConcurrentDictionary<string, SerializedFile> Files { get; } = new(StringComparer.InvariantCultureIgnoreCase);
+    public ConcurrentDictionary<string, (object Tag, IFileHandler Handler)> Resources { get; } = new(StringComparer.InvariantCultureIgnoreCase);
     public List<GameObject> GameObjectTree { get; set; } = new();
     public PlayerSettings? PlayerSettings { get; internal set; }
 
