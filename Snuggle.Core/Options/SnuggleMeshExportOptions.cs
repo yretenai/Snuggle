@@ -12,6 +12,8 @@ public record SnuggleMeshExportOptions(
     bool FindGameObjectParents,
     [Description("Render game object hierarchy relationship lines")]
     bool DisplayRelationshipLines,
+    [Description("Render text labels")]
+    bool DisplayLabels,
     [Description("Render mesh wireframe")] bool DisplayWireframe,
     [Description("Write Vertex Colors to GLTF")]
     bool WriteVertexColors,
@@ -27,11 +29,12 @@ public record SnuggleMeshExportOptions(
     bool MirrorXNormal,
     [Description("Mirrors the X coordinate for tangents")]
     bool MirrorXTangent) {
-    private const int LatestVersion = 4;
+    private const int LatestVersion = 5;
 
     public static SnuggleMeshExportOptions Default { get; } = new(
         true,
         false,
+        true,
         true,
         false,
         true,
@@ -59,6 +62,10 @@ public record SnuggleMeshExportOptions(
 
         if (settings.Version < 4) {
             settings = settings with { MirrorXPosition = true, MirrorXNormal = true, MirrorXTangent = true };
+        }
+
+        if (settings.Version < 5) {
+            settings = settings with { DisplayLabels = true };
         }
 
         return settings with { Version = LatestVersion };

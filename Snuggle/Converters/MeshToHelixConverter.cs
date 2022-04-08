@@ -170,6 +170,8 @@ public static class MeshToHelixConverter {
                         lines.Color = Colors.Crimson;
                         if (SnuggleCore.Instance.Settings.MeshExportOptions.DisplayRelationshipLines) {
                             topMost.Children.Add(lines);
+                        }
+                        if (SnuggleCore.Instance.Settings.MeshExportOptions.DisplayLabels) {
                             topMost.Children.Add(labels);
                         }
                     });
