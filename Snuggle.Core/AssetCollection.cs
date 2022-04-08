@@ -58,7 +58,11 @@ public class AssetCollection : IDisposable {
         var handler = new BundleStreamHandler(bundle);
         foreach (var block in bundle.Container.Blocks) {
             if (block.Flags.HasFlag(UnityBundleBlockFlags.SerializedFile)) {
-                LoadSerializedFile(bundle.OpenFile(block), block, handler, bundle.Options, false, bundle.Header.Version);
+                try {
+                    LoadSerializedFile(bundle.OpenFile(block), block, handler, bundle.Options, false, bundle.Header.Version);
+                } catch (Exception e) {
+                    bundle.Options.Logger.Error("Bundle", e.Message, e);
+                }
             } else {
                 var ext = Path.GetExtension(block.Path).ToLower();
                 switch (ext) {
@@ -84,7 +88,11 @@ public class AssetCollection : IDisposable {
         try {
             var bundles = Bundle.OpenBundleSequence(dataStream, tag, handler, options, align, leaveOpen);
             foreach (var bundle in bundles) {
-                LoadBundle(bundle);
+                try {
+                    LoadBundle(bundle);
+                } catch (Exception e) {
+                    options.Logger.Error("Bundle", e.Message, e);
+                }
             }
         } finally {
             if (!leaveOpen) {
@@ -185,7 +193,9 @@ public class AssetCollection : IDisposable {
                         return;
                 }
             }
-        } finally {
+        } catch (Exception e) {
+            options.Logger.Error("Core", e.Message, e);
+        }finally {
             if (!leaveOpen) {
                 dataStream.Close();
             }
