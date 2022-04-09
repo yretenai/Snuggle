@@ -37,6 +37,10 @@ public record UnityContainer {
                 continue;
             }
 
+            if (unityBundleBlockFlags.HasFlag(UnityBundleBlockInfoFlags.Encrypted)) {
+                throw new NotSupportedException("Block is encrypted");
+            }
+
             var compressionType = (UnityCompressionType) (unityBundleBlockFlags & UnityBundleBlockInfoFlags.CompressionMask);
             switch (compressionType) {
                 case UnityCompressionType.None:
