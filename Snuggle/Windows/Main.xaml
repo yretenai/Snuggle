@@ -18,6 +18,8 @@
                              AllowDrop="True"
                              ShrinkTitleBarWhenMaximized="False"
                              IconVisibility="Collapsed"
+                             TitleVisibility="Collapsed"
+                             Title="{Binding Title}"
                              Height="800"
                              Width="1200">
     <adonisControls:AdonisWindow.TitleBarContent>

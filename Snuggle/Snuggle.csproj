@@ -8,6 +8,7 @@
         <UseWPF>true</UseWPF>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+        <ApplicationIcon>Snuggle.ico</ApplicationIcon>
     </PropertyGroup>
 
     <ItemGroup>
