@@ -8,6 +8,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using DragonLib;
+using DragonLib.IO;
 using Snuggle.Core;
 using Snuggle.Core.Implementations;
 using Snuggle.Core.Models;
@@ -351,14 +352,24 @@ public static class SnuggleMeshFile {
         var hasTangents = false;
         var hasColor = false;
         var hasUV = new[] { false, false, false, false, false, false, false, false };
-        var hasJoints = false;
-        var hasWeights = false;
         var minPos = new Vector3(float.MaxValue);
         var maxPos = new Vector3(float.MinValue);
 
+        var skin = mesh.Skin ?? new List<BoneWeight>();
+        var hasSkinStream = descriptors.Any(x => x.Key is VertexChannel.SkinWeight or VertexChannel.SkinBoneIndex);
+        if (skin.Count > 0 && hasSkinStream) {
+            Logger.Warn("Mesh", "Mesh has skin object but also defines weight data in vertex stream?");
+            skin = new List<BoneWeight>();
+        }
+
+        var hasSkin = hasSkinStream || skin.Count > 0;
+        if (hasSkin) {
+            skin.EnsureCapacity((int) vertexCount);
+        }
+
         for (var i = 0; i < vertexCount; ++i) {
-            var weightsTemp = new float[4];
-            var jointsTemp = new int[4];
+            var weightsTemp = new[] { 1f, 0, 0, 0 };
+            var jointsTemp = new[] { 1, 0, 0, 0 };
             foreach (var (channel, info) in descriptors) {
                 var stride = strides[info.Stream];
                 var offset = i * stride;
@@ -414,26 +425,23 @@ public static class SnuggleMeshFile {
                         break;
                     case VertexChannel.SkinWeight:
                         weightsTemp = floatValues.Take(4).ToArray();
-                        hasWeights = true;
                         break;
                     case VertexChannel.SkinBoneIndex:
                         jointsTemp = uintValues.Take(4).ToArray();
-                        hasJoints = true;
                         break;
                 }
             }
 
-            if ((!hasJoints || !hasWeights) && mesh.Skin?.Count > 0) {
-                jointsTemp = mesh.Skin[i].Indices;
-                weightsTemp = mesh.Skin[i].Weights;
-                hasWeights = hasJoints = true;
+            if (hasSkinStream) {
+                skin.Add(new BoneWeight(weightsTemp, jointsTemp));
             }
+        }
 
-            hasWeights = hasJoints = hasWeights && hasJoints;
-
-            // attempt to fix weights.
-            if (hasWeights) {
-                var ordered = jointsTemp.Zip(weightsTemp).OrderByDescending(x => x.Second).ToArray();
+        // attempt to fix weights.
+        if(hasSkin) {
+            for (var i = 0; i < vertexCount; i++) {
+                var boneJoints = skin[i];
+                var ordered = boneJoints.Indices.Zip(boneJoints.Weights).OrderByDescending(x => x.Second).ToArray();
                 joints[i] = ordered.Select(x => (ushort) x.First).ToArray();
                 weights[i] = new Vector4(ordered.Select(x => x.Second).ToArray());
                 var w = Vector4.Dot(weights[i], Vector4.One);
@@ -471,7 +479,7 @@ public static class SnuggleMeshFile {
             accessors[VertexChannel.UV0 + i] = gltf.CreateAccessor(uv[i], buffer, BufferViewTarget.ArrayBuffer, AccessorType.VEC2, AccessorComponentType.Float).Id;
         }
 
-        if (hasJoints && hasWeights) {
+        if (hasSkin) {
             accessors[VertexChannel.SkinBoneIndex] = gltf.CreateAccessor(
                     joints,
                     4,
