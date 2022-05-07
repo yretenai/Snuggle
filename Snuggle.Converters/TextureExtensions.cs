@@ -6,10 +6,11 @@ namespace Snuggle.Converters;
 
 public static class TextureExtensions {
     public static bool CanSupportDDS(this TextureFormat format) => format != TextureFormat.RGB24 && format is >= TextureFormat.RG16 and <= TextureFormat.R8 or < TextureFormat.DXT1Crunched;
+    public static bool IsBC(this TextureFormat format) => format is TextureFormat.DXT1 or TextureFormat.DXT5 or TextureFormat.DXT1Crunched or TextureFormat.DXT5Crunched or TextureFormat.BC4 or TextureFormat.BC5 or TextureFormat.BC6H or TextureFormat.BC7;
     public static bool UseDDSConversion(this TextureFormat textureFormat) => Environment.OSVersion.Platform == PlatformID.Win32NT && textureFormat.CanSupportDDS();
-    public static bool HasNativeConversion(this TextureFormat format) => format is >= TextureFormat.ETC_RGB4Crunched or <= TextureFormat.ETC_RGBA8_3DS and >= TextureFormat.BC6H or TextureFormat.DXT1 or TextureFormat.DXT5;
+    public static bool HasNativeConversion(this TextureFormat format) => format is >= TextureFormat.ETC_RGB4Crunched or <= TextureFormat.ETC2_RGBA8_3DS and >= TextureFormat.BC6H or TextureFormat.DXT1 or TextureFormat.DXT5;
 
-    public static bool IsBGRA(this TextureFormat format, bool DirectXTex) {
+    public static bool IsBGRA(this TextureFormat format, bool DirectXTex, bool UseTextureDecoder) {
         if (format is TextureFormat.BGRA32 or TextureFormat.YUY2) {
             return true;
         }
@@ -18,7 +19,11 @@ public static class TextureExtensions {
             return false;
         }
 
-        return format.HasNativeConversion();
+        if (UseTextureDecoder) {
+            return format.HasNativeConversion();
+        }
+
+        return !IsBC(format);
     }
 
     public static bool IsAlphaFirst(this TextureFormat format) => format is TextureFormat.ARGB4444 or TextureFormat.ARGB32;
@@ -55,7 +60,7 @@ public static class TextureExtensions {
     public static bool IsASTC(this TextureFormat format) => format is >= TextureFormat.ASTC_4x4 and < TextureFormat.ASTC_12x12 or >= TextureFormat.ASTC_HDR_4x4 and <= TextureFormat.ASTC_HDR_12x12;
     public static bool IsCrunched(this TextureFormat format) => format is TextureFormat.DXT1Crunched or TextureFormat.DXT5Crunched;
 
-    public static bool IsETC(this TextureFormat format) => format is >= TextureFormat.ETC_RGB4 and < TextureFormat.ETC2_RGBA8 or >= TextureFormat.ETC_RGB4_3DS and <= TextureFormat.ETC_RGBA8_3DS or >= TextureFormat.ETC_RGB4Crunched and <= TextureFormat.ETC2_RGBA8Crunched;
+    public static bool IsETC(this TextureFormat format) => format is >= TextureFormat.ETC_RGB4 and < TextureFormat.ETC2_RGBA8 or >= TextureFormat.ETC_RGB4_3DS and <= TextureFormat.ETC2_RGBA8_3DS or >= TextureFormat.ETC_RGB4Crunched and <= TextureFormat.ETC2_RGBA8Crunched;
 
     public static bool IsPVRTC(this TextureFormat format) => format is >= TextureFormat.PVRTC_RGB2 and < TextureFormat.PVRTC_RGBA4;
 

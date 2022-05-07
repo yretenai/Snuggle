@@ -1,13 +1,7 @@
 {
   "version": 1,
   "dependencies": {
-    "net6.0": {
-      "DragonLib": {
-        "type": "Direct",
-        "requested": "[2.0.0, )",
-        "resolved": "2.0.0",
-        "contentHash": "ld2Jw6cDkPnMo4jlEPhUOmhPyV6clCqZw+v8NAuit3R46UOwc8MyXAiz3acQX6i/lLham8IK6nFH7KL2WoB2Fw=="
-      },
+    "net7.0": {
       "K4os.Compression.LZ4.Streams": {
         "type": "Direct",
         "requested": "[1.2.16, )",
@@ -47,6 +41,9 @@
         "type": "Transitive",
         "resolved": "4.5.3",
         "contentHash": "3oDzvc/zzetpTKWMShs1AADwZjQ/36HnsufHRPcOjyRAAMLDlu2iD33MBI2opxnezcVUtXyqDXXjoFMOU9c7SA=="
+      },
+      "dragonlib": {
+        "type": "Project"
       },
       "snuggle.unitycs": {
         "type": "Project",

@@ -24,14 +24,14 @@ public static class SnuggleSpriteFile {
     private static ConcurrentDictionary<(long, string), (ReadOnlyMemory<byte>, Size, TextureFormat)> CachedData { get; set; } = new();
 
     // Perfare's Asset Studio - SpriteHelper.cs.
-    public static (Memory<byte> RGBA, Size Size, TextureFormat baseFormat) ConvertSprite(Sprite sprite, ObjectDeserializationOptions options, bool useDirectXTex) {
+    public static (Memory<byte> RGBA, Size Size, TextureFormat baseFormat) ConvertSprite(Sprite sprite, ObjectDeserializationOptions options, bool useDirectXTex, bool useTextureDecoder) {
         var (memory, size, format) = CachedData.GetOrAdd(
             sprite.GetCompositeId(),
             static (_, arg) => {
-                var (sprite, options, useDirectXTex) = arg;
+                var (sprite, options, useDirectXTex, useTextureDecoder) = arg;
                 if (sprite.SpriteAtlas.Value?.RenderDataMap != null && sprite.SpriteAtlas.Value.RenderDataMap.TryGetValue(sprite.RenderDataKey, out var spriteAtlasData) && spriteAtlasData.Texture.Value is not null) {
                     spriteAtlasData.Texture.Value.Deserialize(options);
-                    using var image = ConvertSprite(sprite, spriteAtlasData.Texture.Value!, spriteAtlasData.TextureRect, spriteAtlasData.TextureRectOffset, spriteAtlasData.Settings, useDirectXTex);
+                    using var image = ConvertSprite(sprite, spriteAtlasData.Texture.Value!, spriteAtlasData.TextureRect, spriteAtlasData.TextureRectOffset, spriteAtlasData.Settings, useDirectXTex, useTextureDecoder);
                     if (image != null) {
                         return (image.ToRGBA(), image.Size(), spriteAtlasData.Texture.Value.TextureFormat);
                     }
@@ -39,7 +39,7 @@ public static class SnuggleSpriteFile {
 
                 if (sprite.RenderData.Texture.Value != null) {
                     sprite.RenderData.Texture.Value.Deserialize(options);
-                    using var image = ConvertSprite(sprite, sprite.RenderData.Texture.Value, sprite.RenderData.TextureRect, sprite.RenderData.TextureRectOffset, sprite.RenderData.Settings, useDirectXTex);
+                    using var image = ConvertSprite(sprite, sprite.RenderData.Texture.Value, sprite.RenderData.TextureRect, sprite.RenderData.TextureRectOffset, sprite.RenderData.Settings, useDirectXTex, useTextureDecoder);
                     if (image != null) {
                         return (image.ToRGBA(), image.Size(), sprite.RenderData.Texture.Value.TextureFormat);
                     }
@@ -47,7 +47,7 @@ public static class SnuggleSpriteFile {
 
                 return (ReadOnlyMemory<byte>.Empty, Size.Empty, TextureFormat.None);
             },
-            (sprite, options, useDirectXTex));
+            (sprite, options, useDirectXTex, useTextureDecoder));
 
         var newMemory = new Memory<byte>(new byte[memory.Length]);
         memory.CopyTo(newMemory);
@@ -60,8 +60,8 @@ public static class SnuggleSpriteFile {
         Configuration.Default.MemoryAllocator.ReleaseRetainedResources();
     }
 
-    private static Image<Rgba32>? ConvertSprite(Sprite sprite, Texture2D texture, Rect textureRect, Vector2 textureOffset, SpriteSettings settings, bool useDirectXTex) {
-        using var originalImage = SnuggleTextureFile.ConvertImage(texture, false, useDirectXTex);
+    private static Image<Rgba32>? ConvertSprite(Sprite sprite, Texture2D texture, Rect textureRect, Vector2 textureOffset, SpriteSettings settings, bool useDirectXTex, bool useTextureDecoder) {
+        using var originalImage = SnuggleTextureFile.ConvertImage(texture, false, useDirectXTex, useTextureDecoder);
         var rectX = (int) Math.Floor(textureRect.X);
         var rectY = (int) Math.Floor(textureRect.Y);
         var rectRight = (int) Math.Ceiling(textureRect.X + textureRect.W);
@@ -163,7 +163,7 @@ public static class SnuggleSpriteFile {
         }
 
         path = Path.ChangeExtension(path, ".png");
-        var (data, (width, height), _) = ConvertSprite(sprite, options, exportOptions.UseDirectTex);
+        var (data, (width, height), _) = ConvertSprite(sprite, options, exportOptions.UseDirectTex, exportOptions.UseTextureDecoder);
         var image = Image.WrapMemory<Rgba32>(data, width, height);
         image.SaveAsPng(path);
 

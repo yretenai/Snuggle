@@ -56,7 +56,7 @@ public enum TextureFormat {
     ASTC_ALPHA_10x10 = 58,
     ASTC_ALPHA_12x12 = 59,
     ETC_RGB4_3DS = 60,
-    ETC_RGBA8_3DS = 61,
+    ETC2_RGBA8_3DS = 61,
     RG16 = 62,
     R8 = 63,
     ETC_RGB4Crunched = 64,

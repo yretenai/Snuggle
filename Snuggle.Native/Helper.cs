@@ -22,6 +22,10 @@ public static class Helper {
             prefix = string.Empty;
         }
 
+        if (RuntimeInformation.ProcessArchitecture is Architecture.Arm or Architecture.Arm64) {
+            rid += $"-{RuntimeInformation.ProcessArchitecture.ToString("G").ToLowerInvariant()}";
+        }
+
         var libName = $"{prefix}{libraryName}.{ext}";
         var local = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
         var libPath = Path.Combine(local, libName);
@@ -35,6 +39,9 @@ public static class Helper {
         }
 
         libPath = Path.Combine(local, "runtimes", $"{rid}-{(Environment.Is64BitProcess ? "x64" : "x86")}", "native", libName);
+        if (File.Exists(libPath)) {
+            return NativeLibrary.Load(libPath);
+        }
         return File.Exists(libPath) ? NativeLibrary.Load(libPath) : IntPtr.Zero;
     }
 

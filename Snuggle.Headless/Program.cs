@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.Json;
 using DragonLib;
-using DragonLib.CLI;
+using DragonLib.CommandLine;
 using DragonLib.IO;
 using Snuggle.Converters;
 using Snuggle.Core;
@@ -23,7 +23,7 @@ namespace Snuggle.Headless;
 public static class Program {
     public static int Main() {
         var additionalFlags = new Dictionary<UnityGame, Type>();
-        foreach (var type in Assembly.GetExecutingAssembly().GetTypes().Where(x => x.GetCustomAttribute<GameFlagsAttribute>() != null && x.IsAssignableTo(typeof(IGameFlags)))) {
+        foreach (var type in Assembly.GetExecutingAssembly().GetTypes().Where(x => x.GetCustomAttribute<GameFlagsAttribute>() != null && x.IsAssignableTo(typeof(GameFlags.GameFlags)))) {
             var gameFlagsAttr = type.GetCustomAttribute<GameFlagsAttribute>();
             if (gameFlagsAttr == null) {
                 continue;
@@ -32,12 +32,12 @@ public static class Program {
             additionalFlags[gameFlagsAttr.Game] = type;
         }
 
-        var flags = CommandLineFlags.ParseFlags<SnuggleFlags>(
+        var flags = CommandLineFlagsParser.ParseFlags<SnuggleFlags>(
             (typeMap, helpInvoked) => {
-                CommandLineFlags.PrintHelp(typeMap, helpInvoked);
+                CommandLineFlagsParser.PrintHelp(typeMap, helpInvoked);
                 foreach (var (game, t) in additionalFlags) {
                     Logger.Info("FLAG", $"Help for UnityGame.{game:G}");
-                    CommandLineFlags.PrintHelp(t, CommandLineFlags.PrintHelp, helpInvoked);
+                    CommandLineFlagsParser.PrintHelp(t, CommandLineFlagsParser.PrintHelp, helpInvoked);
                 }
             });
         if (flags == null) {
@@ -53,9 +53,9 @@ public static class Program {
 
         logger.Debug("System", flags.ToString());
         logger.Debug("System", $"Args: {string.Join(' ', Environment.GetCommandLineArgs()[1..])}");
-        IGameFlags? gameFlags = null;
+        GameFlags.GameFlags? gameFlags = null;
         if (flags.Game is not UnityGame.Default && additionalFlags.TryGetValue(flags.Game, out var additionalGameFlags)) {
-            gameFlags = CommandLineFlags.ParseFlags(additionalGameFlags) as IGameFlags;
+            gameFlags = CommandLineFlagsParser.ParseFlags(additionalGameFlags) as GameFlags.GameFlags;
             if (gameFlags != null) {
                 logger.Debug("System", gameFlags.ToString());
             }

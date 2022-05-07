@@ -1,10 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net7.0</TargetFramework>
         <LangVersion>preview</LangVersion>
         <Nullable>enable</Nullable>
         <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+        <EnablePreviewFeatures>true</EnablePreviewFeatures>
     </PropertyGroup>
 
     <ItemGroup>
@@ -14,7 +15,6 @@
         <PackageReference Include="K4os.Compression.LZ4.Streams" Version="1.2.16" />
         <PackageReference Include="Mono.Cecil" Version="0.11.4" />
         <PackageReference Include="SevenZip" Version="19.0.0" />
-        <PackageReference Include="DragonLib" Version="2.0.0" />
     </ItemGroup>
 
     <ItemGroup>
@@ -25,6 +25,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Snuggle.UnityCs\Snuggle.UnityCs.csproj" />
+        <ProjectReference Include="..\DragonLib\DragonLib\DragonLib.csproj" />
     </ItemGroup>
 
     <Target Name="SetSourceRevisionId" BeforeTargets="BeforeBuild">

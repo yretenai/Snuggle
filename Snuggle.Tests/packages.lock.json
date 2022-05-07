@@ -1,7 +1,7 @@
 {
   "version": 1,
   "dependencies": {
-    "net6.0": {
+    "net7.0": {
       "coverlet.collector": {
         "type": "Direct",
         "requested": "[3.1.2, )",
@@ -33,15 +33,18 @@
         "resolved": "4.2.1",
         "contentHash": "kgH8VKsrcZZgNGQXRpVCrM7TnNz9li3b/snH+YmnXUNqsaWa1Xw9EQWHpbzq4Li2FbTjTE/E5N5HdLNXzZ8BpQ=="
       },
+      "BCnEncoder.Net": {
+        "type": "Transitive",
+        "resolved": "2.1.0",
+        "contentHash": "bBKYUDhpYenmp8vy5BVUHmS2LFym0NMga9V+S1eMJ+4zQLBwDw63Bs83AKOyqBKC2AqqgxXdTFA2a2V+SmGoIw==",
+        "dependencies": {
+          "Microsoft.Toolkit.HighPerformance": "7.0.2"
+        }
+      },
       "DirectXTexNet": {
         "type": "Transitive",
         "resolved": "1.0.3",
         "contentHash": "v7eEJhC9jtZCrS/ptdcIRGNN2vNSV6ZGifyKZQvqNH5gqSbDNhzpRbJtqzuBqsUj1t18Oxk7DTR68WGu39Mrrw=="
-      },
-      "DragonLib": {
-        "type": "Transitive",
-        "resolved": "2.0.0",
-        "contentHash": "ld2Jw6cDkPnMo4jlEPhUOmhPyV6clCqZw+v8NAuit3R46UOwc8MyXAiz3acQX6i/lLham8IK6nFH7KL2WoB2Fw=="
       },
       "K4os.Compression.LZ4": {
         "type": "Transitive",
@@ -121,6 +124,11 @@
           "Newtonsoft.Json": "9.0.1"
         }
       },
+      "Microsoft.Toolkit.HighPerformance": {
+        "type": "Transitive",
+        "resolved": "7.0.2",
+        "contentHash": "tG6v0AhDw/yJMtiH/tI4F6I/+sNIfu4++6WFfN73FyNcPh31et33w45wo8Lx1sfxcfLtkYk+w2fvU/MubYg4VQ=="
+      },
       "Mono.Cecil": {
         "type": "Transitive",
         "resolved": "0.11.4",
@@ -180,8 +188,8 @@
       },
       "SixLabors.ImageSharp": {
         "type": "Transitive",
-        "resolved": "2.1.0",
-        "contentHash": "H8npUDq3VRagzRsJVxaNoUSMmD+kjAs7sR1Ip85eWbN5c0O1medMw/FiQ32dSNfWz/gVrc+xHs3es9SFlAiNBw==",
+        "resolved": "2.1.1",
+        "contentHash": "oNHMT8+yUR9dyuU2r7fwsXvvS4OnfCs9N5i2y2p9iBxp3nvEZbe/hZWrOGfD7MX2lxOAlWzlhzj0q2uFwP8avg==",
         "dependencies": {
           "System.Runtime.CompilerServices.Unsafe": "5.0.0",
           "System.Text.Encoding.CodePages": "5.0.0"
@@ -606,11 +614,19 @@
           "System.Xml.ReaderWriter": "4.0.11"
         }
       },
+      "AssetRipper.TextureDecoder": {
+        "type": "Project"
+      },
+      "dragonlib": {
+        "type": "Project"
+      },
       "snuggle.converters": {
         "type": "Project",
         "dependencies": {
+          "AssetRipper.TextureDecoder": "1.1.0",
+          "BCnEncoder.Net": "2.1.0",
           "DirectXTexNet": "1.0.3",
-          "SixLabors.ImageSharp": "2.1.0",
+          "SixLabors.ImageSharp": "2.1.1",
           "SixLabors.ImageSharp.Drawing": "1.0.0-beta14",
           "Snuggle.Core": "1.0.0",
           "Snuggle.Native": "1.0.0",
@@ -620,7 +636,7 @@
       "snuggle.core": {
         "type": "Project",
         "dependencies": {
-          "DragonLib": "2.0.0",
+          "DragonLib": "3.0.1",
           "K4os.Compression.LZ4.Streams": "1.2.16",
           "Mono.Cecil": "0.11.4",
           "SevenZip": "19.0.0",

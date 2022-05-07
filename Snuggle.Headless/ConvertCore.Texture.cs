@@ -23,7 +23,7 @@ public static partial class ConvertCore {
         if (dds) {
             SnuggleTextureFile.SaveNative(texture, fullPath);
         } else {
-            SnuggleTextureFile.SavePNG(texture, fullPath, flip, flags.UseDirectXTex);
+            SnuggleTextureFile.SavePNG(texture, fullPath, flip, flags.UseDirectXTex, flags.UseTextureDecoder);
         }
     }
 }

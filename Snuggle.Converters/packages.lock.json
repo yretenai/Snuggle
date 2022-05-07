@@ -1,7 +1,16 @@
 {
   "version": 1,
   "dependencies": {
-    "net6.0": {
+    "net7.0": {
+      "BCnEncoder.Net": {
+        "type": "Direct",
+        "requested": "[2.1.0, )",
+        "resolved": "2.1.0",
+        "contentHash": "bBKYUDhpYenmp8vy5BVUHmS2LFym0NMga9V+S1eMJ+4zQLBwDw63Bs83AKOyqBKC2AqqgxXdTFA2a2V+SmGoIw==",
+        "dependencies": {
+          "Microsoft.Toolkit.HighPerformance": "7.0.2"
+        }
+      },
       "DirectXTexNet": {
         "type": "Direct",
         "requested": "[1.0.3, )",
@@ -10,9 +19,9 @@
       },
       "SixLabors.ImageSharp": {
         "type": "Direct",
-        "requested": "[2.1.0, )",
-        "resolved": "2.1.0",
-        "contentHash": "H8npUDq3VRagzRsJVxaNoUSMmD+kjAs7sR1Ip85eWbN5c0O1medMw/FiQ32dSNfWz/gVrc+xHs3es9SFlAiNBw==",
+        "requested": "[2.1.1, )",
+        "resolved": "2.1.1",
+        "contentHash": "oNHMT8+yUR9dyuU2r7fwsXvvS4OnfCs9N5i2y2p9iBxp3nvEZbe/hZWrOGfD7MX2lxOAlWzlhzj0q2uFwP8avg==",
         "dependencies": {
           "System.Runtime.CompilerServices.Unsafe": "5.0.0",
           "System.Text.Encoding.CodePages": "5.0.0"
@@ -27,11 +36,6 @@
           "SixLabors.Fonts": "1.0.0-beta16",
           "SixLabors.ImageSharp": "2.0.0"
         }
-      },
-      "DragonLib": {
-        "type": "Transitive",
-        "resolved": "2.0.0",
-        "contentHash": "ld2Jw6cDkPnMo4jlEPhUOmhPyV6clCqZw+v8NAuit3R46UOwc8MyXAiz3acQX6i/lLham8IK6nFH7KL2WoB2Fw=="
       },
       "K4os.Compression.LZ4": {
         "type": "Transitive",
@@ -59,6 +63,11 @@
         "type": "Transitive",
         "resolved": "5.0.0",
         "contentHash": "VyPlqzH2wavqquTcYpkIIAQ6WdenuKoFN0BdYBbCWsclXacSOHNQn66Gt4z5NBqEYW0FAPm5rlvki9ZiCij5xQ=="
+      },
+      "Microsoft.Toolkit.HighPerformance": {
+        "type": "Transitive",
+        "resolved": "7.0.2",
+        "contentHash": "tG6v0AhDw/yJMtiH/tI4F6I/+sNIfu4++6WFfN73FyNcPh31et33w45wo8Lx1sfxcfLtkYk+w2fvU/MubYg4VQ=="
       },
       "Mono.Cecil": {
         "type": "Transitive",
@@ -93,10 +102,16 @@
           "Microsoft.NETCore.Platforms": "5.0.0"
         }
       },
+      "AssetRipper.TextureDecoder": {
+        "type": "Project"
+      },
+      "dragonlib": {
+        "type": "Project"
+      },
       "snuggle.core": {
         "type": "Project",
         "dependencies": {
-          "DragonLib": "2.0.0",
+          "DragonLib": "3.0.1",
           "K4os.Compression.LZ4.Streams": "1.2.16",
           "Mono.Cecil": "0.11.4",
           "SevenZip": "19.0.0",

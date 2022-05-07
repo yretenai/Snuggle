@@ -2,13 +2,14 @@
 
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
-        <TargetFramework>net6.0-windows</TargetFramework>
+        <TargetFramework>net7.0-windows</TargetFramework>
         <LangVersion>preview</LangVersion>
         <Nullable>enable</Nullable>
         <UseWPF>true</UseWPF>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
         <ApplicationIcon>Snuggle.ico</ApplicationIcon>
+        <EnablePreviewFeatures>true</EnablePreviewFeatures>
     </PropertyGroup>
 
     <ItemGroup>
@@ -22,7 +23,7 @@
         <PackageReference Include="HelixToolkit.Core.Wpf" Version="2.20.2" />
         <PackageReference Include="HelixToolkit.SharpDX.Core.Wpf" Version="2.20.2" />
         <PackageReference Include="NAudio" Version="2.0.1" />
-        <PackageReference Include="SixLabors.ImageSharp" Version="2.1.0" />
+        <PackageReference Include="SixLabors.ImageSharp" Version="2.1.1" />
         <PackageReference Include="WindowsAPICodePack-Core" Version="1.1.2" NoWarn="NU1701" />
         <PackageReference Include="WindowsAPICodePack-Shell" Version="1.1.1" NoWarn="NU1701" />
     </ItemGroup>

@@ -3,7 +3,14 @@ using Snuggle.Core.Implementations;
 
 namespace Snuggle.Core.Options;
 
-public record SnuggleExportOptions([Description("Writes Native 3D textures such as DDS instead of converting them to PNG or TIF")] bool WriteNativeTextures, [Description(SnuggleExportOptions.PathTemplateDescription)] string PathTemplate, [Description(SnuggleExportOptions.PathTemplateDescription)] string ContainerlessPathTemplate, [Description("Use DirectXTex for converting textures")] bool UseDirectTex, [Description("Only display and export objects with CAB paths")] bool OnlyWithCABPath, [Description("Keep audio samples in their native format")] bool WriteNativeAudio) {
+public record SnuggleExportOptions(
+    [Description("Writes Native 3D textures such as DDS instead of converting them to PNG or TIF")] bool WriteNativeTextures, 
+    [Description(SnuggleExportOptions.PathTemplateDescription)] string PathTemplate, 
+    [Description(SnuggleExportOptions.PathTemplateDescription)] string ContainerlessPathTemplate, 
+    [Description("Use DirectXTex for converting textures")] bool UseDirectTex,
+    [Description("Use AssetStudio's Texture2DDecoder for converting textures")] bool UseTextureDecoder, 
+    [Description("Only display and export objects with CAB paths")] bool OnlyWithCABPath, 
+    [Description("Keep audio samples in their native format")] bool WriteNativeAudio) {
     private const string PathTemplateDescription = @"Output Path Template
 Available variables:
     Id - The Path ID of the object.
@@ -29,10 +36,10 @@ Available variables:
     public const string DefaultPathTemplate = "{ProductOrProject}/{Version}/{ContainerOrNameWithoutExt}_{Id}.{Ext}";
     public const string DefaultContainerlessPathTemplate = "{ProductOrProject}/{Version}/{Tag}/__unknown/{Type}/{Name}_{Id}.{Ext}";
 
-    private const int LatestVersion = 8;
+    private const int LatestVersion = 9;
     public int Version { get; init; } = LatestVersion;
 
-    public static SnuggleExportOptions Default { get; } = new(false, DefaultPathTemplate, DefaultContainerlessPathTemplate, true, false, true);
+    public static SnuggleExportOptions Default { get; } = new(false, DefaultPathTemplate, DefaultContainerlessPathTemplate, false, false, false, true);
 
     public bool NeedsMigration() => Version < LatestVersion;
 
@@ -60,6 +67,10 @@ Available variables:
 
         if (Version < 8) {
             settings = settings with { WriteNativeAudio = true };
+        }
+
+        if (Version < 9) {
+            settings = settings with { UseTextureDecoder = false };
         }
 
         return settings with { Version = LatestVersion };

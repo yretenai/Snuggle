@@ -1,7 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net7.0</TargetFramework>
+        <EnablePreviewFeatures>true</EnablePreviewFeatures>
         <LangVersion>preview</LangVersion>
         <Nullable>enable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -9,8 +10,9 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="BCnEncoder.Net" Version="2.1.0" />
         <PackageReference Include="DirectXTexNet" Version="1.0.3" />
-        <PackageReference Include="SixLabors.ImageSharp" Version="2.1.0" />
+        <PackageReference Include="SixLabors.ImageSharp" Version="2.1.1" />
         <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta14" />
     </ItemGroup>
 
@@ -18,5 +20,6 @@
         <ProjectReference Include="..\Snuggle.Core\Snuggle.Core.csproj" />
         <ProjectReference Include="..\Snuggle.glTF\Snuggle.glTF.csproj" />
         <ProjectReference Include="..\Snuggle.Native\Snuggle.Native.csproj" />
+        <ProjectReference Include="..\TextureDecoder\TextureDecoder\TextureDecoder.csproj" />
     </ItemGroup>
 </Project>
