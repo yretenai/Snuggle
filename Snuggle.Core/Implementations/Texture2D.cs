@@ -14,8 +14,9 @@ using Snuggle.Core.Options;
 
 namespace Snuggle.Core.Implementations;
 
+
 [ObjectImplementation(UnityClassId.Texture2D)]
-public class Texture2D : Texture, ISerializedResource {
+public class Texture2D : Texture, ITexture {
     public Texture2D(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) {
         Width = reader.ReadInt32();
         Height = reader.ReadInt32();
@@ -59,10 +60,10 @@ public class Texture2D : Texture, ISerializedResource {
             StreamingPriority = reader.ReadInt32();
         }
 
-        TextureCount = reader.ReadInt32();
+        Depth = reader.ReadInt32();
         TextureDimension = (TextureDimension) reader.ReadInt32();
         TextureSettings = GLTextureSettings.FromReader(reader, serializedFile);
-        LightmapFormat = (LightmapFormat) reader.ReadInt32();
+        UsageMode = (TextureUsageMode) reader.ReadInt32();
 
         if (serializedFile.Options.Game is UnityGame.PokemonUnite) {
             var container = GetExtraContainer<UniteTexture2DExtension>(UnityClassId.Texture2D);
@@ -95,6 +96,7 @@ public class Texture2D : Texture, ISerializedResource {
 
     public int Width { get; set; }
     public int Height { get; set; }
+    public int Depth { get; set; }
     public uint TextureDataSize { get; set; }
     public bool IsStrippedMips { get; set; }
     public TextureFormat TextureFormat { get; set; }
@@ -105,10 +107,9 @@ public class Texture2D : Texture, ISerializedResource {
     public bool IsReadAllowed { get; set; }
     public bool IsStreamingMipmaps { get; set; }
     public int StreamingPriority { get; set; }
-    public int TextureCount { get; set; }
     public TextureDimension TextureDimension { get; set; }
     public GLTextureSettings TextureSettings { get; set; }
-    public LightmapFormat LightmapFormat { get; set; }
+    public TextureUsageMode UsageMode { get; set; }
     public ColorSpace ColorSpace { get; set; }
     private long TextureDataStart { get; } = -1;
     private long PlatformDataStart { get; } = -1;
@@ -178,10 +179,10 @@ public class Texture2D : Texture, ISerializedResource {
             writer.Write(StreamingPriority);
         }
 
-        writer.Write(TextureCount);
+        writer.Write(Depth);
         writer.Write((int) TextureDimension);
         TextureSettings.ToWriter(writer, SerializedFile, options.TargetVersion);
-        writer.Write((int) LightmapFormat);
+        writer.Write((int) UsageMode);
         writer.Write((int) ColorSpace);
         if (options.TargetVersion >= UnityVersionRegister.Unity2020_2) {
             writer.WriteMemory(PlatformData);

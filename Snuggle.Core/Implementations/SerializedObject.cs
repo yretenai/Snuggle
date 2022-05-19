@@ -14,7 +14,7 @@ using Snuggle.Core.Options;
 namespace Snuggle.Core.Implementations;
 
 [ObjectImplementation(UnityClassId.Object)]
-public class SerializedObject : IEquatable<SerializedObject>, ISerialized {
+public class SerializedObject : IEquatable<SerializedObject>, ISerialized, ISerializedObject {
     // ReSharper disable once UnusedParameter.Local
     public SerializedObject(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : this(info, serializedFile) => IsMutated = false;
 
@@ -99,7 +99,7 @@ public class SerializedObject : IEquatable<SerializedObject>, ISerialized {
         Deserialize(reader, options);
     }
 
-    protected T GetExtraContainer<T>(object classId) where T : ISerialized, new() {
+    public T GetExtraContainer<T>(object classId) where T : ISerialized, new() {
         if (!ExtraContainers.TryGetValue(classId, out var instance) || instance is not T tInstance) {
             tInstance = new T();
             ExtraContainers[classId] = tInstance;
@@ -108,7 +108,7 @@ public class SerializedObject : IEquatable<SerializedObject>, ISerialized {
         return tInstance;
     }
 
-    protected bool TryGetExtraContainer(object classId, [MaybeNullWhen(false)] out ISerialized container) {
+    public bool TryGetExtraContainer(object classId, [MaybeNullWhen(false)] out ISerialized container) {
         if (!ExtraContainers.TryGetValue(classId, out var instance)) {
             container = null;
             return false;

@@ -11,6 +11,7 @@ using DragonLib;
 using DragonLib.IO;
 using Snuggle.Core;
 using Snuggle.Core.Implementations;
+using Snuggle.Core.Interfaces;
 using Snuggle.Core.Models;
 using Snuggle.Core.Models.Objects.Graphics;
 using Snuggle.Core.Options;
@@ -613,7 +614,7 @@ public static class SnuggleMeshFile {
         existingMaterials[material.GetCompositeId()] = materialId;
 
         foreach (var (name, texEnv) in material.SavedProperties.Textures) {
-            if (texEnv.Texture.Value is not Texture2D texture) {
+            if (texEnv.Texture.Value is not ITexture texture) {
                 continue;
             }
 

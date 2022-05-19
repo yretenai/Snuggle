@@ -3,11 +3,11 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:implementations="clr-namespace:Snuggle.Core.Implementations;assembly=Snuggle.Core"
              xmlns:converters="clr-namespace:Snuggle.Converters"
+             xmlns:interfaces="clr-namespace:Snuggle.Core.Interfaces;assembly=Snuggle.Core"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300"
-             d:DataContext="{d:DesignInstance implementations:Texture2D}"
+             d:DataContext="{d:DesignInstance interfaces:ITexture}"
              x:Name="Renderer"
              DataContextChanged="Refresh"
              SnapsToDevicePixels="False">
@@ -58,6 +58,9 @@
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
                 </ComboBox>
+                <ComboBox Margin="7.5, 0" SelectedItem="{Binding Frame, ElementName=Renderer, Mode=TwoWay}"
+                          SelectionChanged="ChangeFrame"
+                          ItemsSource="{Binding Frames, ElementName=Renderer, Mode=OneWay}"/>
                 <TextBlock Margin="7.5,0" Text="{Binding Carried.TextureFormat}" VerticalAlignment="Center" />
             </StackPanel>
         </Grid>

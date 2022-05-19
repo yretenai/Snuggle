@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using DirectXTexNet;
-using Snuggle.Core.Implementations;
+using Snuggle.Core.Interfaces;
 
 namespace Snuggle.Converters;
 
 public static partial class Texture2DConverter {
-    public static unsafe Memory<byte> ToRGBADirectX(Texture2D texture2D) {
+    public static unsafe Memory<byte> ToRGBADirectX(ITexture texture2D) {
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
             return Memory<byte>.Empty;
         }
@@ -19,7 +19,7 @@ public static partial class Texture2DConverter {
                 var info = scratch.GetMetadata();
 
                 if (TexHelper.Instance.IsCompressed(info.Format)) {
-                    var temp = scratch.Decompress(0, DXGI_FORMAT.UNKNOWN);
+                    var temp = scratch.Decompress(DXGI_FORMAT.UNKNOWN);
                     scratch.Dispose();
                     scratch = temp;
                     info = scratch.GetMetadata();
@@ -31,9 +31,17 @@ public static partial class Texture2DConverter {
                     scratch = temp;
                 }
 
-                var image = scratch.GetImage(0);
-                Memory<byte> tex = new byte[image.Width * image.Height * 4];
-                Buffer.MemoryCopy((void*) image.Pixels, tex.Pin().Pointer, tex.Length, tex.Length);
+                info = scratch.GetMetadata();
+
+                Memory<byte> tex = new byte[texture2D.Width * texture2D.Height * texture2D.Depth * 4];
+                using var pin = tex.Pin();
+                var offset = 0;
+                for (var i = 0; i < info.ArraySize; ++i) {
+                    var image = scratch.GetImage(i);
+                    Buffer.MemoryCopy((void*) image.Pixels, (void*) ((nint) pin.Pointer + offset), tex.Length - offset, image.SlicePitch);
+                    offset += (int) image.SlicePitch;
+                }
+
                 return tex;
             }
         } finally {

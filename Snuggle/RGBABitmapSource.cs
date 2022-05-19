@@ -11,13 +11,15 @@ namespace Snuggle;
 public class RGBABitmapSource : BitmapSource {
     private readonly int BackingPixelHeight;
     private readonly int BackingPixelWidth;
+    public readonly int Frames;
     private readonly TextureFormat BaseFormat;
 
-    public RGBABitmapSource(Memory<byte> rgbaBuffer, int pixelWidth, int pixelHeight, TextureFormat format) {
+    public RGBABitmapSource(Memory<byte> rgbaBuffer, int pixelWidth, int pixelHeight, TextureFormat format, int frames) {
         Buffer = rgbaBuffer;
         BackingPixelWidth = pixelWidth;
         BackingPixelHeight = pixelHeight;
         BaseFormat = format;
+        Frames = frames;
     }
 
     public RGBABitmapSource(RGBABitmapSource rgba) {
@@ -29,6 +31,8 @@ public class RGBABitmapSource : BitmapSource {
         HideBlue = rgba.HideBlue;
         HideAlpha = rgba.HideAlpha;
         BaseFormat = rgba.BaseFormat;
+        Frames = rgba.Frames;
+        Frame = rgba.Frame;
     }
 
     private Memory<byte> Buffer { get; }
@@ -37,6 +41,7 @@ public class RGBABitmapSource : BitmapSource {
     public bool HideGreen { get; init; }
     public bool HideBlue { get; init; }
     public bool HideAlpha { get; init; }
+    public int Frame { get; init; }
 
     public override double DpiX => 96;
 
@@ -53,7 +58,7 @@ public class RGBABitmapSource : BitmapSource {
     public override double Height => BackingPixelHeight;
 
     public override void CopyPixels(Int32Rect sourceRect, Array pixels, int stride, int offset) {
-        var span = Buffer.Span;
+        var span = Buffer.Span[(int) (Width * Height * 4 * Frame)..];
 
         byte[] shuffle;
         if (BaseFormat.IsAlphaFirst()) {
@@ -80,7 +85,7 @@ public class RGBABitmapSource : BitmapSource {
         }
     }
 
-    protected override Freezable CreateInstanceCore() => new RGBABitmapSource(Buffer, PixelWidth, PixelHeight, BaseFormat);
+    protected override Freezable CreateInstanceCore() => new RGBABitmapSource(Buffer, PixelWidth, PixelHeight, BaseFormat, Frames) { Frame = Frame };
 
 #pragma warning disable 67
     public override event EventHandler<DownloadProgressEventArgs>? DownloadProgress;

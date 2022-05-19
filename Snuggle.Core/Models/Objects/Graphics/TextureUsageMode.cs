@@ -1,17 +1,17 @@
 ﻿namespace Snuggle.Core.Models.Objects.Graphics;
 
-// ReSharper disable InconsistentNaming
-public enum LightmapFormat {
-    Unknown = -1,
+public enum TextureUsageMode {
     Default = 0,
     BakedLightmapDoubleLDR = 1,
     BakedLightmapRGBM = 2,
-    NormalMapDXT5NM = 3,
-    NormalMapPlain = 4,
+    NormalmapDXT5nm = 3,
+    NormalmapPlain = 4,
     RGBMEncoded = 5,
     AlwaysPadded = 6,
     DoubleLDR = 7,
     BakedLightmapFullHDR = 8,
-    RealTimeLightmapRGBM = 9,
+    RealtimeLightmapRGBM = 9,
+    NormalmapASTCnm = 10,
+    SingleChannelRed = 11,
+    SingleChannelAlpha = 12,
 }
-// ReSharper enable InconsistentNaming

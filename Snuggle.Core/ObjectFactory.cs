@@ -185,11 +185,7 @@ public static class ObjectFactory {
         var start = reader.BaseStream.Position;
         object? value;
         try {
-            if (node.TypeName.StartsWith("PPtr<")) {
-                var ptr = PPtr<SerializedObject>.FromReader(reader, file);
-                ptr.Tag = node.TypeName.Split('<')[1][..^1];
-                value = ptr;
-            } else if (node.TypeName == "PPtr`1") {
+            if (node.TypeName.StartsWith("PPtr<") || node.TypeName == "PPtr`1") {
                 value = PPtr<SerializedObject>.FromReader(reader, file);
             } else {
                 switch (node.TypeName.ToLowerInvariant()) {

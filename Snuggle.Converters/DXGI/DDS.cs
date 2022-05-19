@@ -9,7 +9,7 @@ public static class DDS {
         var header = new DDSImageHeader {
             Magic = 0x2053_4444,
             Size = 0x7C,
-            Flags = 0x1 | 0x2 | 0x4 | 0x1000 | 0x0002_0000,
+            Flags = 0x1 | 0x2 | 0x4 | 0x1000 | 0x20000,
             Width = width,
             Height = height,
             LinearSize = 0,
@@ -25,7 +25,7 @@ public static class DDS {
                 BlueMask = 0xFF00_0000,
                 AlphaMask = 0x0000_00FF,
             },
-            Caps1 = 0x1008,
+            Caps1 = 0x8 | 0x1000 | 0x400000,
             Caps2 = 0,
             Caps3 = 0,
             Caps4 = 0,
@@ -33,7 +33,7 @@ public static class DDS {
         };
         MemoryMarshal.Write(result, ref header);
         var dx10 = new DXT10Header {
-            Format = (int) pixel, Dimension = DXT10ResourceDimension.TEXTURE2D, Misc = 0, Size = Math.Max(1, frameCount),
+            Format = (int) pixel, Dimension = DXT10ResourceDimension.TEXTURE2D, Misc = 0, Size = frameCount,
         };
         MemoryMarshal.Write(result[0x80..], ref dx10);
         blob.CopyTo(result[0x94..]);

@@ -6,6 +6,7 @@ using SixLabors.ImageSharp.Memory;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using Snuggle.Core.Implementations;
+using Snuggle.Core.Interfaces;
 using Snuggle.Core.Options;
 
 namespace Snuggle.Converters;
@@ -19,7 +20,7 @@ public static class SnuggleTextureFile {
 
     private static ConcurrentDictionary<(long, string), ReadOnlyMemory<byte>> CachedData { get; set; } = new();
 
-    public static Memory<byte> LoadCachedTexture(Texture2D texture, bool useDirectXTex, bool useTextureDecoder) {
+    public static Memory<byte> LoadCachedTexture(ITexture texture, bool useDirectXTex, bool useTextureDecoder) {
         var memory = CachedData.GetOrAdd(
             texture.GetCompositeId(),
             static (_, arg) => {
@@ -40,7 +41,7 @@ public static class SnuggleTextureFile {
         Configuration.Default.MemoryAllocator.ReleaseRetainedResources();
     }
 
-    public static string Save(Texture2D texture, string path, SnuggleExportOptions options, bool flip) {
+    public static string Save(ITexture texture, string path, SnuggleExportOptions options, bool flip) {
         var dir = Path.GetDirectoryName(path);
         if (!string.IsNullOrWhiteSpace(dir) && !Directory.Exists(dir)) {
             Directory.CreateDirectory(dir);
@@ -59,7 +60,7 @@ public static class SnuggleTextureFile {
         return path;
     }
 
-    public static void SavePNG(Texture2D texture, string path, bool flip, bool useDirectXTex, bool useTextureDecoder) {
+    public static void SavePNG(ITexture texture, string path, bool flip, bool useDirectXTex, bool useTextureDecoder) {
         if (File.Exists(path)) {
             return;
         }
@@ -68,7 +69,7 @@ public static class SnuggleTextureFile {
         image.SaveAsPng(path);
     }
 
-    public static Image<Rgba32> ConvertImage(Texture2D texture, bool flip, bool useDirectXTex, bool useTextureDecoder) {
+    public static Image<Rgba32> ConvertImage(ITexture texture, bool flip, bool useDirectXTex, bool useTextureDecoder) {
         var data = LoadCachedTexture(texture, useDirectXTex, useTextureDecoder);
         if (data.IsEmpty) {
             return new Image<Rgba32>(1, 1, new Rgba32(0));
@@ -92,7 +93,7 @@ public static class SnuggleTextureFile {
         return image;
     }
 
-    public static void SaveNative(Texture2D texture, string path) {
+    public static void SaveNative(ITexture texture, string path) {
         if (!texture.TextureFormat.CanSupportDDS()) {
             return;
         }

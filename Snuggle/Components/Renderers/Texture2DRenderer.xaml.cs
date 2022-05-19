@@ -1,15 +1,20 @@
 ﻿using System;
+using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using Snuggle.Core.Interfaces;
 
 namespace Snuggle.Components.Renderers;
 
 public sealed partial class Texture2DRenderer {
     public static readonly DependencyProperty CanvasBackgroundProperty = DependencyProperty.Register("CanvasBackground", typeof(Brush), typeof(Texture2DRenderer), new PropertyMetadata(new SolidColorBrush(Colors.White)));
     public static readonly DependencyProperty RenderingModeProperty = DependencyProperty.Register("RenderingMode", typeof(BitmapScalingMode), typeof(Texture2DRenderer), new PropertyMetadata(BitmapScalingMode.Fant));
+    public static readonly DependencyProperty FrameProperty = DependencyProperty.Register("Frame", typeof(int), typeof(Texture2DRenderer), new PropertyMetadata(0));
+    public static readonly DependencyProperty FramesProperty = DependencyProperty.Register("Frames", typeof(int[]), typeof(Texture2DRenderer), new PropertyMetadata(new[] { 0 }));
 
     public Texture2DRenderer() {
         InitializeComponent();
@@ -29,7 +34,17 @@ public sealed partial class Texture2DRenderer {
         set => SetValue(RenderingModeProperty, value);
     }
 
+    public int Frame {
+        get => (int) GetValue(FrameProperty);
+        set => SetValue(FrameProperty, value);
+    }
+
     public BitmapScalingMode[] ScalingModes { get; } = { BitmapScalingMode.Linear, BitmapScalingMode.Fant, BitmapScalingMode.NearestNeighbor };
+
+    public int[] Frames {
+        get => (int[]) GetValue(FramesProperty);
+        set => SetValue(FramesProperty, value);
+    }
 
     private void Zoom(object sender, MouseWheelEventArgs e) {
         var st = (ScaleTransform) ImageView.LayoutTransform;
@@ -72,19 +87,28 @@ public sealed partial class Texture2DRenderer {
         }
 
         result.Result = rgba;
-        result.Refresh();
         Refresh(this, new DependencyPropertyChangedEventArgs());
     }
 
     private void ToggleColor(object sender, RoutedEventArgs e) {
+        Rebuild();
+    }
+
+    private void Rebuild() {
+        if (DataContext is ITexture texture) {
+            Frames = Enumerable.Range(0, texture.Depth).ToArray();
+        }
+        
         var result = ImageView.DataContext as TaskCompletionNotifier<BitmapSource?>;
+
         if (result?.Task.Result is not RGBABitmapSource rgba) {
             return;
         }
 
         result.Result = new RGBABitmapSource(rgba) {
-            HideRed = Red.IsChecked == false, HideGreen = Green.IsChecked == false, HideBlue = Blue.IsChecked == false, HideAlpha = Alpha.IsChecked == false,
+            HideRed = Red.IsChecked == false, HideGreen = Green.IsChecked == false, HideBlue = Blue.IsChecked == false, HideAlpha = Alpha.IsChecked == false, Frame = Frame,
         };
+        
         result.Refresh();
     }
 
@@ -97,5 +121,11 @@ public sealed partial class Texture2DRenderer {
         Green.IsChecked = true;
         Blue.IsChecked = true;
         Alpha.IsChecked = true;
+        Frame = 0;
+        Rebuild();
+    }
+
+    private void ChangeFrame(object sender, SelectionChangedEventArgs e) {
+        Rebuild();
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using Snuggle.Core.Implementations;
+using Snuggle.Core.Interfaces;
 
 namespace Snuggle.Core.Options;
 
@@ -76,5 +77,5 @@ Available variables:
         return settings with { Version = LatestVersion };
     }
 
-    public string DecidePathTemplate(SerializedObject serializedObject) => serializedObject.HasContainerPath ? PathTemplate : ContainerlessPathTemplate;
+    public string DecidePathTemplate(ISerializedObject serializedObject) => serializedObject.HasContainerPath ? PathTemplate : ContainerlessPathTemplate;
 }

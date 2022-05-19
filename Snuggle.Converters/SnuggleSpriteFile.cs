@@ -12,6 +12,7 @@ using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using Snuggle.Core.Implementations;
+using Snuggle.Core.Interfaces;
 using Snuggle.Core.Models.Objects.Graphics;
 using Snuggle.Core.Models.Objects.Math;
 using Snuggle.Core.Options;
@@ -60,7 +61,7 @@ public static class SnuggleSpriteFile {
         Configuration.Default.MemoryAllocator.ReleaseRetainedResources();
     }
 
-    private static Image<Rgba32>? ConvertSprite(Sprite sprite, Texture2D texture, Rect textureRect, Vector2 textureOffset, SpriteSettings settings, bool useDirectXTex, bool useTextureDecoder) {
+    private static Image<Rgba32>? ConvertSprite(Sprite sprite, ITexture texture, Rect textureRect, Vector2 textureOffset, SpriteSettings settings, bool useDirectXTex, bool useTextureDecoder) {
         using var originalImage = SnuggleTextureFile.ConvertImage(texture, false, useDirectXTex, useTextureDecoder);
         var rectX = (int) Math.Floor(textureRect.X);
         var rectY = (int) Math.Floor(textureRect.Y);

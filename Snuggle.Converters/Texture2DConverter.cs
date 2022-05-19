@@ -10,6 +10,7 @@ using Snuggle.Converters.DXGI;
 using Snuggle.Core;
 using Snuggle.Core.Exceptions;
 using Snuggle.Core.Implementations;
+using Snuggle.Core.Interfaces;
 using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
 using Snuggle.Core.Models.Objects.Graphics;
@@ -20,10 +21,10 @@ using Half = System.Half;
 namespace Snuggle.Converters;
 
 public static partial class Texture2DConverter {
-    public static bool SupportsDDS(Texture2D texture) => texture.TextureFormat.CanSupportDDS();
+    public static bool SupportsDDS(ITexture texture) => texture.TextureFormat.CanSupportDDS();
     public static bool UseDDSConversion(TextureFormat textureFormat) => RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && textureFormat.CanSupportDDS();
 
-    public static Memory<byte> ToRGBA(Texture2D texture2D, bool useDirectXTex, bool useTextureDecoder) {
+    public static Memory<byte> ToRGBA(ITexture texture2D, bool useDirectXTex, bool useTextureDecoder) {
         if (texture2D.TextureData!.Value.IsEmpty) {
             return Memory<byte>.Empty;
         }
@@ -78,27 +79,27 @@ public static partial class Texture2DConverter {
                 case TextureFormat.ETC2_RGBA8_3DS:
                     return DecodeETC2A8(texture2D.Width, texture2D.Height, textureData);
                 case TextureFormat.ASTC_4x4:
-                case TextureFormat.ASTC_ALPHA_4x4:
+                case TextureFormat.ASTC_RGBA_4x4:
                 case TextureFormat.ASTC_HDR_4x4:
                     return DecodeASTC(4, texture2D.Width, texture2D.Height, textureData);
                 case TextureFormat.ASTC_5x5:
-                case TextureFormat.ASTC_ALPHA_5x5:
+                case TextureFormat.ASTC_RGBA_5x5:
                 case TextureFormat.ASTC_HDR_5x5:
                     return DecodeASTC(5, texture2D.Width, texture2D.Height, textureData);
                 case TextureFormat.ASTC_6x6:
-                case TextureFormat.ASTC_ALPHA_6x6:
+                case TextureFormat.ASTC_RGBA_6x6:
                 case TextureFormat.ASTC_HDR_6x6:
                     return DecodeASTC(6, texture2D.Width, texture2D.Height, textureData);
                 case TextureFormat.ASTC_8x8:
-                case TextureFormat.ASTC_ALPHA_8x8:
+                case TextureFormat.ASTC_RGBA_8x8:
                 case TextureFormat.ASTC_HDR_8x8:
                     return DecodeASTC(8, texture2D.Width, texture2D.Height, textureData);
                 case TextureFormat.ASTC_10x10:
-                case TextureFormat.ASTC_ALPHA_10x10:
+                case TextureFormat.ASTC_RGBA_10x10:
                 case TextureFormat.ASTC_HDR_10x10:
                     return DecodeASTC(10, texture2D.Width, texture2D.Height, textureData);
                 case TextureFormat.ASTC_12x12:
-                case TextureFormat.ASTC_ALPHA_12x12:
+                case TextureFormat.ASTC_RGBA_12x12:
                 case TextureFormat.ASTC_HDR_12x12:
                     return DecodeASTC(12, texture2D.Width, texture2D.Height, textureData);
                 case TextureFormat.ETC_RGB4Crunched when UnpackCrunch(texture2D.SerializedFile.Version, texture2D.TextureFormat, textureData, out var data): {
@@ -138,7 +139,7 @@ public static partial class Texture2DConverter {
                     return DecodeRGF(texture2D.Width, texture2D.Height, textureData);
                 case TextureFormat.RGBAFloat:
                     return DecodeRGBAF(texture2D.Width, texture2D.Height, textureData);
-                case TextureFormat.YUY2:
+                case TextureFormat.YUV2:
                     return DecodeYUY2(texture2D.Width, texture2D.Height, textureData);
                 case TextureFormat.RGB9e5Float:
                     return DecodeRGB9E5(texture2D.Width, texture2D.Height, textureData);
@@ -208,7 +209,7 @@ public static partial class Texture2DConverter {
             case TextureFormat.R8:
                 RgbDecoder.R8ToBGRA32(textureMem.Span, texture2D.Width, texture2D.Height, imageData.Span);
                 break;
-            case TextureFormat.YUY2:
+            case TextureFormat.YUV2:
                 Yuy2Decoder.DecompressYUY2(textureMem.Span, texture2D.Width, texture2D.Height, imageData.Span);
                 break;
             case TextureFormat.DXT1: {
@@ -316,7 +317,6 @@ public static partial class Texture2DConverter {
                 EtcDecoder.DecompressETC2A1(textureMem.Span, texture2D.Width, texture2D.Height, imageData.Span);
                 break;
             case TextureFormat.ETC2_RGBA8:
-            case TextureFormat.ETC2_RGBA8_3DS:
                 EtcDecoder.DecompressETC2A8(textureMem.Span, texture2D.Width, texture2D.Height, imageData.Span);
                 break;
             case TextureFormat.ETC2_RGBA8Crunched when UnpackCrunch(texture2D.SerializedFile.Version, texture2D.TextureFormat, textureMem.ToArray(), out var data): {
@@ -324,32 +324,32 @@ public static partial class Texture2DConverter {
                 break;
             }
             case TextureFormat.ASTC_4x4:
-            case TextureFormat.ASTC_ALPHA_4x4:
+            case TextureFormat.ASTC_RGBA_4x4:
             case TextureFormat.ASTC_HDR_4x4:
                 AstcDecoder.DecodeASTC(textureMem.Span, texture2D.Width, texture2D.Height, 4, 4,  imageData.Span);
                 break;
             case TextureFormat.ASTC_5x5:
-            case TextureFormat.ASTC_ALPHA_5x5:
+            case TextureFormat.ASTC_RGBA_5x5:
             case TextureFormat.ASTC_HDR_5x5:
                 AstcDecoder.DecodeASTC(textureMem.Span, texture2D.Width, texture2D.Height, 5, 5,  imageData.Span);
                 break;
             case TextureFormat.ASTC_6x6:
-            case TextureFormat.ASTC_ALPHA_6x6:
+            case TextureFormat.ASTC_RGBA_6x6:
             case TextureFormat.ASTC_HDR_6x6:
                 AstcDecoder.DecodeASTC(textureMem.Span, texture2D.Width, texture2D.Height, 6, 6,  imageData.Span);
                 break;
             case TextureFormat.ASTC_8x8:
-            case TextureFormat.ASTC_ALPHA_8x8:
+            case TextureFormat.ASTC_RGBA_8x8:
             case TextureFormat.ASTC_HDR_8x8:
                 AstcDecoder.DecodeASTC(textureMem.Span, texture2D.Width, texture2D.Height, 8, 8,  imageData.Span);
                 break;
             case TextureFormat.ASTC_10x10:
-            case TextureFormat.ASTC_ALPHA_10x10:
+            case TextureFormat.ASTC_RGBA_10x10:
             case TextureFormat.ASTC_HDR_10x10:
                 AstcDecoder.DecodeASTC(textureMem.Span, texture2D.Width, texture2D.Height, 10, 10,  imageData.Span);
                 break;
             case TextureFormat.ASTC_12x12:
-            case TextureFormat.ASTC_ALPHA_12x12:
+            case TextureFormat.ASTC_RGBA_12x12:
             case TextureFormat.ASTC_HDR_12x12:
                 AstcDecoder.DecodeASTC(textureMem.Span, texture2D.Width, texture2D.Height, 12, 12,  imageData.Span);
                 break;
@@ -656,12 +656,12 @@ public static partial class Texture2DConverter {
         return memory;
     }
 
-    public static Span<byte> ToDDS(Texture2D texture) {
+    public static Span<byte> ToDDS(ITexture texture) {
         if (texture.ShouldDeserialize) {
             throw new IncompleteDeserialization();
         }
 
-        return DDS.BuildDDS(texture.TextureFormat.ToD3DPixelFormat(), texture.MipCount, texture.Width, texture.Height, texture.TextureCount, texture.TextureData!.Value.Span);
+        return DDS.BuildDDS(texture.TextureFormat.ToD3DPixelFormat(), 0, texture.Width, texture.Height, texture.Depth, texture.TextureData!.Value.Span);
     }
 
     public static void FromDDS(Texture2D texture, Stream stream, bool leaveOpen = false) {
@@ -678,7 +678,7 @@ public static partial class Texture2DConverter {
             case 0x30315844: { // DX10
                 var dx10 = reader.ReadStruct<DXT10Header>();
                 texture.TextureFormat = ((DXGIPixelFormat) dx10.Format).ToTextureFormat();
-                texture.TextureCount = dx10.Size;
+                texture.Depth = dx10.Size;
                 break;
             }
             case 0x31545844: // DXT1

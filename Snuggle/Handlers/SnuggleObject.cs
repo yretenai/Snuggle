@@ -1,5 +1,6 @@
 ﻿using System;
 using Snuggle.Core.Implementations;
+using Snuggle.Core.Interfaces;
 
 namespace Snuggle.Handlers;
 
@@ -23,7 +24,7 @@ public record SnuggleObject(
     private static string GetMeta(SerializedObject file) =>
         file switch {
             AudioClip clip => TimeSpan.FromMilliseconds(clip.Duration * 1000).ToString("g"),
-            Texture2D texture2D => $"{texture2D.Width}x{texture2D.Height}",
+            ITexture texture2D => $"{texture2D.Width}x{texture2D.Height}x{texture2D.Depth}",
             Sprite sprite => $"{sprite.Rect.W}x{sprite.Rect.H}",
             _ => string.Empty,
         };

@@ -11,7 +11,7 @@ public static class TextureExtensions {
     public static bool HasNativeConversion(this TextureFormat format) => format is >= TextureFormat.ETC_RGB4Crunched or <= TextureFormat.ETC2_RGBA8_3DS and >= TextureFormat.BC6H or TextureFormat.DXT1 or TextureFormat.DXT5;
 
     public static bool IsBGRA(this TextureFormat format, bool DirectXTex, bool UseTextureDecoder) {
-        if (format is TextureFormat.BGRA32 or TextureFormat.YUY2) {
+        if (format is TextureFormat.BGRA32 or TextureFormat.YUV2) {
             return true;
         }
 
@@ -45,7 +45,7 @@ public static class TextureExtensions {
             DXGIPixelFormat.R32_FLOAT => TextureFormat.RFloat,
             DXGIPixelFormat.R32G32_FLOAT => TextureFormat.RGFloat,
             DXGIPixelFormat.R32G32B32A32_FLOAT => TextureFormat.RGBAFloat,
-            (DXGIPixelFormat) 107 => TextureFormat.YUY2, // DXGI_FORMAT_YUY2
+            (DXGIPixelFormat) 107 => TextureFormat.YUV2, // DXGI_FORMAT_YUY2
             DXGIPixelFormat.R9G9B9E5_SHAREDEXP => TextureFormat.RGB9e5Float,
             DXGIPixelFormat.BC4_UNORM => TextureFormat.BC4,
             DXGIPixelFormat.BC5_UNORM => TextureFormat.BC5,
@@ -85,7 +85,7 @@ public static class TextureExtensions {
             TextureFormat.RFloat => DXGIPixelFormat.R32_FLOAT,
             TextureFormat.RGFloat => DXGIPixelFormat.R32G32_FLOAT,
             TextureFormat.RGBAFloat => DXGIPixelFormat.R32G32B32A32_FLOAT,
-            TextureFormat.YUY2 => (DXGIPixelFormat) 107, // DXGI_FORMAT_YUY2
+            TextureFormat.YUV2 => (DXGIPixelFormat) 107, // DXGI_FORMAT_YUY2
             TextureFormat.RGB9e5Float => DXGIPixelFormat.R9G9B9E5_SHAREDEXP,
             TextureFormat.BC4 => DXGIPixelFormat.BC4_UNORM,
             TextureFormat.BC5 => DXGIPixelFormat.BC5_UNORM,

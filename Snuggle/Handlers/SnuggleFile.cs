@@ -256,7 +256,7 @@ public static class SnuggleFile {
         var instance = SnuggleCore.Instance;
 
         switch (serializedObject) {
-            case Texture2D texture2d: {
+            case ITexture texture2d: {
                 SnuggleTextureFile.Save(texture2d, resultPath, instance.Settings.ExportOptions, true);
                 return;
             }

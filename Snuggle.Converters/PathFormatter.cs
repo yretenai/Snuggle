@@ -6,13 +6,14 @@ using System.Text.RegularExpressions;
 using DragonLib;
 using Snuggle.Core;
 using Snuggle.Core.Implementations;
+using Snuggle.Core.Interfaces;
 
 namespace Snuggle.Converters;
 
 public static class PathFormatter {
     private static readonly Regex Pattern = new(@"\{(\w+)\}", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Singleline);
 
-    public static string Format(string template, string ext, SerializedObject asset) {
+    public static string Format(string template, string ext, ISerializedObject asset) {
         var builder = new StringBuilder();
         var gap = 0;
         var templateSpan = template.AsSpan();

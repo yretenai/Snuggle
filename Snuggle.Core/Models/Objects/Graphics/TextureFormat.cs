@@ -1,6 +1,7 @@
 ﻿namespace Snuggle.Core.Models.Objects.Graphics;
 
 // ReSharper disable InconsistentNaming
+// https://github.com/Unity-Technologies/UnityCsReference/blob/master/Runtime/Export/Graphics/GraphicsEnums.cs
 public enum TextureFormat {
     Unknown = -1,
     None = 0,
@@ -21,7 +22,7 @@ public enum TextureFormat {
     RFloat = 18,
     RGFloat = 19,
     RGBAFloat = 20,
-    YUY2 = 21,
+    YUV2 = 21,
     RGB9e5Float = 22,
     BC6H = 24,
     BC7 = 25,
@@ -49,12 +50,12 @@ public enum TextureFormat {
     ASTC_8x8 = 51,
     ASTC_10x10 = 52,
     ASTC_12x12 = 53,
-    ASTC_ALPHA_4x4 = 54,
-    ASTC_ALPHA_5x5 = 55,
-    ASTC_ALPHA_6x6 = 56,
-    ASTC_ALPHA_8x8 = 57,
-    ASTC_ALPHA_10x10 = 58,
-    ASTC_ALPHA_12x12 = 59,
+    ASTC_RGBA_4x4 = 54,
+    ASTC_RGBA_5x5 = 55,
+    ASTC_RGBA_6x6 = 56,
+    ASTC_RGBA_8x8 = 57,
+    ASTC_RGBA_10x10 = 58,
+    ASTC_RGBA_12x12 = 59,
     ETC_RGB4_3DS = 60,
     ETC2_RGBA8_3DS = 61,
     RG16 = 62,
@@ -67,5 +68,8 @@ public enum TextureFormat {
     ASTC_HDR_8x8 = 69,
     ASTC_HDR_10x10 = 70,
     ASTC_HDR_12x12 = 71,
+    RG32 = 72,
+    RGB48 = 73,
+    RGBA64 = 74,
 }
 // ReSharper restore InconsistentNaming

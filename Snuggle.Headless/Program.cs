@@ -157,7 +157,7 @@ public static class Program {
 
             try {
                 switch (asset) {
-                    case Texture2D texture when flags.LooseTextures:
+                    case ITexture texture when flags.LooseTextures:
                         logger.Info("Assets", $"Processing Texture {asset}");
                         ConvertCore.ConvertTexture(flags, texture, true);
                         break;
