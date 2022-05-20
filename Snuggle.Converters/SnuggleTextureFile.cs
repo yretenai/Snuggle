@@ -5,7 +5,6 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Memory;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
-using Snuggle.Core.Implementations;
 using Snuggle.Core.Interfaces;
 using Snuggle.Core.Options;
 
@@ -20,16 +19,16 @@ public static class SnuggleTextureFile {
 
     private static ConcurrentDictionary<(long, string), ReadOnlyMemory<byte>> CachedData { get; set; } = new();
 
-    public static Memory<byte> LoadCachedTexture(ITexture texture, bool useDirectXTex, bool useTextureDecoder) {
+    public static Memory<byte> LoadCachedTexture(ITexture texture, bool useTextureDecoder) {
         var memory = CachedData.GetOrAdd(
             texture.GetCompositeId(),
             static (_, arg) => {
-                var (texture, useDirectXTex, useTextureDecoder) = arg;
+                var (texture, useTextureDecoder) = arg;
                 texture.Deserialize(ObjectDeserializationOptions.Default);
-                var data = Texture2DConverter.ToRGBA(texture, useDirectXTex && Environment.OSVersion.Platform == PlatformID.Win32NT, useTextureDecoder);
+                var data = Texture2DConverter.ToRGBA(texture, useTextureDecoder);
                 return data;
             },
-            (texture, useDirectXTex, useTextureDecoder));
+            (texture, useTextureDecoder));
         var newMemory = new Memory<byte>(new byte[memory.Length]);
         memory.CopyTo(newMemory);
         return newMemory;
@@ -56,21 +55,21 @@ public static class SnuggleTextureFile {
         }
 
         path = Path.ChangeExtension(path, ".png");
-        SavePNG(texture, path, flip, options.UseDirectTex, options.UseTextureDecoder);
+        SavePNG(texture, path, flip, options.UseTextureDecoder);
         return path;
     }
 
-    public static void SavePNG(ITexture texture, string path, bool flip, bool useDirectXTex, bool useTextureDecoder) {
+    public static void SavePNG(ITexture texture, string path, bool flip, bool useTextureDecoder) {
         if (File.Exists(path)) {
             return;
         }
 
-        using var image = ConvertImage(texture, flip, useDirectXTex, useTextureDecoder);
+        using var image = ConvertImage(texture, flip, useTextureDecoder);
         image.SaveAsPng(path);
     }
 
-    public static Image<Rgba32> ConvertImage(ITexture texture, bool flip, bool useDirectXTex, bool useTextureDecoder) {
-        var data = LoadCachedTexture(texture, useDirectXTex, useTextureDecoder);
+    public static Image<Rgba32> ConvertImage(ITexture texture, bool flip, bool useTextureDecoder) {
+        var data = LoadCachedTexture(texture, useTextureDecoder);
         if (data.IsEmpty) {
             return new Image<Rgba32>(1, 1, new Rgba32(0));
         }
@@ -79,7 +78,7 @@ public static class SnuggleTextureFile {
         if (texture.TextureFormat.IsAlphaFirst()) {
             using var temp = Image.WrapMemory<Argb32>(data, texture.Width, texture.Height);
             image = temp.CloneAs<Rgba32>();
-        } else if (texture.TextureFormat.IsBGRA(useDirectXTex, useTextureDecoder)) {
+        } else if (texture.TextureFormat.IsBGRA(useTextureDecoder)) {
             using var temp = Image.WrapMemory<Bgra32>(data, texture.Width, texture.Height);
             image = temp.CloneAs<Rgba32>();
         } else {
@@ -104,6 +103,6 @@ public static class SnuggleTextureFile {
 
         using var fs = File.OpenWrite(path);
         fs.SetLength(0);
-        fs.Write(Texture2DConverter.ToDDS(texture));
+        fs.Write(Texture2DConverter.ToDDS(texture, true));
     }
 }

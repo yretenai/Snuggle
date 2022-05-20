@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text.Json.Serialization;
+using Snuggle.Core.Exceptions;
 using Snuggle.Core.Interfaces;
 using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
@@ -69,6 +70,7 @@ public class Texture2DArray : Texture, ITexture {
     public TextureFormat TextureFormat { get; set; }
     public int MipCount { get; set; } = 1;
     public TextureUsageMode UsageMode { get; set; }
+
     public bool IsReadable { get; set; }
     public GLTextureSettings TextureSettings { get; set; }
     public ColorSpace ColorSpace { get; set; }

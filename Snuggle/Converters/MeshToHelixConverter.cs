@@ -348,14 +348,14 @@ public static class MeshToHelixConverter {
             var textureData = Memory<byte>.Empty;
             if (texture != null) {
                 texture.Deserialize(SnuggleCore.Instance.Settings.ObjectOptions);
-                textureData = SnuggleTextureFile.LoadCachedTexture(texture, SnuggleCore.Instance.Settings.ExportOptions.UseDirectTex, SnuggleCore.Instance.Settings.ExportOptions.UseTextureDecoder);
+                textureData = SnuggleTextureFile.LoadCachedTexture(texture, SnuggleCore.Instance.Settings.ExportOptions.UseTextureDecoder);
                 for (var i = 0; i < textureData.Length / 4; ++i) { // strip alpha
                     var bytes = textureData.Span.Slice(i * 4, 4).ToArray();
                     if (texture.TextureFormat.IsAlphaFirst()) {
                         textureData.Span[i * 4 + 0] = bytes[1];
                         textureData.Span[i * 4 + 1] = bytes[2];
                         textureData.Span[i * 4 + 2] = bytes[3];
-                    } else if (texture.TextureFormat.IsBGRA(SnuggleCore.Instance.Settings.ExportOptions.UseDirectTex, SnuggleCore.Instance.Settings.ExportOptions.UseTextureDecoder)) {
+                    } else if (texture.TextureFormat.IsBGRA(SnuggleCore.Instance.Settings.ExportOptions.UseTextureDecoder)) {
                         textureData.Span[i * 4 + 0] = bytes[2];
                         textureData.Span[i * 4 + 1] = bytes[1];
                         textureData.Span[i * 4 + 2] = bytes[0];

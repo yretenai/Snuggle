@@ -20,7 +20,7 @@ public static partial class ConvertCore {
             gameObject,
             fullPath,
             ObjectDeserializationOptions.Default,
-            SnuggleExportOptions.Default with { WriteNativeTextures = flags.WriteNativeTextures, UseDirectTex = flags.UseDirectXTex, OnlyWithCABPath = flags.OnlyCAB },
+            SnuggleExportOptions.Default with { WriteNativeTextures = flags.WriteNativeTextures, OnlyWithCABPath = flags.OnlyCAB },
             SnuggleMeshExportOptions.Default with {
                 FindGameObjectDescendants = !flags.NoGameObjectHierarchyDown,
                 FindGameObjectParents = !flags.NoGameObjectHierarchyUp,

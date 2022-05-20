@@ -1,4 +1,6 @@
 ﻿using System;
+using Snuggle.Core.Exceptions;
+using Snuggle.Core.Interfaces;
 using Snuggle.Core.Models.Objects.Graphics;
 
 namespace Snuggle.Core.Models; 
@@ -240,5 +242,129 @@ public static class Extensions {
             default:
                 throw new NotSupportedException();
         }
+    }
+
+    public static int GetPitch(this ITexture texture) {
+        if (texture.ShouldDeserialize) {
+            throw new IncompleteDeserialization();
+        }
+
+        if (texture.Depth == 1) {
+            return -1;
+        }
+
+        if (texture.Width % 4 > 0 || texture.Height % 4 > 0) {
+            return -1;
+        }
+
+        int bitsPerPixel;
+        var pixelsPerBlock = 1;
+
+        switch (texture.TextureFormat) {
+            case TextureFormat.Alpha8:
+                bitsPerPixel = 8;
+                break;
+            case TextureFormat.ARGB4444:
+                bitsPerPixel = 16;
+                break;
+            case TextureFormat.RGB24:
+                bitsPerPixel = 24;
+                break;
+            case TextureFormat.RGBA32:
+                bitsPerPixel = 32;
+                break;
+            case TextureFormat.ARGB32:
+                bitsPerPixel = 32;
+                break;
+            case TextureFormat.RGB565:
+                bitsPerPixel = 16;
+                break;
+            case TextureFormat.R16:
+                bitsPerPixel = 16;
+                break;
+            case TextureFormat.DXT1:
+                bitsPerPixel = 64;
+                pixelsPerBlock = 16;
+                break;
+            case TextureFormat.DXT5:
+                bitsPerPixel = 128;
+                pixelsPerBlock = 16;
+                break;
+            case TextureFormat.RGBA4444:
+                bitsPerPixel = 16;
+                break;
+            case TextureFormat.BGRA32:
+                bitsPerPixel = 32;
+                break;
+            case TextureFormat.RHalf:
+                bitsPerPixel = 16;
+                break;
+            case TextureFormat.RGHalf:
+                bitsPerPixel = 32;
+                break;
+            case TextureFormat.RGBAHalf:
+                bitsPerPixel = 64;
+                break;
+            case TextureFormat.RFloat:
+                bitsPerPixel = 32;
+                break;
+            case TextureFormat.RGFloat:
+                bitsPerPixel = 64;
+                break;
+            case TextureFormat.RGBAFloat:
+                bitsPerPixel = 128;
+                break;
+            case TextureFormat.YUV2:
+                bitsPerPixel = 32;
+                break;
+            case TextureFormat.RGB9e5Float:
+                bitsPerPixel = 32;
+                break;
+            case TextureFormat.BC6H:
+                bitsPerPixel = 128;
+                pixelsPerBlock = 16;
+                break;
+            case TextureFormat.BC7:
+                bitsPerPixel = 128;
+                pixelsPerBlock = 16;
+                break;
+            case TextureFormat.BC4:
+                bitsPerPixel = 64;
+                pixelsPerBlock = 16;
+                break;
+            case TextureFormat.BC5:
+                bitsPerPixel = 128;
+                pixelsPerBlock = 16;
+                break;
+            case TextureFormat.RG16:
+                bitsPerPixel = 32;
+                break;
+            case TextureFormat.R8:
+                bitsPerPixel = 8;
+                break;
+            case TextureFormat.RG32:
+                bitsPerPixel = 32;
+                break;
+            case TextureFormat.RGB48:
+                bitsPerPixel = 48;
+                break;
+            case TextureFormat.RGBA64:
+                bitsPerPixel = 64;
+                break;
+            default:
+                return -1;
+        }
+
+        var w = texture.Width;
+        var h = texture.Height;
+
+        var size = 0;
+        for (var i = 0; i < texture.MipCount; ++i) { // TODO: is this optimizeable?
+            size += w * h / pixelsPerBlock * bitsPerPixel / 8;
+            w >>= 1;
+            h >>= 1;
+        }
+
+        return size;
     }
 }

@@ -63,7 +63,7 @@ public class RGBABitmapSource : BitmapSource {
         byte[] shuffle;
         if (BaseFormat.IsAlphaFirst()) {
             shuffle = new byte[] { 3, 0, 1, 2 };
-        } else if (BaseFormat.IsBGRA(SnuggleCore.Instance.Settings.ExportOptions.UseDirectTex, SnuggleCore.Instance.Settings.ExportOptions.UseTextureDecoder)) {
+        } else if (BaseFormat.IsBGRA(SnuggleCore.Instance.Settings.ExportOptions.UseTextureDecoder)) {
             shuffle = new byte[] { 2, 1, 0, 3 };
         } else {
             shuffle = new byte[] { 0, 1, 2, 3 };

@@ -64,9 +64,6 @@ public record SnuggleFlags : CommandLineFlags {
     [Flag("dds", Category = "General Options", Default = false, Help = "Export textures to DDS when possible, otherwise use PNG")]
     public bool WriteNativeTextures { get; set; }
 
-    [Flag("use-dxtex", Category = "General Options", Default = false, Help = "Use DirectXTex when possible (only on windows)")]
-    public bool UseDirectXTex { get; set; }
-
     [Flag("use-astex", Category = "General Options", Default = false, Help = "Use Asset Studio's Texture Decoder when possible (only on windows)")]
     public bool UseTextureDecoder { get; set; }
 
@@ -157,7 +154,6 @@ public record SnuggleFlags : CommandLineFlags {
         sb.AppendLine($"  {nameof(NoGameObjectHierarchyUp)} = {(NoGameObjectHierarchyUp ? "True" : "False")},");
         sb.AppendLine($"  {nameof(NoGameObjectHierarchyDown)} = {(NoGameObjectHierarchyDown ? "True" : "False")},");
         sb.AppendLine($"  {nameof(WriteNativeTextures)} = {(WriteNativeTextures ? "True" : "False")},");
-        sb.AppendLine($"  {nameof(UseDirectXTex)} = {(UseDirectXTex ? "True" : "False")},");
         sb.AppendLine($"  {nameof(UseTextureDecoder)} = {(UseTextureDecoder ? "True" : "False")},");
         sb.AppendLine($"  {nameof(WriteNativeAudio)} = {(WriteNativeAudio ? "True" : "False")},");
         sb.AppendLine($"  {nameof(LowMemory)} = {(LowMemory ? "True" : "False")},");

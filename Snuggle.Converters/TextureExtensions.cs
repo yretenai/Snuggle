@@ -10,13 +10,9 @@ public static class TextureExtensions {
     public static bool UseDDSConversion(this TextureFormat textureFormat) => Environment.OSVersion.Platform == PlatformID.Win32NT && textureFormat.CanSupportDDS();
     public static bool HasNativeConversion(this TextureFormat format) => format is >= TextureFormat.ETC_RGB4Crunched or <= TextureFormat.ETC2_RGBA8_3DS and >= TextureFormat.BC6H or TextureFormat.DXT1 or TextureFormat.DXT5;
 
-    public static bool IsBGRA(this TextureFormat format, bool DirectXTex, bool UseTextureDecoder) {
+    public static bool IsBGRA(this TextureFormat format, bool UseTextureDecoder) {
         if (format is TextureFormat.BGRA32 or TextureFormat.YUV2) {
             return true;
-        }
-
-        if (DirectXTex && format.UseDDSConversion()) {
-            return false;
         }
 
         if (UseTextureDecoder) {
