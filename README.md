@@ -7,5 +7,6 @@ Unity Processor
 
 - [Perfare's AssetStudio](https://github.com/Perfare/AssetStudio/) for reference code for meshes, sprites, and textures- including the texture decoder.
 - [DaZombieKiller's TypeTreeDumper](https://github.com/DaZombieKiller/TypeTreeDumper) for generating class definitions
+- [AssetRipper's TypeTreeDumps](https://github.com/AssetRipper/TypeTreeDumps) for hosting type tree dumps
 
 See [ATTRIBUTION.txt](ATTRIBUTION.txt)
