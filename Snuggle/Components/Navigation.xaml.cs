@@ -36,6 +36,7 @@ public partial class Navigation {
         BuildEnumMenu(UnityGameList, UnityGameItems, new[] { instance.Settings.Options.Game }, UpdateGame, CancelGameEvent);
         BuildEnumMenu(RendererTypes, RendererTypeItems, instance.Settings.MeshExportOptions.EnabledRenders, AddRenderer, RemoveRenderer);
         BuildSettingMenu(SerializationOptions, typeof(SnuggleExportOptions), nameof(SnuggleOptions.ExportOptions));
+        BuildSettingMenu(SerializationOptions, typeof(ObjectDeserializationOptions), nameof(SnuggleOptions.ObjectOptions));
         BuildSettingMenu(RendererOptions, typeof(SnuggleMeshExportOptions), nameof(SnuggleOptions.MeshExportOptions));
         PopulateGameOptions();
         PopulateRecentItems();

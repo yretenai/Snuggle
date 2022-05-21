@@ -51,7 +51,7 @@ public class MonoBehaviour : Behaviour {
             var name = script.ToString();
 
             var info = SerializedFile.ObjectInfos[PathId];
-            if (info.TypeIndex > 0 && info.TypeIndex < SerializedFile.Types.Length && SerializedFile.Types[info.TypeIndex].TypeTree != null) {
+            if (options.UseTypeTree && info.TypeIndex > 0 && info.TypeIndex < SerializedFile.Types.Length && SerializedFile.Types[info.TypeIndex].TypeTree != null) {
                 ObjectData = ObjectFactory.FindObjectNode(name, SerializedFile.Types[info.TypeIndex].TypeTree, SerializedFile.Assets);
             }
 

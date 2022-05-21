@@ -252,6 +252,10 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
             return (null, null);
         }
 
+        if (Dispatcher.Thread != Thread.CurrentThread) {
+            return (null, null);
+        }
+
         using var selection = new CommonOpenFileDialog {
             IsFolderPicker = false,
             Multiselect = false,

@@ -341,7 +341,7 @@ public static class MeshToHelixConverter {
 
             UnityTexEnv? mainTexPtr = null;
             if (material?.SavedProperties.Textures.TryGetValue("_MainTex", out mainTexPtr) == false) {
-                // ignored
+                mainTexPtr = material?.SavedProperties.Textures.FirstOrDefault().Value;
             }
 
             var texture = mainTexPtr?.Texture.Value as ITexture;
