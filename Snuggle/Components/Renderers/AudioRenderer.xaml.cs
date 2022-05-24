@@ -7,7 +7,6 @@ using NAudio.Utils;
 using NAudio.Wave;
 using Snuggle.Converters;
 using Snuggle.Core.Implementations;
-using Snuggle.Handlers;
 using Timer = System.Timers.Timer;
 
 namespace Snuggle.Components.Renderers;
@@ -124,7 +123,7 @@ public sealed partial class AudioRenderer : INotifyPropertyChanged {
             return;
         }
 
-        var data = SnuggleAudioFile.GetPCM(clip, SnuggleCore.Instance.LogTarget, out var info);
+        var data = SnuggleAudioFile.GetPCM(clip, out var info);
         if (token.IsCancellationRequested || data.IsEmpty) {
             return;
         }

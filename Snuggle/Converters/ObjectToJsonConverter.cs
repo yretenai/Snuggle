@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Text.Json;
 using System.Windows.Data;
+using Serilog;
 using Snuggle.Core.Options;
 using Snuggle.Handlers;
 
@@ -20,7 +21,7 @@ public class ObjectToJsonConverter : IValueConverter {
         try {
             return value == null ? "{}" : JsonSerializer.Serialize(value, SnuggleCoreOptions.JsonOptions);
         } catch (Exception e) {
-            SnuggleCore.Instance.LogTarget.Error("SerializedObject", "Failed converting object to JSON", e);
+            Log.Error(e, "Failed converting object to JSON");
             return "{}";
         }
     }

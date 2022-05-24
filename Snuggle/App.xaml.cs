@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Threading;
-using Snuggle.Core.Logging;
-using Snuggle.Core.Meta;
+using Serilog;
 using Snuggle.Handlers;
 
 namespace Snuggle;
@@ -18,12 +16,9 @@ public partial class App {
 
     public App() {
         InitializeComponent();
-        Log = FileLogger.Create(Assembly.GetExecutingAssembly(), SnuggleCore.BaseTitle);
         AppDomain.CurrentDomain.UnhandledException += Crash;
         AppDomain.CurrentDomain.ProcessExit += Cleanup;
     }
-
-    public FileLogger Log { get; }
 
     [DllImport("Ole32.dll", CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Auto, SetLastError = true)]
     private static extern int CoInitializeEx([In, Optional] IntPtr pvReserved, [In] CoInit dwCoInit);
@@ -50,20 +45,18 @@ public partial class App {
                 break;
         }
 
-        Log.Log(LogLevel.Crash, "System", "Unrecoverable crash", ex);
+        Log.Fatal(ex!, "Catastrophy");
         SnuggleCore.Instance.Dispose();
-        Log.Dispose();
     }
 
     private void Cleanup(object? sender, EventArgs e) {
         if (e is ExitEventArgs exitEventArgs) {
-            Log.Log(LogLevel.Info, "System", $"Exiting ({exitEventArgs:X8})...", null);
+            Log.Information("Exiting ({ExitCode:X8})", exitEventArgs);
         } else {
-            Log.Log(LogLevel.Info, "System", "Exiting...", null);
+            Log.Information("Exiting");
         }
 
         SnuggleCore.Instance.Dispose();
-        Log.Dispose();
     }
 
     [Flags]

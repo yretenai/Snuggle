@@ -4,10 +4,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using DragonLib;
-using DragonLib.IO;
+using Serilog;
 using Snuggle.Core.Exceptions;
-using Snuggle.Core.Extensions;
 using Snuggle.Core.Implementations;
 using Snuggle.Core.Interfaces;
 using Snuggle.Core.IO;
@@ -104,7 +102,7 @@ public static class ObjectFactory {
                     overrideType,
                     overrideGame);
             } catch (Exception e) {
-                serializedFile.Options.Logger.Error("Object", $"Failed to deserialize object {info.PathId} ({overrideType ?? info.ClassId:G}, {overrideGame ?? UnityGame.Default:G})", e);
+                Log.Error(e, "Failed to deserialize object {info.PathId} ({ClassId:G}, {Game:G})", info.PathId, overrideType ?? info.ClassId, overrideGame ?? UnityGame.Default);
                 if (overrideType == null || overrideType.Equals(UnityClassId.Object) == false && overrideType.Equals(UnityClassId.NamedObject) == false) {
                     overrideType = type.IsAssignableFrom(NamedBaseType) ? UnityClassId.NamedObject : UnityClassId.Object;
                     continue;
@@ -132,7 +130,7 @@ public static class ObjectFactory {
             }
 
             if (ParserNotFoundWarningSet.Add(overrideType ?? info.ClassId)) {
-                serializedFile.Options.Logger.Warning("SerializedObject", $"Can't find parser for type {overrideType ?? info.ClassId:G}");
+                Log.Warning("Can't find parser for type {ClassId:G}", overrideType ?? info.ClassId);
             }
         }
 
@@ -163,16 +161,6 @@ public static class ObjectFactory {
         if (instance is not SerializedObject serializedObject) {
             throw new InvalidTypeImplementation(overrideType ?? info.ClassId);
         }
-
-#if DEBUG
-        if (memoryUse >= 1.ToMebiByte()) {
-            serializedFile.Options.Logger.Warning("Object", $"Using {memoryUse.GetHumanReadableBytes()} of memory to load object {info.PathId} ({overrideType ?? info.ClassId:G}, {overrideGame ?? UnityGame.Default:G}), consider moving some things to ToSerialize()");
-        }
-
-        if (overrideType == null && hasImplementation && reader.Unconsumed > 0 && !serializedObject.ShouldDeserialize) {
-            serializedFile.Options.Logger.Warning("Object", $"{reader.Unconsumed} bytes left unconsumed in buffer and object {info.PathId} ({overrideType ?? info.ClassId:G}, {overrideGame ?? UnityGame.Default:G}) is not marked for deserialization! Check implementation");
-        }
-#endif
 
         if (serializedObject is ISerializedResource resource) {
             serializedObject.Size += resource.StreamData.Size;
@@ -393,7 +381,7 @@ public static class ObjectFactory {
                 }
             }
         } catch (Exception e) {
-            file.Options.Logger.Error("Object", $"Failed deserializing field {node}", e);
+            Log.Error(e, "Failed deserializing field {Node}", node);
             throw;
         }
 
@@ -424,7 +412,7 @@ public static class ObjectFactory {
         return null;
     }
 
-    public static ObjectNode? FindObjectNode(string name, MonoScript script, AssetCollection collection, RequestAssemblyPath? callback, ILogger logger) {
+    public static ObjectNode? FindObjectNode(string name, MonoScript script, AssetCollection collection, RequestAssemblyPath? callback) {
         try {
             if (collection.Types.TryGetValue(name, out var cachedType)) {
                 return cachedType;
@@ -463,7 +451,7 @@ public static class ObjectFactory {
                 return objectNode;
             }
         } catch(Exception e) {
-            Logger.Error("Object", "Failed to convert Cecil type", e);
+            Log.Error(e, "Failed to convert Cecil type");
         }
 
         return null;

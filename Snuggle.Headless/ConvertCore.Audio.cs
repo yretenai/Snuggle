@@ -1,13 +1,11 @@
 ﻿using System.IO;
-using System.Net;
 using Snuggle.Converters;
 using Snuggle.Core.Implementations;
-using Snuggle.Core.Interfaces;
 
 namespace Snuggle.Headless;
 
 public static partial class ConvertCore {
-    public static void ConvertAudio(SnuggleFlags flags, ILogger logger, AudioClip clip) {
+    public static void ConvertAudio(SnuggleFlags flags, AudioClip clip) {
         var (ext, wav) = SnuggleAudioFile.GetExt(clip);
         if (flags.WriteNativeAudio) {
             wav = false;
@@ -23,7 +21,7 @@ public static partial class ConvertCore {
             return;
         }
         
-        var pcm = wav ? SnuggleAudioFile.BuildWAV(clip, logger) : clip.Data.Value.Span;
+        var pcm = wav ? SnuggleAudioFile.BuildWAV(clip) : clip.Data.Value.Span;
         File.WriteAllBytes(fullPath, pcm.ToArray());
     }
 }

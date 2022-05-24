@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using Serilog;
 using Snuggle.Core.Implementations;
 using Snuggle.Core.Interfaces;
 using Snuggle.Core.IO;
@@ -188,7 +189,7 @@ public class SerializedFile : IRenewable {
             Objects[objectInfo.PathId] = serializedObject;
             return serializedObject;
         } catch (Exception e) {
-            options.Logger.Error("Serialized", $"Failed to decode {objectInfo.PathId} (type {objectInfo.ClassId}) on file {Name}", e);
+            Log.Error(e, "Failed to decode {PathId} (type {ClassId}) on file {Name}", objectInfo.PathId, objectInfo.ClassId, Name);
             return null;
         }
     }

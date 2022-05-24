@@ -3,7 +3,6 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Snuggle.Core.Extensions;
 using Snuggle.Core.Interfaces;
-using Snuggle.Core.Logging;
 using Snuggle.Core.Meta;
 
 namespace Snuggle.Core.Options;
@@ -21,9 +20,6 @@ public record SnuggleCoreOptions(
 
     [JsonIgnore]
     public IStatusReporter? Reporter { get; set; }
-
-    [JsonIgnore]
-    public ILogger Logger { get; set; } = DebugLogger.Instance;
 
     public static SnuggleCoreOptions Default { get; } = new(false, true, false, "Cache", UnityGame.Default);
 

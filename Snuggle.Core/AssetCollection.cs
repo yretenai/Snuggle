@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using Mono.Cecil;
+using Serilog;
 using Snuggle.Core.Implementations;
 using Snuggle.Core.Interfaces;
 using Snuggle.Core.IO;
@@ -61,7 +62,7 @@ public class AssetCollection : IDisposable {
                 try {
                     LoadSerializedFile(bundle.OpenFile(block), block, handler, bundle.Options, false, bundle.Header.Version);
                 } catch (Exception e) {
-                    bundle.Options.Logger.Error("Bundle", e.Message, e);
+                    Log.Error(e, "Failure decoding bundle.");
                 }
             } else {
                 var ext = Path.GetExtension(block.Path).ToLower();
@@ -91,7 +92,7 @@ public class AssetCollection : IDisposable {
                 try {
                     LoadBundle(bundle);
                 } catch (Exception e) {
-                    options.Logger.Error("Bundle", e.Message, e);
+                    Log.Error(e, "Failure decoding bundle.");
                 }
             }
         } finally {
@@ -165,7 +166,7 @@ public class AssetCollection : IDisposable {
     public void LoadFile(string path, SnuggleCoreOptions options) => LoadFile(File.OpenRead(path), path, MultiStreamHandler.FileInstance.Value, options);
 
     private void LoadFile(Stream dataStream, object tag, IFileHandler handler, SnuggleCoreOptions options, int align = 1, bool leaveOpen = false) {
-        options.Logger.Info("Assets", $"Attempting to load {tag}");
+        Log.Information("Attempting to load {Tag}", tag);
         if (dataStream.Length == 0) {
             return;
         }
@@ -194,7 +195,7 @@ public class AssetCollection : IDisposable {
                 }
             }
         } catch (Exception e) {
-            options.Logger.Error("Core", e.Message, e);
+            Log.Error(e, "Unexpected error while loading file");
         }finally {
             if (!leaveOpen) {
                 dataStream.Close();
@@ -220,7 +221,7 @@ public class AssetCollection : IDisposable {
                 dataStream.Dispose();
             }
         } catch (Exception e) {
-            options.Logger.Error("Assets", $"Failed to load assembly from {assemblyLocation}", e);
+            Log.Error(e, "Unexpected error while assembly {Assembly} file", assemblyLocation);
         } finally {
             if (!leaveOpen) {
                 dataStream.Close();

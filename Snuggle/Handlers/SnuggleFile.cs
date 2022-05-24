@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using Microsoft.WindowsAPICodePack.Dialogs;
+using Serilog;
 using Snuggle.Converters;
 using Snuggle.Core;
 using Snuggle.Core.Implementations;
@@ -81,7 +82,7 @@ public static class SnuggleFile {
                     }
 
                     instance.Status.SetStatus($"Loading {file}");
-                    instance.LogTarget.Info("IO", $"Loading {Path.GetFileName(file)}");
+                    Log.Information("Loading {Name}", Path.GetFileName(file));
                     instance.Status.SetProgress(instance.Status.Value + 1);
                     var ext = Path.GetExtension(file);
                     if (ext.StartsWith(".split")) {
@@ -96,13 +97,13 @@ public static class SnuggleFile {
                 instance.Collection.CacheGameObjectClassIds();
                 instance.Status.Reset();
                 instance.Status.SetStatus("Finding container paths...");
-                instance.LogTarget.Info("System", "Finding container paths...");
+                Log.Information("Finding container paths...");
                 instance.Collection.FindResources();
                 instance.Status.SetStatus("Building GameObject Graph...");
-                instance.LogTarget.Info("System", "Building GameObject Graph...");
+                Log.Information("Building GameObject Graph...");
                 instance.Collection.BuildGraph();
                 instance.Status.SetStatus($"Loaded {instance.Collection.Files.Count} files");
-                instance.LogTarget.Info("IO", $"Loaded {instance.Collection.Files.Count} files");
+                Log.Information("Loaded {Count} files", instance.Collection.Files.Count);
                 instance.WorkerAction("Collect", _ => AssetCollection.Collect(), false);
                 instance.OnPropertyChanged(nameof(SnuggleCore.Objects));
                 instance.OnPropertyChanged(nameof(SnuggleCore.HasAssetsVisibility));
@@ -204,7 +205,7 @@ public static class SnuggleFile {
             };
 
             var path = PathFormatter.Format(SnuggleCore.Instance.Settings.ExportOptions.DecidePathTemplate(serializedObject), ext, serializedObject);
-            SnuggleCore.Instance.LogTarget.Info("File", $"Saving {serializedObject.PathId} {serializedObject.SerializedFile.Name} - {Path.ChangeExtension(path, null)}");
+            Log.Information("Saving {PathId} {Name} - {Path}", serializedObject.PathId, serializedObject.SerializedFile.Name, Path.ChangeExtension(path, null));
             SnuggleCore.Instance.Status.SetStatus($"Saving {Path.ChangeExtension(path, null)}");
             var resultPath = Path.Combine(outputDirectory, path);
             var resultDir = Path.GetDirectoryName(resultPath) ?? "./";
@@ -224,7 +225,7 @@ public static class SnuggleFile {
                         throw new NotSupportedException();
                 }
             } catch (Exception e) {
-                SnuggleCore.Instance.LogTarget.Error("File", e.Message, e);
+                Log.Error(e, "Failure while extracting file.");
             }
         }
 
@@ -306,7 +307,7 @@ public static class SnuggleFile {
                 return;
             }
             case AudioClip clip: {
-                SnuggleAudioFile.Save(clip, resultPath, instance.Settings.ExportOptions, instance.LogTarget);
+                SnuggleAudioFile.Save(clip, resultPath, instance.Settings.ExportOptions);
                 return;
             }
         }

@@ -176,6 +176,11 @@
         "resolved": "5.11.0",
         "contentHash": "eaiXkUjC4NPcquGWzAGMXjuxvLwc6XGKMptSyOGQeT0X70BUZObuybJFZLA0OfTdueLd3US23NBPTBb6iF3V1Q=="
       },
+      "Serilog": {
+        "type": "Transitive",
+        "resolved": "2.11.0",
+        "contentHash": "ysv+hBzTul6Dp+Hvm10FlhJO3yMQcFKSAleus+LpiIzvNstpeV4Z7gGuIZ1OPNfIMulSHOjmLuGAEDKzpnV8ZQ=="
+      },
       "SevenZip": {
         "type": "Transitive",
         "resolved": "19.0.0",
@@ -639,6 +644,7 @@
           "DragonLib": "3.0.1",
           "K4os.Compression.LZ4.Streams": "1.2.16",
           "Mono.Cecil": "0.11.4",
+          "Serilog": "2.11.0",
           "SevenZip": "19.0.0",
           "Snuggle.UnityCs": "1.0.0"
         }

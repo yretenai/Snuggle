@@ -55,7 +55,7 @@ public class MonoBehaviour : Behaviour {
                 ObjectData = ObjectFactory.FindObjectNode(name, SerializedFile.Types[info.TypeIndex].TypeTree, SerializedFile.Assets);
             }
 
-            ObjectData ??= ObjectFactory.FindObjectNode(name, script, SerializedFile.Assets, options.RequestAssemblyCallback, SerializedFile.Options.Logger);
+            ObjectData ??= ObjectFactory.FindObjectNode(name, script, SerializedFile.Assets, options.RequestAssemblyCallback);
 
             if (ObjectData == null) {
                 return;

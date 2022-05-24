@@ -4,9 +4,9 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using FMOD;
+using Serilog;
 using Snuggle.Core.Exceptions;
 using Snuggle.Core.Implementations;
-using Snuggle.Core.Interfaces;
 using Snuggle.Core.Options;
 using Snuggle.Native;
 
@@ -20,8 +20,8 @@ public static class SnuggleAudioFile {
         MuLaw = 7,
     }
 
-    public static Span<byte> BuildWAV(AudioClip clip, ILogger? logger) {
-        var pcm = GetPCM(clip, logger, out var info);
+    public static Span<byte> BuildWAV(AudioClip clip) {
+        var pcm = GetPCM(clip, out var info);
         if (pcm.IsEmpty) {
             return Span<byte>.Empty;
         }
@@ -64,7 +64,7 @@ public static class SnuggleAudioFile {
         return (".audio", false);
     }
 
-    public static string Save(AudioClip clip, string path, SnuggleExportOptions options, ILogger? logger = null) {
+    public static string Save(AudioClip clip, string path, SnuggleExportOptions options) {
         var dir = Path.GetDirectoryName(path);
         if (!string.IsNullOrWhiteSpace(dir) && !Directory.Exists(dir)) {
             Directory.CreateDirectory(dir);
@@ -78,7 +78,7 @@ public static class SnuggleAudioFile {
 
         if (!options.WriteNativeAudio && wav) {
             var wavPath = Path.ChangeExtension(path, ".wav");
-            var pcm = BuildWAV(clip, logger);
+            var pcm = BuildWAV(clip);
             if (!pcm.IsEmpty) {
                 File.WriteAllBytes(wavPath, pcm.ToArray());
                 return wavPath;
@@ -89,7 +89,7 @@ public static class SnuggleAudioFile {
         return path;
     }
 
-    public static Span<byte> GetPCM(AudioClip clip, ILogger? logger, out AudioInfo info) {
+    public static Span<byte> GetPCM(AudioClip clip, out AudioInfo info) {
         if (clip.ShouldDeserialize) {
             throw new IncompleteDeserialization();
         }
@@ -102,21 +102,21 @@ public static class SnuggleAudioFile {
 
         // ReSharper disable once ConvertIfStatementToReturnStatement
         if (BinaryPrimitives.ReadUInt32BigEndian(clip.Data.Value.Span) == 0x46534235) { // 46534235 = 'FSB5' -- FMOD Sample Bank version 5
-            return GetFMODPCM(clip, logger, ref info);
+            return GetFMODPCM(clip, ref info);
         }
 
         return Span<byte>.Empty;
     }
 
     // ReSharper disable once RedundantAssignment
-    private static unsafe Span<byte> GetFMODPCM(AudioClip clip, ILogger? logger, ref AudioInfo info) {
+    private static unsafe Span<byte> GetFMODPCM(AudioClip clip, ref AudioInfo info) {
         SnuggleIntegration.Register();
 
         info = AudioInfo.Default;
 
         var result = Factory.System_Create(out var system);
         if (result != RESULT.OK) {
-            logger?.Error("FMOD", Error.String(result));
+            Log.Error(Error.String(result));
             return Span<byte>.Empty;
         }
 
@@ -124,7 +124,7 @@ public static class SnuggleAudioFile {
         try {
             result = system.init(clip.Channels, INITFLAGS.NORMAL, IntPtr.Zero);
             if (result != RESULT.OK) {
-                logger?.Error("FMOD", Error.String(result));
+                Log.Error(Error.String(result));
                 return Span<byte>.Empty;
             }
 
@@ -132,7 +132,7 @@ public static class SnuggleAudioFile {
             using var pinned = clip.Data.Value.Pin();
             result = system.createSound((IntPtr) pinned.Pointer, MODE.OPENMEMORY, ref exinfo, out var sound);
             if (result != RESULT.OK) {
-                logger?.Error("FMOD", Error.String(result));
+                Log.Error(Error.String(result));
                 return Span<byte>.Empty;
             }
 
@@ -143,17 +143,17 @@ public static class SnuggleAudioFile {
                 }
 
                 if (numSubSounds == 0 || numSubSounds < clip.SubsoundIndex) {
-                    return GetFMODPCM(sound, logger, ref info);
+                    return GetFMODPCM(sound, ref info);
                 }
 
                 result = sound.getSubSound(clip.SubsoundIndex, out var subSound);
                 if (result != RESULT.OK) {
-                    logger?.Error("FMOD", Error.String(result));
+                    Log.Error(Error.String(result));
                     return Span<byte>.Empty;
                 }
 
                 try {
-                    return GetFMODPCM(subSound, logger, ref info);
+                    return GetFMODPCM(subSound, ref info);
                 } finally {
                     subSound.release();
                 }
@@ -165,16 +165,16 @@ public static class SnuggleAudioFile {
         }
     }
 
-    private static Span<byte> GetFMODPCM(Sound sound, ILogger? logger, ref AudioInfo info) {
+    private static Span<byte> GetFMODPCM(Sound sound, ref AudioInfo info) {
         var result = sound.getFormat(out _, out var format, out var channels, out var bits);
         if (result != RESULT.OK) {
-            logger?.Error("FMOD", Error.String(result));
+            Log.Error(Error.String(result));
             return Span<byte>.Empty;
         }
 
         result = sound.getDefaults(out var frequency, out _);
         if (result != RESULT.OK) {
-            logger?.Error("FMOD", Error.String(result));
+            Log.Error(Error.String(result));
             return Span<byte>.Empty;
         }
 
@@ -182,13 +182,13 @@ public static class SnuggleAudioFile {
 
         result = sound.getLength(out var length, TIMEUNIT.PCMBYTES);
         if (result != RESULT.OK) {
-            logger?.Error("FMOD", Error.String(result));
+            Log.Error(Error.String(result));
             return Span<byte>.Empty;
         }
 
         result = sound.@lock(0, length, out var ptr1, out var ptr2, out var len1, out var len2);
         if (result != RESULT.OK) {
-            logger?.Error("FMOD", Error.String(result));
+            Log.Error(Error.String(result));
             return null;
         }
 

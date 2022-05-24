@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Serilog;
 using Snuggle.Core.Interfaces;
 using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
@@ -130,7 +131,7 @@ public class Bundle : IDisposable, IRenewable {
                 continue;
             }
 
-            Options.Logger.Info("Bundle", $"Caching {block.Path}");
+            Log.Information("Caching {Path}", block.Path);
 
             using var stream = Handler.OpenSubFile(Tag, block.Path, Options);
             data ??= Container.OpenFile(new UnityBundleBlock(0, Container.BlockInfos.Select(x => x.Size).Sum(), 0, string.Empty), reader);

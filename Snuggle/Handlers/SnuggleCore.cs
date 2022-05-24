@@ -14,11 +14,10 @@ using System.Windows.Threading;
 using AdonisUI;
 using DragonLib;
 using Microsoft.WindowsAPICodePack.Dialogs;
+using Serilog;
 using Snuggle.Components;
 using Snuggle.Converters;
 using Snuggle.Core;
-using Snuggle.Core.Interfaces;
-using Snuggle.Core.Logging;
 using Snuggle.Core.Meta;
 using Snuggle.Core.Options;
 using Snuggle.Core.Options.Game;
@@ -34,7 +33,6 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
         SettingsFile = Path.Combine(workDir, $"{ProjectName}.json");
         WorkerThread = new Thread(WorkLoop);
         WorkerThread.Start();
-        LogTarget = new MultiLogger { Loggers = { new ConsoleLogger(), new DebugLogger(), ((App) Application.Current).Log } };
         SetOptions(File.Exists(SettingsFile) ? SnuggleOptions.FromJson(File.ReadAllText(SettingsFile)) : SnuggleOptions.Default);
         RegisterHandlers();
         ResourceLocator.SetColorScheme(Application.Current.Resources, Settings.LightMode ? ResourceLocator.LightColorScheme : ResourceLocator.DarkColorScheme);
@@ -43,7 +41,6 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
     public Dispatcher Dispatcher { get; set; }
     public AssetCollection Collection { get; } = new();
     public SnuggleStatus Status { get; } = new();
-    public ILogger LogTarget { get; }
     public SnuggleOptions Settings { get; private set; } = SnuggleOptions.Default;
     public Thread WorkerThread { get; private set; }
     public CancellationTokenSource TokenSource { get; private set; } = new();
@@ -123,13 +120,13 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
                     task(TokenSource.Token);
                     sw.Stop();
                     var elapsed = sw.Elapsed;
-                    LogTarget.Info("Worker", $"Spent {elapsed} working on {name} task");
+                    Log.Information("Spent {Elapsed} working on {Name} task", elapsed, name);
                     sw.Reset();
                 } catch (Exception e) {
-                    LogTarget.Error("Worker", $"Failed to perform {name} task", e);
+                    Log.Error(e, "Failed to perform {name} task", name);
                 }
 
-                LogTarget.Info("Worker", $"Memory Tension: {GC.GetTotalMemory(false).GetHumanReadableBytes()}");
+                Log.Information("Memory Tension: {Size}", GC.GetTotalMemory(false).GetHumanReadableBytes());
                 IsFree = true;
                 Dispatcher.Invoke(() => OnPropertyChanged(nameof(IsFree)));
             }
@@ -138,7 +135,7 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
         } catch (OperationCanceledException) {
             // ignored
         } catch (Exception e) {
-            LogTarget.Error("Worker", "Failed to get tasks", e);
+            Log.Error(e, "Failed to get tasks");
         }
     }
 
@@ -177,17 +174,17 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
                 try {
                     if (report) {
                         Instance.Status.SetStatus($"Working on {name}...");
-                        Instance.LogTarget.Info("Worker", $"Working on {name}...");
+                        Log.Information("Working on {Name}...", name);
                     }
 
                     action(token);
                     if (report) {
                         Instance.Status.SetStatus($"{name} done.");
-                        Instance.LogTarget.Info("Worker", $"{name} done.");
+                        Log.Information("{Name} done.", name);
                     }
                 } catch (Exception e) {
                     Instance.Status.SetStatus($"{name} failed! {e.Message}");
-                    Instance.LogTarget.Error("Worker", $"{name} failed! {e.Message}", e);
+                    Log.Error(e, "{name} failed!", name);
                 }
             }));
     }
@@ -209,7 +206,7 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
                     tcs.SetCanceled(token);
                 } catch (Exception e) {
                     Instance.Status.SetStatus($"{name} failed! {e.Message}");
-                    Instance.LogTarget.Error("Worker", $"{name} failed! {e.Message}", e);
+                    Log.Error(e, "{name} failed!", name);
                     tcs.SetException(e);
                 }
             }));
@@ -229,12 +226,12 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
     }
 
     public void SetOptions(SnuggleOptions options) {
-        Settings = options with { Options = options.Options with { Reporter = Status, Logger = LogTarget } };
+        Settings = options with { Options = options.Options with { Reporter = Status } };
         SaveOptions();
     }
 
     public void SetOptions(SnuggleCoreOptions options) {
-        Settings = Settings with { Options = options with { Reporter = Status, Logger = LogTarget } };
+        Settings = Settings with { Options = options with { Reporter = Status } };
         SaveOptions();
     }
 

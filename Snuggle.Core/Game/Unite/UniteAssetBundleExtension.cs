@@ -1,5 +1,4 @@
-﻿using System;
-using Snuggle.Core.Interfaces;
+﻿using Snuggle.Core.Interfaces;
 using Snuggle.Core.IO;
 using Snuggle.Core.Options;
 

@@ -17,6 +17,12 @@
         "resolved": "1.0.3",
         "contentHash": "v7eEJhC9jtZCrS/ptdcIRGNN2vNSV6ZGifyKZQvqNH5gqSbDNhzpRbJtqzuBqsUj1t18Oxk7DTR68WGu39Mrrw=="
       },
+      "Serilog": {
+        "type": "Direct",
+        "requested": "[2.11.0, )",
+        "resolved": "2.11.0",
+        "contentHash": "ysv+hBzTul6Dp+Hvm10FlhJO3yMQcFKSAleus+LpiIzvNstpeV4Z7gGuIZ1OPNfIMulSHOjmLuGAEDKzpnV8ZQ=="
+      },
       "SixLabors.ImageSharp": {
         "type": "Direct",
         "requested": "[2.1.1, )",
@@ -114,6 +120,7 @@
           "DragonLib": "3.0.1",
           "K4os.Compression.LZ4.Streams": "1.2.16",
           "Mono.Cecil": "0.11.4",
+          "Serilog": "2.11.0",
           "SevenZip": "19.0.0",
           "Snuggle.UnityCs": "1.0.0"
         }

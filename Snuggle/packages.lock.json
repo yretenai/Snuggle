@@ -412,6 +412,11 @@
         "resolved": "4.3.0",
         "contentHash": "VB5cn/7OzUfzdnC8tqAIMQciVLiq2epm2NrAm1E9OjNRyG4lVhfR61SMcLizejzQP8R8Uf/0l5qOIbUEi+RdEg=="
       },
+      "Serilog": {
+        "type": "Transitive",
+        "resolved": "2.11.0",
+        "contentHash": "ysv+hBzTul6Dp+Hvm10FlhJO3yMQcFKSAleus+LpiIzvNstpeV4Z7gGuIZ1OPNfIMulSHOjmLuGAEDKzpnV8ZQ=="
+      },
       "SevenZip": {
         "type": "Transitive",
         "resolved": "19.0.0",
@@ -1454,6 +1459,7 @@
           "AssetRipper.TextureDecoder": "1.1.0",
           "BCnEncoder.Net": "2.1.0",
           "DirectXTexNet": "1.0.3",
+          "Serilog": "2.11.0",
           "SixLabors.ImageSharp": "2.1.1",
           "SixLabors.ImageSharp.Drawing": "1.0.0-beta14",
           "Snuggle.Core": "1.0.0",
@@ -1467,6 +1473,7 @@
           "DragonLib": "3.0.1",
           "K4os.Compression.LZ4.Streams": "1.2.16",
           "Mono.Cecil": "0.11.4",
+          "Serilog": "2.11.0",
           "SevenZip": "19.0.0",
           "Snuggle.UnityCs": "1.0.0"
         }

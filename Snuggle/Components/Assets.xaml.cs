@@ -6,6 +6,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using Serilog;
 using Snuggle.Core;
 using Snuggle.Core.Options;
 using Snuggle.Handlers;
@@ -86,7 +87,7 @@ public partial class Assets {
         try {
             serializedObject?.Deserialize(SnuggleCore.Instance.Settings.ObjectOptions);
         } catch (Exception ex) {
-            SnuggleCore.Instance.LogTarget.Error("SerializedObject", $"Failed to deserialize {serializedObject?.PathId}", ex);
+            Log.Error(ex, "Failed to deserialize {PathId}", serializedObject?.PathId);
             SnuggleCore.Instance.SelectedObject = null;
         }
 

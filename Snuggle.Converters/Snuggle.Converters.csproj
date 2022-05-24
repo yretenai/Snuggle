@@ -2,7 +2,6 @@
 
     <PropertyGroup>
         <TargetFramework>net7.0</TargetFramework>
-        <EnablePreviewFeatures>true</EnablePreviewFeatures>
         <LangVersion>preview</LangVersion>
         <Nullable>enable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -12,6 +11,7 @@
     <ItemGroup>
         <PackageReference Include="BCnEncoder.Net" Version="2.1.0" />
         <PackageReference Include="DirectXTexNet" Version="1.0.3" />
+        <PackageReference Include="Serilog" Version="2.11.0" />
         <PackageReference Include="SixLabors.ImageSharp" Version="2.1.1" />
         <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta14" />
     </ItemGroup>

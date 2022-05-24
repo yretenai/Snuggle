@@ -2,6 +2,15 @@
   "version": 1,
   "dependencies": {
     "net7.0": {
+      "Serilog.Sinks.Console": {
+        "type": "Direct",
+        "requested": "[4.0.1, )",
+        "resolved": "4.0.1",
+        "contentHash": "apLOvSJQLlIbKlbx+Y2UDHSP05kJsV7mou+fvJoRGs/iR+jC22r8cuFVMjjfVxz/AD4B2UCltFhE1naRLXwKNw==",
+        "dependencies": {
+          "Serilog": "2.10.0"
+        }
+      },
       "SixLabors.ImageSharp": {
         "type": "Direct",
         "requested": "[2.1.1, )",
@@ -62,6 +71,11 @@
         "resolved": "0.11.4",
         "contentHash": "IC1h5g0NeJGHIUgzM1P82ld57knhP0IcQfrYITDPXlNpMYGUrsG5TxuaWTjaeqDNQMBDNZkB8L0rBnwsY6JHuQ=="
       },
+      "Serilog": {
+        "type": "Transitive",
+        "resolved": "2.11.0",
+        "contentHash": "ysv+hBzTul6Dp+Hvm10FlhJO3yMQcFKSAleus+LpiIzvNstpeV4Z7gGuIZ1OPNfIMulSHOjmLuGAEDKzpnV8ZQ=="
+      },
       "SevenZip": {
         "type": "Transitive",
         "resolved": "19.0.0",
@@ -111,6 +125,7 @@
           "AssetRipper.TextureDecoder": "1.1.0",
           "BCnEncoder.Net": "2.1.0",
           "DirectXTexNet": "1.0.3",
+          "Serilog": "2.11.0",
           "SixLabors.ImageSharp": "2.1.1",
           "SixLabors.ImageSharp.Drawing": "1.0.0-beta14",
           "Snuggle.Core": "1.0.0",
@@ -124,6 +139,7 @@
           "DragonLib": "3.0.1",
           "K4os.Compression.LZ4.Streams": "1.2.16",
           "Mono.Cecil": "0.11.4",
+          "Serilog": "2.11.0",
           "SevenZip": "19.0.0",
           "Snuggle.UnityCs": "1.0.0"
         }

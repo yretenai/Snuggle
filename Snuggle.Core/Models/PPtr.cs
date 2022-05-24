@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.Json.Serialization;
+using Serilog;
 using Snuggle.Core.Implementations;
 using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
@@ -71,7 +72,7 @@ public record PPtr<T>(int FileId, long PathId) where T : SerializedObject {
             if (FileId == 0) {
                 referencedFile = File;
             } else if (!File.Assets.Files.TryGetValue(File.ExternalInfos[FileId - 1].Name, out referencedFile)) {
-                File.Options.Logger.Warning("PPtr", $"Cannot find External File {File.ExternalInfos[FileId - 1].Name}");
+                Log.Warning("Cannot find External File {Name}", File.ExternalInfos[FileId - 1].Name);
                 return null;
             }
 
@@ -118,7 +119,7 @@ public record PPtr<T>(int FileId, long PathId) where T : SerializedObject {
         if (FileId == 0) {
             referencedFile = File;
         } else if (!File.Assets.Files.TryGetValue(File.ExternalInfos[FileId - 1].Name, out referencedFile)) {
-            File.Options.Logger.Warning("PPtr", $"Cannot find External File {File.ExternalInfos[FileId - 1].Name}");
+            Log.Warning("Cannot find External File {Name}", File.ExternalInfos[FileId - 1].Name);
             return (0, "");
         }
 
@@ -135,7 +136,7 @@ public record PPtr<T>(int FileId, long PathId) where T : SerializedObject {
         if (FileId == 0) {
             referencedFile = File;
         } else if (!File.Assets.Files.TryGetValue(File.ExternalInfos[FileId - 1].Name, out referencedFile)) {
-            File.Options.Logger.Warning("PPtr", $"Cannot find External File {File.ExternalInfos[FileId - 1].Name}");
+            Log.Warning("Cannot find External File {Name}", File.ExternalInfos[FileId - 1].Name);
             return false;
         }
 

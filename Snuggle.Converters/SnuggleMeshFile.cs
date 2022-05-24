@@ -8,7 +8,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using DragonLib;
-using DragonLib.IO;
+using Serilog;
 using Snuggle.Core;
 using Snuggle.Core.Implementations;
 using Snuggle.Core.Interfaces;
@@ -359,7 +359,7 @@ public static class SnuggleMeshFile {
         var skin = mesh.Skin ?? new List<BoneWeight>();
         var hasSkinStream = descriptors.Any(x => x.Key is VertexChannel.SkinWeight or VertexChannel.SkinBoneIndex);
         if (skin.Count > 0 && hasSkinStream) {
-            Logger.Warn("Mesh", "Mesh has skin object but also defines weight data in vertex stream?");
+            Log.Warning("Mesh has skin object but also defines weight data in vertex stream?");
             skin = new List<BoneWeight>();
         }
 

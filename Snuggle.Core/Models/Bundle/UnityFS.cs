@@ -2,7 +2,6 @@
 using System.IO;
 using System.Linq;
 using K4os.Compression.LZ4;
-using Snuggle.Core.Game.Unite;
 using Snuggle.Core.Interfaces;
 using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
