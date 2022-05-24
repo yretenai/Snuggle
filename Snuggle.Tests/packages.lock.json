@@ -631,6 +631,7 @@
           "AssetRipper.TextureDecoder": "1.1.0",
           "BCnEncoder.Net": "2.1.0",
           "DirectXTexNet": "1.0.3",
+          "Serilog": "2.11.0",
           "SixLabors.ImageSharp": "2.1.1",
           "SixLabors.ImageSharp.Drawing": "1.0.0-beta14",
           "Snuggle.Core": "1.0.0",
