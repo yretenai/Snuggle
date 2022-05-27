@@ -56,11 +56,11 @@ public class SerializedFile : IRenewable {
 
     public SnuggleCoreOptions Options { get; init; }
     public UnitySerializedFile Header { get; init; }
-    public UnitySerializedType[] Types { get; init; }
+    public UnitySerializedType[] Types { get; set; }
     public Dictionary<long, UnityObjectInfo> ObjectInfos { get; init; }
     public UnityScriptInfo[] ScriptInfos { get; init; }
     public UnityExternalInfo[] ExternalInfos { get; init; }
-    public UnitySerializedType[] ReferenceTypes { get; init; } = Array.Empty<UnitySerializedType>();
+    public UnitySerializedType[] ReferenceTypes { get; set; } = Array.Empty<UnitySerializedType>();
     public string UserInformation { get; init; } = string.Empty;
     public UnityVersion Version { get; set; }
     public AssetCollection? Assets { get; set; }

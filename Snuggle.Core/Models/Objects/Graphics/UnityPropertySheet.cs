@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Snuggle.Core.IO;
 using Snuggle.Core.Models.Objects.Math;
@@ -30,6 +31,29 @@ public record UnityPropertySheet(Dictionary<string, UnityTexEnv> Textures, Dicti
         }
 
         return new UnityPropertySheet(textures, floats, colors);
+    }
+
+    public static void Seek(BiEndianBinaryReader reader, SerializedFile serializedFile) {
+        var textureCount = reader.ReadInt32();
+        for (var i = 0; i < textureCount; ++i) {
+            reader.BaseStream.Position += reader.ReadInt32() + 4;
+            reader.Align();
+            reader.BaseStream.Position += 28;
+        }
+
+        var floatCount = reader.ReadInt32();
+        for (var i = 0; i < floatCount; ++i) {
+            reader.BaseStream.Position += reader.ReadInt32() + 4;
+            reader.Align();
+            reader.BaseStream.Position += 4;
+        }
+
+        var colorCount = reader.ReadInt32();
+        for (var i = 0; i < colorCount; ++i) {
+            reader.BaseStream.Position += reader.ReadInt32() + 4;
+            reader.Align();
+            reader.BaseStream.Position += 16;
+        }
     }
 }
 

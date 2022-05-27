@@ -19,6 +19,8 @@
             <Separator />
             <MenuItem Header="_Clear Memory" ToolTip="This will try to unload all large data blocks"
                       Click="FreeMemory" IsEnabled="{Binding IsFree}" />
+            <MenuItem Header="_Clear Type Data" ToolTip="This will remove all Unity TypeTree information, requiring Assembly Data on MonoBehaviour Deserialization"
+                      Click="FreeTypes" IsEnabled="{Binding IsFree}" />
             <MenuItem Header="_Reset" Click="ResetTrampoline" />
             <MenuItem Header="_Exit" Click="ExitTrampoline" />
         </MenuItem>

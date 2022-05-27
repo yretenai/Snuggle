@@ -17,6 +17,10 @@ public static class SnuggleMaterialFile {
             return;
         }
 
+        if (material.ShouldDeserialize) {
+            material.Deserialize(ObjectDeserializationOptions.Default);
+        }
+
         string matPath;
         if (isDir) {
             if (!Directory.Exists(path)) {
@@ -34,7 +38,7 @@ public static class SnuggleMaterialFile {
 
         matPath.EnsureDirectoryExists();
 
-        var textures = material.SavedProperties.Textures.Where(x => !x.Value.Texture.IsNull).ToDictionary(x => x.Key, x => new TextureInfo(x.Value));
+        var textures = material.SavedProperties!.Textures.Where(x => !x.Value.Texture.IsNull).ToDictionary(x => x.Key, x => new TextureInfo(x.Value));
         var floats = material.SavedProperties.Floats.Select(x => float.IsNormal(x.Value) ? x : new KeyValuePair<string, float>(x.Key, 0));
         var colors = material.SavedProperties.Colors;
 

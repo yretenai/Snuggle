@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
 using Snuggle.Core.Models;
@@ -11,6 +12,7 @@ namespace Snuggle.Core.Implementations;
 
 [ObjectImplementation(UnityClassId.Material)]
 public class Material : NamedObject {
+
     public Material(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) {
         Shader = PPtr<SerializedObject>.FromReader(reader, SerializedFile);
         ShaderKeywords = reader.ReadString32();
@@ -44,7 +46,8 @@ public class Material : NamedObject {
             }
         }
 
-        SavedProperties = UnityPropertySheet.FromReader(reader, SerializedFile);
+        SavedPropertiesStart = reader.BaseStream.Position;
+        UnityPropertySheet.Seek(reader, SerializedFile);
 
         if (SerializedFile.Version >= UnityVersionRegister.Unity2020) {
             var buildStacksCount = reader.ReadInt32();
@@ -69,8 +72,23 @@ public class Material : NamedObject {
     public int CustomRenderQueue { get; set; }
     public Dictionary<string, string> StringTagMap { get; set; } = new();
     public List<string> DisabledShaderPasses { get; set; } = new();
-    public UnityPropertySheet SavedProperties { get; set; }
+    public UnityPropertySheet? SavedProperties { get; set; }
     public List<BuildTextureStackReference> BuildTextureStacks { get; set; } = new();
+    private long SavedPropertiesStart { get; set; } = -1;
+
+    private bool ShouldDeserializeSavedProperties => SavedPropertiesStart > -1 && SavedProperties == null;
+
+    [JsonIgnore]
+    public override bool ShouldDeserialize => base.ShouldDeserialize || ShouldDeserializeSavedProperties;
+
+    public override void Deserialize(BiEndianBinaryReader reader, ObjectDeserializationOptions options) {
+        base.Deserialize(reader, options);
+
+        if (ShouldDeserializeSavedProperties) {
+            reader.BaseStream.Position = SavedPropertiesStart;
+            SavedProperties = UnityPropertySheet.FromReader(reader, SerializedFile);
+        }
+    }
 
     public override void Serialize(BiEndianBinaryWriter writer, AssetSerializationOptions options) {
         throw new NotImplementedException();

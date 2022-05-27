@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Mono.Cecil;
 using Serilog;
 using Snuggle.Core.Implementations;
@@ -12,6 +13,7 @@ using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
 using Snuggle.Core.Models;
 using Snuggle.Core.Models.Bundle;
+using Snuggle.Core.Models.Serialization;
 using Snuggle.Core.Options;
 
 namespace Snuggle.Core;
@@ -206,6 +208,15 @@ public class AssetCollection : IDisposable {
     public static void Collect() {
         GC.WaitForPendingFinalizers();
         GC.Collect();
+    }
+
+    public void ClearTypeTrees() {
+        foreach (var (_, file) in Files) {
+            file.Types = Array.Empty<UnitySerializedType>();
+            file.ReferenceTypes = Array.Empty<UnitySerializedType>();
+        }
+        
+        Types.Clear();
     }
     
     public void ClearCaches() {

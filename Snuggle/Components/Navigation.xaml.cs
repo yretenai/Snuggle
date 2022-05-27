@@ -463,4 +463,9 @@ public partial class Navigation {
 
         e.Handled = true;
     }
+
+    private void FreeTypes(object sender, RoutedEventArgs e) { 
+        var instance = SnuggleCore.Instance;
+        instance.WorkerAction("FreeTypeMemory", _ => { SnuggleCore.Instance.Collection.ClearTypeTrees(); }, true);
+    }
 }

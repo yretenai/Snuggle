@@ -613,7 +613,7 @@ public static class SnuggleMeshFile {
         materialElement.Name = material.Name;
         existingMaterials[material.GetCompositeId()] = materialId;
 
-        foreach (var (name, texEnv) in material.SavedProperties.Textures) {
+        foreach (var (name, texEnv) in material.SavedProperties!.Textures) {
             if (texEnv.Texture.Value is not ITexture texture) {
                 continue;
             }

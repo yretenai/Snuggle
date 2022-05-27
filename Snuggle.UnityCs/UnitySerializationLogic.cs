@@ -554,7 +554,7 @@ namespace Unity.SerializationLogic
             return UnityEngineTypePredicates.IsUnityEngineValueType(field.DeclaringType);
         }
 
-        private static bool IsUnityEngineObject(TypeReference typeReference)
+        public static bool IsUnityEngineObject(TypeReference typeReference)
         {
             return UnityEngineTypePredicates.IsUnityEngineObject(typeReference);
         }

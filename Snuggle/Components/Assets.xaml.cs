@@ -83,7 +83,7 @@ public partial class Assets {
         }
 
         SnuggleCore.Instance.SelectedObject = (SnuggleObject) selectedItems[^1]!;
-        var serializedObject = SnuggleCore.Instance.SelectedObject.GetObject();
+        var serializedObject = SnuggleCore.Instance.SelectedObject.Value.GetObject();
         try {
             serializedObject?.Deserialize(SnuggleCore.Instance.Settings.ObjectOptions);
         } catch (Exception ex) {

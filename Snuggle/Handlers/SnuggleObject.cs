@@ -4,25 +4,23 @@ using Snuggle.Core.Interfaces;
 
 namespace Snuggle.Handlers;
 
-public record SnuggleObject(
+public readonly record struct SnuggleObject(
     string Name,
     long PathId,
     object ClassId,
     string Container,
     long Size,
-    string SerializedName,
-    string Meta) {
-    public SnuggleObject(SerializedObject file) : this(
+    string SerializedName) {
+    public SnuggleObject(ISerializedObject file) : this(
         file.ToString(),
         file.PathId,
         file.ClassId,
         file.ObjectContainerPath,
         file.Size,
-        file.SerializedFile.Name,
-        GetMeta(file)) { }
+        file.SerializedFile.Name) { }
 
-    private static string GetMeta(SerializedObject file) =>
-        file switch {
+    public string Meta =>
+        GetObject() switch {
             AudioClip clip => TimeSpan.FromMilliseconds(clip.Duration * 1000).ToString("g"),
             ITexture texture2D => $"{texture2D.Width}x{texture2D.Height}x{texture2D.Depth}",
             Sprite sprite => $"{sprite.Rect.W}x{sprite.Rect.H}",

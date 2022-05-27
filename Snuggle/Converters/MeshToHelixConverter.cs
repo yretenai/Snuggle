@@ -339,12 +339,19 @@ public static class MeshToHelixConverter {
                 return textures;
             }
 
-            UnityTexEnv? mainTexPtr = null;
-            if (material?.SavedProperties.Textures.TryGetValue("_MainTex", out mainTexPtr) == false) {
-                mainTexPtr = material?.SavedProperties.Textures.FirstOrDefault().Value;
+            if (material == null) {
+                continue;
             }
 
-            var texture = mainTexPtr?.Texture.Value as ITexture;
+            if (material.ShouldDeserialize) {
+                material.Deserialize(ObjectDeserializationOptions.Default);
+            }
+
+            if (material.SavedProperties!.Textures.TryGetValue("_MainTex", out var mainTexPtr) == false) {
+                mainTexPtr = material.SavedProperties.Textures.FirstOrDefault().Value;
+            }
+
+            var texture = mainTexPtr.Texture.Value as ITexture;
             var textureData = Memory<byte>.Empty;
             if (texture != null) {
                 texture.Deserialize(SnuggleCore.Instance.Settings.ObjectOptions);
