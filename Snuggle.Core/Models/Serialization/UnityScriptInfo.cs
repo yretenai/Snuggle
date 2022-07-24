@@ -28,4 +28,20 @@ public record UnityScriptInfo(int Index, long PathId) {
 
         return array;
     }
+    
+    public static void ArrayToWriter(BiEndianBinaryWriter writer, UnityScriptInfo[] infos, UnitySerializedFile header, SnuggleCoreOptions options, AssetSerializationOptions serializationOptions) {
+        writer.Write(infos.Length);
+        foreach (var info in infos) {
+            info.ToWriter(writer, header, options, serializationOptions);
+        }
+    }
+
+    public void ToWriter(BiEndianBinaryWriter writer, UnitySerializedFile header, SnuggleCoreOptions options, AssetSerializationOptions serializationOptions) {
+        if (serializationOptions.TargetFileVersion >= UnitySerializedFileVersion.BigIdAlwaysEnabled) {
+            writer.Align();
+        }
+
+        writer.Write(Index);
+        writer.Write(PathId);
+    }
 }

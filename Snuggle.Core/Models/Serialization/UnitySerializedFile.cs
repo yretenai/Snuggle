@@ -66,4 +66,48 @@ public record UnitySerializedFile(
             targetPlatform,
             typeTreeEnabled);
     }
+    
+    public void ToWriter(BiEndianBinaryWriter writer, SnuggleCoreOptions options, AssetSerializationOptions serializationOptions) {
+        writer.IsBigEndian = true;
+
+        if (serializationOptions.TargetFileVersion >= UnitySerializedFileVersion.LargeFiles) {
+            writer.Write(0);
+            writer.Write(0);
+            writer.Write((uint)serializationOptions.TargetFileVersion);
+            writer.Write(0);
+        } else {
+            writer.Write(HeaderSize);
+            writer.Write((int)Size);
+            writer.Write((uint)serializationOptions.TargetFileVersion);
+            writer.Write((int)Offset);
+        }
+
+        if (serializationOptions.TargetFileVersion < UnitySerializedFileVersion.HeaderContentAtFront) {
+            writer.BaseStream.Seek(Size - HeaderSize, SeekOrigin.Begin);
+        }
+
+        writer.Write(IsBigEndian);
+        writer.Align();
+
+        if (serializationOptions.TargetFileVersion >= UnitySerializedFileVersion.LargeFiles) {
+            writer.Write(HeaderSize);
+            writer.Write(Size);
+            writer.Write(Offset);
+            writer.Write(LargeAddressableFlags);
+        }
+        
+        writer.IsBigEndian = IsBigEndian;
+
+        if (serializationOptions.TargetFileVersion >= UnitySerializedFileVersion.UnityVersion) {
+            writer.WriteNullString(EngineVersion);
+        }
+
+        if (serializationOptions.TargetFileVersion >= UnitySerializedFileVersion.TargetPlatform) {
+            writer.Write((int) Platform);
+        }
+
+        if (serializationOptions.TargetFileVersion >= UnitySerializedFileVersion.TypeTreeEnabledSwitch) {
+            writer.Write(TypeTreeEnabled);
+        }
+    }
 }

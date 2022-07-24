@@ -40,4 +40,25 @@ public record UnityExternalInfo(string Path, Guid Guid, int Type, string AssetPa
 
         return array;
     }
+    
+    public static void ArrayToWriter(BiEndianBinaryWriter writer, UnityExternalInfo[] infos, UnitySerializedFile header, SnuggleCoreOptions options, AssetSerializationOptions serializationOptions) {
+        writer.Write(infos.Length);
+        foreach (var info in infos) {
+            info.ToWriter(writer, header, options, serializationOptions);
+        }
+    }
+
+    public void ToWriter(BiEndianBinaryWriter writer, UnitySerializedFile header, SnuggleCoreOptions options, AssetSerializationOptions serializationOptions) {
+        if (serializationOptions.TargetFileVersion >= UnitySerializedFileVersion.ExternalExtraPath) {
+            writer.WriteNullString(Path);
+        }
+
+        if (serializationOptions.TargetFileVersion >= UnitySerializedFileVersion.ExternalGuid) {
+            writer.Write(Guid.ToByteArray());
+            writer.Write(Type);
+        }
+
+        // TODO: Should we store the original path that was not modified and use it here?
+        writer.WriteNullString(AssetPath);
+    }
 }

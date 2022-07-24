@@ -101,6 +101,20 @@ public record UnityTypeTreeNode(
         return list.ToArray();
     }
 
+    public void ToWriter(BiEndianBinaryWriter writer, UnitySerializedFile header, SnuggleCoreOptions options, AssetSerializationOptions serializationOptions) {
+        writer.Write((short)Version);
+        writer.Write((byte)Level);
+        writer.Write((byte)ArrayKind);
+        writer.Write(TypeOffset);
+        writer.Write(NameOffset);
+        writer.Write(Size);
+        writer.Write(Index);
+        writer.Write((uint)Flags);
+        if (serializationOptions.TargetFileVersion >= UnitySerializedFileVersion.TypeFlags) {
+            writer.Write(TypeHash);
+        }
+    }
+
     public static string GetString(uint offset, Span<byte> buffer) {
         var safeOffset = (int) (offset & 0x7FFFFFFF);
         if (safeOffset >= buffer.Length) {

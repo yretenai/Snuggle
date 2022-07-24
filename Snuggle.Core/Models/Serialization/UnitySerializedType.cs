@@ -86,4 +86,52 @@ public record UnitySerializedType(
 
         return entries;
     }
+    
+    public static void ArrayToWriter(BiEndianBinaryWriter writer, UnitySerializedType[] types, UnitySerializedFile header, SnuggleCoreOptions options, AssetSerializationOptions serializationOptions, bool isRef = false) {
+        writer.Write(types.Length);
+        foreach (var type in types) {
+            type.ToWriter(writer, header, options, serializationOptions, isRef);
+        }
+    }
+
+    public void ToWriter(BiEndianBinaryWriter writer, UnitySerializedFile header, SnuggleCoreOptions options, AssetSerializationOptions serializationOptions, bool isRef = false) {
+        var classId = (int)ClassId;
+        writer.Write(classId);
+        if (serializationOptions.TargetFileVersion >= UnitySerializedFileVersion.StrippedType) {
+            writer.Write(IsStrippedType);
+        }
+
+        if (serializationOptions.TargetFileVersion >= UnitySerializedFileVersion.NewTypeData) {
+            writer.Write(ScriptTypeIndex);
+        }
+
+        if (serializationOptions.TargetFileVersion >= UnitySerializedFileVersion.TypeTreeHash) {
+            if (isRef && ScriptTypeIndex >= 0) {
+                writer.Write(ScriptId);
+            } else {
+                switch (serializationOptions.TargetFileVersion) {
+                    case < UnitySerializedFileVersion.NewClassId when classId < (int) UnityClassId.Object:
+                    case >= UnitySerializedFileVersion.NewClassId when classId == (int) UnityClassId.MonoBehaviour:
+                        writer.Write(ScriptId);
+                        break;
+                }
+            }
+
+            writer.Write(Hash);
+        }
+        
+        if (header.TypeTreeEnabled) {
+            TypeTree!.ToWriter(writer, header, options, serializationOptions);
+
+            if (header.FileVersion >= UnitySerializedFileVersion.TypeDependencies) {
+                if (isRef) {
+                    writer.WriteNullString(ClassName);
+                    writer.WriteNullString(NameSpace);
+                    writer.WriteNullString(AssemblyName);
+                } else {
+                    writer.WriteArray(Dependencies);
+                }
+            }
+        }
+    }
 }

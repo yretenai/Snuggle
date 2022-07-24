@@ -99,8 +99,52 @@ public class SerializedFile : IRenewable {
             targetFileVersion,
             prefix + Name,
             prefix + Name + resourceSuffix);
+        
+        bundleStream = new MemoryStream();
+        resourceStream = new MemoryStream();
+        using var bundleWriter = new BiEndianBinaryWriter(bundleStream, true, true);
 
-        // TODO(naomi): implement serialization
+        var objectInfos = ObjectInfos.Values.ToArray();
+        
+        Header.ToWriter(bundleWriter, Options, options);
+        UnitySerializedType.ArrayToWriter(bundleWriter, Types, Header, Options, options);
+        var objectInfoOffset = bundleStream.Position;
+        UnityObjectInfo.ArrayToWriter(bundleWriter, objectInfos, Header, Options, options);
+        UnityScriptInfo.ArrayToWriter(bundleWriter, ScriptInfos, Header, Options, options);
+        UnityExternalInfo.ArrayToWriter(bundleWriter, ExternalInfos, Header, Options, options);
+        if (serializationOptions.TargetFileVersion >= UnitySerializedFileVersion.RefObject)  {
+            UnitySerializedType.ArrayToWriter(bundleWriter, ReferenceTypes, Header, Options, options);
+        }
+        if (serializationOptions.TargetFileVersion >= UnitySerializedFileVersion.UserInformation) {
+            bundleWriter.Write(UserInformation);
+        }
+
+        var headerSize = bundleStream.Position - 20;
+        bundleWriter.Align(16); // TODO: 0x1000 alignment?
+        var offset = bundleStream.Position;
+        foreach (var (pathId, objectInfo) in ObjectInfos) {
+            var newOffset = bundleStream.Position - offset;
+            bundleWriter.Align(8);
+            if (Objects.TryGetValue(pathId, out var obj) && obj.IsMutated) {
+                obj.Serialize(bundleWriter, options);
+            } else {
+                var stream = OpenFile(objectInfo);
+                stream.CopyTo(bundleStream);
+            }
+            ObjectInfos[pathId] = objectInfo with { Offset = newOffset };
+        }
+
+        var newHeader = Header with { Size = bundleStream.Position, HeaderSize = (int) headerSize, Offset = offset };
+
+        // Rewrite the object infos with updated offsets
+        bundleStream.Position = 0;
+        newHeader.ToWriter(bundleWriter, Options, options);
+        bundleStream.Position = objectInfoOffset;
+        UnityObjectInfo.ArrayToWriter(bundleWriter, objectInfos, Header, Options, options);
+
+        // TODO: write resource stream?
+        
+        bundleStream.Position = 0;
         return false;
     }
 
@@ -183,7 +227,7 @@ public class SerializedFile : IRenewable {
             if (shouldLoad && !baseType && !ignored) {
                 serializedObject = ObjectFactory.GetInstance(OpenFile(objectInfo, dataStream, dataStream != null), objectInfo, this);
             } else {
-                serializedObject = new SerializedObject(objectInfo, this) { NeedsLoad = true };
+                serializedObject = new SerializedObject(objectInfo, this) { NeedsLoad = true, IsMutated = false };
             }
 
             Objects[objectInfo.PathId] = serializedObject;
@@ -205,7 +249,7 @@ public class SerializedFile : IRenewable {
     public void PreloadObject(UnityObjectInfo objectInfo, SnuggleCoreOptions? options = null, Stream? dataStream = null) {
         var ignored = (options ?? Options).IgnoreClassIds.Contains(objectInfo.ClassId.ToString()!);
         if ((options ?? Options).LoadOnDemand || ignored) {
-            Objects[objectInfo.PathId] = new SerializedObject(objectInfo, this) { NeedsLoad = true };
+            Objects[objectInfo.PathId] = new SerializedObject(objectInfo, this) { NeedsLoad = true, IsMutated = false};
         } else {
             Objects[objectInfo.PathId] = ObjectFactory.GetInstance(OpenFile(objectInfo, dataStream, dataStream != null), objectInfo, this);
         }

@@ -77,4 +77,44 @@ public record UnityObjectInfo(
 
         return entries;
     }
+    
+    public static void ArrayToWriter(BiEndianBinaryWriter writer, UnityObjectInfo[] infos, UnitySerializedFile header, SnuggleCoreOptions options, AssetSerializationOptions serializationOptions, bool isRef = false) {
+        if (serializationOptions.TargetFileVersion is >= UnitySerializedFileVersion.BigId and < UnitySerializedFileVersion.BigIdAlwaysEnabled) {
+            writer.Write(1);
+        }
+
+        writer.Write(infos.Length);
+        foreach (var info in infos) {
+            info.ToWriter(writer, header, options, serializationOptions, isRef);
+        }
+    }
+
+    public void ToWriter(BiEndianBinaryWriter writer, UnitySerializedFile header, SnuggleCoreOptions options, AssetSerializationOptions serializationOptions, bool isRef = false) {
+        if (serializationOptions.TargetFileVersion >= UnitySerializedFileVersion.BigIdAlwaysEnabled) {
+            writer.Align();
+        }
+
+        writer.Write(PathId);
+        if (serializationOptions.TargetFileVersion >= UnitySerializedFileVersion.LargeFiles)
+            writer.Write(Offset);
+        else
+            writer.Write((uint)Offset);
+        writer.Write((uint)Size);
+        writer.Write(TypeId);
+        if (serializationOptions.TargetFileVersion < UnitySerializedFileVersion.NewClassId) {
+            writer.Write((ushort)(int)ClassId);
+        }
+
+        if (serializationOptions.TargetFileVersion < UnitySerializedFileVersion.ObjectDestroyedRemoved) {
+            writer.Write((ushort)(IsDestroyed ? 1 : 0));
+        }
+
+        if (serializationOptions.TargetFileVersion is >= UnitySerializedFileVersion.ScriptTypeIndex and < UnitySerializedFileVersion.NewTypeData) {
+            writer.Write(ScriptTypeIndex);
+        }
+
+        if (serializationOptions.TargetFileVersion is UnitySerializedFileVersion.StrippedObject or UnitySerializedFileVersion.NewClassId) {
+            writer.Write(IsStripped);
+        }
+    }
 }
