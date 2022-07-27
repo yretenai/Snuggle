@@ -21,7 +21,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Snuggle.glTF", "Snuggle.glT
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Snuggle.UnityCs", "Snuggle.UnityCs\Snuggle.UnityCs.csproj", "{C68F1E94-2218-402F-909B-8B83182B56EB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TextureDecoder", "TextureDecoder\TextureDecoder\TextureDecoder.csproj", "{CCF7055B-747D-4AFB-80EB-B7F91BF33798}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TextureDecoder", "TextureDecoder\AssetRipper.TextureDecoder\AssetRipper.TextureDecoder.csproj", "{CCF7055B-747D-4AFB-80EB-B7F91BF33798}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DragonLib", "DragonLib\DragonLib\DragonLib.csproj", "{FC577977-E161-484F-BBC6-F2ED835F90C6}"
 EndProject

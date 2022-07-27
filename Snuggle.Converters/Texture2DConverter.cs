@@ -3,7 +3,12 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Runtime.InteropServices;
-using AssetRipper.TextureDecoder;
+using AssetRipper.TextureDecoder.Astc;
+using AssetRipper.TextureDecoder.Atc;
+using AssetRipper.TextureDecoder.Etc;
+using AssetRipper.TextureDecoder.Pvrtc;
+using AssetRipper.TextureDecoder.Rgb;
+using AssetRipper.TextureDecoder.Yuy2;
 using BCnEncoder.Decoder;
 using BCnEncoder.Shared;
 using Snuggle.Converters.DXGI;
@@ -43,7 +48,7 @@ public static class Texture2DConverter {
     }
 
     private static Memory<byte> DecodeFrame(ITexture texture, bool useTextureDecoder, Memory<byte> textureMem) {
-        if (useTextureDecoder) {
+        if (useTextureDecoder || texture.TextureFormat == TextureFormat.RGB565) {
             var textureData = textureMem.ToArray();
             // ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault
             switch (texture.TextureFormat)
@@ -175,55 +180,54 @@ public static class Texture2DConverter {
         switch (texture.TextureFormat)
         {
             case TextureFormat.Alpha8:
-                RgbDecoder.A8ToBGRA32(textureMem.Span, texture.Width, texture.Height, imageData.Span);
+                RgbConverter.A8ToBGRA32(textureMem.Span, texture.Width, texture.Height, imageData.Span);
                 break;
             case TextureFormat.ARGB4444:
-                RgbDecoder.ARGB4444ToBGRA32(textureMem.Span, texture.Width, texture.Height, imageData.Span);
+                RgbConverter.ARGB16ToBGRA32(textureMem.Span, texture.Width, texture.Height, imageData.Span);
                 break;
             case TextureFormat.RGB24:
-                RgbDecoder.RGB24ToBGRA32(textureMem.Span, texture.Width, texture.Height, imageData.Span);
+                RgbConverter.RGB24ToBGRA32(textureMem.Span, texture.Width, texture.Height, imageData.Span);
                 break;
             case TextureFormat.RGBA32:
-                RgbDecoder.RGBA32ToBGRA32(textureMem.Span, texture.Width, texture.Height, imageData.Span);
+                RgbConverter.RGBA32ToBGRA32(textureMem.Span, texture.Width, texture.Height, imageData.Span);
                 break;
             case TextureFormat.ARGB32:
-                RgbDecoder.ARGB32ToBGRA32(textureMem.Span, texture.Width, texture.Height, imageData.Span);
+                RgbConverter.ARGB32ToBGRA32(textureMem.Span, texture.Width, texture.Height, imageData.Span);
                 break;
             case TextureFormat.RGB565:
-                RgbDecoder.RGB565ToBGRA32(textureMem.Span, texture.Width, texture.Height, imageData.Span);
-                break;
+                throw new NotSupportedException();
             case TextureFormat.R16:
-                RgbDecoder.R16ToBGRA32(textureMem.Span, texture.Width, texture.Height, imageData.Span);
+                RgbConverter.R16ToBGRA32(textureMem.Span, texture.Width, texture.Height, imageData.Span);
                 break;
             case TextureFormat.RGBA4444:
-                RgbDecoder.RGBA16ToBGRA32(textureMem.Span, texture.Width, texture.Height, imageData.Span);
+                RgbConverter.RGBA16ToBGRA32(textureMem.Span, texture.Width, texture.Height, imageData.Span);
                 break;
             case TextureFormat.RHalf:
-                RgbDecoder.R16FToBGRA32(textureMem.Span, texture.Width, texture.Height, imageData.Span);
+                RgbConverter.RHalfToBGRA32(textureMem.Span, texture.Width, texture.Height, imageData.Span);
                 break;
             case TextureFormat.RGHalf:
-                RgbDecoder.RG16FToBGRA32(textureMem.Span, texture.Width, texture.Height, imageData.Span);
+                RgbConverter.RGHalfToBGRA32(textureMem.Span, texture.Width, texture.Height, imageData.Span);
                 break;
             case TextureFormat.RGBAHalf:
-                RgbDecoder.RGBA16FToBGRA32(textureMem.Span, texture.Width, texture.Height, imageData.Span);
+                RgbConverter.RGBAHalfToBGRA32(textureMem.Span, texture.Width, texture.Height, imageData.Span);
                 break;
             case TextureFormat.RFloat:
-                RgbDecoder.R32FToBGRA32(textureMem.Span, texture.Width, texture.Height, imageData.Span);
+                RgbConverter.RFloatToBGRA32(textureMem.Span, texture.Width, texture.Height, imageData.Span);
                 break;
             case TextureFormat.RGFloat:
-                RgbDecoder.RG32FToBGRA32(textureMem.Span, texture.Width, texture.Height, imageData.Span);
+                RgbConverter.RGFloatToBGRA32(textureMem.Span, texture.Width, texture.Height, imageData.Span);
                 break;
             case TextureFormat.RGBAFloat:
-                RgbDecoder.RGBA32FToBGRA32(textureMem.Span, texture.Width, texture.Height, imageData.Span);
+                RgbConverter.RGBAFloatToBGRA32(textureMem.Span, texture.Width, texture.Height, imageData.Span);
                 break;
             case TextureFormat.RGB9e5Float:
-                RgbDecoder.RGB9e5FToBGRA32(textureMem.Span, texture.Width, texture.Height, imageData.Span);
+                RgbConverter.RGB9e5FloatToBGRA32(textureMem.Span, texture.Width, texture.Height, imageData.Span);
                 break;
             case TextureFormat.RG16:
-                RgbDecoder.RG16ToBGRA32(textureMem.Span, texture.Width, texture.Height, imageData.Span);
+                RgbConverter.RG16ToBGRA32(textureMem.Span, texture.Width, texture.Height, imageData.Span);
                 break;
             case TextureFormat.R8:
-                RgbDecoder.R8ToBGRA32(textureMem.Span, texture.Width, texture.Height, imageData.Span);
+                RgbConverter.R8ToBGRA32(textureMem.Span, texture.Width, texture.Height, imageData.Span);
                 break;
             case TextureFormat.YUV2:
                 Yuy2Decoder.DecompressYUY2(textureMem.Span, texture.Width, texture.Height, imageData.Span);
@@ -321,11 +325,11 @@ public static class Texture2DConverter {
             }
             case TextureFormat.PVRTC_RGB2:
             case TextureFormat.PVRTC_RGBA2:
-                PvrtcDecoder.DecompressPVRTC(textureMem.Span, texture.Width, texture.Height, imageData.Span, true);
+                PvrtcDecoder.DecompressPVRTC(textureMem.Span, texture.Width, texture.Height, true, imageData.Span);
                 break;
             case TextureFormat.PVRTC_RGB4:
             case TextureFormat.PVRTC_RGBA4:
-                PvrtcDecoder.DecompressPVRTC(textureMem.Span, texture.Width, texture.Height, imageData.Span, false);
+                PvrtcDecoder.DecompressPVRTC(textureMem.Span, texture.Width, texture.Height, false, imageData.Span);
                 break;
             case TextureFormat.ATC_RGB4:
                 AtcDecoder.DecompressAtcRgb4(textureMem.Span, texture.Width, texture.Height, imageData.Span);

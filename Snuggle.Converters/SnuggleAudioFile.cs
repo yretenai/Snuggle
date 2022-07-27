@@ -9,6 +9,7 @@ using Snuggle.Core.Exceptions;
 using Snuggle.Core.Implementations;
 using Snuggle.Core.Options;
 using Snuggle.Native;
+// ReSharper disable TemplateIsNotCompileTimeConstantProblem
 
 namespace Snuggle.Converters;
 
@@ -20,23 +21,23 @@ public static class SnuggleAudioFile {
         MuLaw = 7,
     }
 
-    public static Span<byte> BuildWAV(AudioClip clip) {
+    public static Memory<byte> BuildWAV(AudioClip clip) {
         var pcm = GetPCM(clip, out var info);
         if (pcm.IsEmpty) {
-            return Span<byte>.Empty;
+            return Memory<byte>.Empty;
         }
 
-        var buffer = new byte[pcm.Length + 44].AsSpan();
+        var buffer = new byte[pcm.Length + 44].AsMemory();
         var riff = new WaveRIFF(buffer.Length);
-        MemoryMarshal.Write(buffer, ref riff);
+        MemoryMarshal.Write(buffer.Span, ref riff);
         var ofs = Unsafe.SizeOf<WaveRIFF>();
 
         var format = new WaveFormat(info);
-        MemoryMarshal.Write(buffer[ofs..], ref format);
+        MemoryMarshal.Write(buffer.Span[ofs..], ref format);
         ofs += Unsafe.SizeOf<WaveFormat>();
 
         var chunk = new WaveChunk(WaveFormat.DATA, pcm.Length);
-        MemoryMarshal.Write(buffer[ofs..], ref chunk);
+        MemoryMarshal.Write(buffer.Span[ofs..], ref chunk);
         ofs += Unsafe.SizeOf<WaveChunk>();
         pcm.CopyTo(buffer[ofs..]);
 
@@ -89,7 +90,7 @@ public static class SnuggleAudioFile {
         return path;
     }
 
-    public static Span<byte> GetPCM(AudioClip clip, out AudioInfo info) {
+    public static Memory<byte> GetPCM(AudioClip clip, out AudioInfo info) {
         if (clip.ShouldDeserialize) {
             throw new IncompleteDeserialization();
         }
@@ -97,7 +98,7 @@ public static class SnuggleAudioFile {
         info = AudioInfo.Default;
 
         if (!clip.Data.HasValue || clip.Data.Value.IsEmpty || clip.Data.Value.Length < 4) {
-            return Span<byte>.Empty;
+            return Memory<byte>.Empty;
         }
 
         // ReSharper disable once ConvertIfStatementToReturnStatement
@@ -105,11 +106,11 @@ public static class SnuggleAudioFile {
             return GetFMODPCM(clip, ref info);
         }
 
-        return Span<byte>.Empty;
+        return Memory<byte>.Empty;
     }
 
     // ReSharper disable once RedundantAssignment
-    private static unsafe Span<byte> GetFMODPCM(AudioClip clip, ref AudioInfo info) {
+    private static unsafe Memory<byte> GetFMODPCM(AudioClip clip, ref AudioInfo info) {
         SnuggleIntegration.Register();
 
         info = AudioInfo.Default;
@@ -117,7 +118,7 @@ public static class SnuggleAudioFile {
         var result = Factory.System_Create(out var system);
         if (result != RESULT.OK) {
             Log.Error(Error.String(result));
-            return Span<byte>.Empty;
+            return Memory<byte>.Empty;
         }
 
         // this is giving me VC++ COMPTR trauma flashbacks. 
@@ -125,7 +126,7 @@ public static class SnuggleAudioFile {
             result = system.init(clip.Channels, INITFLAGS.NORMAL, IntPtr.Zero);
             if (result != RESULT.OK) {
                 Log.Error(Error.String(result));
-                return Span<byte>.Empty;
+                return Memory<byte>.Empty;
             }
 
             var exinfo = new CREATESOUNDEXINFO { cbsize = Unsafe.SizeOf<CREATESOUNDEXINFO>(), length = (uint) clip.Data!.Value.Length };
@@ -133,7 +134,7 @@ public static class SnuggleAudioFile {
             result = system.createSound((IntPtr) pinned.Pointer, MODE.OPENMEMORY, ref exinfo, out var sound);
             if (result != RESULT.OK) {
                 Log.Error(Error.String(result));
-                return Span<byte>.Empty;
+                return Memory<byte>.Empty;
             }
 
             try {
@@ -149,7 +150,7 @@ public static class SnuggleAudioFile {
                 result = sound.getSubSound(clip.SubsoundIndex, out var subSound);
                 if (result != RESULT.OK) {
                     Log.Error(Error.String(result));
-                    return Span<byte>.Empty;
+                    return Memory<byte>.Empty;
                 }
 
                 try {
@@ -165,17 +166,17 @@ public static class SnuggleAudioFile {
         }
     }
 
-    private static Span<byte> GetFMODPCM(Sound sound, ref AudioInfo info) {
+    private static Memory<byte> GetFMODPCM(Sound sound, ref AudioInfo info) {
         var result = sound.getFormat(out _, out var format, out var channels, out var bits);
         if (result != RESULT.OK) {
             Log.Error(Error.String(result));
-            return Span<byte>.Empty;
+            return Memory<byte>.Empty;
         }
 
         result = sound.getDefaults(out var frequency, out _);
         if (result != RESULT.OK) {
             Log.Error(Error.String(result));
-            return Span<byte>.Empty;
+            return Memory<byte>.Empty;
         }
 
         info = new AudioInfo((int) frequency, bits, channels, format == SOUND_FORMAT.PCMFLOAT);
@@ -183,7 +184,7 @@ public static class SnuggleAudioFile {
         result = sound.getLength(out var length, TIMEUNIT.PCMBYTES);
         if (result != RESULT.OK) {
             Log.Error(Error.String(result));
-            return Span<byte>.Empty;
+            return Memory<byte>.Empty;
         }
 
         result = sound.@lock(0, length, out var ptr1, out var ptr2, out var len1, out var len2);

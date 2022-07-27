@@ -1,9 +1,9 @@
 [submodule "Library/AssetStudio"]
 	path = Library/AssetStudio
 	url = https://github.com/yretenai/AssetStudio.git
-[submodule "TextureDecoder"]
-	path = TextureDecoder
-	url = https://github.com/yretenai/TextureDecoder.git
 [submodule "DragonLib"]
 	path = DragonLib
 	url = https://github.com/yretenai/DragonLib.git
+[submodule "TextureDecoder"]
+	path = TextureDecoder
+	url = https://github.com/AssetRipper/TextureDecoder.git

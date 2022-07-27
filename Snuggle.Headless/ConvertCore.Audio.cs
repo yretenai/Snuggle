@@ -21,7 +21,7 @@ public static partial class ConvertCore {
             return;
         }
         
-        var pcm = wav ? SnuggleAudioFile.BuildWAV(clip) : clip.Data.Value.Span;
+        var pcm = wav ? SnuggleAudioFile.BuildWAV(clip) : clip.Data.Value;
         File.WriteAllBytes(fullPath, pcm.ToArray());
     }
 }
