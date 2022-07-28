@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Snuggle.Core.IO;
 using Snuggle.Core.Models.Objects.Math;
