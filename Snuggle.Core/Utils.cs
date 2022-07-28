@@ -19,7 +19,7 @@ public static class Utils {
         outStream ??= new MemoryStream(size) { Position = 0 };
         var coder = new Decoder();
         Span<byte> properties = stackalloc byte[5];
-        inStream.Read(properties);
+        inStream.ReadExactly(properties);
         coder.SetDecoderProperties(properties.ToArray());
         coder.Code(inStream, outStream, compressedSize - 5, size, null);
         return outStream;
@@ -36,7 +36,7 @@ public static class Utils {
         outStream ??= new MemoryStream(size) { Position = 0 };
         var inPool = new byte[compressedSize].AsSpan();
         var outPool = new byte[size].AsSpan();
-        inStream.Read(inPool);
+        inStream.ReadExactly(inPool);
         var amount = LZ4Codec.Decode(inPool, outPool);
         outStream.Write(outPool[..amount]);
         return outStream;
@@ -45,7 +45,7 @@ public static class Utils {
     public static void CompressLZ4(Stream inStream, Stream outStream, LZ4Level level, int size) {
         var inPool = new byte[size].AsSpan();
         var outPool = new byte[size].AsSpan();
-        inStream.Read(inPool);
+        inStream.ReadExactly(inPool);
         var amount = LZ4Codec.Encode(inPool, outPool, level);
         outStream.Write(outPool[..amount]);
     }

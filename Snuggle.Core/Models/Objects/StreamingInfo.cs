@@ -61,7 +61,7 @@ public record StreamingInfo(long Offset, long Size, string Path) {
             resourceStream.Seek(Offset, SeekOrigin.Current);
             Memory<byte> memory = new byte[existing.Length + Size];
             existing.CopyTo(memory);
-            resourceStream.Read(memory[existing.Length..].Span);
+            resourceStream.ReadExactly(memory[existing.Length..].Span);
             return memory;
         } finally {
             resourceStream.Dispose();

@@ -48,13 +48,9 @@ public record UnityBundleBlockInfo(int Size, int CompressedSize, UnityBundleBloc
         using var chunk = new MemoryStream();
         switch (blockCompressionType) {
             case UnityCompressionType.None: {
-                var pooled = new byte[0x8FFFFFF].AsSpan();
-                while (actualBlockSize > 0) {
-                    var amount = blockStream.Read(pooled);
-                    actualBlockSize -= amount;
-                    chunk.Write(pooled[..amount]);
-                }
-
+                var pooled = new byte[actualBlockSize].AsSpan();
+                blockStream.ReadExactly(pooled);
+                chunk.Write(pooled);
                 break;
             }
             case UnityCompressionType.LZMA: {

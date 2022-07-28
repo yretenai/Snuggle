@@ -42,7 +42,7 @@ public class BiEndianBinaryReader : BinaryReader {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override decimal ReadDecimal() {
         Span<byte> span = stackalloc byte[16];
-        Read(span);
+        BaseStream.ReadExactly(span);
 
         var lo = BinaryPrimitives.ReadInt32LittleEndian(span);
         var mid = BinaryPrimitives.ReadInt32LittleEndian(span[4..]);
@@ -61,7 +61,7 @@ public class BiEndianBinaryReader : BinaryReader {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override double ReadDouble() {
         Span<byte> span = stackalloc byte[8];
-        Read(span);
+        BaseStream.ReadExactly(span);
 
         var value = BinaryPrimitives.ReadInt64LittleEndian(span);
         if (ShouldInvertEndianness) {
@@ -74,7 +74,7 @@ public class BiEndianBinaryReader : BinaryReader {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override float ReadSingle() {
         Span<byte> span = stackalloc byte[4];
-        Read(span);
+        BaseStream.ReadExactly(span);
 
         var value = BinaryPrimitives.ReadInt32LittleEndian(span);
         if (ShouldInvertEndianness) {
@@ -87,7 +87,7 @@ public class BiEndianBinaryReader : BinaryReader {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override Half ReadHalf() {
         Span<byte> span = stackalloc byte[2];
-        Read(span);
+        BaseStream.ReadExactly(span);
 
         var value = BinaryPrimitives.ReadInt16LittleEndian(span);
         if (ShouldInvertEndianness) {
@@ -99,7 +99,7 @@ public class BiEndianBinaryReader : BinaryReader {
 
     public override short ReadInt16() {
         Span<byte> span = stackalloc byte[2];
-        Read(span);
+        BaseStream.ReadExactly(span);
 
         var value = BinaryPrimitives.ReadInt16LittleEndian(span);
         return ShouldInvertEndianness ? BinaryPrimitives.ReverseEndianness(value) : value;
@@ -107,7 +107,7 @@ public class BiEndianBinaryReader : BinaryReader {
 
     public override int ReadInt32() {
         Span<byte> span = stackalloc byte[4];
-        Read(span);
+        BaseStream.ReadExactly(span);
 
         var value = BinaryPrimitives.ReadInt32LittleEndian(span);
         return ShouldInvertEndianness ? BinaryPrimitives.ReverseEndianness(value) : value;
@@ -115,7 +115,7 @@ public class BiEndianBinaryReader : BinaryReader {
 
     public override long ReadInt64() {
         Span<byte> span = stackalloc byte[8];
-        Read(span);
+        BaseStream.ReadExactly(span);
 
         var value = BinaryPrimitives.ReadInt64LittleEndian(span);
         return ShouldInvertEndianness ? BinaryPrimitives.ReverseEndianness(value) : value;
@@ -123,7 +123,7 @@ public class BiEndianBinaryReader : BinaryReader {
 
     public override ushort ReadUInt16() {
         Span<byte> span = stackalloc byte[2];
-        Read(span);
+        BaseStream.ReadExactly(span);
 
         var value = BinaryPrimitives.ReadUInt16LittleEndian(span);
         return ShouldInvertEndianness ? BinaryPrimitives.ReverseEndianness(value) : value;
@@ -131,7 +131,7 @@ public class BiEndianBinaryReader : BinaryReader {
 
     public override uint ReadUInt32() {
         Span<byte> span = stackalloc byte[4];
-        Read(span);
+        BaseStream.ReadExactly(span);
 
         var value = BinaryPrimitives.ReadUInt32LittleEndian(span);
         return ShouldInvertEndianness ? BinaryPrimitives.ReverseEndianness(value) : value;
@@ -139,7 +139,7 @@ public class BiEndianBinaryReader : BinaryReader {
 
     public override ulong ReadUInt64() {
         Span<byte> span = stackalloc byte[8];
-        Read(span);
+        BaseStream.ReadExactly(span);
 
         var value = BinaryPrimitives.ReadUInt64LittleEndian(span);
         return ShouldInvertEndianness ? BinaryPrimitives.ReverseEndianness(value) : value;
@@ -152,7 +152,7 @@ public class BiEndianBinaryReader : BinaryReader {
         }
 
         Span<byte> span = new byte[length];
-        Read(span);
+        BaseStream.ReadExactly(span);
         if (align > 1) {
             Align(align);
         }
@@ -176,7 +176,7 @@ public class BiEndianBinaryReader : BinaryReader {
 
     public Span<byte> ReadArray(int count) {
         Span<byte> span = new byte[count];
-        Read(span);
+        BaseStream.ReadExactly(span);
         if (ShouldInvertEndianness) {
             throw new NotSupportedException("Cannot invert endianness of arrays");
         }
@@ -194,7 +194,7 @@ public class BiEndianBinaryReader : BinaryReader {
 
     public Span<T> ReadArray<T>(int count) where T : struct {
         Span<T> span = new T[count];
-        Read(MemoryMarshal.AsBytes(span));
+        BaseStream.ReadExactly(MemoryMarshal.AsBytes(span));
         if (ShouldInvertEndianness) {
             throw new NotSupportedException("Cannot invert endianness of arrays");
         }
@@ -204,13 +204,13 @@ public class BiEndianBinaryReader : BinaryReader {
 
     public Memory<byte> ReadMemory(long count) {
         Memory<byte> memory = new byte[count];
-        Read(memory.Span);
+        BaseStream.ReadExactly(memory.Span);
         return memory;
     }
 
     public Memory<T> ReadMemory<T>(long count) where T : struct {
         Memory<T> memory = new T[count];
-        Read(MemoryMarshal.AsBytes(memory.Span));
+        BaseStream.ReadExactly(MemoryMarshal.AsBytes(memory.Span));
         if (ShouldInvertEndianness) {
             throw new NotSupportedException("Cannot invert endianness of arrays");
         }
@@ -220,7 +220,7 @@ public class BiEndianBinaryReader : BinaryReader {
 
     public T ReadStruct<T>() where T : struct {
         Span<T> span = new T[1];
-        Read(MemoryMarshal.AsBytes(span));
+        BaseStream.ReadExactly(MemoryMarshal.AsBytes(span));
         if (ShouldInvertEndianness) {
             throw new NotSupportedException("Cannot invert endianness of structs");
         }
