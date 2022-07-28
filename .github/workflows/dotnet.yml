@@ -40,5 +40,5 @@ jobs:
             -   name: Upload Release
                 uses: actions/upload-artifact@v2
                 with:
-                    name: snuggle-net6-win-x86-64-rel
+                    name: snuggle-net7-win-x86-64-rel
                     path: dist/release
