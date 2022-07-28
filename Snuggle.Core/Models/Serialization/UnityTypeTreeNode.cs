@@ -10,12 +10,12 @@ namespace Snuggle.Core.Models.Serialization;
 public record UnityTypeTreeNode(
     int Version,
     int Level,
-    UnityTypeArrayKind ArrayKind,
+    UnityTransferTypeFlags TypeFlags,
     uint TypeOffset,
     uint NameOffset,
     int Size,
     int Index,
-    UnityTypeTreeFlags Flags,
+    UnityTransferMetaFlags Meta,
     int VariableCount,
     ulong TypeHash,
     string Type,
@@ -27,12 +27,12 @@ public record UnityTypeTreeNode(
     public static UnityTypeTreeNode FromReader(BiEndianBinaryReader reader, UnitySerializedFile header, SnuggleCoreOptions options) {
         var version = reader.ReadInt16();
         var level = reader.ReadByte();
-        var arrayKind = (UnityTypeArrayKind) reader.ReadByte();
+        var arrayKind = (UnityTransferTypeFlags) reader.ReadByte();
         var typeOffset = reader.ReadUInt32();
         var nameOffset = reader.ReadUInt32();
         var size = reader.ReadInt32();
         var index = reader.ReadInt32();
-        var flags = (UnityTypeTreeFlags) reader.ReadUInt32();
+        var flags = (UnityTransferMetaFlags) reader.ReadUInt32();
         var typeHash = 0ul;
         if (header.FileVersion >= UnitySerializedFileVersion.TypeFlags) {
             typeHash = reader.ReadUInt64();
@@ -67,11 +67,11 @@ public record UnityTypeTreeNode(
             index = reader.ReadInt32();
         }
 
-        var flags = (UnityTypeArrayKind) reader.ReadInt32();
+        var flags = (UnityTransferTypeFlags) reader.ReadInt32();
         var version = reader.ReadInt32();
-        var metaFlags = (UnityTypeTreeFlags) 0;
+        var metaFlags = (UnityTransferMetaFlags) 0;
         if (header.FileVersion >= UnitySerializedFileVersion.TypeTreeMeta) {
-            metaFlags = (UnityTypeTreeFlags) reader.ReadInt32();
+            metaFlags = (UnityTransferMetaFlags) reader.ReadInt32();
         }
 
         return new UnityTypeTreeNode(
@@ -104,12 +104,12 @@ public record UnityTypeTreeNode(
     public void ToWriter(BiEndianBinaryWriter writer, UnitySerializedFile header, SnuggleCoreOptions options, AssetSerializationOptions serializationOptions) {
         writer.Write((short)Version);
         writer.Write((byte)Level);
-        writer.Write((byte)ArrayKind);
+        writer.Write((byte)TypeFlags);
         writer.Write(TypeOffset);
         writer.Write(NameOffset);
         writer.Write(Size);
         writer.Write(Index);
-        writer.Write((uint)Flags);
+        writer.Write((uint)Meta);
         if (serializationOptions.TargetFileVersion >= UnitySerializedFileVersion.TypeFlags) {
             writer.Write(TypeHash);
         }

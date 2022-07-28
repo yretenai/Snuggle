@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Mono.Cecil;
 using Mono.Cecil.Rocks;
+using Snuggle.Core.Models.Serialization;
 using Unity.CecilTools;
 using Unity.CecilTools.Extensions;
 using Unity.SerializationLogic;
@@ -156,12 +157,12 @@ public class TypeDefinitionConverter {
     private static bool IsSystemString(MemberReference typeRef) => typeRef.FullName == "System.String";
 
     private IEnumerable<ObjectNode> TypeRefToObjectNodes(TypeReference typeRef, string name, bool isElement) {
-        var align = false;
+        var flags = UnityTransferMetaFlags.None;
 
         var typeDef = typeRef.Resolve();
         if (!IsStruct(TypeDef) || !UnityEngineTypePredicates.IsUnityEngineValueType(TypeDef)) {
             if (IsStruct(typeDef) || RequiresAlignment(typeRef)) {
-                align = true;
+                flags |= UnityTransferMetaFlags.AlignBytes;
             }
         }
 
@@ -184,34 +185,36 @@ public class TypeDefinitionConverter {
                 _ => throw new NotSupportedException(),
             };
 
-            if (isElement) {
-                align = false;
+            flags |= primitiveName == "bool" ? UnityTransferMetaFlags.TreatIntegerValueAsBoolean : UnityTransferMetaFlags.None;
+            
+            if (isElement && flags.HasFlag(UnityTransferMetaFlags.AlignBytes)) {
+                flags ^= UnityTransferMetaFlags.AlignBytes;
             }
 
-            nodes.Add(new ObjectNode(name, primitiveName, -1, align, primitiveName == "bool", false, null));
+            nodes.Add(new ObjectNode(name, primitiveName, -1, flags, UnityTransferTypeFlags.None, null));
         } else if (IsSystemString(typeRef)) {
-            nodes.Add(new ObjectNode(name, "string", -1, false, false, false, null));
+            nodes.Add(new ObjectNode(name, "string", -1, UnityTransferMetaFlags.None, UnityTransferTypeFlags.None, null));
         } else if (IsEnum(typeDef)) {
-            nodes.Add(new ObjectNode(name, "SInt32", 4, align, false, false, GetEnumNames(typeDef)));
+            nodes.Add(new ObjectNode(name, "SInt32", 4, flags, UnityTransferTypeFlags.None, GetEnumNames(typeDef)));
         } else if (CecilUtils.IsGenericList(typeRef) || typeRef.IsArray) {
             var elementRef = typeRef.IsArray ? typeRef.GetElementType() : CecilUtils.ElementTypeOfCollection(typeRef);
-            var array = new ObjectNode("Array", "Array", -1, false, false, false, null) {
+            var array = new ObjectNode("Array", "Array", -1, UnityTransferMetaFlags.None, UnityTransferTypeFlags.None, null) {
                 Properties = {
-                    new ObjectNode("int", "size", 4, false, false, false, null),
+                    new ObjectNode("int", "size", 4, UnityTransferMetaFlags.None, UnityTransferTypeFlags.None, null),
                 },
             };
             array.Properties.AddRange(TypeRefToObjectNodes(elementRef, "data", true));
-            nodes.Add(new ObjectNode(name, $"Array<{typeRef.FullName}>", -1, align, false, true, null) {
+            nodes.Add(new ObjectNode(name, $"Array<{typeRef.FullName}>", -1, flags, UnityTransferTypeFlags.Array, null) {
                 Properties = new List<ObjectNode> {
                     array,
                 },
             });
         } else if (UnityEngineTypePredicates.IsUnityEngineObject(typeRef)) {
-            nodes.Add(new ObjectNode(name, $"PPtr<{typeRef.Name}>", 12, false, false, false, null));
+            nodes.Add(new ObjectNode(name, $"PPtr<{typeRef.Name}>", 12, UnityTransferMetaFlags.None, UnityTransferTypeFlags.None, null));
         } else if (UnityEngineTypePredicates.IsSerializableUnityClass(typeRef) || UnityEngineTypePredicates.IsSerializableUnityStruct(typeRef)) {
-            nodes.Add(new ObjectNode(name, typeRef.Name, -1, false, false, false, null));
+            nodes.Add(new ObjectNode(name, typeRef.Name, -1, UnityTransferMetaFlags.None, UnityTransferTypeFlags.None, null));
         } else {
-            var obj = new ObjectNode(name, $"${typeRef.FullName}", -1, align, false, false, null);
+            var obj = new ObjectNode(name, $"${typeRef.FullName}", -1, flags, UnityTransferTypeFlags.None, null);
             var typeDefinitionConverter = new TypeDefinitionConverter(typeDef, typeRef);
             obj.Properties.AddRange(typeDefinitionConverter.ConvertToObjectNodes());
             nodes.Add(obj);

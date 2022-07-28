@@ -52,14 +52,14 @@ public record UnityTypeTree(UnityTypeTreeNode[] Nodes, Memory<byte> StringBuffer
     public string PrintLayout(bool fullInfo, bool skipIgnored) {
         var sb = new StringBuilder();
         foreach (var node in Nodes) {
-            if (skipIgnored && node.Flags.HasFlag(UnityTypeTreeFlags.Ignored)) {
+            if (skipIgnored && node.Meta.HasFlag(UnityTransferMetaFlags.IgnoreInMetaFiles)) {
                 continue;
             }
 
             sb.Append(' ', node.Level * 2);
             sb.Append($"{node.Type} {node.Name}");
             if (fullInfo) {
-                sb.Append($"; Size: {node.Size}; Array Type: {node.Flags:G}; Flags: {node.Flags.ToFlagString()}");
+                sb.Append($"; Size: {node.Size}; Array Type: {node.Meta:G}; Flags: {node.Meta.ToFlagString()}");
             }
 
             sb.AppendLine();

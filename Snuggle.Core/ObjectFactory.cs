@@ -183,35 +183,35 @@ public static class ObjectFactory {
                     case "boolean":
                     case "uint8": {
                         var tmp = reader.ReadByte();
-                        value = node.IsBoolean ? tmp == 1 : tmp;
+                        value = node.Meta.HasFlag(UnityTransferMetaFlags.TreatIntegerValueAsBoolean) ? tmp == 1 : tmp;
                         break;
                     }
                     case "unsigned short":
                     case "ushort":
                     case "uint16": {
                         var tmp = reader.ReadUInt16();
-                        value = node.IsBoolean ? tmp == 1 : tmp;
+                        value = node.Meta.HasFlag(UnityTransferMetaFlags.TreatIntegerValueAsBoolean) ? tmp == 1 : tmp;
                         break;
                     }
                     case "unsigned int":
                     case "uint":
                     case "uint32": {
                         var tmp = reader.ReadUInt32();
-                        value = node.IsBoolean ? tmp == 1 : tmp;
+                        value = node.Meta.HasFlag(UnityTransferMetaFlags.TreatIntegerValueAsBoolean) ? tmp == 1 : tmp;
                         break;
                     }
                     case "unsigned long long":
                     case "ulonglong":
                     case "uint64": {
                         var tmp = reader.ReadUInt64();
-                        value = node.IsBoolean ? tmp == 1 : tmp;
+                        value = node.Meta.HasFlag(UnityTransferMetaFlags.TreatIntegerValueAsBoolean) ? tmp == 1 : tmp;
                         break;
                     }
                     case "short":
                     case "sint16":
                     case "int16": {
                         var tmp = reader.ReadInt16();
-                        value = node.IsBoolean ? tmp == 1 : tmp;
+                        value = node.Meta.HasFlag(UnityTransferMetaFlags.TreatIntegerValueAsBoolean) ? tmp == 1 : tmp;
                         break;
                     }
                     case "type*":
@@ -222,7 +222,7 @@ public static class ObjectFactory {
                         if (node.EnumValues != null && node.EnumValues.TryGetValue(tmp, out var enumValue)) {
                             value = enumValue;
                         } else {
-                            value = node.IsBoolean ? tmp == 1 : tmp;
+                            value = node.Meta.HasFlag(UnityTransferMetaFlags.TreatIntegerValueAsBoolean) ? tmp == 1 : tmp;
                         }
 
                         break;
@@ -233,7 +233,7 @@ public static class ObjectFactory {
                     case "sint64":
                     case "int64": {
                         var tmp = reader.ReadInt64();
-                        value = node.IsBoolean ? tmp == 1 : tmp;
+                        value = node.Meta.HasFlag(UnityTransferMetaFlags.TreatIntegerValueAsBoolean) ? tmp == 1 : tmp;
                         break;
                     }
                     case "float32":
@@ -389,7 +389,7 @@ public static class ObjectFactory {
             reader.BaseStream.Seek(start + node.Size, SeekOrigin.Begin);
         }
 
-        if (node.IsAligned) {
+        if (node.Meta.HasFlag(UnityTransferMetaFlags.AlignBytes)) {
             reader.Align();
         }
 
