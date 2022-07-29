@@ -1,6 +1,7 @@
 ﻿using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
 using Snuggle.Core.Models;
+using Snuggle.Core.Models.Objects.Graphics;
 using Snuggle.Core.Models.Serialization;
 
 namespace Snuggle.Core.Implementations;
@@ -10,8 +11,8 @@ public class Animator : Behaviour {
     public Animator(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) {
         Avatar = PPtr<SerializedObject>.FromReader(reader, serializedFile);
         Controller = PPtr<RuntimeAnimatorController>.FromReader(reader, serializedFile);
-        CullingMode = reader.ReadInt32();
-        UpdateMode = reader.ReadInt32();
+        CullingMode = (CullingMode) reader.ReadInt32();
+        UpdateMode = (UpdateMode) reader.ReadInt32();
 
         ApplyRootMotion = reader.ReadBoolean();
         LinearVelocityBlending = reader.ReadBoolean();
@@ -34,8 +35,8 @@ public class Animator : Behaviour {
 
     public PPtr<SerializedObject> Avatar { get; set; } = PPtr<SerializedObject>.Null; // TODO(naomi): Avatar
     public PPtr<RuntimeAnimatorController> Controller { get; set; } = PPtr<RuntimeAnimatorController>.Null;
-    public int CullingMode { get; set; } // TODO(naomi): make enum
-    public int UpdateMode { get; set; } // TODO(naomi): make enum
+    public CullingMode CullingMode { get; set; }
+    public UpdateMode UpdateMode { get; set; }
     public bool ApplyRootMotion { get; set; }
     public bool LinearVelocityBlending { get; set; }
     public bool StabilizeFeet { get; set; }

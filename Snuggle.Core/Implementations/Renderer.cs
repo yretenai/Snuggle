@@ -29,17 +29,17 @@ public class Renderer : Behaviour {
         }
 
         if (SerializedFile.Version >= UnityVersionRegister.Unity5_4) {
-            MotionVectors = reader.ReadByte();
-            LightProbeUsage = reader.ReadByte();
-            ReflectionProbeUsage = reader.ReadByte();
+            MotionVectors = reader.ReadBoolean();
+            LightProbeUsage = (LightProbeUsage) reader.ReadByte();
+            ReflectionProbeUsage = (ReflectionProbeUsage) reader.ReadByte();
         }
 
         if (SerializedFile.Version >= UnityVersionRegister.Unity2019_3) {
-            RayTracingMode = reader.ReadByte();
+            RayTracingMode = (RayTracingMode) reader.ReadByte();
         }
 
         if (SerializedFile.Version >= UnityVersionRegister.Unity2020_1) {
-            RayTraceProcedural = reader.ReadByte();
+            RayTraceProcedural = reader.ReadBoolean();
         }
 
         reader.Align();
@@ -72,7 +72,7 @@ public class Renderer : Behaviour {
 
         if (SerializedFile.Version < UnityVersionRegister.Unity5_4) {
             UseLightProbes = reader.ReadBoolean();
-            ReflectionProbeUsage = reader.ReadInt32();
+            ReflectionProbeUsage = (ReflectionProbeUsage) reader.ReadInt32();
         }
 
         ProbeAnchor = PPtr<Transform>.FromReader(reader, SerializedFile);
@@ -102,10 +102,10 @@ public class Renderer : Behaviour {
     public bool RecieveShadows { get; set; }
     public bool DynamicOccludee { get; set; }
     public bool StaticShadowCaster { get; set; }
-    public byte MotionVectors { get; set; }
-    public byte LightProbeUsage { get; set; }
-    public byte RayTracingMode { get; set; }
-    public byte RayTraceProcedural { get; set; }
+    public bool MotionVectors { get; set; }
+    public LightProbeUsage LightProbeUsage { get; set; }
+    public RayTracingMode RayTracingMode { get; set; }
+    public bool RayTraceProcedural { get; set; }
     public uint RenderingLayerMask { get; set; }
     public int RenderingPriority { get; set; }
     public ushort LightmapIndex { get; set; }
@@ -117,7 +117,7 @@ public class Renderer : Behaviour {
     public StaticBatchInfo StaticBatchInfo { get; set; }
     public PPtr<Transform> StaticBatchRoot { get; set; }
     public bool UseLightProbes { get; set; }
-    public int ReflectionProbeUsage { get; set; }
+    public ReflectionProbeUsage ReflectionProbeUsage { get; set; }
     public PPtr<Transform> ProbeAnchor { get; set; }
     public PPtr<GameObject> LightProbeVolumeOverride { get; set; }
     public int SortingLayerId { get; set; }

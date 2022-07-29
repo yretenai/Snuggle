@@ -5,6 +5,7 @@ using System.Text.Json.Serialization;
 using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
 using Snuggle.Core.Models;
+using Snuggle.Core.Models.Objects.Graphics;
 using Snuggle.Core.Models.Objects.Math;
 using Snuggle.Core.Models.Objects.Settings;
 using Snuggle.Core.Models.Serialization;
@@ -13,8 +14,7 @@ using Snuggle.Core.Options.Game;
 
 namespace Snuggle.Core.Implementations;
 
-[ObjectImplementation(UnityClassId.PlayerSettings)]
-[SuppressMessage("ReSharper", "PropertyCanBeMadeInitOnly.Global")]
+[ObjectImplementation(UnityClassId.PlayerSettings), SuppressMessage("ReSharper", "PropertyCanBeMadeInitOnly.Global")]
 public class PlayerSettings : SerializedObject {
     public PlayerSettings(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : this(info, serializedFile) {
         IsMutated = false;
@@ -35,8 +35,8 @@ public class PlayerSettings : SerializedObject {
 
         reader.Align();
 
-        DefaultScreenOrientation = reader.ReadInt32();
-        TargetDevice = reader.ReadInt32();
+        DefaultScreenOrientation = (ScreenOrientation) reader.ReadInt32();
+        TargetDevice = (DeviceType) reader.ReadInt32();
         if (SerializedFile.Version < UnityVersionRegister.Unity5_3) {
             TargetResolution = reader.ReadInt32();
         }
@@ -56,12 +56,12 @@ public class PlayerSettings : SerializedObject {
         DefaultScreenHeight = reader.ReadInt32();
         DefaultScreenHeightWeb = reader.ReadInt32();
         DefaultScreenWidthWeb = reader.ReadInt32();
-        RenderingPath = reader.ReadInt32();
+        RenderingPath = (RenderingPath) reader.ReadInt32();
         if (SerializedFile.Version < UnityVersionRegister.Unity5_5) {
-            MobileRenderingPath = reader.ReadInt32();
+            MobileRenderingPath = (RenderingPath) reader.ReadInt32();
         }
 
-        ActiveColorSpace = reader.ReadInt32();
+        ActiveColorSpace = (ColorSpace) reader.ReadInt32();
 
         MTRendering = reader.ReadBoolean();
         if (SerializedFile.Version < UnityVersionRegister.Unity2017_2 || SerializedFile.Version >= UnityVersionRegister.Unity2018_4 && SerializedFile.Version < UnityVersionRegister.Unity2019_1 || SerializedFile.Version >= UnityVersionRegister.Unity2019_4) { // xD
@@ -69,9 +69,9 @@ public class PlayerSettings : SerializedObject {
         }
 
         if (SerializedFile.Version >= UnityVersionRegister.Unity2020_2) {
-            AID = reader.ReadArray<byte>(16).ToArray();
+            MobileApplicationIdentifierHash = reader.ReadArray<byte>(16).ToArray();
             reader.Align();
-            PlayerMinOpenGLESVersion = reader.ReadInt32();
+            PlayerMinOpenGLESVersion = (OpenGLESVersion) reader.ReadInt32();
         }
 
         reader.Align();
@@ -90,13 +90,13 @@ public class PlayerSettings : SerializedObject {
 
         if (SerializedFile.Version >= UnityVersionRegister.Unity5_4) {
             var stackTraceCount = reader.ReadInt32();
-            StackTraceTypes = reader.ReadArray<int>(stackTraceCount).ToArray();
+            StackTraceTypes = reader.ReadArray<StackTraceLogType>(stackTraceCount).ToArray();
         }
 
-        IosShowActivityIndicatorOnLoading = reader.ReadInt32();
-        AndroidShowActivityIndicatorOnLoading = reader.ReadInt32();
+        IosShowActivityIndicatorOnLoading = reader.ReadInt32() != 0;
+        AndroidShowActivityIndicatorOnLoading = reader.ReadInt32() != 0;
         if (SerializedFile.Version >= UnityVersionRegister.Unity5_5 && SerializedFile.Version < UnityVersionRegister.Unity2018_2) {
-            TizenShowActivityIndicatorOnLoading = reader.ReadInt32();
+            TizenShowActivityIndicatorOnLoading = reader.ReadInt32() != 0;
         }
 
         if (SerializedFile.Version < UnityVersionRegister.Unity2018_4 || // ??? removed for one version?
@@ -154,7 +154,7 @@ public class PlayerSettings : SerializedObject {
             AndroidDefaultWindowHeight = reader.ReadInt32();
             AndroidMinimumWindowWidth = reader.ReadInt32();
             AndroidMinimumWindowHeight = reader.ReadInt32();
-            AndroidFullscreenMode = reader.ReadInt32();
+            AndroidFullscreenMode = (FullscreenMode) reader.ReadInt32();
         }
 
         if (SerializedFile.Version < UnityVersionRegister.Unity2018_1) {
@@ -210,18 +210,18 @@ public class PlayerSettings : SerializedObject {
         reader.Align();
 
         if (SerializedFile.Version >= UnityVersionRegister.Unity5_6 && SerializedFile.Version < UnityVersionRegister.Unity2019_3) {
-            GraphicsJobMode = reader.ReadInt32();
+            GraphicsJobMode = (GraphicsJobMode) reader.ReadInt32();
         }
 
         if (SerializedFile.Version < UnityVersionRegister.Unity2018_1) {
-            MacFullscreenMode = reader.ReadInt32();
+            MacFullscreenMode = (FullscreenMode) reader.ReadInt32();
             if (SerializedFile.Version < UnityVersionRegister.Unity2017_3) {
-                D3D9FullscreenMode = reader.ReadInt32();
+                D3D9FullscreenMode = (FullscreenMode) reader.ReadInt32();
             }
 
-            D3D11FullscreenMode = reader.ReadInt32();
+            D3D11FullscreenMode = (FullscreenMode) reader.ReadInt32();
         } else {
-            FullscreenMode = reader.ReadInt32();
+            FullscreenMode = (FullscreenMode) reader.ReadInt32();
         }
 
         XboxSpeechDB = reader.ReadUInt32();
@@ -371,7 +371,7 @@ public class PlayerSettings : SerializedObject {
         if (SerializedFile.Version < UnityVersionRegister.Unity5_5) {
             MetroEnableIndependentInputSource = reader.ReadBoolean();
         } else {
-            MetroInputSource = reader.ReadInt32();
+            MetroInputSource = (WSAInputSource) reader.ReadInt32();
             if (SerializedFile.Version >= UnityVersionRegister.Unity2017_3) {
                 WSATransparentSwapChain = reader.ReadBoolean();
                 reader.Align();
@@ -428,12 +428,12 @@ public class PlayerSettings : SerializedObject {
                 UseHDRDisplay = reader.ReadBoolean();
                 reader.Align();
                 if (SerializedFile.Version >= UnityVersionRegister.Unity2019_3) {
-                    D3DHDRBitDepth = reader.ReadInt32();
+                    D3DHDRBitDepth = (HDRBitDepth) reader.ReadInt32();
                 }
 
                 if (SerializedFile.Version >= UnityVersionRegister.Unity2017_2) {
                     var colorGamutCount = reader.ReadInt32();
-                    ColorGamuts = reader.ReadArray<int>(colorGamutCount).ToArray();
+                    ColorGamuts = reader.ReadArray<ColorGamut>(colorGamutCount).ToArray();
                 }
             }
         }
@@ -460,7 +460,7 @@ public class PlayerSettings : SerializedObject {
         }
 
         if (SerializedFile.Version >= UnityVersionRegister.Unity2018_3) {
-            FramebufferDepthMemorylessMode = reader.ReadInt32();
+            FramebufferDepthMemorylessMode = (MemorylessMode) reader.ReadInt32();
         }
 
         if (SerializedFile.Version >= UnityVersionRegister.Unity2020_2) {
@@ -510,15 +510,15 @@ public class PlayerSettings : SerializedObject {
         ProductName = string.Empty;
         DefaultCursor = PPtr<Texture2D>.Null;
         SplashScreenSettings = SplashScreenSettings.Default;
-        AID = new byte[16];
-        StackTraceTypes = Array.Empty<int>();
+        MobileApplicationIdentifierHash = new byte[16];
+        StackTraceTypes = Array.Empty<StackTraceLogType>();
         MacAppStoreCategory = string.Empty;
         PS3SplashScreen = PPtr<Texture2D>.Null;
         SupportedAspectRatios = AspectRatios.Default;
         BundleIdentifier = string.Empty;
         BundleVersion = string.Empty;
         VRSettings = VRSettings.Default;
-        ColorGamuts = Array.Empty<int>();
+        ColorGamuts = Array.Empty<ColorGamut>();
         CloudProjectId = string.Empty;
         ProjectId = string.Empty;
         ProjectName = string.Empty;
@@ -530,8 +530,8 @@ public class PlayerSettings : SerializedObject {
     public bool AndroidProfiler { get; set; }
     public bool AndroidFilterTouchesWhenObscured { get; set; }
     public bool AndroidEnableSustainedPerformanceMode { get; set; }
-    public int DefaultScreenOrientation { get; set; }
-    public int TargetDevice { get; set; }
+    public ScreenOrientation DefaultScreenOrientation { get; set; }
+    public DeviceType TargetDevice { get; set; }
     public int TargetResolution { get; set; }
     public bool UseOnDemandResources { get; set; }
     public int AccelerometerFrequency { get; set; }
@@ -544,20 +544,20 @@ public class PlayerSettings : SerializedObject {
     public int DefaultScreenHeight { get; set; }
     public int DefaultScreenWidthWeb { get; set; }
     public int DefaultScreenHeightWeb { get; set; }
-    public int RenderingPath { get; set; }
-    public int MobileRenderingPath { get; set; }
-    public int ActiveColorSpace { get; set; }
+    public RenderingPath RenderingPath { get; set; }
+    public RenderingPath MobileRenderingPath { get; set; }
+    public ColorSpace ActiveColorSpace { get; set; }
     public bool MTRendering { get; set; }
     public bool MobileMTRendering { get; set; }
     public bool MipStripping { get; set; }
     public int NumberOfMipsStripped { get; set; }
-    public byte[] AID { get; set; }
-    public int PlayerMinOpenGLESVersion { get; set; }
+    public byte[] MobileApplicationIdentifierHash { get; set; }
+    public OpenGLESVersion PlayerMinOpenGLESVersion { get; set; }
     public bool Stereoscopic3D { get; set; }
-    public int[] StackTraceTypes { get; set; }
-    public int IosShowActivityIndicatorOnLoading { get; set; }
-    public int AndroidShowActivityIndicatorOnLoading { get; set; }
-    public int TizenShowActivityIndicatorOnLoading { get; set; }
+    public StackTraceLogType[] StackTraceTypes { get; set; }
+    public bool IosShowActivityIndicatorOnLoading { get; set; }
+    public bool AndroidShowActivityIndicatorOnLoading { get; set; }
+    public bool TizenShowActivityIndicatorOnLoading { get; set; }
     public int IOSAppInBackgroundBehavior { get; set; }
     public int DisplayResolutionDialog { get; set; }
     public bool IOSUseCustomAppBackgroundBehavior { get; set; }
@@ -579,7 +579,7 @@ public class PlayerSettings : SerializedObject {
     public int AndroidDefaultWindowHeight { get; set; }
     public int AndroidMinimumWindowWidth { get; set; }
     public int AndroidMinimumWindowHeight { get; set; }
-    public int AndroidFullscreenMode { get; set; }
+    public FullscreenMode AndroidFullscreenMode { get; set; }
     public bool DefaultIsFullScreen { get; set; }
     public bool DefaultIsNativeResolution { get; set; }
     public bool MacRetinaSupport { get; set; }
@@ -607,11 +607,11 @@ public class PlayerSettings : SerializedObject {
     public bool XboxEnableFitness { get; set; }
     public bool VisibleInBackground { get; set; }
     public bool AllowFullscreenSwitch { get; set; }
-    public int GraphicsJobMode { get; set; }
-    public int MacFullscreenMode { get; set; }
-    public int D3D9FullscreenMode { get; set; }
-    public int D3D11FullscreenMode { get; set; }
-    public int FullscreenMode { get; set; }
+    public GraphicsJobMode GraphicsJobMode { get; set; }
+    public FullscreenMode MacFullscreenMode { get; set; }
+    public FullscreenMode D3D9FullscreenMode { get; set; }
+    public FullscreenMode D3D11FullscreenMode { get; set; }
+    public FullscreenMode FullscreenMode { get; set; }
     public uint XboxSpeechDB { get; set; }
     public bool XboxEnableHeadOrientation { get; set; }
     public bool XboxEnableGuest { get; set; }
@@ -664,7 +664,7 @@ public class PlayerSettings : SerializedObject {
     public string BundleVersion { get; set; }
     public List<PPtr<SerializedObject>> PreloadedAssets { get; set; } = new();
     public bool MetroEnableIndependentInputSource { get; set; }
-    public int MetroInputSource { get; set; }
+    public WSAInputSource MetroInputSource { get; set; }
     public bool WSATransparentSwapChain { get; set; }
     public bool HolographicPauseOnTrackingLoss { get; set; }
     public bool MetroEnableLowLatencyPresentationAPI { get; set; }
@@ -677,8 +677,8 @@ public class PlayerSettings : SerializedObject {
     public bool ProtectGraphicsMemory { get; set; }
     public bool EnableFrameTimingStats { get; set; }
     public bool UseHDRDisplay { get; set; }
-    public int D3DHDRBitDepth { get; set; }
-    public int[] ColorGamuts { get; set; }
+    public HDRBitDepth D3DHDRBitDepth { get; set; }
+    public ColorGamut[] ColorGamuts { get; set; }
     public int TargetPixelDensity { get; set; }
     public int ResolutionScalingMode { get; set; }
     public int AndroidSupportedAspectRatio { get; set; }
@@ -686,7 +686,7 @@ public class PlayerSettings : SerializedObject {
     public int ActiveInputHandler { get; set; }
     public string CloudProjectId { get; set; }
     public string ProjectId { get; set; }
-    public int FramebufferDepthMemorylessMode { get; set; }
+    public MemorylessMode FramebufferDepthMemorylessMode { get; set; }
     public List<string> QualitySettingsNames { get; set; } = new();
     public string ProjectName { get; set; }
     public string OrganizationId { get; set; }

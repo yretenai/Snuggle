@@ -56,11 +56,11 @@ public class AssetBundle : NamedObject, ICABPathProvider {
         reader.Align();
 
         if (serializedFile.Version > UnityVersionRegister.Unity2017_3) {
-            ExplicitDataLayout = reader.ReadInt32();
+            ExplicitDataLayout = reader.ReadInt32() == 1;
         }
 
         if (serializedFile.Version > UnityVersionRegister.Unity2017_1) {
-            PathFlags = reader.ReadInt32();
+            PathFlags = (PathFlags) reader.ReadInt32();
         }
 
         if (serializedFile.Version > UnityVersionRegister.Unity2017_3) {
@@ -86,8 +86,8 @@ public class AssetBundle : NamedObject, ICABPathProvider {
     public string AssetBundleName { get; set; }
     public List<string> Dependencies { get; set; } = new();
     public bool IsStreamedSceneAssetBundle { get; set; }
-    public int ExplicitDataLayout { get; set; }
-    public int PathFlags { get; set; }
+    public bool ExplicitDataLayout { get; set; }
+    public PathFlags PathFlags { get; set; }
     public Dictionary<string, string> SceneHashes { get; set; } = new();
 
     private bool ShouldDeserializePreloadTable => PreloadStart > -1 && PreloadTable == null;
@@ -162,7 +162,7 @@ public class AssetBundle : NamedObject, ICABPathProvider {
         }
 
         if (options.TargetVersion > UnityVersionRegister.Unity2017_1) {
-            writer.Write(PathFlags);
+            writer.Write((int) PathFlags);
         }
 
         if (options.TargetVersion > UnityVersionRegister.Unity2017_3) {

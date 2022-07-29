@@ -50,14 +50,14 @@ public class Mesh : NamedObject, ISerializedResource {
             container.BoneCount = reader.ReadInt32();
         }
 
-        MeshCompression = reader.ReadByte();
+        MeshCompression = (MeshCompression) reader.ReadByte();
         IsReadable = reader.ReadBoolean();
         KeepVertices = reader.ReadBoolean();
         KeepIndices = reader.ReadBoolean();
 
         reader.Align();
 
-        if (serializedFile.Version >= UnityVersionRegister.Unity2017_4 || serializedFile.Version == UnityVersionRegister.Unity2017_3_1_P || serializedFile.Version >= UnityVersionRegister.Unity2017_3 && MeshCompression == 0) {
+        if (serializedFile.Version >= UnityVersionRegister.Unity2017_4 || serializedFile.Version == UnityVersionRegister.Unity2017_3_1_P || serializedFile.Version >= UnityVersionRegister.Unity2017_3 && MeshCompression == MeshCompression.Off) {
             IndexFormat = (IndexFormat) reader.ReadInt32();
         }
 
@@ -134,7 +134,7 @@ public class Mesh : NamedObject, ISerializedResource {
     [JsonIgnore]
     public Memory<uint>? VariableBoneCountWeights { get; set; }
 
-    public byte MeshCompression { get; set; }
+    public MeshCompression MeshCompression { get; set; }
     public bool IsReadable { get; set; }
     public bool KeepVertices { get; set; }
     public bool KeepIndices { get; set; }

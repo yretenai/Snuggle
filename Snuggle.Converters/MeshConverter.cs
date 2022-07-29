@@ -15,7 +15,7 @@ public static class MeshConverter {
         }
 
         Memory<byte> fullBuffer;
-        if (mesh.MeshCompression == 0) {
+        if (mesh.MeshCompression == MeshCompression.Off) {
             vertexCount = mesh.VertexData.VertexCount;
             channels = mesh.VertexData.Channels;
             fullBuffer = mesh.VertexData.Data!.Value;
@@ -56,11 +56,11 @@ public static class MeshConverter {
             throw new IncompleteDeserialization();
         }
 
-        if (mesh.MeshCompression == 0) {
+        if (mesh.MeshCompression == MeshCompression.Off) {
             return mesh.Indices!.Value;
         }
 
-        mesh.IndexFormat = IndexFormat.Uint32;
+        mesh.IndexFormat = IndexFormat.UInt32;
 
         var triangles = mesh.CompressedMesh.Triangles.Decompress();
         return triangles.AsBytes();

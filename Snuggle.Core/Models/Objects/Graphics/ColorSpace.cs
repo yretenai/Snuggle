@@ -2,6 +2,6 @@
 
 public enum ColorSpace {
     Unknown = -1,
-    Gamma = 0,
-    Linear = 1,
+    Linear = 0,
+    sRGB = 1,
 }

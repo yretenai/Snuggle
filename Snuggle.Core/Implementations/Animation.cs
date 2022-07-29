@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Snuggle.Core.IO;
 using Snuggle.Core.Models;
+using Snuggle.Core.Models.Objects.Graphics;
 using Snuggle.Core.Models.Serialization;
 
 namespace Snuggle.Core.Implementations;
@@ -16,21 +17,21 @@ public class Animation : Behaviour {
             AnimationClips.Add(PPtr<SerializedObject>.FromReader(reader, serializedFile));
         }
 
-        WrapMode = reader.ReadInt32();
+        WrapMode = (AnimationWrapMode) reader.ReadInt32();
 
         PlayAutomatically = reader.ReadBoolean();
         AnimatePhysics = reader.ReadBoolean();
         reader.Align();
 
-        CullingType = reader.ReadInt32();
+        CullingType = (CullingType) reader.ReadInt32();
     }
 
     public Animation(UnityObjectInfo info, SerializedFile serializedFile) : base(info, serializedFile) { }
 
     public PPtr<SerializedObject> AnimationClip { get; set; } = PPtr<SerializedObject>.Null; // TODO(naomi): AnimationClip
     public List<PPtr<SerializedObject>> AnimationClips { get; set; } = new(); // TODO(naomi): AnimationClip
-    public int WrapMode { get; set; } // TODO(naomi): make enum
+    public AnimationWrapMode WrapMode { get; set; }
     public bool PlayAutomatically { get; set; }
     public bool AnimatePhysics { get; set; }
-    public int CullingType { get; set; } // TODO(naomi): make enum
+    public CullingType CullingType { get; set; }
 }
