@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
+using Snuggle.Core.Implementations;
 using Snuggle.Core.IO;
 using Snuggle.Core.Options;
 
@@ -61,7 +63,7 @@ public record UnityObjectInfo(
             stripped);
     }
 
-    public static UnityObjectInfo[] ArrayFromReader(BiEndianBinaryReader reader, ref UnitySerializedFile header, UnitySerializedType[] types, SnuggleCoreOptions options) {
+    public static ImmutableArray<UnityObjectInfo> ArrayFromReader(BiEndianBinaryReader reader, ref UnitySerializedFile header, UnitySerializedType[] types, SnuggleCoreOptions options) {
         if (header.FileVersion is >= UnitySerializedFileVersion.BigId and < UnitySerializedFileVersion.BigIdAlwaysEnabled) {
             var value = reader.ReadInt32();
             if (value != 1) {
@@ -70,15 +72,15 @@ public record UnityObjectInfo(
         }
 
         var count = reader.ReadInt32();
-        var entries = new UnityObjectInfo[count];
+        var entries = ImmutableArray.CreateBuilder<UnityObjectInfo>(count);
         for (var i = 0; i < count; ++i) {
-            entries[i] = FromReader(reader, header, types, options);
+            entries.Add(FromReader(reader, header, types, options));
         }
 
-        return entries;
+        return entries.ToImmutable();
     }
     
-    public static void ArrayToWriter(BiEndianBinaryWriter writer, UnityObjectInfo[] infos, UnitySerializedFile header, SnuggleCoreOptions options, AssetSerializationOptions serializationOptions, bool isRef = false) {
+    public static void ArrayToWriter(BiEndianBinaryWriter writer, ImmutableArray<UnityObjectInfo> infos, UnitySerializedFile header, SnuggleCoreOptions options, AssetSerializationOptions serializationOptions, bool isRef = false) {
         if (serializationOptions.TargetFileVersion is >= UnitySerializedFileVersion.BigId and < UnitySerializedFileVersion.BigIdAlwaysEnabled) {
             writer.Write(1);
         }
@@ -117,4 +119,6 @@ public record UnityObjectInfo(
             writer.Write(IsStripped);
         }
     }
+    
+    public SerializedObject? Instance { get; set; }
 }

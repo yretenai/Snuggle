@@ -122,8 +122,8 @@ public class AssetCollection : IDisposable {
                 file.Version = fallbackVersion.Value;
             }
 
-            foreach (var (pathId, objectInfo) in file.ObjectInfos) {
-                options.Reporter?.SetStatus($"Processing {pathId} ({objectInfo.ClassId:G})");
+            foreach (var objectInfo in file.ObjectInfos) {
+                options.Reporter?.SetStatus($"Processing {objectInfo.PathId} ({objectInfo.ClassId:G})");
                 file.PreloadObject(objectInfo, options, dataStream);
             }
 
@@ -298,12 +298,12 @@ public class AssetCollection : IDisposable {
 
     public void BuildGraph() {
         foreach (var (_, file) in Files) {
-            foreach (var (pathId, info) in file.ObjectInfos) {
+            foreach (var info in file.ObjectInfos) {
                 if (!info.ClassId.Equals(UnityClassId.GameObject)) {
                     continue;
                 }
 
-                if (file.GetObject(pathId) is not GameObject gameObject) {
+                if (file.GetObject(info.PathId) is not GameObject gameObject) {
                     continue;
                 }
 

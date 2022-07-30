@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -30,7 +31,8 @@ public class SerializedFile : IRenewable {
             using var reader = new BiEndianBinaryReader(dataStream, true, leaveOpen);
             var header = UnitySerializedFile.FromReader(reader, Options);
             Types = UnitySerializedType.ArrayFromReader(reader, header, Options);
-            ObjectInfos = UnityObjectInfo.ArrayFromReader(reader, ref header, Types, Options).ToDictionary(x => x.PathId);
+            ObjectInfos = UnityObjectInfo.ArrayFromReader(reader, ref header, Types, Options);
+            PathIds = ObjectInfos.Select(x => x.PathId).ToImmutableArray();
             ScriptInfos = UnityScriptInfo.ArrayFromReader(reader, header, Options);
             ExternalInfos = UnityExternalInfo.ArrayFromReader(reader, header, Options);
             if (header.FileVersion >= UnitySerializedFileVersion.RefObject) {
@@ -44,9 +46,6 @@ public class SerializedFile : IRenewable {
             Header = header;
 
             Version = UnityVersion.Parse(header.EngineVersion);
-
-            Objects = new Dictionary<long, SerializedObject>();
-            Objects.EnsureCapacity(ObjectInfos.Count);
         } finally {
             if (!leaveOpen) {
                 dataStream.Close();
@@ -57,7 +56,8 @@ public class SerializedFile : IRenewable {
     public SnuggleCoreOptions Options { get; init; }
     public UnitySerializedFile Header { get; init; }
     public UnitySerializedType[] Types { get; set; }
-    public Dictionary<long, UnityObjectInfo> ObjectInfos { get; init; }
+    public ImmutableArray<long> PathIds { get; private set; }
+    public ImmutableArray<UnityObjectInfo> ObjectInfos { get; private set; }
     public UnityScriptInfo[] ScriptInfos { get; init; }
     public UnityExternalInfo[] ExternalInfos { get; init; }
     public UnitySerializedType[] ReferenceTypes { get; set; } = Array.Empty<UnitySerializedType>();
@@ -65,13 +65,13 @@ public class SerializedFile : IRenewable {
     public UnityVersion Version { get; set; }
     public AssetCollection? Assets { get; set; }
     public string Name { get; init; } = string.Empty;
-
-    private Dictionary<long, SerializedObject> Objects { get; }
-
     public object Tag { get; set; }
     public IFileHandler Handler { get; set; }
 
-    public Stream OpenFile(long pathId) => OpenFile(ObjectInfos[pathId]);
+    public Stream? OpenFile(long pathId) {
+        var index = PathIds.IndexOf(pathId);
+        return index == -1 ? null : OpenFile(ObjectInfos[index]);
+    }
 
     public Stream OpenFile(UnityObjectInfo info) => OpenFile(info, Handler.OpenFile(Tag));
 
@@ -103,13 +103,11 @@ public class SerializedFile : IRenewable {
         bundleStream = new MemoryStream();
         resourceStream = new MemoryStream();
         using var bundleWriter = new BiEndianBinaryWriter(bundleStream, true, true);
-
-        var objectInfos = ObjectInfos.Values.ToArray();
         
         Header.ToWriter(bundleWriter, Options, options);
         UnitySerializedType.ArrayToWriter(bundleWriter, Types, Header, Options, options);
         var objectInfoOffset = bundleStream.Position;
-        UnityObjectInfo.ArrayToWriter(bundleWriter, objectInfos, Header, Options, options);
+        UnityObjectInfo.ArrayToWriter(bundleWriter, ObjectInfos, Header, Options, options);
         UnityScriptInfo.ArrayToWriter(bundleWriter, ScriptInfos, Header, Options, options);
         UnityExternalInfo.ArrayToWriter(bundleWriter, ExternalInfos, Header, Options, options);
         if (serializationOptions.TargetFileVersion >= UnitySerializedFileVersion.RefObject)  {
@@ -122,17 +120,21 @@ public class SerializedFile : IRenewable {
         var headerSize = bundleStream.Position - 20;
         bundleWriter.Align(16); // TODO: 0x1000 alignment?
         var offset = bundleStream.Position;
-        foreach (var (pathId, objectInfo) in ObjectInfos) {
+        var builder = ImmutableArray.CreateBuilder<UnityObjectInfo>(ObjectInfos.Length);
+        foreach (var objectInfo in ObjectInfos) {
             var newOffset = bundleStream.Position - offset;
             bundleWriter.Align(8);
-            if (Objects.TryGetValue(pathId, out var obj) && obj.IsMutated) {
+            var obj = objectInfo.Instance;
+            if (obj is { IsMutated: true }) {
                 obj.Serialize(bundleWriter, options);
             } else {
                 var stream = OpenFile(objectInfo);
                 stream.CopyTo(bundleStream);
             }
-            ObjectInfos[pathId] = objectInfo with { Offset = newOffset };
+            builder.Add(objectInfo with { Offset = newOffset });
         }
+
+        ObjectInfos = builder.ToImmutable();
 
         var newHeader = Header with { Size = bundleStream.Position, HeaderSize = (int) headerSize, Offset = offset };
 
@@ -140,7 +142,7 @@ public class SerializedFile : IRenewable {
         bundleStream.Position = 0;
         newHeader.ToWriter(bundleWriter, Options, options);
         bundleStream.Position = objectInfoOffset;
-        UnityObjectInfo.ArrayToWriter(bundleWriter, objectInfos, Header, Options, options);
+        UnityObjectInfo.ArrayToWriter(bundleWriter, ObjectInfos, Header, Options, options);
 
         // TODO: write resource stream?
         
@@ -187,8 +189,8 @@ public class SerializedFile : IRenewable {
     }
 
     public void FindResources() {
-        foreach (var serializedObject in Objects.Values) {
-            switch (serializedObject) {
+        foreach (var info in ObjectInfos) {
+            switch (info.Instance) {
                 case ICABPathProvider cab: {
                     foreach (var (pPtr, path) in cab.GetCABPaths()) {
                         if (pPtr.Value != null) {
@@ -205,53 +207,73 @@ public class SerializedFile : IRenewable {
         }
     }
 
-    public SerializedObject? GetObject(long pathId, SnuggleCoreOptions? options = null, Stream? dataStream = null, bool baseType = false) => !ObjectInfos.ContainsKey(pathId) ? null : GetObject(ObjectInfos[pathId], options, dataStream, baseType);
+    public SerializedObject? GetObject(long pathId, SnuggleCoreOptions? options = null, Stream? dataStream = null, bool baseType = false) {
+        var index = PathIds.IndexOf(pathId);
+        return index == -1 ? null : GetObjectInner(index, options, dataStream, baseType);
+    }
 
-    public SerializedObject? GetObject(UnityObjectInfo objectInfo, SnuggleCoreOptions? options = null, Stream? dataStream = null, bool baseType = false) {
-        if (!ObjectInfos.ContainsKey(objectInfo.PathId)) {
-            return null;
-        }
+    private SerializedObject? GetObjectInner(int index, SnuggleCoreOptions? options = null, Stream? dataStream = null, bool baseType = false) {
+        var objectInfo = ObjectInfos[index];
 
         options ??= Options;
-        try {
+        try
+        {
             var ignored = options.IgnoreClassIds.Contains(objectInfo.ClassId.ToString()!);
             var shouldLoad = !options.LoadOnDemand;
-            if (Objects.TryGetValue(objectInfo.PathId, out var serializedObject)) {
-                if (!serializedObject.NeedsLoad || ignored) {
-                    return serializedObject;
+            if (objectInfo.Instance != null)
+            {
+                if (!objectInfo.Instance.NeedsLoad || ignored)
+                {
+                    return objectInfo.Instance;
                 }
 
                 shouldLoad = true;
             }
 
-            if (shouldLoad && !baseType && !ignored) {
-                serializedObject = ObjectFactory.GetInstance(OpenFile(objectInfo, dataStream, dataStream != null), objectInfo, this);
-            } else {
+            SerializedObject serializedObject;
+            if (shouldLoad && !baseType && !ignored)
+            {
+                serializedObject =
+                    ObjectFactory.GetInstance(OpenFile(objectInfo, dataStream, dataStream != null), objectInfo, this);
+            } else
+            {
                 serializedObject = new SerializedObject(objectInfo, this) { NeedsLoad = true, IsMutated = false };
             }
 
-            Objects[objectInfo.PathId] = serializedObject;
+            objectInfo.Instance = serializedObject;
             return serializedObject;
-        } catch (Exception e) {
-            Log.Error(e, "Failed to decode {PathId} (type {ClassId}) on file {Name}", objectInfo.PathId, objectInfo.ClassId, Name);
+        } catch (Exception e)
+        {
+            Log.Error(e, "Failed to decode {PathId} (type {ClassId}) on file {Name}", objectInfo.PathId, objectInfo.ClassId,
+                Name);
             return null;
         }
     }
 
-    public IEnumerable<SerializedObject> GetAllObjects() => Objects.Values;
+    public IEnumerable<SerializedObject?> GetAllObjects() {
+        for (var i = 0; i < ObjectInfos.Length; ++i) {
+            yield return GetObjectInner(i);
+        }
+    }
 
     public void Free() {
-        foreach (var (_, serializedObject) in Objects) {
-            serializedObject.Free();
+        foreach (var serializedObject in ObjectInfos) {
+            serializedObject.Instance?.Free();
         }
     }
 
     public void PreloadObject(UnityObjectInfo objectInfo, SnuggleCoreOptions? options = null, Stream? dataStream = null) {
+        var index = PathIds.IndexOf(objectInfo.PathId);
+        if (index == -1) {
+            return;
+        }
+
         var ignored = (options ?? Options).IgnoreClassIds.Contains(objectInfo.ClassId.ToString()!);
+        var info = ObjectInfos[index];
         if ((options ?? Options).LoadOnDemand || ignored) {
-            Objects[objectInfo.PathId] = new SerializedObject(objectInfo, this) { NeedsLoad = true, IsMutated = false};
+            info.Instance = new SerializedObject(objectInfo, this) { NeedsLoad = true, IsMutated = false };
         } else {
-            Objects[objectInfo.PathId] = ObjectFactory.GetInstance(OpenFile(objectInfo, dataStream, dataStream != null), objectInfo, this);
+            info.Instance = ObjectFactory.GetInstance(OpenFile(objectInfo, dataStream, dataStream != null), objectInfo, this);
         }
     }
 
@@ -267,6 +289,22 @@ public class SerializedFile : IRenewable {
             }
 
             return null;
+        }
+    }
+
+    public void AddObject(long pathId, UnityObjectInfo objectInfo, SerializedObject serializedObject) {
+        var index = PathIds.IndexOf(pathId);
+        if (index == -1) {
+            var pathIds = ImmutableArray.CreateBuilder<long>(PathIds.Length + 1);
+            pathIds.AddRange(pathIds);
+            pathIds.Add(pathId);
+            PathIds = pathIds.ToImmutable();
+            var objectInfos = ImmutableArray.CreateBuilder<UnityObjectInfo>(ObjectInfos.Length + 1);
+            objectInfos.AddRange(objectInfos);
+            objectInfos.Add(objectInfo);
+            ObjectInfos = objectInfos.ToImmutable();
+        } else {
+            ObjectInfos = ObjectInfos.SetItem(index, objectInfo);
         }
     }
 }

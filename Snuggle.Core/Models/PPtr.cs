@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.Json.Serialization;
@@ -49,8 +50,9 @@ public record PPtr<T>(int FileId, long PathId) where T : SerializedObject {
                 return null;
             }
 
-            if (referencedFile.ObjectInfos.TryGetValue(PathId, out var info)) {
-                UnderlyingInfo = info;
+            var index = referencedFile.PathIds.IndexOf(PathId);
+            if (index > -1) {
+                UnderlyingInfo = referencedFile.ObjectInfos[index];
             }
 
             return UnderlyingInfo;
