@@ -4,11 +4,11 @@ using Snuggle.Core.Options;
 
 namespace Snuggle.Core.Models.Bundle;
 
-public record UnityBundleBlock(long Offset, long Size, UnityBundleBlockFlags Flags, string Path) {
+public record UnityBundleBlock(long Offset, long Size, uint Flags, string Path) {
     public static UnityBundleBlock FromReader(BiEndianBinaryReader reader, int fsFlags, SnuggleCoreOptions options) {
         var offset = reader.ReadInt64();
         var size = reader.ReadInt64();
-        var flags = (UnityBundleBlockFlags) reader.ReadUInt32();
+        var flags = reader.ReadUInt32();
         var path = reader.ReadNullString();
 
         return new UnityBundleBlock(offset, size, flags, path);
@@ -18,7 +18,7 @@ public record UnityBundleBlock(long Offset, long Size, UnityBundleBlockFlags Fla
         var path = reader.ReadNullString();
         var offset = reader.ReadUInt32();
         var size = reader.ReadUInt32();
-        return new UnityBundleBlock(offset, size, UnityBundleBlockFlags.SerializedFile, path);
+        return new UnityBundleBlock(offset, size, 4, path);
     }
 
     public static UnityBundleBlock[] ArrayFromReader(BiEndianBinaryReader reader, UnityBundle header, int fsFlags, int count, SnuggleCoreOptions options) {

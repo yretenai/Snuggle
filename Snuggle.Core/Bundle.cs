@@ -14,7 +14,7 @@ using Snuggle.Core.Options;
 
 namespace Snuggle.Core;
 
-public class Bundle : IDisposable, IRenewable {
+public class Bundle : IAssetBundle {
     private static Dictionary<string, (UnityFormat, UnityGame)>? _NonStandardLookup;
     public Bundle(string path, SnuggleCoreOptions options) : this(File.OpenRead(path), path, FileStreamHandler.Instance.Value, options) { }
 
@@ -49,6 +49,7 @@ public class Bundle : IDisposable, IRenewable {
 
     public UnityBundle Header { get; init; }
     public UnityContainer Container { get; init; }
+    public long Length => Container.Length; 
     public long DataStart { get; set; }
     public SnuggleCoreOptions Options { get; init; }
 
@@ -95,8 +96,8 @@ public class Bundle : IDisposable, IRenewable {
     public object Tag { get; set; }
     public IFileHandler Handler { get; set; }
 
-    public static Bundle[] OpenBundleSequence(Stream dataStream, object tag, IFileHandler handler, SnuggleCoreOptions options, int align = 1, bool leaveOpen = false) {
-        var bundles = new List<Bundle>();
+    public static IAssetBundle[] OpenBundleSequence(Stream dataStream, object tag, IFileHandler handler, SnuggleCoreOptions options, int align = 1, bool leaveOpen = false) {
+        var bundles = new List<IAssetBundle>();
         while (dataStream.Position < dataStream.Length) {
             var start = dataStream.Position;
             if (!IsBundleFile(dataStream)) {
@@ -124,6 +125,8 @@ public class Bundle : IDisposable, IRenewable {
         return bundles.ToArray();
     }
 
+    public UnityVersion Version => Header.Version ?? UnityVersion.Default;
+    
     public void SaveContainers(BiEndianBinaryReader reader) {
         Stream? data = null;
         foreach (var block in Container.Blocks) {
@@ -159,6 +162,8 @@ public class Bundle : IDisposable, IRenewable {
         data.Seek(0, SeekOrigin.Begin);
         return data;
     }
+
+    public IEnumerable<UnityBundleBlock> GetBlocks() => Container.Blocks;
 
     public bool ToStream(UnityBundleBlock[] blocks, Stream dataStream, BundleSerializationOptions serializationOptions, [MaybeNullWhen(false)] out Stream bundleStream) {
         try {

@@ -8,13 +8,13 @@ using Snuggle.Core.Options;
 namespace Snuggle.Core.IO;
 
 public class BundleStreamHandler : IFileHandler {
-    public BundleStreamHandler(Bundle bundleFile) => BundleFile = bundleFile;
+    public BundleStreamHandler(IAssetBundle bundleFile) => BundleFile = bundleFile;
 
-    public Bundle BundleFile { get; }
+    public IAssetBundle BundleFile { get; }
 
     public Stream OpenFile(object tag) {
         var path = tag switch {
-            string str => BundleFile.Container.Blocks.First(x => x.Path.Equals(str, StringComparison.InvariantCultureIgnoreCase)),
+            string str => BundleFile.GetBlocks().First(x => x.Path.Equals(str, StringComparison.InvariantCultureIgnoreCase)),
             UnityBundleBlock block => block,
             _ => throw new NotSupportedException($"{tag.GetType().FullName} is not supported"),
         };

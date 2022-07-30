@@ -275,7 +275,7 @@ public class SerializedFile : IRenewable {
         }
     }
 
-    public Bundle? GetBundle() {
+    public IAssetBundle? GetBundle() {
         var handler = Handler;
         while (true) {
             switch (handler) {

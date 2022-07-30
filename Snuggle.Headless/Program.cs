@@ -125,10 +125,14 @@ public static class Program {
         }
 
         foreach (var asset in collection.Files.SelectMany(x => x.Value.GetAllObjects())) {
+            if (asset == null) {
+                continue;
+            }
+
             if (asset.GetType().FullName == typeof(SerializedObject).FullName) {
                 continue;
             }
-            
+
             if (flags.PathIdFilters.Any() && !flags.PathIdFilters.Contains(asset.PathId)) {
                 continue;
             }

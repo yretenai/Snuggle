@@ -39,8 +39,8 @@ public class MultiStreamHandler : IFileHandler {
         }
 
         var length = 0L;
-        if (parent is Bundle bundle) {
-            length = bundle.Container.Length;
+        if (parent is IAssetBundle bundle) {
+            length = bundle.Length;
         }
 
         if (length == 0) {

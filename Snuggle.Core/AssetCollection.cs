@@ -18,7 +18,7 @@ using Snuggle.Core.Options;
 namespace Snuggle.Core;
 
 public class AssetCollection : IDisposable {
-    public ConcurrentBag<Bundle> Bundles { get; } = new();
+    public ConcurrentBag<IAssetBundle> Bundles { get; } = new();
     public AssemblyResolver Assemblies { get; set; } = new();
     public ConcurrentDictionary<string, ObjectNode> Types { get; } = new();
     public ConcurrentDictionary<string, SerializedFile> Files { get; } = new(StringComparer.InvariantCultureIgnoreCase);
@@ -56,12 +56,12 @@ public class AssetCollection : IDisposable {
         Collect();
     }
 
-    public void LoadBundle(Bundle bundle) {
+    public void LoadBundle(IAssetBundle bundle) {
         var handler = new BundleStreamHandler(bundle);
-        foreach (var block in bundle.Container.Blocks) {
-            if (block.Flags.HasFlag(UnityBundleBlockFlags.SerializedFile)) {
+        foreach (var block in bundle.GetBlocks()) {
+            if (((UnityBundleBlockFlags) block.Flags).HasFlag(UnityBundleBlockFlags.SerializedFile)) {
                 try {
-                    LoadSerializedFile(bundle.OpenFile(block), block, handler, bundle.Options, false, bundle.Header.Version);
+                    LoadSerializedFile(bundle.OpenFile(block), block, handler, bundle.Options, false, bundle.Version);
                 } catch (Exception e) {
                     Log.Error(e, "Failure decoding bundle.");
                 }
