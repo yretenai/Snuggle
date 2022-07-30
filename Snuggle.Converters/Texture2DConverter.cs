@@ -139,7 +139,7 @@ public static class Texture2DConverter {
                 case TextureFormat.RGBA32:
                 case TextureFormat.BGRA32:
                 case TextureFormat.ARGB32:
-                    return textureData;
+                    return textureData[..(texture.Width * texture.Height * 4)];
                 case TextureFormat.RGB565:
                     return DecodeRGB565(texture.Width, texture.Height, textureData);
                 case TextureFormat.R16:
