@@ -286,7 +286,7 @@ public static class ObjectFactory {
                         break;
                     }
                     case "sphericalharmonicsl2": {
-                        value = reader.ReadArray<float>(3 * 9).ToArray(); // todo(naomi): SphericalHarmonicsL2 3x9 float
+                        value = reader.ReadArray(3 * 9); // todo(naomi): SphericalHarmonicsL2 3x9 float
                         break;
                     }
                     case "propertyname": {

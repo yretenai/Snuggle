@@ -42,7 +42,7 @@ public record BlendShapeData(List<MeshBlendShape> Shapes, List<MeshBlendShapeCha
 
         var weightsCount = reader.ReadInt32();
         var weights = new List<float>();
-        weights.AddRange(reader.ReadArray<float>(weightsCount).ToArray());
+        weights.AddRange(reader.ReadArray<float>(weightsCount));
 
         return new BlendShapeData(shapes, channels, weights) { VerticesStart = verticesOffset };
     }

@@ -103,7 +103,7 @@ public record SpriteRenderData(
         if (serializedFile.Version >= UnityVersionRegister.Unity2018_1) {
             count = reader.ReadInt32();
             bindPose.EnsureCapacity(count);
-            bindPose.AddRange(reader.ReadArray<Matrix4X4>(count).ToArray());
+            bindPose.AddRange(reader.ReadArray<Matrix4X4>(count));
 
             if (serializedFile.Version <= UnityVersionRegister.Unity2018_2) {
                 count = reader.ReadInt32();

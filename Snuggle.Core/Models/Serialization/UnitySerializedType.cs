@@ -61,7 +61,7 @@ public record UnitySerializedType(
                     nameSpace = reader.ReadNullString();
                     assemblyName = reader.ReadNullString();
                 } else {
-                    dependencies = reader.ReadArray<int>(reader.ReadInt32()).ToArray();
+                    dependencies = reader.ReadArray<int>(reader.ReadInt32());
                 }
             }
         }

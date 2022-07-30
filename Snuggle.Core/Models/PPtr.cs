@@ -100,7 +100,7 @@ public record PPtr<T>(int FileId, long PathId) where T : SerializedObject {
     public static PPtr<T> FromReader(BiEndianBinaryReader reader, SerializedFile file) => new(reader.ReadStruct<PPtrEnclosure>()) { File = file };
 
     public static IEnumerable<PPtr<T>> ArrayFromReader(BiEndianBinaryReader reader, SerializedFile file, int count) {
-        return count == 0 ? Array.Empty<PPtr<T>>() : reader.ReadArray<PPtrEnclosure>(count).ToArray().Select(x => new PPtr<T>(x) { File = file });
+        return count == 0 ? Array.Empty<PPtr<T>>() : reader.ReadArray<PPtrEnclosure>(count).Select(x => new PPtr<T>(x) { File = file });
     }
 
     public static implicit operator T?(PPtr<T> ptr) => ptr.Value;

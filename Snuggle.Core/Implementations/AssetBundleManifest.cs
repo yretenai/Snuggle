@@ -20,7 +20,7 @@ public class AssetBundleManifest : NamedObject {
         }
 
         var assetBundlesWithVariantCount = reader.ReadInt32();
-        AssetBundlesWithVariant.AddRange(reader.ReadArray<int>(assetBundlesWithVariantCount));
+        AssetBundlesWithVariant.AddRange(reader.ReadSpan<int>(assetBundlesWithVariantCount));
 
         var assetBundleInfoCount = reader.ReadInt32();
         AssetBundleInfos.EnsureCapacity(assetBundleInfoCount);

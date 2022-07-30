@@ -69,7 +69,7 @@ public class PlayerSettings : SerializedObject {
         }
 
         if (SerializedFile.Version >= UnityVersionRegister.Unity2020_2) {
-            MobileApplicationIdentifierHash = reader.ReadArray<byte>(16).ToArray();
+            MobileApplicationIdentifierHash = reader.ReadArray<byte>(16);
             reader.Align();
             PlayerMinOpenGLESVersion = (OpenGLESVersion) reader.ReadInt32();
         }
@@ -90,7 +90,7 @@ public class PlayerSettings : SerializedObject {
 
         if (SerializedFile.Version >= UnityVersionRegister.Unity5_4) {
             var stackTraceCount = reader.ReadInt32();
-            StackTraceTypes = reader.ReadArray<StackTraceLogType>(stackTraceCount).ToArray();
+            StackTraceTypes = reader.ReadArray<StackTraceLogType>(stackTraceCount);
         }
 
         IosShowActivityIndicatorOnLoading = reader.ReadInt32() != 0;
@@ -433,7 +433,7 @@ public class PlayerSettings : SerializedObject {
 
                 if (SerializedFile.Version >= UnityVersionRegister.Unity2017_2) {
                     var colorGamutCount = reader.ReadInt32();
-                    ColorGamuts = reader.ReadArray<ColorGamut>(colorGamutCount).ToArray();
+                    ColorGamuts = reader.ReadArray<ColorGamut>(colorGamutCount);
                 }
             }
         }

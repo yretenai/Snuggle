@@ -29,7 +29,7 @@ public class SkinnedMeshRenderer : Renderer {
 
         var blendShapeWeightCount = reader.ReadInt32();
         BlendShapeWeights.EnsureCapacity(blendShapeWeightCount);
-        BlendShapeWeights.AddRange(reader.ReadArray<float>(blendShapeWeightCount));
+        BlendShapeWeights.AddRange(reader.ReadSpan<float>(blendShapeWeightCount));
 
         RootBone = PPtr<Transform>.FromReader(reader, SerializedFile);
         AABB = reader.ReadStruct<AABB>();

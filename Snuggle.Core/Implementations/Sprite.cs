@@ -54,7 +54,7 @@ public class Sprite : NamedObject {
             var physicsCount = reader.ReadInt32();
             var list = new List<Vector2>();
             list.EnsureCapacity(physicsCount);
-            list.AddRange(reader.ReadArray<Vector2>(physicsCount).ToArray());
+            list.AddRange(reader.ReadArray<Vector2>(physicsCount));
             PhysicsShape.Add(list);
         }
 

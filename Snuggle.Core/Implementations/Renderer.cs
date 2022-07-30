@@ -62,7 +62,7 @@ public class Renderer : Behaviour {
 
         if (SerializedFile.Version < UnityVersionRegister.Unity5_5) {
             var subsetIndiceCount = reader.ReadInt32();
-            SubsetIndices.AddRange(reader.ReadArray<int>(subsetIndiceCount));
+            SubsetIndices.AddRange(reader.ReadSpan<int>(subsetIndiceCount));
             StaticBatchInfo = StaticBatchInfo.FromSubsetIndices(SubsetIndices);
         } else {
             StaticBatchInfo = StaticBatchInfo.FromReader(reader, SerializedFile);

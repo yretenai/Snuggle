@@ -7,7 +7,7 @@ public record AssetBundleInfo(byte[] Hash, int[] Dependencies) {
     public static AssetBundleInfo FromReader(BiEndianBinaryReader reader, SerializedFile file) {
         var hash = reader.ReadBytes(16);
         var count = reader.ReadInt32();
-        var dependencies = reader.ReadArray<int>(count).ToArray();
+        var dependencies = reader.ReadArray<int>(count);
         return new AssetBundleInfo(hash, dependencies);
     }
 

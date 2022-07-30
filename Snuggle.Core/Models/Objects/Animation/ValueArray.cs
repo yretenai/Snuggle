@@ -18,22 +18,22 @@ public record ValueArray(List<bool> BoolValues, List<int> IntValues, List<float>
         var rotations = new List<Quaternion>();
         var scales = new List<Vector3>();
 
-        bools.AddRange(reader.ReadArray<bool>(reader.ReadInt32()).ToArray());
+        bools.AddRange(reader.ReadArray<bool>(reader.ReadInt32()));
         reader.Align();
 
-        ints.AddRange(reader.ReadArray<int>(reader.ReadInt32()).ToArray());
+        ints.AddRange(reader.ReadArray<int>(reader.ReadInt32()));
         reader.Align();
 
-        floats.AddRange(reader.ReadArray<float>(reader.ReadInt32()).ToArray());
+        floats.AddRange(reader.ReadArray<float>(reader.ReadInt32()));
         reader.Align();
 
-        positions.AddRange(reader.ReadArray<Vector4>(reader.ReadInt32()).ToArray().Select(x => new Vector3(x.X, x.Y, x.Z)));
+        positions.AddRange(reader.ReadArray<Vector4>(reader.ReadInt32()).Select(x => new Vector3(x.X, x.Y, x.Z)));
         reader.Align();
 
-        rotations.AddRange(reader.ReadArray<Quaternion>(reader.ReadInt32()).ToArray());
+        rotations.AddRange(reader.ReadArray<Quaternion>(reader.ReadInt32()));
         reader.Align();
 
-        scales.AddRange(reader.ReadArray<Vector4>(reader.ReadInt32()).ToArray().Select(x => new Vector3(x.X, x.Y, x.Z)));
+        scales.AddRange(reader.ReadArray<Vector4>(reader.ReadInt32()).Select(x => new Vector3(x.X, x.Y, x.Z)));
         reader.Align();
 
         return new ValueArray(bools, ints, floats, positions, rotations, scales);

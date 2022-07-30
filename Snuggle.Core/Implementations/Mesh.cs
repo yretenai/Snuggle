@@ -33,12 +33,12 @@ public class Mesh : NamedObject, ISerializedResource {
         reader.BaseStream.Seek(64 * bindPoseCount, SeekOrigin.Current);
 
         var boneNameCount = reader.ReadInt32();
-        BoneNameHashes = reader.ReadArray<uint>(boneNameCount).ToArray().ToList();
+        BoneNameHashes = reader.ReadArray<uint>(boneNameCount);
         RootBoneNameHash = reader.ReadUInt32();
 
         if (serializedFile.Version >= UnityVersionRegister.Unity2019) {
             var bonesAABBCount = reader.ReadInt32();
-            BonesAABB.AddRange(reader.ReadArray<AABB>(bonesAABBCount));
+            BonesAABB.AddRange(reader.ReadSpan<AABB>(bonesAABBCount));
 
             VariableBoneCountWeightsStart = reader.BaseStream.Position;
             var variableBoneCountWeightsCount = reader.ReadInt32();
@@ -127,7 +127,7 @@ public class Mesh : NamedObject, ISerializedResource {
     [JsonIgnore]
     public Memory<Matrix4X4>? BindPose { get; set; }
 
-    public List<uint> BoneNameHashes { get; set; } = new();
+    public uint[] BoneNameHashes { get; set; } = Array.Empty<uint>();
     public uint RootBoneNameHash { get; set; }
     public List<AABB> BonesAABB { get; set; } = new();
 

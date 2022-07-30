@@ -174,7 +174,7 @@ public class BiEndianBinaryReader : BinaryReader {
         return sb.ToString();
     }
 
-    public Span<byte> ReadArray(int count) {
+    public Span<byte> ReadSpan(int count) {
         Span<byte> span = new byte[count];
         BaseStream.ReadExactly(span);
         if (ShouldInvertEndianness) {
@@ -192,7 +192,7 @@ public class BiEndianBinaryReader : BinaryReader {
         }
     }
 
-    public Span<T> ReadArray<T>(int count) where T : struct {
+    public Span<T> ReadSpan<T>(int count) where T : struct {
         Span<T> span = new T[count];
         BaseStream.ReadExactly(MemoryMarshal.AsBytes(span));
         if (ShouldInvertEndianness) {
@@ -200,6 +200,26 @@ public class BiEndianBinaryReader : BinaryReader {
         }
 
         return span;
+    }
+
+    public byte[] ReadArray(int count) {
+        var array = new byte[count];
+        BaseStream.ReadExactly(array.AsSpan());
+        if (ShouldInvertEndianness) {
+            throw new NotSupportedException("Cannot invert endianness of arrays");
+        }
+
+        return array;
+    }
+
+    public T[] ReadArray<T>(int count) where T : struct {
+        var array = new T[count];
+        BaseStream.ReadExactly(MemoryMarshal.AsBytes(array.AsSpan()));
+        if (ShouldInvertEndianness) {
+            throw new NotSupportedException("Cannot invert endianness of arrays");
+        }
+
+        return array;
     }
 
     public Memory<byte> ReadMemory(long count) {

@@ -8,7 +8,7 @@ public record BlendShapeVertex(Vector3 Vertex, Vector3 Normal, Vector3 Tangent, 
     public static BlendShapeVertex Default { get; } = new(Vector3.Zero, Vector3.Zero, Vector3.Zero, 0);
 
     public static BlendShapeVertex FromReader(BiEndianBinaryReader reader, SerializedFile file) {
-        var vectors = reader.ReadArray<Vector3>(3);
+        var vectors = reader.ReadSpan<Vector3>(3);
         var index = reader.ReadUInt32();
         return new BlendShapeVertex(vectors[0], vectors[1], vectors[2], index);
     }
