@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Immutable;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Snuggle.Core.Implementations;
@@ -63,7 +63,7 @@ public record UnityObjectInfo(
             stripped);
     }
 
-    public static ImmutableArray<UnityObjectInfo> ArrayFromReader(BiEndianBinaryReader reader, ref UnitySerializedFile header, UnitySerializedType[] types, SnuggleCoreOptions options) {
+    public static List<UnityObjectInfo> ArrayFromReader(BiEndianBinaryReader reader, ref UnitySerializedFile header, UnitySerializedType[] types, SnuggleCoreOptions options) {
         if (header.FileVersion is >= UnitySerializedFileVersion.BigId and < UnitySerializedFileVersion.BigIdAlwaysEnabled) {
             var value = reader.ReadInt32();
             if (value != 1) {
@@ -72,20 +72,20 @@ public record UnityObjectInfo(
         }
 
         var count = reader.ReadInt32();
-        var entries = ImmutableArray.CreateBuilder<UnityObjectInfo>(count);
+        var entries = new List<UnityObjectInfo>(count);
         for (var i = 0; i < count; ++i) {
             entries.Add(FromReader(reader, header, types, options));
         }
 
-        return entries.ToImmutable();
+        return entries;
     }
     
-    public static void ArrayToWriter(BiEndianBinaryWriter writer, ImmutableArray<UnityObjectInfo> infos, UnitySerializedFile header, SnuggleCoreOptions options, AssetSerializationOptions serializationOptions, bool isRef = false) {
+    public static void ArrayToWriter(BiEndianBinaryWriter writer, List<UnityObjectInfo> infos, UnitySerializedFile header, SnuggleCoreOptions options, AssetSerializationOptions serializationOptions, bool isRef = false) {
         if (serializationOptions.TargetFileVersion is >= UnitySerializedFileVersion.BigId and < UnitySerializedFileVersion.BigIdAlwaysEnabled) {
             writer.Write(1);
         }
 
-        writer.Write(infos.Length);
+        writer.Write(infos.Count);
         foreach (var info in infos) {
             info.ToWriter(writer, header, options, serializationOptions, isRef);
         }

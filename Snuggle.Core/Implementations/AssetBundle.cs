@@ -23,9 +23,9 @@ public class AssetBundle : NamedObject, ICABPathProvider {
         reader.BaseStream.Seek(PPtr<SerializedObject>.Size * preloadCount, SeekOrigin.Current);
 
         var containerCount = reader.ReadInt32();
-        Container.EnsureCapacity(containerCount);
+        Container = new KeyValuePair<string, AssetInfo>[containerCount];
         for (var i = 0; i < containerCount; ++i) {
-            Container.Add(new KeyValuePair<string, AssetInfo>(reader.ReadString32(), AssetInfo.FromReader(reader, serializedFile)));
+            Container[i] = new KeyValuePair<string, AssetInfo>(reader.ReadString32(), AssetInfo.FromReader(reader, serializedFile));
         }
 
         if (serializedFile.Version >= UnityVersionRegister.Unity5_4 && serializedFile.Version < UnityVersionRegister.Unity5_5) {
@@ -79,7 +79,7 @@ public class AssetBundle : NamedObject, ICABPathProvider {
 
     private long PreloadStart { get; }
     public Memory<PPtr<SerializedObject>>? PreloadTable { get; set; }
-    public List<KeyValuePair<string, AssetInfo>> Container { get; set; } = new();
+    public KeyValuePair<string, AssetInfo>[] Container { get; set; } = Array.Empty<KeyValuePair<string, AssetInfo>>();
     public Dictionary<int, uint> ClassInfos { get; set; } = new();
     public AssetInfo MainAsset { get; set; }
     public uint RuntimeCompatibility { get; set; }
@@ -129,7 +129,7 @@ public class AssetBundle : NamedObject, ICABPathProvider {
             ptr.ToWriter(writer, SerializedFile, options.TargetVersion);
         }
 
-        writer.Write(Container.Count);
+        writer.Write(Container.Length);
         foreach (var (name, info) in Container) {
             writer.WriteString32(name);
             info.ToWriter(writer, SerializedFile, options.TargetVersion);

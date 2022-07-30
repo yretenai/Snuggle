@@ -4,13 +4,12 @@ using Snuggle.Core.Meta;
 
 namespace Snuggle.Core.Models.Objects.Animation;
 
-public record AnimationCurve<T>(List<Keyframe<T>> Frames, int PreInfinity, int PostInfinity, int RotationOrder) where T : struct {
+public record AnimationCurve<T>(Keyframe<T>[] Frames, int PreInfinity, int PostInfinity, int RotationOrder) where T : struct {
     public static AnimationCurve<T> FromReader(BiEndianBinaryReader reader, SerializedFile file) {
         var count = reader.ReadInt32();
-        var frames = new List<Keyframe<T>>();
-        frames.EnsureCapacity(count);
+        var frames = new Keyframe<T>[count];
         for (var i = 0; i < count; ++i) {
-            frames.Add(Keyframe<T>.FromReader(reader, file));
+            frames[i] = Keyframe<T>.FromReader(reader, file);
         }
 
         var preInfinity = reader.ReadInt32();
@@ -24,7 +23,7 @@ public record AnimationCurve<T>(List<Keyframe<T>> Frames, int PreInfinity, int P
     }
 
     public void ToWriter(BiEndianBinaryWriter writer, SerializedFile serializedFile, UnityVersion targetVersion) {
-        writer.Write(Frames.Count);
+        writer.Write(Frames.Length);
         foreach (var frame in Frames) {
             frame.ToWriter(writer, serializedFile, targetVersion);
         }

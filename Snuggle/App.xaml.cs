@@ -4,7 +4,6 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Threading;
 using Serilog;
-using Serilog.Core;
 using Snuggle.Core;
 using Snuggle.Handlers;
 

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Snuggle.Core.Implementations;
 using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
@@ -20,7 +21,7 @@ public record SplashScreenSettings(
     float BackgroundPortraitAspectRatio,
     Rect LandscapeUV,
     Rect PortraitUV,
-    List<SplashScreenLogo> Logos,
+    SplashScreenLogo[] Logos,
     PPtr<Texture2D> BackgroundLandscape,
     PPtr<Texture2D> BackgroundPortrait,
     PPtr<Texture2D> VRSplashScreen,
@@ -39,7 +40,7 @@ public record SplashScreenSettings(
         1,
         Rect.Zero,
         Rect.Zero,
-        new List<SplashScreenLogo>(),
+        Array.Empty<SplashScreenLogo>(),
         PPtr<Texture2D>.Null,
         PPtr<Texture2D>.Null,
         PPtr<Texture2D>.Null,
@@ -61,7 +62,7 @@ public record SplashScreenSettings(
         var portraitAspect = 1f;
         Rect landscapeUv;
         Rect portraitUv;
-        var logos = new List<SplashScreenLogo>();
+        var logos = Array.Empty<SplashScreenLogo>();
         PPtr<Texture2D> backgroundLandscape;
         PPtr<Texture2D> backgroundPortait;
         if (serializedFile.Version >= UnityVersionRegister.Unity5_5) {
@@ -76,9 +77,9 @@ public record SplashScreenSettings(
             landscapeUv = reader.ReadStruct<Rect>();
             portraitUv = reader.ReadStruct<Rect>();
             var logoCount = reader.ReadInt32();
-            logos.EnsureCapacity(logoCount);
+            logos = new SplashScreenLogo[logoCount];
             for (var i = 0; i < logoCount; ++i) {
-                logos.Add(SplashScreenLogo.FromReader(reader, serializedFile));
+                logos[i] = SplashScreenLogo.FromReader(reader, serializedFile);
             }
 
             backgroundLandscape = PPtr<Texture2D>.FromReader(reader, serializedFile);

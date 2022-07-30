@@ -305,14 +305,10 @@ public static class ObjectFactory {
                     case "array": {
                         var dataNode = node.Properties[1];
                         var count = reader.ReadInt32();
-                        var list = new List<object?>();
-                        list.EnsureCapacity(count);
+                        var list = new object?[count];
                         for (var i = 0; i < count; ++i) {
                             var subValue = CreateObject(reader, dataNode, file);
-                            list.Add(subValue);
-                            if (subValue == null) {
-                                break;
-                            }
+                            list[i] = subValue;
                         }
 
                         value = list;
