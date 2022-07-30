@@ -50,9 +50,8 @@ public class MonoBehaviour : Behaviour {
 
             var name = script.ToString();
 
-            var info = SerializedFile.ObjectInfos[SerializedFile.PathIds.IndexOf(PathId)];
-            if (options.UseTypeTree && info.TypeIndex > 0 && info.TypeIndex < SerializedFile.Types.Length && SerializedFile.Types[info.TypeIndex].TypeTree != null) {
-                ObjectData = ObjectFactory.FindObjectNode(name, SerializedFile.Types[info.TypeIndex].TypeTree, SerializedFile.Assets);
+            if (options.UseTypeTree && Info.TypeIndex > 0 && Info.TypeIndex < SerializedFile.Types.Length && SerializedFile.Types[Info.TypeIndex].TypeTree != null) {
+                ObjectData = ObjectFactory.FindObjectNode(name, SerializedFile.Types[Info.TypeIndex].TypeTree, SerializedFile.Assets);
             }
 
             ObjectData ??= ObjectFactory.FindObjectNode(name, script, SerializedFile.Assets, options.RequestAssemblyCallback);

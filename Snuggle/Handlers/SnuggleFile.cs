@@ -326,7 +326,7 @@ public static class SnuggleFile {
     }
 
     private static void ExtractRaw(SerializedObject serializedObject, string resultDir, string resultPath) {
-        using var dataStream = serializedObject.SerializedFile.OpenFile(serializedObject.PathId);
+        using var dataStream = serializedObject.SerializedFile.OpenFile(serializedObject.Info);
         if (!Directory.Exists(resultDir)) {
             Directory.CreateDirectory(resultDir);
         }

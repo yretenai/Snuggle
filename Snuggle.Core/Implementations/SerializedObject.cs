@@ -23,6 +23,7 @@ public class SerializedObject : IEquatable<SerializedObject>, ISerialized, ISeri
         PathId = info.PathId;
         ClassId = info.ClassId;
         Size = info.Size;
+        Info = info;
         IsMutated = true;
     }
 
@@ -30,6 +31,9 @@ public class SerializedObject : IEquatable<SerializedObject>, ISerialized, ISeri
 
     [JsonIgnore]
     public long Size { get; set; }
+    
+    [JsonIgnore]
+    public UnityObjectInfo Info { get; set; }
 
     public object ClassId { get; init; }
 
@@ -95,7 +99,7 @@ public class SerializedObject : IEquatable<SerializedObject>, ISerialized, ISeri
             return;
         }
 
-        using var reader = new BiEndianBinaryReader(SerializedFile.OpenFile(PathId), SerializedFile.Header.IsBigEndian);
+        using var reader = new BiEndianBinaryReader(SerializedFile.OpenFile(Info), SerializedFile.Header.IsBigEndian);
         Deserialize(reader, options);
     }
 
