@@ -12,7 +12,6 @@ namespace Snuggle.Core.Implementations;
 
 [ObjectImplementation(UnityClassId.Material)]
 public class Material : NamedObject {
-
     public Material(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) {
         Shader = PPtr<SerializedObject>.FromReader(reader, SerializedFile);
         ShaderKeywords = reader.ReadString32();
@@ -74,7 +73,7 @@ public class Material : NamedObject {
     public List<string> DisabledShaderPasses { get; set; } = new();
     public UnityPropertySheet? SavedProperties { get; set; }
     public List<BuildTextureStackReference> BuildTextureStacks { get; set; } = new();
-    private long SavedPropertiesStart { get; set; } = -1;
+    private long SavedPropertiesStart { get; } = -1;
 
     private bool ShouldDeserializeSavedProperties => SavedPropertiesStart > -1 && SavedProperties == null;
 

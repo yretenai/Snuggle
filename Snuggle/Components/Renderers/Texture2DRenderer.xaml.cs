@@ -98,7 +98,7 @@ public sealed partial class Texture2DRenderer {
         if (DataContext is ITexture texture) {
             Frames = Enumerable.Range(0, texture.Depth).ToArray();
         }
-        
+
         var result = ImageView.DataContext as TaskCompletionNotifier<BitmapSource?>;
 
         if (result?.Task.Result is not RGBABitmapSource rgba) {
@@ -108,7 +108,7 @@ public sealed partial class Texture2DRenderer {
         result.Result = new RGBABitmapSource(rgba) {
             HideRed = Red.IsChecked == false, HideGreen = Green.IsChecked == false, HideBlue = Blue.IsChecked == false, HideAlpha = Alpha.IsChecked == false, Frame = Frame,
         };
-        
+
         result.Refresh();
     }
 

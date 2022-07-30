@@ -3,7 +3,7 @@ using Snuggle.Core.Exceptions;
 using Snuggle.Core.Interfaces;
 using Snuggle.Core.Models.Objects.Graphics;
 
-namespace Snuggle.Core.Models; 
+namespace Snuggle.Core.Models;
 
 public static class Extensions {
     public static TextureFormat ToTextureFormat(this GraphicsFormat format) {

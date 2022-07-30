@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Snuggle.Core.IO;
+﻿using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
 
 namespace Snuggle.Core.Models.Objects.Animation;

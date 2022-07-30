@@ -197,7 +197,7 @@ public class AssetCollection : IDisposable {
             }
         } catch (Exception e) {
             Log.Error(e, "Unexpected error while loading file");
-        }finally {
+        } finally {
             if (!leaveOpen) {
                 dataStream.Close();
             }
@@ -214,10 +214,10 @@ public class AssetCollection : IDisposable {
             file.Types = Array.Empty<UnitySerializedType>();
             file.ReferenceTypes = Array.Empty<UnitySerializedType>();
         }
-        
+
         Types.Clear();
     }
-    
+
     public void ClearCaches() {
         Types.Clear();
     }

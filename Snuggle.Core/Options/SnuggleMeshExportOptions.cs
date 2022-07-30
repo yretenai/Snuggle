@@ -12,8 +12,7 @@ public record SnuggleMeshExportOptions(
     bool FindGameObjectParents,
     [Description("Render game object hierarchy relationship lines")]
     bool DisplayRelationshipLines,
-    [Description("Render text labels")]
-    bool DisplayLabels,
+    [Description("Render text labels")] bool DisplayLabels,
     [Description("Render mesh wireframe")] bool DisplayWireframe,
     [Description("Write Vertex Colors to GLTF")]
     bool WriteVertexColors,

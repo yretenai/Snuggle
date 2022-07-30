@@ -186,7 +186,7 @@ public class TypeDefinitionConverter {
             };
 
             flags |= primitiveName == "bool" ? UnityTransferMetaFlags.TreatIntegerValueAsBoolean : UnityTransferMetaFlags.None;
-            
+
             if (isElement && flags.HasFlag(UnityTransferMetaFlags.AlignBytes)) {
                 flags ^= UnityTransferMetaFlags.AlignBytes;
             }

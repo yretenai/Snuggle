@@ -40,7 +40,7 @@ public record UnityExternalInfo(string Path, Guid Guid, int Type, string AssetPa
 
         return array;
     }
-    
+
     public static void ArrayToWriter(BiEndianBinaryWriter writer, UnityExternalInfo[] infos, UnitySerializedFile header, SnuggleCoreOptions options, AssetSerializationOptions serializationOptions) {
         writer.Write(infos.Length);
         foreach (var info in infos) {

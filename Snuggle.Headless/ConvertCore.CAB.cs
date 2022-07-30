@@ -27,6 +27,6 @@ public static partial class ConvertCore {
 
         objectVer.Deserialize(ObjectDeserializationOptions.Default);
 
-        File.WriteAllBytes(fullPath, JsonSerializer.SerializeToUtf8Bytes(cabPathProvider.GetCABPaths().Select(x => new { Ptr = x.Key, Path = x.Value}), SnuggleCoreOptions.JsonOptions));
+        File.WriteAllBytes(fullPath, JsonSerializer.SerializeToUtf8Bytes(cabPathProvider.GetCABPaths().Select(x => new { Ptr = x.Key, Path = x.Value }), SnuggleCoreOptions.JsonOptions));
     }
 }

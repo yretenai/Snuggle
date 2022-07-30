@@ -18,6 +18,8 @@ public record UnityObjectInfo(
     bool IsDestroyed, // probably a flag. 
     short ScriptTypeIndex,
     bool IsStripped) {
+    public SerializedObject? Instance { get; set; }
+
     public static UnityObjectInfo FromReader(BiEndianBinaryReader reader, UnitySerializedFile header, UnitySerializedType[] types, SnuggleCoreOptions options) {
         if (header.FileVersion >= UnitySerializedFileVersion.BigIdAlwaysEnabled) {
             reader.Align();
@@ -79,7 +81,7 @@ public record UnityObjectInfo(
 
         return entries;
     }
-    
+
     public static void ArrayToWriter(BiEndianBinaryWriter writer, List<UnityObjectInfo> infos, UnitySerializedFile header, SnuggleCoreOptions options, AssetSerializationOptions serializationOptions, bool isRef = false) {
         if (serializationOptions.TargetFileVersion is >= UnitySerializedFileVersion.BigId and < UnitySerializedFileVersion.BigIdAlwaysEnabled) {
             writer.Write(1);
@@ -97,18 +99,20 @@ public record UnityObjectInfo(
         }
 
         writer.Write(PathId);
-        if (serializationOptions.TargetFileVersion >= UnitySerializedFileVersion.LargeFiles)
+        if (serializationOptions.TargetFileVersion >= UnitySerializedFileVersion.LargeFiles) {
             writer.Write(Offset);
-        else
-            writer.Write((uint)Offset);
-        writer.Write((uint)Size);
+        } else {
+            writer.Write((uint) Offset);
+        }
+
+        writer.Write((uint) Size);
         writer.Write(TypeId);
         if (serializationOptions.TargetFileVersion < UnitySerializedFileVersion.NewClassId) {
-            writer.Write((ushort)(int)ClassId);
+            writer.Write((ushort) (int) ClassId);
         }
 
         if (serializationOptions.TargetFileVersion < UnitySerializedFileVersion.ObjectDestroyedRemoved) {
-            writer.Write((ushort)(IsDestroyed ? 1 : 0));
+            writer.Write((ushort) (IsDestroyed ? 1 : 0));
         }
 
         if (serializationOptions.TargetFileVersion is >= UnitySerializedFileVersion.ScriptTypeIndex and < UnitySerializedFileVersion.NewTypeData) {
@@ -119,6 +123,4 @@ public record UnityObjectInfo(
             writer.Write(IsStripped);
         }
     }
-    
-    public SerializedObject? Instance { get; set; }
 }

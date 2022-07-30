@@ -23,14 +23,14 @@ public class Texture2DArray : Texture, ITexture {
         Width = reader.ReadInt32();
         Height = reader.ReadInt32();
         Depth = reader.ReadInt32();
-        
+
         if (serializedFile.Version < UnityVersionRegister.Unity2019) {
             TextureFormat = (TextureFormat) reader.ReadInt32();
         }
 
         MipCount = reader.ReadInt32();
         TextureDataSize = reader.ReadUInt32();
-        
+
         TextureSettings = GLTextureSettings.FromReader(reader, SerializedFile);
 
         if (serializedFile.Version < UnityVersionRegister.Unity2019) {
@@ -62,22 +62,23 @@ public class Texture2DArray : Texture, ITexture {
         StreamDataOffset = -1;
     }
 
-    public int Width { get; set; }
-    public int Height { get; set; }
-    public int Depth { get; set; }
     public uint TextureDataSize { get; set; }
-    public TextureFormat TextureFormat { get; set; }
-    public int MipCount { get; set; } = 1;
-    public TextureUsageMode UsageMode { get; set; }
 
     public bool IsReadable { get; set; }
     public GLTextureSettings TextureSettings { get; set; }
     public ColorSpace ColorSpace { get; set; }
     private long TextureDataStart { get; } = -1;
+    private bool ShouldDeserializeTextureData => (TextureDataStart > -1 || !StreamData.IsNull) && TextureData == null;
+
+    public int Width { get; set; }
+    public int Height { get; set; }
+    public int Depth { get; set; }
+    public TextureFormat TextureFormat { get; set; }
+    public int MipCount { get; set; } = 1;
+    public TextureUsageMode UsageMode { get; set; }
 
     [JsonIgnore]
     public Memory<byte>? TextureData { get; set; }
-    private bool ShouldDeserializeTextureData => (TextureDataStart > -1 || !StreamData.IsNull) && TextureData == null;
 
     [JsonIgnore]
     public override bool ShouldDeserialize => base.ShouldDeserialize || ShouldDeserializeTextureData;
@@ -95,7 +96,7 @@ public class Texture2DArray : Texture, ITexture {
 
     public override void Deserialize(BiEndianBinaryReader reader, ObjectDeserializationOptions options) {
         base.Deserialize(reader, options);
-        
+
         if (ShouldDeserializeTextureData) {
             if (TextureDataStart > -1) {
                 reader.BaseStream.Seek(TextureDataStart, SeekOrigin.Begin);

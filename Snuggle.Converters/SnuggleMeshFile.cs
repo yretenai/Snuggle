@@ -439,7 +439,7 @@ public static class SnuggleMeshFile {
         }
 
         // attempt to fix weights.
-        if(hasSkin) {
+        if (hasSkin) {
             for (var i = 0; i < vertexCount; i++) {
                 var boneJoints = skin[i];
                 var ordered = boneJoints.Indices.Zip(boneJoints.Weights).OrderByDescending(x => x.Second).ToArray();

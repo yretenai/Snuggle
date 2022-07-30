@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Windows.Data;
 using System.Windows.Media;
 
-namespace Snuggle.Converters; 
+namespace Snuggle.Converters;
 
 public class ScalingModeToText : IValueConverter {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
@@ -11,7 +11,7 @@ public class ScalingModeToText : IValueConverter {
             BitmapScalingMode.Linear => "Low",
             BitmapScalingMode.Fant => "High",
             BitmapScalingMode.NearestNeighbor => "Pixel",
-            _ => "Unknown"
+            _ => "Unknown",
         };
     }
 

@@ -172,6 +172,7 @@ public static class MeshToHelixConverter {
                         if (SnuggleCore.Instance.Settings.MeshExportOptions.DisplayRelationshipLines) {
                             topMost.Children.Add(lines);
                         }
+
                         if (SnuggleCore.Instance.Settings.MeshExportOptions.DisplayLabels) {
                             topMost.Children.Add(labels);
                         }

@@ -55,8 +55,8 @@ public class SerializedFile : IRenewable {
     public SnuggleCoreOptions Options { get; init; }
     public UnitySerializedFile Header { get; init; }
     public UnitySerializedType[] Types { get; set; }
-    public List<long> PathIds { get; private set; }
-    public List<UnityObjectInfo> ObjectInfos { get; private set; }
+    public List<long> PathIds { get; }
+    public List<UnityObjectInfo> ObjectInfos { get; }
     public UnityScriptInfo[] ScriptInfos { get; init; }
     public UnityExternalInfo[] ExternalInfos { get; init; }
     public UnitySerializedType[] ReferenceTypes { get; set; } = Array.Empty<UnitySerializedType>();
@@ -98,20 +98,21 @@ public class SerializedFile : IRenewable {
             targetFileVersion,
             prefix + Name,
             prefix + Name + resourceSuffix);
-        
+
         bundleStream = new MemoryStream();
         resourceStream = new MemoryStream();
         using var bundleWriter = new BiEndianBinaryWriter(bundleStream, true, true);
-        
+
         Header.ToWriter(bundleWriter, Options, options);
         UnitySerializedType.ArrayToWriter(bundleWriter, Types, Header, Options, options);
         var objectInfoOffset = bundleStream.Position;
         UnityObjectInfo.ArrayToWriter(bundleWriter, ObjectInfos, Header, Options, options);
         UnityScriptInfo.ArrayToWriter(bundleWriter, ScriptInfos, Header, Options, options);
         UnityExternalInfo.ArrayToWriter(bundleWriter, ExternalInfos, Header, Options, options);
-        if (serializationOptions.TargetFileVersion >= UnitySerializedFileVersion.RefObject)  {
+        if (serializationOptions.TargetFileVersion >= UnitySerializedFileVersion.RefObject) {
             UnitySerializedType.ArrayToWriter(bundleWriter, ReferenceTypes, Header, Options, options);
         }
+
         if (serializationOptions.TargetFileVersion >= UnitySerializedFileVersion.UserInformation) {
             bundleWriter.Write(UserInformation);
         }
@@ -143,7 +144,7 @@ public class SerializedFile : IRenewable {
         UnityObjectInfo.ArrayToWriter(bundleWriter, ObjectInfos, Header, Options, options);
 
         // TODO: write resource stream?
-        
+
         bundleStream.Position = 0;
         return false;
     }
@@ -214,14 +215,11 @@ public class SerializedFile : IRenewable {
         var objectInfo = ObjectInfos[index];
 
         options ??= Options;
-        try
-        {
+        try {
             var ignored = options.IgnoreClassIds.Contains(objectInfo.ClassId.ToString()!);
             var shouldLoad = !options.LoadOnDemand;
-            if (objectInfo.Instance != null)
-            {
-                if (!objectInfo.Instance.NeedsLoad || ignored)
-                {
+            if (objectInfo.Instance != null) {
+                if (!objectInfo.Instance.NeedsLoad || ignored) {
                     return objectInfo.Instance;
                 }
 
@@ -229,20 +227,20 @@ public class SerializedFile : IRenewable {
             }
 
             SerializedObject serializedObject;
-            if (shouldLoad && !baseType && !ignored)
-            {
+            if (shouldLoad && !baseType && !ignored) {
                 serializedObject =
                     ObjectFactory.GetInstance(OpenFile(objectInfo, dataStream, dataStream != null), objectInfo, this);
-            } else
-            {
+            } else {
                 serializedObject = new SerializedObject(objectInfo, this) { NeedsLoad = true, IsMutated = false };
             }
 
             objectInfo.Instance = serializedObject;
             return serializedObject;
-        } catch (Exception e)
-        {
-            Log.Error(e, "Failed to decode {PathId} (type {ClassId}) on file {Name}", objectInfo.PathId, objectInfo.ClassId,
+        } catch (Exception e) {
+            Log.Error(e,
+                "Failed to decode {PathId} (type {ClassId}) on file {Name}",
+                objectInfo.PathId,
+                objectInfo.ClassId,
                 Name);
             return null;
         }

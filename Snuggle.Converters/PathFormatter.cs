@@ -99,6 +99,7 @@ public static class PathFormatter {
                     if (asset is MonoBehaviour monoBehaviour && monoBehaviour.Script.Value is not null) {
                         builder.Append(monoBehaviour.Script.Value);
                     }
+
                     break;
                 default:
                     builder.Append(match.Captures[0].Value.SanitizeDirname());

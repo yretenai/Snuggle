@@ -149,6 +149,7 @@ public static class Program {
                 if (flags.GameObjectOnly && asset is not GameObject) {
                     continue;
                 }
+
                 Log.Information("Dumping Data for asset {Asset}", asset);
                 ConvertCore.ConvertObject(flags, asset);
                 continue;
@@ -208,7 +209,6 @@ public static class Program {
                         Log.Information("Processing CAB Path Provider {Asset}");
                         ConvertCore.ConvertCABPathProvider(flags, cabPathProvider);
                         break;
-                        
                 }
             } catch (Exception e) {
                 Log.Error(e, "Failure decoding {PathId} from {Tag}", asset.PathId, Utils.GetStringFromTag(asset.SerializedFile.Tag));

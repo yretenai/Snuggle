@@ -42,6 +42,7 @@ public static class Helper {
         if (File.Exists(libPath)) {
             return NativeLibrary.Load(libPath);
         }
+
         return File.Exists(libPath) ? NativeLibrary.Load(libPath) : IntPtr.Zero;
     }
 

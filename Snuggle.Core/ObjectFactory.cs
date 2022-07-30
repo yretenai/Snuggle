@@ -446,7 +446,7 @@ public static class ObjectFactory {
                 collection.Types[name] = objectNode;
                 return objectNode;
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             Log.Error(e, "Failed to convert Cecil type");
         }
 

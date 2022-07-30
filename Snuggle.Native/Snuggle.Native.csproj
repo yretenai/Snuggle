@@ -9,8 +9,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Content Include="..\Library\AssetStudio\Texture2DDecoderNative\bin\Win32\$(Configuration)\Texture2DDecoderNative.dll" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" LinkBase="runtimes\win-x86\native" />
-        <Content Include="..\Library\AssetStudio\Texture2DDecoderNative\bin\x64\$(Configuration)\Texture2DDecoderNative.dll" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" LinkBase="runtimes\win-x64\native" />
+        <Content Include="..\Library\AssetStudio\Texture2DDecoderNative\bin\Win32\$(Configuration)\Texture2DDecoderNative.dll" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" LinkBase="runtimes\win-x86\native"/>
+        <Content Include="..\Library\AssetStudio\Texture2DDecoderNative\bin\x64\$(Configuration)\Texture2DDecoderNative.dll" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" LinkBase="runtimes\win-x64\native"/>
     </ItemGroup>
 
     <ItemGroup>

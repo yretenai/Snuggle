@@ -9,6 +9,7 @@ using Snuggle.Core.Exceptions;
 using Snuggle.Core.Implementations;
 using Snuggle.Core.Options;
 using Snuggle.Native;
+
 // ReSharper disable TemplateIsNotCompileTimeConstantProblem
 
 namespace Snuggle.Converters;

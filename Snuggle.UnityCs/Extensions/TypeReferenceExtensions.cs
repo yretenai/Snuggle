@@ -4,50 +4,41 @@
 
 using Mono.Cecil;
 
-namespace Unity.CecilTools.Extensions
-{
-    public static class TypeReferenceExtensions
-    {
-        public static string SafeNamespace(this TypeReference type)
-        {
-            if (type.IsGenericInstance)
-                return ((GenericInstanceType)type).ElementType.SafeNamespace();
-            if (type.IsNested)
-                return type.DeclaringType.SafeNamespace();
-            return type.Namespace;
+namespace Unity.CecilTools.Extensions; 
+
+public static class TypeReferenceExtensions {
+    public static string SafeNamespace(this TypeReference type) {
+        if (type.IsGenericInstance) {
+            return ((GenericInstanceType) type).ElementType.SafeNamespace();
         }
 
-        public static bool IsAssignableTo(this TypeReference typeRef, string typeName)
-        {
-            try
-            {
-                if (typeRef.IsGenericInstance)
-                    return ElementType.For(typeRef).IsAssignableTo(typeName);
+        if (type.IsNested) {
+            return type.DeclaringType.SafeNamespace();
+        }
 
-                if (typeRef.FullName == typeName)
-                    return true;
+        return type.Namespace;
+    }
 
-                return typeRef.CheckedResolve().IsSubclassOf(typeName);
+    public static bool IsAssignableTo(this TypeReference typeRef, string typeName) {
+        try {
+            if (typeRef.IsGenericInstance) {
+                return ElementType.For(typeRef).IsAssignableTo(typeName);
             }
-            catch (AssemblyResolutionException) // If we can't resolve our typeref or one of its base types,
-            {                                   // let's assume it is not assignable to our target type
-                return false;
+
+            if (typeRef.FullName == typeName) {
+                return true;
             }
-        }
 
-        public static bool IsEnum(this TypeReference type)
-        {
-            return type.IsValueType && !type.IsPrimitive && type.CheckedResolve().IsEnum;
-        }
-
-        public static bool IsStruct(this TypeReference type)
-        {
-            return type.IsValueType && !type.IsPrimitive && !type.IsEnum() && !IsSystemDecimal(type);
-        }
-
-        private static bool IsSystemDecimal(TypeReference type)
-        {
-            return type.FullName == "System.Decimal";
+            return typeRef.CheckedResolve().IsSubclassOf(typeName);
+        } catch (AssemblyResolutionException) // If we can't resolve our typeref or one of its base types,
+        { // let's assume it is not assignable to our target type
+            return false;
         }
     }
+
+    public static bool IsEnum(this TypeReference type) => type.IsValueType && !type.IsPrimitive && type.CheckedResolve().IsEnum;
+
+    public static bool IsStruct(this TypeReference type) => type.IsValueType && !type.IsPrimitive && !type.IsEnum() && !IsSystemDecimal(type);
+
+    private static bool IsSystemDecimal(TypeReference type) => type.FullName == "System.Decimal";
 }

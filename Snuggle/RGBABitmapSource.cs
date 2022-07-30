@@ -11,8 +11,8 @@ namespace Snuggle;
 public class RGBABitmapSource : BitmapSource {
     private readonly int BackingPixelHeight;
     private readonly int BackingPixelWidth;
-    public readonly int Frames;
     private readonly TextureFormat BaseFormat;
+    public readonly int Frames;
 
     public RGBABitmapSource(Memory<byte> rgbaBuffer, int pixelWidth, int pixelHeight, TextureFormat format, int frames) {
         Buffer = rgbaBuffer;

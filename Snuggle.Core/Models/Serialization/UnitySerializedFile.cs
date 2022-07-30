@@ -66,20 +66,20 @@ public record UnitySerializedFile(
             targetPlatform,
             typeTreeEnabled);
     }
-    
+
     public void ToWriter(BiEndianBinaryWriter writer, SnuggleCoreOptions options, AssetSerializationOptions serializationOptions) {
         writer.IsBigEndian = true;
 
         if (serializationOptions.TargetFileVersion >= UnitySerializedFileVersion.LargeFiles) {
             writer.Write(0);
             writer.Write(0);
-            writer.Write((uint)serializationOptions.TargetFileVersion);
+            writer.Write((uint) serializationOptions.TargetFileVersion);
             writer.Write(0);
         } else {
             writer.Write(HeaderSize);
-            writer.Write((int)Size);
-            writer.Write((uint)serializationOptions.TargetFileVersion);
-            writer.Write((int)Offset);
+            writer.Write((int) Size);
+            writer.Write((uint) serializationOptions.TargetFileVersion);
+            writer.Write((int) Offset);
         }
 
         if (serializationOptions.TargetFileVersion < UnitySerializedFileVersion.HeaderContentAtFront) {
@@ -95,7 +95,7 @@ public record UnitySerializedFile(
             writer.Write(Offset);
             writer.Write(LargeAddressableFlags);
         }
-        
+
         writer.IsBigEndian = IsBigEndian;
 
         if (serializationOptions.TargetFileVersion >= UnitySerializedFileVersion.UnityVersion) {

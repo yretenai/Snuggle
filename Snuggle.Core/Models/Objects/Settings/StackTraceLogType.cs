@@ -4,4 +4,4 @@ public enum StackTraceLogType {
     None = 0,
     Script = 1,
     Full = 2,
-};
+}

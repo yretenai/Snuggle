@@ -12,7 +12,7 @@ public record ObjectNode(string Name, string TypeName, int Size, UnityTransferMe
     public static ObjectNode FromUnityTypeTree(UnityTypeTree typeTree) => typeTree.Nodes.Length == 0 ? Empty : FromUnityTypeTreeNode(typeTree.Nodes[0], typeTree.Nodes.Skip(1).ToArray());
 
     public static ObjectNode FromUnityTypeTreeNode(UnityTypeTreeNode rootNode, UnityTypeTreeNode[] subNodes) {
-        var objectNode = new ObjectNode(rootNode.Name, rootNode.Type, rootNode.Size, rootNode.Meta,  rootNode.TypeFlags, null);
+        var objectNode = new ObjectNode(rootNode.Name, rootNode.Type, rootNode.Size, rootNode.Meta, rootNode.TypeFlags, null);
         for (var i = 0; i < subNodes.Length; ++i) {
             var subNode = subNodes[i];
             if (rootNode.Level >= subNode.Level) {

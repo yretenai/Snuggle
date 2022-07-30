@@ -28,7 +28,7 @@ public record UnityScriptInfo(int Index, long PathId) {
 
         return array;
     }
-    
+
     public static void ArrayToWriter(BiEndianBinaryWriter writer, UnityScriptInfo[] infos, UnitySerializedFile header, SnuggleCoreOptions options, AssetSerializationOptions serializationOptions) {
         writer.Write(infos.Length);
         foreach (var info in infos) {

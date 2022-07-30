@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Snuggle.Core.Implementations;
 using Snuggle.Core.IO;
 using Snuggle.Core.Meta;

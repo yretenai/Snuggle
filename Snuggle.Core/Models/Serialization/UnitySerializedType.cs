@@ -86,7 +86,7 @@ public record UnitySerializedType(
 
         return entries;
     }
-    
+
     public static void ArrayToWriter(BiEndianBinaryWriter writer, UnitySerializedType[] types, UnitySerializedFile header, SnuggleCoreOptions options, AssetSerializationOptions serializationOptions, bool isRef = false) {
         writer.Write(types.Length);
         foreach (var type in types) {
@@ -95,7 +95,7 @@ public record UnitySerializedType(
     }
 
     public void ToWriter(BiEndianBinaryWriter writer, UnitySerializedFile header, SnuggleCoreOptions options, AssetSerializationOptions serializationOptions, bool isRef = false) {
-        var classId = (int)ClassId;
+        var classId = (int) ClassId;
         writer.Write(classId);
         if (serializationOptions.TargetFileVersion >= UnitySerializedFileVersion.StrippedType) {
             writer.Write(IsStrippedType);
@@ -119,7 +119,7 @@ public record UnitySerializedType(
 
             writer.Write(Hash);
         }
-        
+
         if (header.TypeTreeEnabled) {
             TypeTree!.ToWriter(writer, header, options, serializationOptions);
 

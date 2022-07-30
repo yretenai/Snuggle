@@ -18,7 +18,7 @@ public record PPtr<T>(int FileId, long PathId) where T : SerializedObject {
     public static PPtr<T> Null => new(0, 0);
     public static int Size => 12;
     public object? Tag => Info?.ClassId;
-    
+
     [JsonIgnore]
     private T? UnderlyingValue { get; set; }
 

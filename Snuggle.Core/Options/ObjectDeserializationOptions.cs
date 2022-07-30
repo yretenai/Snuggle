@@ -33,6 +33,7 @@ public record ObjectDeserializationOptions(
         if (options.Version <= 1) {
             options = options with { UseTypeTree = true };
         }
+
         return options with { Version = LatestVersion };
     }
 }

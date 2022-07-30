@@ -275,7 +275,7 @@ public partial class Navigation {
     }
 
     private static void ClearRecentValues(object sender, RoutedEventArgs e) {
-        SnuggleCore.Instance.SetOptions(SnuggleCore.Instance.Settings with { RecentFiles = new List<string>(), RecentDirectories = new List<string>()});
+        SnuggleCore.Instance.SetOptions(SnuggleCore.Instance.Settings with { RecentFiles = new List<string>(), RecentDirectories = new List<string>() });
     }
 
     private static void ToggleFilter(object sender, RoutedEventArgs e) {
@@ -464,7 +464,7 @@ public partial class Navigation {
         e.Handled = true;
     }
 
-    private void FreeTypes(object sender, RoutedEventArgs e) { 
+    private void FreeTypes(object sender, RoutedEventArgs e) {
         var instance = SnuggleCore.Instance;
         instance.WorkerAction("FreeTypeMemory", _ => { SnuggleCore.Instance.Collection.ClearTypeTrees(); }, true);
     }

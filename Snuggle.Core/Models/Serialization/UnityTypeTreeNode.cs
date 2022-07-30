@@ -102,14 +102,14 @@ public record UnityTypeTreeNode(
     }
 
     public void ToWriter(BiEndianBinaryWriter writer, UnitySerializedFile header, SnuggleCoreOptions options, AssetSerializationOptions serializationOptions) {
-        writer.Write((short)Version);
-        writer.Write((byte)Level);
-        writer.Write((byte)TypeFlags);
+        writer.Write((short) Version);
+        writer.Write((byte) Level);
+        writer.Write((byte) TypeFlags);
         writer.Write(TypeOffset);
         writer.Write(NameOffset);
         writer.Write(Size);
         writer.Write(Index);
-        writer.Write((uint)Meta);
+        writer.Write((uint) Meta);
         if (serializationOptions.TargetFileVersion >= UnitySerializedFileVersion.TypeFlags) {
             writer.Write(TypeHash);
         }

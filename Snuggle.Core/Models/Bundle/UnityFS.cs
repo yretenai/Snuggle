@@ -113,14 +113,15 @@ public record UnityFS(long Size, int CompressedBlockInfoSize, int BlockInfoSize,
         fs.BlockInfos = UnityBundleBlockInfo.ArrayFromReader(blocksReader, header, (int) flags, infoCount, options);
         var blockCount = blocksReader.ReadInt32();
         fs.Blocks = UnityBundleBlock.ArrayFromReader(blocksReader, header, (int) flags, blockCount, options);
-        
+
         if (fs.Flags.HasFlag(UnityFSFlags.BlocksInfoAtEnd)) {
             reader.BaseStream.Seek(pos, SeekOrigin.Begin);
-        } 
-        
+        }
+
         if (header.FormatVersion >= 7) {
             reader.Align(16);
         }
+
         return fs;
     }
 }

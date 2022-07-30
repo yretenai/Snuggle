@@ -4,7 +4,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using Serilog;
 
-namespace Snuggle.Core; 
+namespace Snuggle.Core;
 
 public static class SystemManagement {
     public static void DescribeLog() {

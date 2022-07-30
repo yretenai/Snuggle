@@ -163,10 +163,10 @@ public static class SnuggleFile {
                     return true;
                 }
             }
-            
-            return snuggleObject.Name.Contains(search, StringComparison.InvariantCultureIgnoreCase) || 
-                   snuggleObject.Container.Contains(search, StringComparison.InvariantCultureIgnoreCase) || 
-                   snuggleObject.SerializedName.Contains(search, StringComparison.InvariantCultureIgnoreCase) || 
+
+            return snuggleObject.Name.Contains(search, StringComparison.InvariantCultureIgnoreCase) ||
+                   snuggleObject.Container.Contains(search, StringComparison.InvariantCultureIgnoreCase) ||
+                   snuggleObject.SerializedName.Contains(search, StringComparison.InvariantCultureIgnoreCase) ||
                    snuggleObject.ClassId.ToString()?.Contains(search, StringComparison.InvariantCultureIgnoreCase) == true;
         }
 

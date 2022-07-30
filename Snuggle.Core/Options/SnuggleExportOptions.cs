@@ -4,12 +4,18 @@ using Snuggle.Core.Interfaces;
 namespace Snuggle.Core.Options;
 
 public record SnuggleExportOptions(
-    [Description("Writes Native 3D textures such as DDS instead of converting them to PNG or TIF")] bool WriteNativeTextures, 
-    [Description(SnuggleExportOptions.PathTemplateDescription)] string PathTemplate, 
-    [Description(SnuggleExportOptions.PathTemplateDescription)] string ContainerlessPathTemplate, 
-    [Description("Use AssetStudio's Texture2DDecoder for converting textures")] bool UseTextureDecoder, 
-    [Description("Only display and export objects with CAB paths")] bool OnlyWithCABPath, 
-    [Description("Keep audio samples in their native format")] bool WriteNativeAudio) {
+    [Description("Writes Native 3D textures such as DDS instead of converting them to PNG or TIF")]
+    bool WriteNativeTextures,
+    [Description(SnuggleExportOptions.PathTemplateDescription)]
+    string PathTemplate,
+    [Description(SnuggleExportOptions.PathTemplateDescription)]
+    string ContainerlessPathTemplate,
+    [Description("Use AssetStudio's Texture2DDecoder for converting textures")]
+    bool UseTextureDecoder,
+    [Description("Only display and export objects with CAB paths")]
+    bool OnlyWithCABPath,
+    [Description("Keep audio samples in their native format")]
+    bool WriteNativeAudio) {
     private const string PathTemplateDescription = @"Output Path Template
 Available variables:
     Id - The Path ID of the object.
@@ -46,7 +52,7 @@ Available variables:
         var settings = this;
 
         // if (Version < 2) { // removed in version 10.
-            // settings = settings with { UseDirectTex = true };
+        // settings = settings with { UseDirectTex = true };
         // }
 
         if (Version < 3) {

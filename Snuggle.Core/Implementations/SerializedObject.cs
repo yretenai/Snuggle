@@ -27,37 +27,10 @@ public class SerializedObject : IEquatable<SerializedObject>, ISerialized, ISeri
         IsMutated = true;
     }
 
-    public long PathId { get; init; }
-
-    [JsonIgnore]
-    public long Size { get; set; }
-    
     [JsonIgnore]
     public UnityObjectInfo Info { get; set; }
 
-    public object ClassId { get; init; }
-
-    [JsonIgnore]
-    public SerializedFile SerializedFile { get; init; }
-
     private bool ShouldDeserializeExtraContainers => ExtraContainers.Values.Any(x => (x as ISerialized)?.ShouldDeserialize == true);
-
-    [JsonIgnore]
-    public bool IsMutated { get; set; }
-
-    [JsonIgnore]
-    public string ObjectComparableName => ToString();
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public string ObjectContainerPath { get; set; } = string.Empty;
-
-    public Dictionary<object, object> ExtraContainers { get; } = new();
-
-    [JsonIgnore]
-    public bool NeedsLoad { get; init; }
-
-    [JsonIgnore]
-    public bool HasContainerPath => !string.IsNullOrWhiteSpace(ObjectContainerPath);
 
     public bool Equals(SerializedObject? other) {
         if (ReferenceEquals(null, other)) {
@@ -103,6 +76,33 @@ public class SerializedObject : IEquatable<SerializedObject>, ISerialized, ISeri
         Deserialize(reader, options);
     }
 
+    public long PathId { get; init; }
+
+    [JsonIgnore]
+    public long Size { get; set; }
+
+    public object ClassId { get; init; }
+
+    [JsonIgnore]
+    public SerializedFile SerializedFile { get; init; }
+
+    [JsonIgnore]
+    public bool IsMutated { get; set; }
+
+    [JsonIgnore]
+    public string ObjectComparableName => ToString();
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public string ObjectContainerPath { get; set; } = string.Empty;
+
+    public Dictionary<object, object> ExtraContainers { get; } = new();
+
+    [JsonIgnore]
+    public bool NeedsLoad { get; init; }
+
+    [JsonIgnore]
+    public bool HasContainerPath => !string.IsNullOrWhiteSpace(ObjectContainerPath);
+
     public T GetExtraContainer<T>(object classId) where T : ISerialized, new() {
         if (!ExtraContainers.TryGetValue(classId, out var instance) || instance is not T tInstance) {
             tInstance = new T();
@@ -124,6 +124,8 @@ public class SerializedObject : IEquatable<SerializedObject>, ISerialized, ISeri
 
     public override string ToString() => string.IsNullOrWhiteSpace(ObjectContainerPath) ? Enum.Format(ClassId.GetType(), ClassId, "G") : Path.GetFileNameWithoutExtension(ObjectContainerPath);
 
+    public (long, string) GetCompositeId() => (PathId, SerializedFile.Name);
+
     public override bool Equals(object? obj) {
         if (ReferenceEquals(null, obj)) {
             return false;
@@ -137,6 +139,4 @@ public class SerializedObject : IEquatable<SerializedObject>, ISerialized, ISeri
     }
 
     public override int GetHashCode() => HashCode.Combine(ClassId, PathId);
-
-    public (long, string) GetCompositeId() => (PathId, SerializedFile.Name);
 }

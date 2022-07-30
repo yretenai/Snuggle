@@ -14,7 +14,6 @@ using Snuggle.Core.Options;
 
 namespace Snuggle.Core.Implementations;
 
-
 [ObjectImplementation(UnityClassId.Texture2D)]
 public class Texture2D : Texture, ITexture {
     public Texture2D(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) {
@@ -94,13 +93,8 @@ public class Texture2D : Texture, ITexture {
         StreamDataOffset = -1;
     }
 
-    public int Width { get; set; }
-    public int Height { get; set; }
-    public int Depth { get; set; }
     public uint TextureDataSize { get; set; }
     public bool IsStrippedMips { get; set; }
-    public TextureFormat TextureFormat { get; set; }
-    public int MipCount { get; set; } = 1;
     public bool IsReadable { get; set; }
     public bool IsPreProcessed { get; set; }
     public bool IgnoreTextureLimit { get; set; }
@@ -109,7 +103,6 @@ public class Texture2D : Texture, ITexture {
     public int StreamingPriority { get; set; }
     public TextureDimension TextureDimension { get; set; }
     public GLTextureSettings TextureSettings { get; set; }
-    public TextureUsageMode UsageMode { get; set; }
     public ColorSpace ColorSpace { get; set; }
     private long TextureDataStart { get; } = -1;
     private long PlatformDataStart { get; } = -1;
@@ -117,11 +110,18 @@ public class Texture2D : Texture, ITexture {
     [JsonIgnore]
     public Memory<byte>? PlatformData { get; set; }
 
-    [JsonIgnore]
-    public Memory<byte>? TextureData { get; set; }
-
     private bool ShouldDeserializePlatformData => PlatformDataStart > -1 && PlatformData == null;
     private bool ShouldDeserializeTextureData => (TextureDataStart > -1 || !StreamData.IsNull) && TextureData == null;
+
+    public int Width { get; set; }
+    public int Height { get; set; }
+    public int Depth { get; set; }
+    public TextureFormat TextureFormat { get; set; }
+    public int MipCount { get; set; } = 1;
+    public TextureUsageMode UsageMode { get; set; }
+
+    [JsonIgnore]
+    public Memory<byte>? TextureData { get; set; }
 
     [JsonIgnore]
     public override bool ShouldDeserialize => base.ShouldDeserialize || ShouldDeserializePlatformData || ShouldDeserializeTextureData;

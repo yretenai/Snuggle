@@ -51,16 +51,17 @@ public static class Texture2DConverter {
         if (useTextureDecoder || texture.TextureFormat == TextureFormat.RGB565) {
             var textureData = textureMem.ToArray();
             // ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault
-            switch (texture.TextureFormat)
-            {
-                case TextureFormat.DXT1Crunched when UnpackCrunch(texture.SerializedFile.Version, texture.TextureFormat,
-                    textureData, out var data):
-                {
+            switch (texture.TextureFormat) {
+                case TextureFormat.DXT1Crunched when UnpackCrunch(texture.SerializedFile.Version,
+                    texture.TextureFormat,
+                    textureData,
+                    out var data): {
                     return DecodeDXT1(texture.Width, texture.Height, data);
                 }
-                case TextureFormat.DXT5Crunched when UnpackCrunch(texture.SerializedFile.Version, texture.TextureFormat,
-                    textureData, out var data):
-                {
+                case TextureFormat.DXT5Crunched when UnpackCrunch(texture.SerializedFile.Version,
+                    texture.TextureFormat,
+                    textureData,
+                    out var data): {
                     return DecodeDXT5(texture.Width, texture.Height, data);
                 }
                 case TextureFormat.DXT1:
@@ -119,14 +120,16 @@ public static class Texture2DConverter {
                 case TextureFormat.ASTC_RGBA_12x12:
                 case TextureFormat.ASTC_HDR_12x12:
                     return DecodeASTC(12, texture.Width, texture.Height, textureData);
-                case TextureFormat.ETC_RGB4Crunched when UnpackCrunch(texture.SerializedFile.Version, texture.TextureFormat,
-                    textureData, out var data):
-                {
+                case TextureFormat.ETC_RGB4Crunched when UnpackCrunch(texture.SerializedFile.Version,
+                    texture.TextureFormat,
+                    textureData,
+                    out var data): {
                     return DecodeETC1(texture.Width, texture.Height, data);
                 }
                 case TextureFormat.ETC2_RGBA8Crunched when UnpackCrunch(texture.SerializedFile.Version,
-                    texture.TextureFormat, textureData, out var data):
-                {
+                    texture.TextureFormat,
+                    textureData,
+                    out var data): {
                     return DecodeETC2A8(texture.Width, texture.Height, data);
                 }
                 case TextureFormat.Alpha8:
@@ -177,8 +180,7 @@ public static class Texture2DConverter {
 
         var imageData = new byte[texture.Width * texture.Height * 4].AsMemory();
 
-        switch (texture.TextureFormat)
-        {
+        switch (texture.TextureFormat) {
             case TextureFormat.Alpha8:
                 RgbConverter.A8ToBGRA32(textureMem.Span, texture.Width, texture.Height, imageData.Span);
                 break;
@@ -232,92 +234,82 @@ public static class Texture2DConverter {
             case TextureFormat.YUV2:
                 Yuy2Decoder.DecompressYUY2(textureMem.Span, texture.Width, texture.Height, imageData.Span);
                 break;
-            case TextureFormat.DXT1:
-            {
+            case TextureFormat.DXT1: {
                 var bc = new BcDecoder();
-                var pixels = bc.DecodeRaw(textureMem.ToArray(), texture.Width, texture.Height,
+                var pixels = bc.DecodeRaw(textureMem.ToArray(),
+                    texture.Width,
+                    texture.Height,
                     CompressionFormat.Bc1WithAlpha);
-                if (pixels != null)
-                {
+                if (pixels != null) {
                     MemoryMarshal.AsBytes(pixels.AsSpan()).CopyTo(imageData.Span);
                 }
 
                 break;
             }
-            case TextureFormat.DXT1Crunched when UnpackCrunch(texture.SerializedFile.Version, texture.TextureFormat,
-                textureMem.ToArray(), out var data):
-            {
+            case TextureFormat.DXT1Crunched when UnpackCrunch(texture.SerializedFile.Version,
+                texture.TextureFormat,
+                textureMem.ToArray(),
+                out var data): {
                 var bc = new BcDecoder();
                 var pixels = bc.DecodeRaw(data, texture.Width, texture.Height, CompressionFormat.Bc1);
-                if (pixels != null)
-                {
+                if (pixels != null) {
                     MemoryMarshal.AsBytes(pixels.AsSpan()).CopyTo(imageData.Span);
                 }
 
                 break;
             }
-            case TextureFormat.DXT5:
-            {
+            case TextureFormat.DXT5: {
                 var bc = new BcDecoder();
                 var pixels = bc.DecodeRaw(textureMem.ToArray(), texture.Width, texture.Height, CompressionFormat.Bc3);
-                if (pixels != null)
-                {
+                if (pixels != null) {
                     MemoryMarshal.AsBytes(pixels.AsSpan()).CopyTo(imageData.Span);
                 }
 
                 break;
             }
-            case TextureFormat.DXT5Crunched when UnpackCrunch(texture.SerializedFile.Version, texture.TextureFormat,
-                textureMem.ToArray(), out var data):
-            {
+            case TextureFormat.DXT5Crunched when UnpackCrunch(texture.SerializedFile.Version,
+                texture.TextureFormat,
+                textureMem.ToArray(),
+                out var data): {
                 var bc = new BcDecoder();
                 var pixels = bc.DecodeRaw(data, texture.Width, texture.Height, CompressionFormat.Bc3);
-                if (pixels != null)
-                {
+                if (pixels != null) {
                     MemoryMarshal.AsBytes(pixels.AsSpan()).CopyTo(imageData.Span);
                 }
 
                 break;
             }
-            case TextureFormat.BC4:
-            {
+            case TextureFormat.BC4: {
                 var bc = new BcDecoder();
                 var pixels = bc.DecodeRaw(textureMem.ToArray(), texture.Width, texture.Height, CompressionFormat.Bc4);
-                if (pixels != null)
-                {
+                if (pixels != null) {
                     MemoryMarshal.AsBytes(pixels.AsSpan()).CopyTo(imageData.Span);
                 }
 
                 break;
             }
-            case TextureFormat.BC5:
-            {
+            case TextureFormat.BC5: {
                 var bc = new BcDecoder();
                 var pixels = bc.DecodeRaw(textureMem.ToArray(), texture.Width, texture.Height, CompressionFormat.Bc5);
-                if (pixels != null)
-                {
+                if (pixels != null) {
                     MemoryMarshal.AsBytes(pixels.AsSpan()).CopyTo(imageData.Span);
                 }
 
                 break;
             }
-            case TextureFormat.BC6H:
-            {
+            case TextureFormat.BC6H: {
                 var bc = new BcDecoder();
                 var pixels = bc.DecodeRaw(textureMem.ToArray(), texture.Width, texture.Height, CompressionFormat.Bc6S);
-                if (pixels != null)
-                {
+                if (pixels != null) {
                     MemoryMarshal.AsBytes(pixels.AsSpan()).CopyTo(imageData.Span);
                 }
 
                 break;
             }
-            case TextureFormat.BC7:
-            {
+            case TextureFormat.BC7: {
                 var bc = new BcDecoder();
                 var pixels = bc.DecodeRaw(textureMem.ToArray(), texture.Width, texture.Height, CompressionFormat.Bc7);
-                if (pixels != null)
-                {
+                if (pixels != null) {
                     MemoryMarshal.AsBytes(pixels.AsSpan()).CopyTo(imageData.Span);
                 }
 
@@ -341,9 +333,10 @@ public static class Texture2DConverter {
             case TextureFormat.ETC_RGB4_3DS:
                 EtcDecoder.DecompressETC(textureMem.Span, texture.Width, texture.Height, imageData.Span);
                 break;
-            case TextureFormat.ETC_RGB4Crunched when UnpackCrunch(texture.SerializedFile.Version, texture.TextureFormat,
-                textureMem.ToArray(), out var data):
-            {
+            case TextureFormat.ETC_RGB4Crunched when UnpackCrunch(texture.SerializedFile.Version,
+                texture.TextureFormat,
+                textureMem.ToArray(),
+                out var data): {
                 EtcDecoder.DecompressETC(data, texture.Width, texture.Height, imageData.Span);
                 break;
             }
@@ -368,9 +361,10 @@ public static class Texture2DConverter {
             case TextureFormat.ETC2_RGBA8:
                 EtcDecoder.DecompressETC2A8(textureMem.Span, texture.Width, texture.Height, imageData.Span);
                 break;
-            case TextureFormat.ETC2_RGBA8Crunched when UnpackCrunch(texture.SerializedFile.Version, texture.TextureFormat,
-                textureMem.ToArray(), out var data):
-            {
+            case TextureFormat.ETC2_RGBA8Crunched when UnpackCrunch(texture.SerializedFile.Version,
+                texture.TextureFormat,
+                textureMem.ToArray(),
+                out var data): {
                 EtcDecoder.DecompressETC2A8(data, texture.Width, texture.Height, imageData.Span);
                 break;
             }
@@ -710,7 +704,7 @@ public static class Texture2DConverter {
         if (texture.ShouldDeserialize) {
             throw new IncompleteDeserialization();
         }
-        
+
         return DDS.BuildDDS(texture.TextureFormat.ToD3DPixelFormat(), texture.MipCount, texture.Width, texture.Height, texture.Depth, texture.TextureData!.Value.Span);
     }
 

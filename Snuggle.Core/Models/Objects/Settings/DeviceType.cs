@@ -5,4 +5,4 @@ public enum DeviceType {
     Handheld = 1,
     Console = 2,
     Desktop = 3,
-};
+}

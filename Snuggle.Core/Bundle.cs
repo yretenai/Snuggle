@@ -49,9 +49,7 @@ public class Bundle : IAssetBundle {
 
     public UnityBundle Header { get; init; }
     public UnityContainer Container { get; init; }
-    public long Length => Container.Length; 
     public long DataStart { get; set; }
-    public SnuggleCoreOptions Options { get; init; }
 
     public static IReadOnlyDictionary<string, (UnityFormat Format, UnityGame Game)> NonStandardLookup {
         get {
@@ -88,6 +86,9 @@ public class Bundle : IAssetBundle {
         }
     }
 
+    public long Length => Container.Length;
+    public SnuggleCoreOptions Options { get; init; }
+
     public void Dispose() {
         Handler.Dispose();
         GC.SuppressFinalize(this);
@@ -96,54 +97,7 @@ public class Bundle : IAssetBundle {
     public object Tag { get; set; }
     public IFileHandler Handler { get; set; }
 
-    public static IAssetBundle[] OpenBundleSequence(Stream dataStream, object tag, IFileHandler handler, SnuggleCoreOptions options, int align = 1, bool leaveOpen = false) {
-        var bundles = new List<IAssetBundle>();
-        while (dataStream.Position < dataStream.Length) {
-            var start = dataStream.Position;
-            if (!IsBundleFile(dataStream)) {
-                break;
-            }
-
-            var bundle = new Bundle(new OffsetStream(dataStream), new MultiMetaInfo(tag, start, 0), handler, options, true);
-            bundles.Add(bundle);
-            dataStream.Seek(start + bundle.Container.Length, SeekOrigin.Begin);
-
-            if (align > 1) {
-                if (dataStream.Position % align == 0) {
-                    continue;
-                }
-
-                var delta = (int) (align - dataStream.Position % align);
-                dataStream.Seek(delta, SeekOrigin.Current);
-            }
-        }
-
-        if (!leaveOpen) {
-            dataStream.Dispose();
-        }
-
-        return bundles.ToArray();
-    }
-
     public UnityVersion Version => Header.Version ?? UnityVersion.Default;
-    
-    public void SaveContainers(BiEndianBinaryReader reader) {
-        Stream? data = null;
-        foreach (var block in Container.Blocks) {
-            if (Handler.FileCreated(Tag, block.Path, Options)) {
-                continue;
-            }
-
-            Log.Information("Caching {Path}", block.Path);
-
-            using var stream = Handler.OpenSubFile(Tag, block.Path, Options);
-            data ??= Container.OpenFile(new UnityBundleBlock(0, Container.BlockInfos.Select(x => x.Size).Sum(), 0, string.Empty), reader);
-            using var offset = new OffsetStream(data, block.Offset, block.Size, true);
-            offset.CopyTo(stream);
-        }
-
-        data?.Dispose();
-    }
 
     public Stream OpenFile(string path) {
         var block = Container.Blocks.FirstOrDefault(x => x.Path.Equals(path, StringComparison.InvariantCultureIgnoreCase));
@@ -181,6 +135,53 @@ public class Bundle : IAssetBundle {
             bundleStream = null;
             return false;
         }
+    }
+
+    public static IAssetBundle[] OpenBundleSequence(Stream dataStream, object tag, IFileHandler handler, SnuggleCoreOptions options, int align = 1, bool leaveOpen = false) {
+        var bundles = new List<IAssetBundle>();
+        while (dataStream.Position < dataStream.Length) {
+            var start = dataStream.Position;
+            if (!IsBundleFile(dataStream)) {
+                break;
+            }
+
+            var bundle = new Bundle(new OffsetStream(dataStream), new MultiMetaInfo(tag, start, 0), handler, options, true);
+            bundles.Add(bundle);
+            dataStream.Seek(start + bundle.Container.Length, SeekOrigin.Begin);
+
+            if (align > 1) {
+                if (dataStream.Position % align == 0) {
+                    continue;
+                }
+
+                var delta = (int) (align - dataStream.Position % align);
+                dataStream.Seek(delta, SeekOrigin.Current);
+            }
+        }
+
+        if (!leaveOpen) {
+            dataStream.Dispose();
+        }
+
+        return bundles.ToArray();
+    }
+
+    public void SaveContainers(BiEndianBinaryReader reader) {
+        Stream? data = null;
+        foreach (var block in Container.Blocks) {
+            if (Handler.FileCreated(Tag, block.Path, Options)) {
+                continue;
+            }
+
+            Log.Information("Caching {Path}", block.Path);
+
+            using var stream = Handler.OpenSubFile(Tag, block.Path, Options);
+            data ??= Container.OpenFile(new UnityBundleBlock(0, Container.BlockInfos.Select(x => x.Size).Sum(), 0, string.Empty), reader);
+            using var offset = new OffsetStream(data, block.Offset, block.Size, true);
+            offset.CopyTo(stream);
+        }
+
+        data?.Dispose();
     }
 
     public static bool IsBundleFile(Stream stream) {

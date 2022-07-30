@@ -61,7 +61,7 @@ public record UnityBundleBlock(long Offset, long Size, uint Flags, string Path) 
         if (header.Format == UnityFormat.FS) {
             writer.Write(offset);
             writer.Write(Size);
-            writer.Write((uint) Flags);
+            writer.Write(Flags);
             writer.WriteNullString(Path);
         } else {
             writer.WriteNullString(Path);

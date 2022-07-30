@@ -20,7 +20,7 @@ public static partial class ConvertCore {
         if (!flags.Overwrite && File.Exists(fullPath)) {
             return;
         }
-        
+
         var pcm = wav ? SnuggleAudioFile.BuildWAV(clip) : clip.Data.Value;
         File.WriteAllBytes(fullPath, pcm.ToArray());
     }

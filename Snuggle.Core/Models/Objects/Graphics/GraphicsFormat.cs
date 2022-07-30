@@ -1,7 +1,6 @@
 ﻿namespace Snuggle.Core.Models.Objects.Graphics;
 
-public enum GraphicsFormat
-{
+public enum GraphicsFormat {
     None = 0,
 
     R8_SRGB = 1,
