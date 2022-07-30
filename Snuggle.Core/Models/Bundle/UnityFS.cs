@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using K4os.Compression.LZ4;
+using Serilog;
 using Snuggle.Core.Interfaces;
 using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
@@ -84,10 +85,11 @@ public record UnityFS(long Size, int CompressedBlockInfoSize, int BlockInfoSize,
         }
 
         if (flags.HasFlag(UnityFSFlags.Encrypted)) {
-            throw new NotSupportedException("Bundle is encrypted");
+            Log.Debug("Bundle is encrypted, might crash.");
         }
 
         var fs = new UnityFS(size, compressedBlockSize, blockSize, flags);
+        var pos = reader.BaseStream.Position;
         if (fs.Flags.HasFlag(UnityFSFlags.BlocksInfoAtEnd)) {
             reader.BaseStream.Seek(fs.CompressedBlockInfoSize, SeekOrigin.End);
         } else if (header.FormatVersion >= 7) {
@@ -111,6 +113,14 @@ public record UnityFS(long Size, int CompressedBlockInfoSize, int BlockInfoSize,
         fs.BlockInfos = UnityBundleBlockInfo.ArrayFromReader(blocksReader, header, (int) flags, infoCount, options);
         var blockCount = blocksReader.ReadInt32();
         fs.Blocks = UnityBundleBlock.ArrayFromReader(blocksReader, header, (int) flags, blockCount, options);
+        
+        if (fs.Flags.HasFlag(UnityFSFlags.BlocksInfoAtEnd)) {
+            reader.BaseStream.Seek(pos, SeekOrigin.Begin);
+        } 
+        
+        if (header.FormatVersion >= 7) {
+            reader.Align(16);
+        }
         return fs;
     }
 }

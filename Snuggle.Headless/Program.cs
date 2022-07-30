@@ -45,6 +45,7 @@ public static class Program {
             return 1;
         }
 
+        SystemManagement.DescribeLog();
         Log.Debug(flags.ToString());
         Log.Debug("Args: {Args}", string.Join(' ', Environment.GetCommandLineArgs()[1..]));
         GameFlags.GameFlags? gameFlags = null;

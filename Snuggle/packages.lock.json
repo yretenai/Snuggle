@@ -68,6 +68,24 @@
           "NAudio.WinMM": "2.0.1"
         }
       },
+      "Serilog.Sinks.Debug": {
+        "type": "Direct",
+        "requested": "[2.0.0, )",
+        "resolved": "2.0.0",
+        "contentHash": "Y6g3OBJ4JzTyyw16fDqtFcQ41qQAydnEvEqmXjhwhgjsnG/FaJ8GUqF5ldsC/bVkK8KYmqrPhDO+tm4dF6xx4A==",
+        "dependencies": {
+          "Serilog": "2.10.0"
+        }
+      },
+      "Serilog.Sinks.File": {
+        "type": "Direct",
+        "requested": "[5.0.0, )",
+        "resolved": "5.0.0",
+        "contentHash": "uwV5hdhWPwUH1szhO8PJpFiahqXmzPzJT/sOijH/kFgUx+cyoDTMM8MHD0adw9+Iem6itoibbUXHYslzXsLEAg==",
+        "dependencies": {
+          "Serilog": "2.10.0"
+        }
+      },
       "SixLabors.ImageSharp": {
         "type": "Direct",
         "requested": "[2.1.1, )",
@@ -1447,7 +1465,7 @@
           "System.Xml.XmlDocument": "4.3.0"
         }
       },
-      "AssetRipper.TextureDecoder": {
+      "assetripper.texturedecoder": {
         "type": "Project"
       },
       "dragonlib": {

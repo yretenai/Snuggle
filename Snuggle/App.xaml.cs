@@ -4,6 +4,8 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Threading;
 using Serilog;
+using Serilog.Core;
+using Snuggle.Core;
 using Snuggle.Handlers;
 
 namespace Snuggle;
@@ -16,6 +18,8 @@ public partial class App {
 
     public App() {
         InitializeComponent();
+        Log.Logger = new LoggerConfiguration().WriteTo.Debug().WriteTo.File($"Logs/{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}.log").CreateLogger();
+        SystemManagement.DescribeLog();
         AppDomain.CurrentDomain.UnhandledException += Crash;
         AppDomain.CurrentDomain.ProcessExit += Cleanup;
     }
