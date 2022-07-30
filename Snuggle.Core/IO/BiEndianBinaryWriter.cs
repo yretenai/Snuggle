@@ -159,7 +159,7 @@ public class BiEndianBinaryWriter : BinaryWriter {
         Write(MemoryMarshal.AsBytes(array.AsSpan()));
     }
 
-    public void WriteArray<T>(Span<T> span, bool writeCount = true) where T : struct {
+    public void WriteSpan<T>(Span<T> span, bool writeCount = true) where T : struct {
         if (ShouldInvertEndianness) {
             throw new NotSupportedException("Cannot invert endianness of arrays");
         }
