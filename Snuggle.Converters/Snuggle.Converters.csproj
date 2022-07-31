@@ -20,6 +20,6 @@
         <ProjectReference Include="..\Snuggle.Core\Snuggle.Core.csproj" />
         <ProjectReference Include="..\Snuggle.glTF\Snuggle.glTF.csproj" />
         <ProjectReference Include="..\Snuggle.Native\Snuggle.Native.csproj" />
-        <ProjectReference Include="..\TextureDecoder\AssetRipper.TextureDecoder\AssetRipper.TextureDecoder.csproj" />
+        <ProjectReference Include="..\Library\TextureDecoder\AssetRipper.TextureDecoder\AssetRipper.TextureDecoder.csproj" />
     </ItemGroup>
 </Project>

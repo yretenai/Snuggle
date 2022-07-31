@@ -6,6 +6,7 @@
         <Nullable>enable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+        <NoWarn>CA1420</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>

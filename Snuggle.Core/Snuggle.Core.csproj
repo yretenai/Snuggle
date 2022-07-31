@@ -25,7 +25,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Snuggle.UnityCs\Snuggle.UnityCs.csproj" />
-        <ProjectReference Include="..\DragonLib\DragonLib\DragonLib.csproj" />
+        <ProjectReference Include="..\Library\DragonLib\DragonLib\DragonLib.csproj" />
     </ItemGroup>
 
     <Target Name="SetSourceRevisionId" BeforeTargets="BeforeBuild">
