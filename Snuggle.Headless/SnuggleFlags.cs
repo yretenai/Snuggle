@@ -10,41 +10,41 @@ namespace Snuggle.Headless;
 
 [SuppressMessage("ReSharper", "PropertyCanBeMadeInitOnly.Global")]
 public record SnuggleFlags : CommandLineFlags {
-    [Flag("no-mesh", Aliases = new[] { "m" }, Category = "General Options", Default = false, Help = "Do not export rigid meshes (can still export through game objects)")]
-    public bool NoMesh { get; set; }
+    [Flag("mesh", Aliases = new[] { "m" }, Category = "General Options", Default = false, Help = "Export rigid meshes (can still export through game objects)")]
+    public bool Mesh { get; set; }
 
-    [Flag("no-rigged-meshes", Aliases = new[] { "s" }, Category = "General Options", Default = false, Help = "Do not export rigged meshes (can still export through game objects)")]
-    public bool NoSkinnedMesh { get; set; }
+    [Flag("rigged-meshes", Aliases = new[] { "s" }, Category = "General Options", Default = false, Help = "Export rigged meshes (can still export through game objects)")]
+    public bool SkinnedMesh { get; set; }
 
-    [Flag("no-game-object", Aliases = new[] { "b" }, Category = "General Options", Default = false, Help = "Do not export game objects")]
-    public bool NoGameObject { get; set; }
+    [Flag("game-object", Aliases = new[] { "b" }, Category = "General Options", Default = false, Help = "Export game objects")]
+    public bool GameObject { get; set; }
 
-    [Flag("no-texture", Aliases = new[] { "T" }, Category = "General Options", Default = false, Help = "Do not export textures")]
-    public bool NoTexture { get; set; }
+    [Flag("texture", Aliases = new[] { "T" }, Category = "General Options", Default = false, Help = "Export textures")]
+    public bool Texture { get; set; }
 
-    [Flag("no-text", Aliases = new[] { "t" }, Category = "General Options", Default = false, Help = "Do not export text assets")]
-    public bool NoText { get; set; }
+    [Flag("text", Aliases = new[] { "t" }, Category = "General Options", Default = false, Help = "Export text assets")]
+    public bool Text { get; set; }
 
-    [Flag("no-sprite", Aliases = new[] { "S" }, Category = "General Options", Default = false, Help = "Do not export sprite assets")]
-    public bool NoSprite { get; set; }
+    [Flag("sprite", Aliases = new[] { "S" }, Category = "General Options", Default = false, Help = "Export sprite assets")]
+    public bool Sprite { get; set; }
 
-    [Flag("no-audio", Aliases = new[] { "A" }, Category = "General Options", Default = false, Help = "Do not export audio clip assets")]
-    public bool NoAudio { get; set; }
+    [Flag("audio", Aliases = new[] { "A" }, Category = "General Options", Default = false, Help = "Export audio clip assets")]
+    public bool Audio { get; set; }
 
-    [Flag("no-materials", Aliases = new[] { "M" }, Category = "General Options", Default = false, Help = "Do not export materials")]
-    public bool NoMaterials { get; set; }
+    [Flag("materials", Aliases = new[] { "M" }, Category = "General Options", Default = false, Help = "Export materials")]
+    public bool Materials { get; set; }
 
-    [Flag("no-vertex-color", Aliases = new[] { "c" }, Category = "General Options", Default = false, Help = "Do not write vertex colors")]
-    public bool NoVertexColor { get; set; }
+    [Flag("vertex-color", Aliases = new[] { "c" }, Category = "General Options", Default = false, Help = "Write vertex colors when writing meshes")]
+    public bool VertexColor { get; set; }
 
-    [Flag("no-morphs", Aliases = new[] { "O" }, Category = "General Options", Default = false, Help = "Do not write morphs")]
-    public bool NoMorphs { get; set; }
+    [Flag("morphs", Aliases = new[] { "O" }, Category = "General Options", Default = false, Help = "Write morphs when writing skinned meshes")]
+    public bool Morphs { get; set; }
 
-    [Flag("no-script", Aliases = new[] { "B" }, Category = "General Options", Default = false, Help = "Do not export MonoBehaviour data")]
-    public bool NoScript { get; set; }
+    [Flag("script", Aliases = new[] { "B" }, Category = "General Options", Default = false, Help = "Export MonoBehaviour data")]
+    public bool Script { get; set; }
 
-    [Flag("no-cab", Category = "General Options", Default = false, Help = "Do not export ICABPathProvider data")]
-    public bool NoCAB { get; set; }
+    [Flag("cab", Category = "General Options", Default = false, Help = "Export ICABPathProvider data")]
+    public bool CAB { get; set; }
 
     [Flag("data", Category = "General Options", Default = false, Help = "Do not convert, export serialization data instead")]
     public bool DataOnly { get; set; }
@@ -56,10 +56,10 @@ public record SnuggleFlags : CommandLineFlags {
     public bool DumpSerializedInfo { get; set; }
 
     [Flag("dont-scan-up", Category = "General Options", Default = false, Help = "Do not scan for game object hierarchy ancestors")]
-    public bool NoGameObjectHierarchyUp { get; set; }
+    public bool GameObjectHierarchyUp { get; set; }
 
     [Flag("dont-scan-down", Category = "General Options", Default = false, Help = "Do not scan for game object hierarchy descendants")]
-    public bool NoGameObjectHierarchyDown { get; set; }
+    public bool GameObjectHierarchyDown { get; set; }
 
     [Flag("dds", Category = "General Options", Default = false, Help = "Export textures to DDS when possible, otherwise use PNG")]
     public bool WriteNativeTextures { get; set; }
@@ -136,23 +136,23 @@ public record SnuggleFlags : CommandLineFlags {
     public override string ToString() {
         var sb = new StringBuilder();
         sb.AppendLine($"{nameof(SnuggleFlags)} {{");
-        sb.AppendLine($"  {nameof(NoMesh)} = {(NoMesh ? "True" : "False")},");
-        sb.AppendLine($"  {nameof(NoSkinnedMesh)} = {(NoSkinnedMesh ? "True" : "False")},");
-        sb.AppendLine($"  {nameof(NoGameObject)} = {(NoGameObject ? "True" : "False")},");
-        sb.AppendLine($"  {nameof(NoTexture)} = {(NoTexture ? "True" : "False")},");
-        sb.AppendLine($"  {nameof(NoText)} = {(NoText ? "True" : "False")},");
-        sb.AppendLine($"  {nameof(NoSprite)} = {(NoSprite ? "True" : "False")},");
-        sb.AppendLine($"  {nameof(NoAudio)} = {(NoAudio ? "True" : "False")},");
-        sb.AppendLine($"  {nameof(NoMaterials)} = {(NoMaterials ? "True" : "False")},");
-        sb.AppendLine($"  {nameof(NoVertexColor)} = {(NoVertexColor ? "True" : "False")},");
-        sb.AppendLine($"  {nameof(NoMorphs)} = {(NoMorphs ? "True" : "False")},");
-        sb.AppendLine($"  {nameof(NoScript)} = {(NoScript ? "True" : "False")},");
-        sb.AppendLine($"  {nameof(NoCAB)} = {(NoCAB ? "True" : "False")},");
+        sb.AppendLine($"  {nameof(Mesh)} = {(Mesh ? "True" : "False")},");
+        sb.AppendLine($"  {nameof(SkinnedMesh)} = {(SkinnedMesh ? "True" : "False")},");
+        sb.AppendLine($"  {nameof(GameObject)} = {(GameObject ? "True" : "False")},");
+        sb.AppendLine($"  {nameof(Texture)} = {(Texture ? "True" : "False")},");
+        sb.AppendLine($"  {nameof(Text)} = {(Text ? "True" : "False")},");
+        sb.AppendLine($"  {nameof(Sprite)} = {(Sprite ? "True" : "False")},");
+        sb.AppendLine($"  {nameof(Audio)} = {(Audio ? "True" : "False")},");
+        sb.AppendLine($"  {nameof(Materials)} = {(Materials ? "True" : "False")},");
+        sb.AppendLine($"  {nameof(VertexColor)} = {(VertexColor ? "True" : "False")},");
+        sb.AppendLine($"  {nameof(Morphs)} = {(Morphs ? "True" : "False")},");
+        sb.AppendLine($"  {nameof(Script)} = {(Script ? "True" : "False")},");
+        sb.AppendLine($"  {nameof(CAB)} = {(CAB ? "True" : "False")},");
         sb.AppendLine($"  {nameof(DataOnly)} = {(DataOnly ? "True" : "False")},");
         sb.AppendLine($"  {nameof(GameObjectOnly)} = {(GameObjectOnly ? "True" : "False")},");
         sb.AppendLine($"  {nameof(DumpSerializedInfo)} = {(DumpSerializedInfo ? "True" : "False")},");
-        sb.AppendLine($"  {nameof(NoGameObjectHierarchyUp)} = {(NoGameObjectHierarchyUp ? "True" : "False")},");
-        sb.AppendLine($"  {nameof(NoGameObjectHierarchyDown)} = {(NoGameObjectHierarchyDown ? "True" : "False")},");
+        sb.AppendLine($"  {nameof(GameObjectHierarchyUp)} = {(GameObjectHierarchyUp ? "True" : "False")},");
+        sb.AppendLine($"  {nameof(GameObjectHierarchyDown)} = {(GameObjectHierarchyDown ? "True" : "False")},");
         sb.AppendLine($"  {nameof(WriteNativeTextures)} = {(WriteNativeTextures ? "True" : "False")},");
         sb.AppendLine($"  {nameof(UseTextureDecoder)} = {(UseTextureDecoder ? "True" : "False")},");
         sb.AppendLine($"  {nameof(WriteNativeAudio)} = {(WriteNativeAudio ? "True" : "False")},");

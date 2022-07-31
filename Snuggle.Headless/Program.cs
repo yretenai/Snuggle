@@ -165,15 +165,15 @@ public static class Program {
                         Log.Information("Processing Mesh {Asset}", asset);
                         ConvertCore.ConvertMesh(flags, mesh);
                         break;
-                    case GameObject gameObject when !flags.NoGameObject:
+                    case GameObject gameObject when flags.GameObject:
                         Log.Information("Processing GameObject {Asset}", asset);
                         ConvertCore.ConvertGameObject(flags, gameObject);
                         break;
-                    case MeshRenderer renderer when !flags.NoMesh && renderer.GameObject.Value is not null:
+                    case MeshRenderer renderer when flags.Mesh && renderer.GameObject.Value is not null:
                         Log.Information("Processing GameObject {Asset}", renderer.GameObject.Value);
                         ConvertCore.ConvertGameObject(flags, renderer.GameObject.Value);
                         break;
-                    case SkinnedMeshRenderer renderer when !flags.NoSkinnedMesh && renderer.GameObject.Value is not null:
+                    case SkinnedMeshRenderer renderer when flags.SkinnedMesh && renderer.GameObject.Value is not null:
                         Log.Information("Processing GameObject {Asset}", renderer.GameObject.Value);
                         ConvertCore.ConvertGameObject(flags, renderer.GameObject.Value);
                         break;
@@ -181,19 +181,19 @@ public static class Program {
                         Log.Information("Processing Material {Asset}", asset);
                         ConvertCore.ConvertMaterial(flags, material);
                         break;
-                    case Text text when !flags.NoText:
+                    case Text text when flags.Text:
                         Log.Information("Processing Text {Asset}", asset);
                         ConvertCore.ConvertText(flags, text);
                         break;
-                    case Sprite sprite when !flags.NoSprite:
+                    case Sprite sprite when flags.Sprite:
                         Log.Information("Processing Sprite {Asset}", asset);
                         ConvertCore.ConvertSprite(flags, sprite);
                         break;
-                    case AudioClip clip when !flags.NoAudio:
+                    case AudioClip clip when flags.Audio:
                         Log.Information("Processing Audio {Asset}", asset);
                         ConvertCore.ConvertAudio(flags, clip);
                         break;
-                    case MonoBehaviour monoBehaviour when !flags.NoScript:
+                    case MonoBehaviour monoBehaviour when flags.Script:
                         if (flags.ScriptFilters.Any() && (monoBehaviour.Script.Value == null || !flags.ScriptFilters.Any(x => x.IsMatch(monoBehaviour.Script.Value.ObjectComparableName)))) {
                             continue;
                         }
@@ -205,7 +205,7 @@ public static class Program {
                         Log.Information("Processing MonoBehaviour {Asset}");
                         ConvertCore.ConvertMonoBehaviour(flags, monoBehaviour);
                         break;
-                    case ICABPathProvider cabPathProvider when !flags.NoCAB:
+                    case ICABPathProvider cabPathProvider when flags.CAB:
                         Log.Information("Processing CAB Path Provider {Asset}");
                         ConvertCore.ConvertCABPathProvider(flags, cabPathProvider);
                         break;
