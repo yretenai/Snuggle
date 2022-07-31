@@ -202,11 +202,11 @@ public static class Program {
                             continue;
                         }
 
-                        Log.Information("Processing MonoBehaviour {Asset}");
+                        Log.Information("Processing MonoBehaviour {Asset}", asset);
                         ConvertCore.ConvertMonoBehaviour(flags, monoBehaviour);
                         break;
                     case ICABPathProvider cabPathProvider when flags.CAB:
-                        Log.Information("Processing CAB Path Provider {Asset}");
+                        Log.Information("Processing CAB Path Provider {Asset}", asset);
                         ConvertCore.ConvertCABPathProvider(flags, cabPathProvider);
                         break;
                 }
