@@ -22,12 +22,6 @@ public record UnityExternalInfo(string Path, Guid Guid, int Type, string AssetPa
         }
 
         var assetPath = reader.ReadNullString();
-        if (assetPath.StartsWith("resources/")) {
-            assetPath = "R" + assetPath[1..];
-        } else if (assetPath.StartsWith("library/", StringComparison.InvariantCultureIgnoreCase)) {
-            assetPath = "Resources/" + assetPath[8..];
-        }
-
         return new UnityExternalInfo(path, guid, type, assetPath);
     }
 
