@@ -55,10 +55,10 @@ public record SnuggleFlags : CommandLineFlags {
     [Flag("dump", Category = "General Options", Default = false, Help = "Dump SerializedFile Info")]
     public bool DumpSerializedInfo { get; set; }
 
-    [Flag("dont-scan-up", Category = "General Options", Default = false, Help = "Do not scan for game object hierarchy ancestors")]
+    [Flag("scan-up", Category = "General Options", Default = false, Help = "Scan for game object hierarchy ancestors")]
     public bool GameObjectHierarchyUp { get; set; }
 
-    [Flag("dont-scan-down", Category = "General Options", Default = false, Help = "Do not scan for game object hierarchy descendants")]
+    [Flag("scan-down", Category = "General Options", Default = false, Help = "Scan for game object hierarchy descendants")]
     public bool GameObjectHierarchyDown { get; set; }
 
     [Flag("dds", Category = "General Options", Default = false, Help = "Export textures to DDS when possible, otherwise use PNG")]
