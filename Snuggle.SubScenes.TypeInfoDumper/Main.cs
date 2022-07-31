@@ -19,7 +19,7 @@ namespace Snuggle.SubScenes {
         public const string DownloadLink = null;
     }
 
-    public class TypeInfoDumper : MelonMod {z
+    public class TypeInfoDumper : MelonMod {
         // hacky workaround because unhollower tries to allocate a T*, which is invalid.
         // this is probably leaky
         // see: https://github.com/knah/Il2CppAssemblyUnhollower/issues/88
