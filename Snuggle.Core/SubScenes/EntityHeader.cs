@@ -1,6 +1,7 @@
-﻿using Snuggle.SubScenes.Models;
+﻿using System;
+using Snuggle.Core.SubScenes.Models;
 
-namespace Snuggle.SubScenes;
+namespace Snuggle.Core.SubScenes;
 
 public class EntityHeader {
     public EntityHeader(Memory<byte> data) {

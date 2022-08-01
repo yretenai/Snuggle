@@ -1,4 +1,6 @@
-﻿namespace Snuggle.SubScenes.Models;
+﻿using System;
+
+namespace Snuggle.Core.SubScenes.Models;
 
 public class EntityChunk {
     public EntityChunk() {

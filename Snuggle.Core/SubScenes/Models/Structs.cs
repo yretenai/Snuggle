@@ -1,7 +1,8 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using System.Runtime.InteropServices;
 
-namespace Snuggle.SubScenes.Models;
+namespace Snuggle.Core.SubScenes.Models;
 
 public enum Codec {
     None,

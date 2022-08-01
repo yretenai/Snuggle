@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace Snuggle.SubScenes.Models;
+namespace Snuggle.Core.SubScenes.Models;
 
 // Normally I'd just use System.Guid, but there's a bug in the way Hash128 is printed.
 // Basically it's writing the hextets backwards. 0xAB gets written as "ba"

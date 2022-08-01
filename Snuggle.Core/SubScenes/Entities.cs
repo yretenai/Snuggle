@@ -1,13 +1,15 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
 using System.Runtime.InteropServices;
 using Mono.Cecil;
 using Mono.Cecil.Rocks;
-using Snuggle.Core;
-using Snuggle.SubScenes.Models;
+using Snuggle.Core.SubScenes.Models;
 using Unity.SerializationLogic;
 
-namespace Snuggle.SubScenes;
+namespace Snuggle.Core.SubScenes;
 
 public class Entities {
     public Entities(Memory<byte> data) {

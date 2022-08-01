@@ -1,6 +1,8 @@
-﻿using Snuggle.SubScenes.Models;
+﻿using System;
+using System.Collections.Generic;
+using Snuggle.Core.SubScenes.Models;
 
-namespace Snuggle.SubScenes;
+namespace Snuggle.Core.SubScenes;
 
 public static class TypeInfoBin {
     public static Dictionary<ulong, TypeMap> Read(Memory<byte> data) {

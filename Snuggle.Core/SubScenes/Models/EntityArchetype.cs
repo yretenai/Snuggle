@@ -1,4 +1,7 @@
-﻿namespace Snuggle.SubScenes.Models;
+﻿using System;
+using System.Collections.Generic;
+
+namespace Snuggle.Core.SubScenes.Models;
 
 public class EntityArchetype {
     public EntityArchetype() {
