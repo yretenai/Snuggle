@@ -84,10 +84,6 @@ public record UnityFS(long Size, int CompressedBlockInfoSize, int BlockInfoSize,
             throw new NotSupportedException("Pokemon Unite bundle is encrypted, use UntieUnite or another decryption tool");
         }
 
-        if (flags.HasFlag(UnityFSFlags.Encrypted)) {
-            Log.Debug("Bundle is encrypted, might crash.");
-        }
-
         var fs = new UnityFS(size, compressedBlockSize, blockSize, flags);
         var pos = reader.BaseStream.Position;
         if (fs.Flags.HasFlag(UnityFSFlags.BlocksInfoAtEnd)) {
@@ -118,7 +114,7 @@ public record UnityFS(long Size, int CompressedBlockInfoSize, int BlockInfoSize,
             reader.BaseStream.Seek(pos, SeekOrigin.Begin);
         }
 
-        if (header.FormatVersion >= 7) {
+        if (flags.HasFlag(UnityFSFlags.BlockInfoNeedPaddingAtStart)) {
             reader.Align(16);
         }
 
