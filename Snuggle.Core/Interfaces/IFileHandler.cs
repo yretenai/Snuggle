@@ -16,7 +16,7 @@ public interface IFileHandler : IDisposable {
                 case FileInfo fi:
                     return fi.Name;
                 case string str:
-                    return Path.GetFileName(str);
+                    return str;
                 case MultiMetaInfo mmi: {
                     var str = UnpackTagToString(mmi.Tag);
                     if (str == null) {
