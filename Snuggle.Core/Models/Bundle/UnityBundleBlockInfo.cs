@@ -71,7 +71,7 @@ public record UnityBundleBlockInfo(int Size, int CompressedSize, UnityBundleBloc
                 break;
             }
             case UnityCompressionType.LZ4HC: {
-                Utils.CompressLZ4(blockData, chunk, LZ4Level.L09_HC);
+                Utils.CompressLZ4(blockData, chunk, LZ4Level.L12_MAX);
                 break;
             }
             default:
