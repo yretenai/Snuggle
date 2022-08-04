@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using DragonLib;
 using Mono.Cecil;
 using Serilog;
@@ -57,13 +58,29 @@ public class AssetCollection : IDisposable {
         Collect();
     }
 
-    public void RebuildBundles(string outputDir, BundleSerializationOptions options) {
+    public void RebuildBundles(string outputDir, BundleSerializationOptions bundleOptions, SnuggleCoreOptions options, CancellationToken cancellationToken) {
         outputDir.EnsureDirectoryExists();
-        foreach (var bundle in Bundles) {
-            var name = IFileHandler.UnpackTagToNameWithoutExtension(bundle.Tag);
-            using var fs = new FileStream(Path.Combine(outputDir, name + ".bundle"), FileMode.Create, FileAccess.Write);
-            IAssetBundle.RebuildBundle(bundle, bundle.GetBlocks(), options, fs);
+        options.Reporter?.SetProgressMax(Bundles.Count);
+        try {
+            for (var index = 0; index < Bundles.Count; index++) {
+                if (cancellationToken.IsCancellationRequested) {
+                    break;
+                }
+
+                var bundle = Bundles[index];
+                var name = IFileHandler.UnpackTagToNameWithoutExtension(bundle.Tag);
+                options.Reporter?.SetProgress(index);
+                options.Reporter?.SetStatus($"Rebuilding {name}");
+                using var fs = new FileStream(Path.Combine(outputDir, name + ".bundle"), FileMode.Create, FileAccess.Write);
+                IAssetBundle.RebuildBundle(bundle, bundle.GetBlocks(), bundleOptions, fs);
+            }
+        } catch (Exception e) {
+            options.Reporter?.Reset();
+            options.Reporter?.SetStatus("Rebuilding failed!");
+            Log.Error(e, "Rebuilding failed!");
         }
+        
+        options.Reporter?.Reset();
     }
 
     public void LoadBundle(IAssetBundle bundle) {

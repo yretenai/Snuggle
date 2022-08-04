@@ -12,6 +12,7 @@ using DragonLib.IO;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using Snuggle.Core.Implementations;
 using Snuggle.Core.Meta;
+using Snuggle.Core.Models.Bundle;
 using Snuggle.Core.Options;
 using Snuggle.Core.Options.Game;
 using Snuggle.Handlers;
@@ -467,5 +468,43 @@ public partial class Navigation {
     private void FreeTypes(object sender, RoutedEventArgs e) {
         var instance = SnuggleCore.Instance;
         instance.WorkerAction("FreeTypeMemory", _ => { SnuggleCore.Instance.Collection.ClearTypeTrees(); }, true);
+    }
+
+    private void RebuildAssets(object sender, RoutedEventArgs e) {
+        if (sender is not MenuItem menuItem) {
+            return;
+        }
+
+        if (!Enum.TryParse<UnityCompressionType>(menuItem.Tag as string, out var compression)) {
+            return;
+        }
+
+        using var selection = new CommonOpenFileDialog {
+            IsFolderPicker = true,
+            Multiselect = false,
+            AllowNonFileSystemItems = false,
+            Title = "Select folder to save to",
+            ShowPlacesList = true,
+        };
+
+        if (selection.ShowDialog() != CommonFileDialogResult.Ok) {
+            return;
+        }
+
+        var instance = SnuggleCore.Instance;
+        var path = selection.FileName;
+        instance.WorkerAction(
+            "RebuildAssets",
+            token => {
+                var settings = compression switch {
+                    UnityCompressionType.None => BundleSerializationOptions.Default,
+                    UnityCompressionType.LZMA => BundleSerializationOptions.LZMA,
+                    UnityCompressionType.LZ4 => BundleSerializationOptions.LZ4,
+                    UnityCompressionType.LZ4HC => BundleSerializationOptions.LZ4HC,
+                    _ => throw new NotSupportedException(),
+                };
+                instance.Collection.RebuildBundles(path, settings, instance.Settings.Options, token);
+            },
+            false);
     }
 }

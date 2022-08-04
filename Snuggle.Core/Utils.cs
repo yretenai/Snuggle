@@ -25,11 +25,19 @@ public static class Utils {
         return outStream;
     }
 
-    public static void EncodeLZMA(Stream outStream, Stream inStream, int size, CoderPropID[]? propIds = null, object[]? properties = null) {
+    public static void EncodeLZMA(Stream outStream, Stream inStream, long size, CoderPropID[]? propIds = null, object[]? properties = null) {
         var coder = new Encoder();
         coder.SetCoderProperties(propIds ?? PropIDs, properties ?? Properties);
         coder.WriteCoderProperties(outStream);
         coder.Code(inStream, outStream, size, -1, null);
+    }
+
+    public static void EncodeLZMA(Stream outStream, Span<byte> inStream, long size, CoderPropID[]? propIds = null, object[]? properties = null) {
+        var coder = new Encoder();
+        using var ms = new MemoryStream(inStream.ToArray()) { Position = 0 };
+        coder.SetCoderProperties(propIds ?? PropIDs, properties ?? Properties);
+        coder.WriteCoderProperties(outStream);
+        coder.Code(ms, outStream, size, -1, null);
     }
 
     public static Stream DecompressLZ4(Stream inStream, int compressedSize, int size, Stream? outStream = null) {
@@ -44,8 +52,14 @@ public static class Utils {
 
     public static void CompressLZ4(Stream inStream, Stream outStream, LZ4Level level, int size) {
         var inPool = new byte[size].AsSpan();
-        var outPool = new byte[size].AsSpan();
+        var outPool = new byte[LZ4Codec.MaximumOutputSize(size)].AsSpan();
         inStream.ReadExactly(inPool);
+        var amount = LZ4Codec.Encode(inPool, outPool, level);
+        outStream.Write(outPool[..amount]);
+    }
+
+    public static void CompressLZ4(Span<byte> inPool, Stream outStream, LZ4Level level) {
+        var outPool = new byte[LZ4Codec.MaximumOutputSize(inPool.Length)].AsSpan();
         var amount = LZ4Codec.Encode(inPool, outPool, level);
         outStream.Write(outPool[..amount]);
     }

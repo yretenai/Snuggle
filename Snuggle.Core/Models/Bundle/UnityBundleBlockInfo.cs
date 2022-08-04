@@ -41,33 +41,48 @@ public record UnityBundleBlockInfo(int Size, int CompressedSize, UnityBundleBloc
         return container;
     }
 
-    public static void ToWriter(BiEndianBinaryWriter writer, UnityBundle header, SnuggleCoreOptions options, BundleSerializationOptions serializationOptions, Stream blockDataStream, Stream blockStream) {
-        var (blockSize, _, blockCompressionType) = serializationOptions;
-        var actualBlockSize = (int) Math.Min(blockStream.Length - blockStream.Position, blockSize);
-        writer.Write(actualBlockSize);
-        using var chunk = new MemoryStream();
-        switch (blockCompressionType) {
+    public static void ToWriter(BiEndianBinaryWriter writer, UnityBundle header, BundleSerializationOptions serializationOptions, Stream blockDataStream, Stream blockData) {
+        writer.Write(blockData.Length);
+        blockData.Seek(0, SeekOrigin.Begin);
+        switch (serializationOptions.BlockCompressionType) {
             case UnityCompressionType.None: {
-                var pooled = new byte[actualBlockSize].AsSpan();
-                blockStream.ReadExactly(pooled);
-                chunk.Write(pooled);
+                blockData.CopyTo(blockDataStream);
                 break;
             }
             case UnityCompressionType.LZMA: {
-                Utils.EncodeLZMA(chunk, blockStream, actualBlockSize);
-                break;
-            }
-            case UnityCompressionType.LZ4: // this is deprecated.
-            case UnityCompressionType.LZ4HC: {
-                Utils.CompressLZ4(blockStream, chunk, LZ4Level.L12_MAX, actualBlockSize);
+                Utils.EncodeLZMA(blockDataStream, blockData, blockData.Length);
                 break;
             }
             default:
-                throw new NotSupportedException($"Unity Compression type {blockCompressionType:G} is not supported");
+                throw new NotSupportedException($"Unity Compression type {serializationOptions.BlockCompressionType:G} is not supported as single chunk");
+        }
+        writer.Write(blockDataStream.Length);
+        if (header.Format == UnityFormat.FS) {
+            writer.Write((ushort) UnityCompressionType.None);
+        }
+    }
+
+    public static void ToWriterChunked(BiEndianBinaryWriter writer, UnityBundle header, SnuggleCoreOptions options, BundleSerializationOptions serializationOptions, Stream blockDataStream, Span<byte> blockData) {
+        writer.Write(blockData.Length);
+        using var chunk = new MemoryStream();
+        switch (serializationOptions.BlockCompressionType) {
+            case UnityCompressionType.LZ4: {
+                Utils.CompressLZ4(blockData, chunk, LZ4Level.L00_FAST);
+                break;
+            }
+            case UnityCompressionType.LZ4HC: {
+                Utils.CompressLZ4(blockData, chunk, LZ4Level.L09_HC);
+                break;
+            }
+            default:
+                throw new NotSupportedException($"Unity Compression type {serializationOptions.BlockCompressionType:G} is not supported as chunked");
         }
 
         writer.Write((uint) chunk.Length);
-        writer.Write((ushort) serializationOptions.BlockCompressionType);
+        if (header.Format == UnityFormat.FS) {
+            writer.Write((ushort) serializationOptions.BlockCompressionType);
+        }
+
         chunk.Seek(0, SeekOrigin.Begin);
         chunk.CopyTo(blockDataStream);
     }

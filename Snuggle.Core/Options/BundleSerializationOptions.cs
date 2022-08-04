@@ -9,6 +9,7 @@ public record BundleSerializationOptions(int BlockSize, UnityCompressionType Com
     private const int LatestVersion = 1;
     public static BundleSerializationOptions LZMA { get; } = new(int.MaxValue, UnityCompressionType.None, UnityCompressionType.LZMA);
     public static BundleSerializationOptions LZ4 { get; } = new(0x20000, UnityCompressionType.None, UnityCompressionType.LZ4);
+    public static BundleSerializationOptions LZ4HC { get; } = new(0x20000, UnityCompressionType.None, UnityCompressionType.LZ4HC);
     public static BundleSerializationOptions Default { get; } = new(int.MaxValue, UnityCompressionType.None, UnityCompressionType.None);
 
     [JsonIgnore]

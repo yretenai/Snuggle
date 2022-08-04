@@ -101,6 +101,7 @@ public static class Program {
             collection.LoadFile(file, options);
         }
 
+        Log.Information("Caching GameObject ClassIds");
         collection.CacheGameObjectClassIds();
         Log.Information("Finding container paths...");
         collection.FindResources();

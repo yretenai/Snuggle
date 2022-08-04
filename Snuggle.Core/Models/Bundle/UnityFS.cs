@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using K4os.Compression.LZ4;
@@ -30,17 +31,27 @@ public record UnityFS(long Size, int CompressedBlockInfoSize, int BlockInfoSize,
         using var blockDataStream = new MemoryStream();
         using var blockInfoWriter = new BiEndianBinaryWriter(blockInfoStream, true);
         blockInfoWriter.Write(Hash);
-        var (blockSize, unityCompressionType, _) = serializationOptions;
+        var (blockSize, unityCompressionType, blockCompressionType) = serializationOptions;
         var blockLength = blocks.Sum(x => x.Size);
-        var blockInfoCount = (int) Math.Ceiling((double) blockLength / blockSize);
+        var blockInfoCount = blockCompressionType == UnityCompressionType.None ? 1 : (int) Math.Ceiling((double) blockLength / blockSize);
+
         var blockInfoStart = blockInfoStream.Position;
         var blockStart = blockInfoStart + 4 + blockInfoCount * 10;
         blockInfoStream.Seek(blockStart, SeekOrigin.Begin);
         UnityBundleBlock.ArrayToWriter(blockInfoWriter, blocks, header, options, serializationOptions);
         blockInfoStream.Seek(blockInfoStart, SeekOrigin.Begin);
         blockInfoWriter.Write(blockInfoCount);
-        for (var i = 0; i < blockInfoCount; ++i) {
-            UnityBundleBlockInfo.ToWriter(blockInfoWriter, header, options, serializationOptions, blockDataStream, blockStream);
+
+        if (blockCompressionType is not (UnityCompressionType.None or UnityCompressionType.LZMA)) {
+            var chunk = new byte[blockSize].AsSpan();
+            for (var i = 0; i < blockInfoCount; ++i) {
+                Debug.WriteLine($"{i}/{blockInfoCount}");
+                var size = (int) Math.Min(blockSize, blockStream.Length - blockStream.Position);
+                blockStream.ReadExactly(chunk[..size]);
+                UnityBundleBlockInfo.ToWriterChunked(blockInfoWriter, header, options, serializationOptions, blockDataStream, chunk[..size]);
+            }
+        } else {
+            UnityBundleBlockInfo.ToWriter(blockInfoWriter, header, serializationOptions, blockDataStream, blockStream);
         }
 
         var blockInfoSize = (int) blockInfoStream.Length;

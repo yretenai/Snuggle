@@ -39,7 +39,13 @@ public class FileStreamHandler : IFileHandler {
 
     private static string GetSubFilePath(object parent, object tag, SnuggleCoreOptions options) {
         var name = Path.GetFileName(IFileHandler.UnpackTagToString(tag));
+        if (name == null) {
+            throw new NullReferenceException();
+        }
         var parentName = IFileHandler.UnpackTagToString(parent);
+        if (parentName == null) {
+            throw new NullReferenceException();
+        }
         var root = options.CacheDirectory ?? Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? "./";
         if (!Path.IsPathRooted(options.CacheDirectory)) {
             root = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, root);

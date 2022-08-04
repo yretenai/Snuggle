@@ -19,7 +19,7 @@ public interface IAssetBundle : IDisposable, IRenewable {
     bool ToStream(UnityBundleBlock[] blocks, Stream dataStream, BundleSerializationOptions serializationOptions, Stream bundleStream);
 
     public static bool RebuildBundle(IAssetBundle bundle, IEnumerable<UnityBundleBlock> blocks, BundleSerializationOptions serializationOptions, Stream outputStream) {
-        var blocksArray = blocks is UnityBundleBlock[] ? (UnityBundleBlock[]) blocks : blocks.ToArray();
+        var blocksArray = blocks as UnityBundleBlock[] ?? blocks.ToArray();
         using var dataStream = bundle.OpenFile(new UnityBundleBlock(0, blocksArray.Select(x => x.Size).Sum(), 0, string.Empty));
         return bundle.ToStream(blocksArray, dataStream, serializationOptions, outputStream);
     }

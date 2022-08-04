@@ -94,8 +94,10 @@ public static class SnuggleFile {
                     }
                 }
 
-                instance.Collection.CacheGameObjectClassIds();
                 instance.Status.Reset();
+                instance.Status.SetStatus("Caching GameObject ClassIds...");
+                Log.Information("Caching GameObject ClassIds...");
+                instance.Collection.CacheGameObjectClassIds();
                 instance.Status.SetStatus("Finding container paths...");
                 Log.Information("Finding container paths...");
                 instance.Collection.FindResources();

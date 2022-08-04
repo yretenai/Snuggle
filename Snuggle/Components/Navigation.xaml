@@ -17,6 +17,13 @@
             <MenuItem Header="Load _File" Click="LoadFiles" IsEnabled="{Binding IsFree}" />
             <MenuItem Header="_Recent" x:Name="RecentItems" IsEnabled="{Binding IsFree}" />
             <Separator />
+            <MenuItem Header="_Rebuild Bundles" IsEnabled="{Binding IsFree}">
+                <MenuItem Header="With No Compression" Tag="None" Click="RebuildAssets"/>
+                <MenuItem Header="With LZMA Compression" Tag="LZMA" Click="RebuildAssets"/>
+                <MenuItem Header="With LZ4 Compression" Tag="LZ4" Click="RebuildAssets"/>
+                <MenuItem Header="With LZ4 High Compression" Tag="LZ4HC" Click="RebuildAssets"/>
+            </MenuItem>
+            <Separator />
             <MenuItem Header="_Clear Memory" ToolTip="This will try to unload all large data blocks"
                       Click="FreeMemory" IsEnabled="{Binding IsFree}" />
             <MenuItem Header="_Clear Type Data"

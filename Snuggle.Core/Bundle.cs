@@ -130,7 +130,8 @@ public class Bundle : IAssetBundle {
             Container.ToWriter(writer, Header, Options, blocks, dataStream, serializationOptions);
             outputStream.Seek(0, SeekOrigin.Begin);
             return true;
-        } catch {
+        } catch(Exception e) {
+            Log.Error(e, "Failed to serialize bundle");
             return false;
         }
     }

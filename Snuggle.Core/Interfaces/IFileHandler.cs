@@ -11,7 +11,7 @@ public interface IFileHandler : IDisposable {
     public Stream OpenSubFile(object parent, object tag, SnuggleCoreOptions options);
     public bool FileCreated(object parent, object tag, SnuggleCoreOptions options);
     public object GetTag(object baseTag, object parent);
-    public static string? UnpackTagToString(object tag) {
+    public static string? UnpackTagToString(object? tag) {
             switch (tag) {
                 case FileInfo fi:
                     return fi.Name;
@@ -23,12 +23,17 @@ public interface IFileHandler : IDisposable {
                         return null;
                     }
 
+                    if (mmi.Offset <= 0) {
+                        return str;
+                    }
+
                     var last = str.LastIndexOf('.');
                     if (last == -1) {
                         return str;
                     }
-                    
+
                     return str[..last] + "_" + mmi.Offset + "." + str[(last + 1)..];
+
                 }
                 case UnityBundleBlock ubb:
                     return ubb.Path;
