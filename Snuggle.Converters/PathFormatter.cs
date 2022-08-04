@@ -4,7 +4,6 @@ using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using DragonLib;
-using Snuggle.Core;
 using Snuggle.Core.Implementations;
 using Snuggle.Core.Interfaces;
 

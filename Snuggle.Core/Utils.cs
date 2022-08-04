@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using K4os.Compression.LZ4;
 using SevenZip;
 using SevenZip.Compression.LZMA;
-using Snuggle.Core.Meta;
-using Snuggle.Core.Models.Bundle;
 
 namespace Snuggle.Core;
 

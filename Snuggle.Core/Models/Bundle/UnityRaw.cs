@@ -13,7 +13,7 @@ public record UnityRaw(uint Checksum, long MinimumStreamedBytes, long Size, int 
     public override long Length => TotalSize;
     protected override long DataStart => Size;
 
-    public override void ToWriter(BiEndianBinaryWriter writer, UnityBundle header, SnuggleCoreOptions options, UnityBundleBlock[] blocks, Stream blockStream, BundleSerializationOptions serializationOptions) {
+    public override void ToWriter(BiEndianBinaryWriter writer, UnityBundle header, SnuggleCoreOptions options, UnityBundleBlock[] blocks, Stream blockStream, BundleSerializationOptions serializationOptions, long start) {
         throw new NotImplementedException();
     }
 

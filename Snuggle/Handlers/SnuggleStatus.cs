@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using Serilog;
 using Snuggle.Core.Interfaces;
 
 namespace Snuggle.Handlers;

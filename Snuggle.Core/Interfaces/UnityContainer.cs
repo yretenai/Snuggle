@@ -65,5 +65,5 @@ public record UnityContainer {
         return new OffsetStream(stream, block.Offset - skippedBytes, block.Size) { Position = 0 };
     }
 
-    public virtual void ToWriter(BiEndianBinaryWriter writer, UnityBundle header, SnuggleCoreOptions options, UnityBundleBlock[] blocks, Stream blockStream, BundleSerializationOptions bundleSerializationOptions) { }
+    public virtual void ToWriter(BiEndianBinaryWriter writer, UnityBundle header, SnuggleCoreOptions options, UnityBundleBlock[] blocks, Stream blockStream, BundleSerializationOptions bundleSerializationOptions, long start) { }
 }

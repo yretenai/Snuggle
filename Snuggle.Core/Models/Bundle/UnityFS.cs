@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using K4os.Compression.LZ4;
-using Serilog;
 using Snuggle.Core.Interfaces;
 using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
@@ -16,8 +14,8 @@ public record UnityFS(long Size, int CompressedBlockInfoSize, int BlockInfoSize,
     public override long Length => Size;
     protected override long DataStart => -1;
 
-    public override void ToWriter(BiEndianBinaryWriter writer, UnityBundle header, SnuggleCoreOptions options, UnityBundleBlock[] blocks, Stream blockStream, BundleSerializationOptions serializationOptions) {
-        var start = writer.BaseStream.Position;
+    public override void ToWriter(BiEndianBinaryWriter writer, UnityBundle header, SnuggleCoreOptions options, UnityBundleBlock[] blocks, Stream blockStream, BundleSerializationOptions serializationOptions, long start) {
+        var headerStart = writer.BaseStream.Position;
         writer.Write(0L);
         writer.Write(0);
         writer.Write(0);
@@ -83,7 +81,7 @@ public record UnityFS(long Size, int CompressedBlockInfoSize, int BlockInfoSize,
             writer.Align(16);
         }
 
-        writer.BaseStream.Seek(start, SeekOrigin.Begin);
+        writer.BaseStream.Seek(headerStart, SeekOrigin.Begin);
         writer.Write(writer.BaseStream.Length - start);
         writer.Write((int) compressedStream.Length);
         writer.Write(blockInfoSize);

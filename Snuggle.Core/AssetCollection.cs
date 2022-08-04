@@ -71,7 +71,7 @@ public class AssetCollection : IDisposable {
                 var name = IFileHandler.UnpackTagToNameWithoutExtension(bundle.Tag);
                 options.Reporter?.SetProgress(index);
                 options.Reporter?.SetStatus($"Rebuilding {name}");
-                using var fs = new FileStream(Path.Combine(outputDir, name + ".bundle"), FileMode.Create, FileAccess.Write);
+                using var fs = new FileStream(Path.Combine(outputDir, name + ".bundle"), FileMode.OpenOrCreate, FileAccess.Write);
                 IAssetBundle.RebuildBundle(bundle, bundle.GetBlocks(), bundleOptions, fs);
             }
         } catch (Exception e) {

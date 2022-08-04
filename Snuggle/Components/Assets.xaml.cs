@@ -7,7 +7,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using Serilog;
-using Snuggle.Core;
 using Snuggle.Core.Interfaces;
 using Snuggle.Core.Options;
 using Snuggle.Handlers;

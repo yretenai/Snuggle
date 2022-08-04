@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -122,12 +121,13 @@ public class Bundle : IAssetBundle {
     public bool ToStream(UnityBundleBlock[] blocks, Stream dataStream, BundleSerializationOptions serializationOptions, Stream outputStream) {
         try {
             using var writer = new BiEndianBinaryWriter(outputStream, true, true);
+            var start = outputStream.Position;
             Header.ToWriter(writer, Options);
             if (serializationOptions.TargetFormatVersion < 0) {
                 serializationOptions = serializationOptions.MutateWithBundle(this);
             }
 
-            Container.ToWriter(writer, Header, Options, blocks, dataStream, serializationOptions);
+            Container.ToWriter(writer, Header, Options, blocks, dataStream, serializationOptions, start);
             outputStream.Seek(0, SeekOrigin.Begin);
             return true;
         } catch(Exception e) {
