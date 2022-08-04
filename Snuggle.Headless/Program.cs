@@ -211,7 +211,7 @@ public static class Program {
                         break;
                 }
             } catch (Exception e) {
-                Log.Error(e, "Failure decoding {PathId} from {Tag}", asset.PathId, Utils.GetStringFromTag(asset.SerializedFile.Tag));
+                Log.Error(e, "Failure decoding {PathId} from {Tag}", asset.PathId, IFileHandler.UnpackTagToString(asset.SerializedFile.Tag));
             }
 
             if (flags.LowMemory) {

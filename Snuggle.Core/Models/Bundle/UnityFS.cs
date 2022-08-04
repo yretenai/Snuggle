@@ -20,6 +20,7 @@ public record UnityFS(long Size, int CompressedBlockInfoSize, int BlockInfoSize,
         writer.Write(0L);
         writer.Write(0);
         writer.Write(0);
+        var flags = UnityFSFlags.CombinedData | (UnityFSFlags) serializationOptions.CompressionType | (Flags & (UnityFSFlags) 0b11111111111111111111111100000000);
         writer.Write((int) (UnityFSFlags.CombinedData | (UnityFSFlags) serializationOptions.CompressionType));
         if (serializationOptions.TargetFormatVersion >= 7) {
             writer.Align(16);
@@ -67,6 +68,10 @@ public record UnityFS(long Size, int CompressedBlockInfoSize, int BlockInfoSize,
         compressedStream.CopyTo(writer.BaseStream);
         blockDataStream.Seek(0, SeekOrigin.Begin);
         blockDataStream.CopyTo(writer.BaseStream);
+
+        if (flags.HasFlag(UnityFSFlags.BlockInfoNeedPaddingAtStart)) {
+            writer.Align(16);
+        }
 
         writer.BaseStream.Seek(start, SeekOrigin.Begin);
         writer.Write(writer.BaseStream.Length - start);

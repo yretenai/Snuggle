@@ -87,13 +87,13 @@ public static class PathFormatter {
                     builder.Append(asset.SerializedFile.Assets?.PlayerSettings?.BundleVersion.SanitizeDirname());
                     break;
                 case "TAG":
-                    builder.Append(Utils.GetNameFromTag(asset.SerializedFile.Tag) ?? string.Empty);
+                    builder.Append(IFileHandler.UnpackTagToName(asset.SerializedFile.Tag) ?? string.Empty);
                     break;
                 case "BUNDLE":
-                    builder.Append(Utils.GetNameFromTagWithoutExtension(asset.SerializedFile.GetBundle()?.Tag) ?? string.Empty);
+                    builder.Append(IFileHandler.UnpackTagToNameWithoutExtension(asset.SerializedFile.GetBundle()?.Tag) ?? string.Empty);
                     break;
                 case "BUNDLEORTAG":
-                    builder.Append(Utils.GetNameFromTagWithoutExtension(asset.SerializedFile.GetBundle()?.Tag) ?? Utils.GetNameFromTag(asset.SerializedFile.Tag) ?? string.Empty);
+                    builder.Append(IFileHandler.UnpackTagToNameWithoutExtension(asset.SerializedFile.GetBundle()?.Tag) ?? IFileHandler.UnpackTagToName(asset.SerializedFile.Tag) ?? string.Empty);
                     break;
                 case "SCRIPT":
                     if (asset is MonoBehaviour monoBehaviour && monoBehaviour.Script.Value is not null) {

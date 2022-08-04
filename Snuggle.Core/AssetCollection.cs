@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using DragonLib;
 using Mono.Cecil;
 using Serilog;
 using Snuggle.Core.Implementations;
@@ -54,6 +55,15 @@ public class AssetCollection : IDisposable {
         GameObjectTree.Clear();
         Types.Clear();
         Collect();
+    }
+
+    public void RebuildBundles(string outputDir, BundleSerializationOptions options) {
+        outputDir.EnsureDirectoryExists();
+        foreach (var bundle in Bundles) {
+            var name = IFileHandler.UnpackTagToNameWithoutExtension(bundle.Tag);
+            using var fs = new FileStream(Path.Combine(outputDir, name + ".bundle"), FileMode.Create, FileAccess.Write);
+            IAssetBundle.RebuildBundle(bundle, bundle.GetBlocks(), options, fs);
+        }
     }
 
     public void LoadBundle(IAssetBundle bundle) {

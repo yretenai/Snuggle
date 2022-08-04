@@ -54,41 +54,5 @@ public static class Utils {
         return new[] { (rgba & 0xFF) / (float) 0xFF, ((rgba >> 8) & 0xFF) / (float) 0xFF, ((rgba >> 16) & 0xFF) / (float) 0xFF, ((rgba >> 24) & 0xFF) / (float) 0xFF };
     }
 
-    public static string? GetStringFromTag(object? tag) {
-        while (true) {
-            switch (tag) {
-                case string str:
-                    return str;
-                case MultiMetaInfo meta:
-                    tag = meta.Tag;
-                    continue;
-                case FileInfo fi:
-                    return fi.FullName;
-                case UnityBundleBlock block:
-                    return block.Path;
-                case null:
-                    return null;
-                default: {
-                    Debug.WriteLine($"Unable to figure out how to unwind {tag.GetType().FullName} tag");
-                    return tag.ToString();
-                }
-            }
-        }
-    }
-
-    public static string? GetNameFromTag(object? tag) {
-        var str = GetStringFromTag(tag);
-        if (string.IsNullOrEmpty(str)) {
-            return null;
-        }
-
-        return Path.GetExtension(str) == ".split0" ? Path.GetFileNameWithoutExtension(str) : Path.GetFileName(str);
-    }
-
-    public static string? GetNameFromTagWithoutExtension(object? tag) {
-        var str = GetStringFromTag(tag);
-        return string.IsNullOrEmpty(str) ? null : Path.GetFileNameWithoutExtension(str);
-    }
-
     public static Memory<byte> AsBytes<T>(this Memory<T> memory) where T : struct => new(MemoryMarshal.AsBytes(memory.Span).ToArray());
 }

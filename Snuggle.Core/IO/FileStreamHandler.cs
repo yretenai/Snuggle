@@ -38,16 +38,8 @@ public class FileStreamHandler : IFileHandler {
     }
 
     private static string GetSubFilePath(object parent, object tag, SnuggleCoreOptions options) {
-        var name = tag switch {
-            FileInfo fi => fi.Name,
-            string str => Path.GetFileName(str),
-            _ => throw new NotSupportedException($"{tag.GetType().FullName} is not supported"),
-        };
-        var parentName = parent switch {
-            FileInfo fi => fi.FullName,
-            string str => str,
-            _ => throw new NotSupportedException($"{tag.GetType().FullName} is not supported"),
-        };
+        var name = Path.GetFileName(IFileHandler.UnpackTagToString(tag));
+        var parentName = IFileHandler.UnpackTagToString(parent);
         var root = options.CacheDirectory ?? Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? "./";
         if (!Path.IsPathRooted(options.CacheDirectory)) {
             root = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, root);

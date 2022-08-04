@@ -8,6 +8,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using Serilog;
 using Snuggle.Core;
+using Snuggle.Core.Interfaces;
 using Snuggle.Core.Options;
 using Snuggle.Handlers;
 
@@ -122,7 +123,7 @@ public partial class Assets {
             return;
         }
 
-        var path = Utils.GetStringFromTag(tag);
+        var path = IFileHandler.UnpackTagToString(tag);
         try {
             if (string.IsNullOrEmpty(path) || !File.Exists(path)) {
                 return;

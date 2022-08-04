@@ -119,20 +119,18 @@ public class Bundle : IAssetBundle {
 
     public IEnumerable<UnityBundleBlock> GetBlocks() => Container.Blocks;
 
-    public bool ToStream(UnityBundleBlock[] blocks, Stream dataStream, BundleSerializationOptions serializationOptions, [MaybeNullWhen(false)] out Stream bundleStream) {
+    public bool ToStream(UnityBundleBlock[] blocks, Stream dataStream, BundleSerializationOptions serializationOptions, Stream outputStream) {
         try {
-            bundleStream = new MemoryStream();
-            using var writer = new BiEndianBinaryWriter(bundleStream, true, true);
+            using var writer = new BiEndianBinaryWriter(outputStream, true, true);
             Header.ToWriter(writer, Options);
             if (serializationOptions.TargetFormatVersion < 0) {
                 serializationOptions = serializationOptions.MutateWithBundle(this);
             }
 
             Container.ToWriter(writer, Header, Options, blocks, dataStream, serializationOptions);
-            bundleStream.Seek(0, SeekOrigin.Begin);
+            outputStream.Seek(0, SeekOrigin.Begin);
             return true;
         } catch {
-            bundleStream = null;
             return false;
         }
     }
