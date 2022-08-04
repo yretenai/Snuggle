@@ -45,7 +45,6 @@ public record UnityFS(long Size, int CompressedBlockInfoSize, int BlockInfoSize,
         if (blockCompressionType is not (UnityCompressionType.None or UnityCompressionType.LZMA)) {
             var chunk = new byte[blockSize].AsSpan();
             for (var i = 0; i < blockInfoCount; ++i) {
-                Debug.WriteLine($"{i}/{blockInfoCount}");
                 var size = (int) Math.Min(blockSize, blockStream.Length - blockStream.Position);
                 blockStream.ReadExactly(chunk[..size]);
                 UnityBundleBlockInfo.ToWriterChunked(blockInfoWriter, header, options, serializationOptions, blockDataStream, chunk[..size]);
