@@ -170,6 +170,10 @@ public static class ObjectFactory {
     }
 
     public static object? CreateObject(BiEndianBinaryReader reader, ObjectNode node, SerializedFile file, string? skipUntil = null) {
+        if (reader.Unconsumed == 0) {
+            return null;
+        }
+        
         var start = reader.BaseStream.Position;
         object? value;
         try {

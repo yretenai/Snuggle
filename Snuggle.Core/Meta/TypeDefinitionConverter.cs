@@ -132,7 +132,7 @@ public class TypeDefinitionConverter {
 
     private IEnumerable<ObjectNode> ProcessingFieldRef(FieldReference fieldDef) {
         var typeRef = TypeResolver.Resolve(fieldDef.FieldType);
-        return TypeRefToObjectNodes(typeRef, fieldDef.Name, false);
+        return TypeRefToObjectNodes(typeRef, fieldDef.Name);
     }
 
     private static bool IsStruct(TypeReference typeRef) => typeRef.IsValueType && !IsEnum(typeRef) && !typeRef.IsPrimitive;
@@ -156,7 +156,7 @@ public class TypeDefinitionConverter {
 
     private static bool IsSystemString(MemberReference typeRef) => typeRef.FullName == "System.String";
 
-    private IEnumerable<ObjectNode> TypeRefToObjectNodes(TypeReference typeRef, string name, bool isElement) {
+    private IEnumerable<ObjectNode> TypeRefToObjectNodes(TypeReference typeRef, string name) {
         var flags = UnityTransferMetaFlags.None;
 
         var typeDef = typeRef.Resolve();
@@ -184,14 +184,30 @@ public class TypeDefinitionConverter {
                 "Single" => "float",
                 _ => throw new NotSupportedException(),
             };
+            
+            var primitiveSize = primitiveName switch {
+                "bool" => 1,
+                "byte" => 1,
+                "SByte" => 1,
+                "SInt16" => 2,
+                "UInt16" => 2,
+                "SInt32" => 4,
+                "UInt32" => 4,
+                "SInt64" => 8,
+                "UInt64" => 8,
+                "char" => 1,
+                "double" => 8,
+                "float" => 4,
+                _ => -1,
+            };
 
             flags |= primitiveName == "bool" ? UnityTransferMetaFlags.TreatIntegerValueAsBoolean : UnityTransferMetaFlags.None;
 
-            if (isElement && flags.HasFlag(UnityTransferMetaFlags.AlignBytes)) {
-                flags ^= UnityTransferMetaFlags.AlignBytes;
+            if (primitiveSize < 4) {
+                flags &= UnityTransferMetaFlags.AlignBytes;
             }
 
-            nodes.Add(new ObjectNode(name, primitiveName, -1, flags, UnityTransferTypeFlags.None, null));
+            nodes.Add(new ObjectNode(name, primitiveName, primitiveSize, flags, UnityTransferTypeFlags.None, null));
         } else if (IsSystemString(typeRef)) {
             nodes.Add(new ObjectNode(name, "string", -1, UnityTransferMetaFlags.None, UnityTransferTypeFlags.None, null));
         } else if (IsEnum(typeDef)) {
@@ -203,7 +219,7 @@ public class TypeDefinitionConverter {
                     new ObjectNode("int", "size", 4, UnityTransferMetaFlags.None, UnityTransferTypeFlags.None, null),
                 },
             };
-            array.Properties.AddRange(TypeRefToObjectNodes(elementRef, "data", true));
+            array.Properties.AddRange(TypeRefToObjectNodes(elementRef, "data"));
             nodes.Add(new ObjectNode(name, $"Array<{typeRef.FullName}>", -1, flags, UnityTransferTypeFlags.Array, null) {
                 Properties = new List<ObjectNode> {
                     array,
