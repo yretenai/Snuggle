@@ -14,6 +14,9 @@
     <Grid>
         <ProgressBar Value="{Binding Status.Percent, Mode=OneWay}"
                      IsIndeterminate="{Binding Status.InvalidValue, Mode=OneWay}" />
-        <TextBlock Text="{Binding Status.Message, Mode=OneWay}" Margin="5" />
+        <StackPanel>
+            <TextBlock Text="{Binding Status.SubMessage, Mode=OneWay}" Margin="5,5,5,0" Visibility="{Binding Status.SubMessageVisible, Mode=OneWay}" />
+            <TextBlock Text="{Binding Status.Message, Mode=OneWay}" Margin="5" />
+        </StackPanel>
     </Grid>
 </UserControl>

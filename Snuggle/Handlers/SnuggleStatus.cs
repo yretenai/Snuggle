@@ -1,11 +1,14 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows;
 using Snuggle.Core.Interfaces;
 
 namespace Snuggle.Handlers;
 
 public class SnuggleStatus : IStatusReporter, INotifyPropertyChanged {
     public string Message { get; private set; } = string.Empty;
+    public string SubMessage { get; private set; } = string.Empty;
+    public Visibility SubMessageVisible => string.IsNullOrEmpty(SubMessage) ? Visibility.Collapsed : Visibility.Visible;
 
     public double Percent {
         get {
@@ -33,6 +36,12 @@ public class SnuggleStatus : IStatusReporter, INotifyPropertyChanged {
         OnPropertyChanged(nameof(Message));
     }
 
+    public void SetSubStatus(string message) {
+        SubMessage = message;
+        OnPropertyChanged(nameof(SubMessage));
+        OnPropertyChanged(nameof(SubMessageVisible));
+    }
+
     public void SetProgress(long value) {
         Value = value;
         OnPropertyChanged(nameof(Value));
@@ -47,12 +56,15 @@ public class SnuggleStatus : IStatusReporter, INotifyPropertyChanged {
 
     public void Reset() {
         Message = string.Empty;
+        SubMessage = string.Empty;
         Max = 0;
         Value = 0;
 
         OnPropertyChanged(nameof(Max));
         OnPropertyChanged(nameof(Value));
         OnPropertyChanged(nameof(Message));
+        OnPropertyChanged(nameof(SubMessage));
+        OnPropertyChanged(nameof(SubMessageVisible));
         OnPropertyChanged(nameof(Percent));
     }
 

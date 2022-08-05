@@ -150,7 +150,7 @@ public class AssetCollection : IDisposable {
             }
 
             foreach (var objectInfo in file.ObjectInfos) {
-                options.Reporter?.SetStatus($"Processing {objectInfo.PathId} ({objectInfo.ClassId:G})");
+                options.Reporter?.SetSubStatus($"Processing {objectInfo.PathId} ({objectInfo.ClassId:G})");
                 file.PreloadObject(objectInfo, options, dataStream);
             }
 
