@@ -22,7 +22,7 @@ public class SpriteToBitmapConverter : MarkupExtension, IValueConverter {
             _ => {
                 sprite.Deserialize(SnuggleCore.Instance.Settings.ObjectOptions);
                 var (memory, (width, height), _) = SnuggleSpriteFile.ConvertSprite(sprite, SnuggleCore.Instance.Settings.ObjectOptions, SnuggleCore.Instance.Settings.ExportOptions.UseTextureDecoder);
-                return memory.Length == 0 ? null : dispatcher.Invoke(() => new RGBABitmapSource(memory, width, height, TextureFormat.RGBA32, 1));
+                return memory.Length == 0 ? null : dispatcher.Invoke(() => new RGBABitmapSource(memory, width, height, TextureFormat.RGBA32, true, 1));
             },
             true);
     }

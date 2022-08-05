@@ -12,14 +12,16 @@ public class RGBABitmapSource : BitmapSource {
     private readonly int BackingPixelHeight;
     private readonly int BackingPixelWidth;
     private readonly TextureFormat BaseFormat;
+    private readonly bool ForceRGBA;
     public readonly int Frames;
 
-    public RGBABitmapSource(Memory<byte> rgbaBuffer, int pixelWidth, int pixelHeight, TextureFormat format, int frames) {
+    public RGBABitmapSource(Memory<byte> rgbaBuffer, int pixelWidth, int pixelHeight, TextureFormat format, bool forceRgba, int frames) {
         Buffer = rgbaBuffer;
         BackingPixelWidth = pixelWidth;
         BackingPixelHeight = pixelHeight;
         BaseFormat = format;
         Frames = frames;
+        ForceRGBA = forceRgba;
     }
 
     public RGBABitmapSource(RGBABitmapSource rgba) {
@@ -33,6 +35,7 @@ public class RGBABitmapSource : BitmapSource {
         BaseFormat = rgba.BaseFormat;
         Frames = rgba.Frames;
         Frame = rgba.Frame;
+        ForceRGBA = rgba.ForceRGBA;
     }
 
     private Memory<byte> Buffer { get; }
@@ -61,9 +64,9 @@ public class RGBABitmapSource : BitmapSource {
         var span = Buffer.Span[(int) (Width * Height * 4 * Frame)..];
 
         byte[] shuffle;
-        if (BaseFormat.IsAlphaFirst()) {
+        if (!ForceRGBA && BaseFormat.IsAlphaFirst()) {
             shuffle = new byte[] { 3, 0, 1, 2 };
-        } else if (BaseFormat.IsBGRA(SnuggleCore.Instance.Settings.ExportOptions.UseTextureDecoder)) {
+        } else if (!ForceRGBA && BaseFormat.IsBGRA(SnuggleCore.Instance.Settings.ExportOptions.UseTextureDecoder)) {
             shuffle = new byte[] { 2, 1, 0, 3 };
         } else {
             shuffle = new byte[] { 0, 1, 2, 3 };
@@ -85,7 +88,7 @@ public class RGBABitmapSource : BitmapSource {
         }
     }
 
-    protected override Freezable CreateInstanceCore() => new RGBABitmapSource(Buffer, PixelWidth, PixelHeight, BaseFormat, Frames) { Frame = Frame };
+    protected override Freezable CreateInstanceCore() => new RGBABitmapSource(Buffer, PixelWidth, PixelHeight, BaseFormat, ForceRGBA, Frames) { Frame = Frame };
 
 #pragma warning disable 67
     public override event EventHandler<DownloadProgressEventArgs>? DownloadProgress;
