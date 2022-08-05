@@ -168,8 +168,7 @@ public static class SnuggleFile {
 
             return snuggleObject.Name.Contains(search, StringComparison.InvariantCultureIgnoreCase) ||
                    snuggleObject.Container.Contains(search, StringComparison.InvariantCultureIgnoreCase) ||
-                   snuggleObject.SerializedName.Contains(search, StringComparison.InvariantCultureIgnoreCase) ||
-                   snuggleObject.ClassId.ToString()?.Contains(search, StringComparison.InvariantCultureIgnoreCase) == true;
+                   snuggleObject.SerializedName.Contains(search, StringComparison.InvariantCultureIgnoreCase);
         }
 
         return true;

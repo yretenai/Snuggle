@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -223,7 +224,7 @@ public partial class Navigation {
         Filters.Items.Clear();
         var letters = new Dictionary<char, MenuItem>();
         foreach (var item in instance.Objects.DistinctBy(x => x.ClassId).Select(x => x.ClassId).OrderBy(x => ((Enum) x).ToString("G"))) {
-            var name = SplitName(((Enum) item).ToString("G"));
+            var name = ((Enum) item).ToString("G");
             var menuItem = new MenuItem { Tag = item, Header = "_" + name, IsCheckable = true, IsChecked = instance.Filters.Contains(item) };
             menuItem.Click += ToggleFilter;
             var letter = char.ToUpper(name[0]);
@@ -238,6 +239,11 @@ public partial class Navigation {
 
         if (Filters.Items.IsEmpty) {
             var reset = new MenuItem { Header = "Nothing to show" };
+            Filters.Items.Add(reset);
+        } else {
+            var reset = new MenuItem { Header = "Reset Filters" };
+            reset.Click += ResetFilter;
+            Filters.Items.Add(new Separator());
             Filters.Items.Add(reset);
         }
 
@@ -279,7 +285,12 @@ public partial class Navigation {
         SnuggleCore.Instance.SetOptions(SnuggleCore.Instance.Settings with { RecentFiles = new List<string>(), RecentDirectories = new List<string>() });
     }
 
+    private static bool LockFilters { get; set; } 
     private static void ToggleFilter(object sender, RoutedEventArgs e) {
+        if (LockFilters) {
+            return;
+        }
+        
         var tag = ((FrameworkElement) sender).Tag;
         var instance = SnuggleCore.Instance;
         if (instance.Filters.Contains(tag)) {
@@ -289,6 +300,34 @@ public partial class Navigation {
         }
 
         instance.OnPropertyChanged(nameof(SnuggleCore.Filters));
+    }
+
+    public void ResetFilter(object sender, RoutedEventArgs e) {
+        if (LockFilters) {
+            return;
+        }
+
+        LockFilters = true;
+        UncheckAllMenuItems(Filters.Items);
+        LockFilters = false;
+        
+        var instance = SnuggleCore.Instance;
+        instance.Filters.Clear();
+        instance.OnPropertyChanged(nameof(SnuggleCore.Filters));
+    }
+
+    private static void UncheckAllMenuItems(IEnumerable collection) {
+        foreach(var item in collection) {
+            if(item is MenuItem menuItem) {
+                if (menuItem.IsCheckable) {
+                    menuItem.IsChecked = false;
+                }
+
+                if (menuItem.Items.Count > 0) {
+                    UncheckAllMenuItems(menuItem.Items);
+                }
+            }
+        }
     }
 
     private static void LoadDirectoryOrFile(object sender, RoutedEventArgs e) {
