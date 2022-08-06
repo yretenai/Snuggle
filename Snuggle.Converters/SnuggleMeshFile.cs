@@ -23,21 +23,21 @@ using Mesh = Snuggle.Core.Implementations.Mesh;
 namespace Snuggle.Converters;
 
 public static class SnuggleMeshFile {
-    private static readonly IReadOnlyDictionary<VertexChannel, string> ChannelToSemantic = new Dictionary<VertexChannel, string> {
-        { VertexChannel.Vertex, "POSITION" },
-        { VertexChannel.Normal, "NORMAL" },
-        { VertexChannel.Tangent, "TANGENT" },
-        { VertexChannel.Color, "COLOR" },
-        { VertexChannel.UV0, "TEXCOORD_0" },
-        { VertexChannel.UV1, "TEXCOORD_1" },
-        { VertexChannel.UV2, "TEXCOORD_2" },
-        { VertexChannel.UV3, "TEXCOORD_3" },
-        { VertexChannel.UV4, "TEXCOORD_4" },
-        { VertexChannel.UV5, "TEXCOORD_5" },
-        { VertexChannel.UV6, "TEXCOORD_6" },
-        { VertexChannel.UV7, "TEXCOORD_7" },
-        { VertexChannel.SkinBoneIndex, "JOINTS_0" },
-        { VertexChannel.SkinWeight, "WEIGHTS_0" },
+    private static readonly string[] ChannelToSemantic = {
+        "POSITION",
+        "NORMAL",
+        "TANGENT",
+        "COLOR",
+        "TEXCOORD_0",
+        "TEXCOORD_1",
+        "TEXCOORD_2",
+        "TEXCOORD_3",
+        "TEXCOORD_4",
+        "TEXCOORD_5",
+        "TEXCOORD_6",
+        "TEXCOORD_7",
+        "JOINTS_0",
+        "WEIGHTS_0",
     };
 
     private static JsonSerializerOptions Options =>
@@ -457,24 +457,26 @@ public static class SnuggleMeshFile {
             }
         }
 
-        var accessors = new Dictionary<VertexChannel, int>();
+        var accessors = new int[(int) VertexChannel.MaxChannelsPlusOne];
+        Array.Fill(accessors, -1);
+        
         {
             var (accessor, accessorId) = gltf.CreateAccessor(positions, buffer, BufferViewTarget.ArrayBuffer, AccessorType.VEC3, AccessorComponentType.Float);
             accessor.Min = new List<double> { minPos.X, minPos.Y, minPos.Z };
             accessor.Max = new List<double> { maxPos.X, maxPos.Y, maxPos.Z };
-            accessors[VertexChannel.Vertex] = accessorId;
+            accessors[(int) VertexChannel.Vertex] = accessorId;
         }
 
         if (hasNormals) {
-            accessors[VertexChannel.Normal] = gltf.CreateAccessor(normals, buffer, BufferViewTarget.ArrayBuffer, AccessorType.VEC3, AccessorComponentType.Float).Id;
+            accessors[(int) VertexChannel.Normal] = gltf.CreateAccessor(normals, buffer, BufferViewTarget.ArrayBuffer, AccessorType.VEC3, AccessorComponentType.Float).Id;
         }
 
         if (hasTangents) {
-            accessors[VertexChannel.Tangent] = gltf.CreateAccessor(tangents, buffer, BufferViewTarget.ArrayBuffer, AccessorType.VEC4, AccessorComponentType.Float).Id;
+            accessors[(int) VertexChannel.Tangent] = gltf.CreateAccessor(tangents, buffer, BufferViewTarget.ArrayBuffer, AccessorType.VEC4, AccessorComponentType.Float).Id;
         }
 
         if (hasColor) {
-            accessors[VertexChannel.Color] = gltf.CreateAccessor(color, buffer, BufferViewTarget.ArrayBuffer, AccessorType.VEC3, AccessorComponentType.Float).Id;
+            accessors[(int) VertexChannel.Color] = gltf.CreateAccessor(color, buffer, BufferViewTarget.ArrayBuffer, AccessorType.VEC3, AccessorComponentType.Float).Id;
         }
 
         for (var i = 0; i < 8; ++i) {
@@ -482,11 +484,11 @@ public static class SnuggleMeshFile {
                 continue;
             }
 
-            accessors[VertexChannel.UV0 + i] = gltf.CreateAccessor(uv[i], buffer, BufferViewTarget.ArrayBuffer, AccessorType.VEC2, AccessorComponentType.Float).Id;
+            accessors[(int) (VertexChannel.UV0 + i)] = gltf.CreateAccessor(uv[i], buffer, BufferViewTarget.ArrayBuffer, AccessorType.VEC2, AccessorComponentType.Float).Id;
         }
 
         if (hasSkin) {
-            accessors[VertexChannel.SkinBoneIndex] = gltf.CreateAccessor(
+            accessors[(int) VertexChannel.SkinBoneIndex] = gltf.CreateAccessor(
                     joints,
                     4,
                     buffer,
@@ -495,7 +497,7 @@ public static class SnuggleMeshFile {
                     AccessorComponentType.UnsignedShort,
                     8)
                 .Id;
-            accessors[VertexChannel.SkinWeight] = gltf.CreateAccessor(weights, buffer, BufferViewTarget.ArrayBuffer, AccessorType.VEC4, AccessorComponentType.Float).Id;
+            accessors[(int) VertexChannel.SkinWeight] = gltf.CreateAccessor(weights, buffer, BufferViewTarget.ArrayBuffer, AccessorType.VEC4, AccessorComponentType.Float).Id;
         }
 
         if (indexSemantic == AccessorComponentType.UnsignedInt) {
@@ -515,7 +517,12 @@ public static class SnuggleMeshFile {
 
             var primitive = new Primitive { Mode = PrimitiveMode.Triangles };
 
-            foreach (var (channel, index) in accessors) {
+            for (var channel = 0; channel < accessors.Length; channel++) {
+                var index = accessors[channel];
+                if (index == -1) {
+                    continue;
+                }
+
                 primitive.Attributes[ChannelToSemantic[channel]] = index;
             }
 
