@@ -132,7 +132,7 @@ public static class SnuggleSpriteFile {
             var triangleBase = 0;
             var indices = MemoryMarshal.Cast<byte, ushort>(renderData.Indices!.Value.Span);
             foreach (var submesh in renderData.Submeshes) {
-                var channel = vertexData.Channels[VertexChannel.Vertex];
+                var channel = vertexData.Channels[(int) VertexChannel.Vertex]!;
                 var offset = channel.Offset + submesh.FirstVertex * strides[channel.Stream];
                 var buffer = buffers[channel.Stream].Span;
 

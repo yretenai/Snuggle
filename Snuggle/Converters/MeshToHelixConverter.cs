@@ -27,8 +27,11 @@ using Transform = Snuggle.Core.Implementations.Transform;
 
 namespace Snuggle.Converters;
 
-public static class MeshToHelixConverter {
-    private static readonly Regex XAMLSafeCharacters = new("[^a-zA-Z0-9_]", RegexOptions.Compiled);
+public static partial class MeshToHelixConverter {
+
+    [RegexGenerator("[^a-zA-Z0-9_]", RegexOptions.Compiled)]
+    private static partial Regex XAMLSafeCharactersRegex();
+    private static readonly Regex XAMLSafeCharacters = XAMLSafeCharactersRegex();
 
     private static List<Object3D> GetSubmeshes(Mesh mesh, CancellationToken token) {
         if (mesh.ShouldDeserialize) {
@@ -72,9 +75,14 @@ public static class MeshToHelixConverter {
                     return objects;
                 }
 
-                foreach (var (channel, info) in descriptors) {
+                for (var channel = 0; channel < descriptors.Length; channel++) {
+                    var info = descriptors[channel];
                     if (token.IsCancellationRequested) {
                         return objects;
+                    }
+
+                    if (info == null) {
+                        continue;
                     }
 
                     var stride = strides[info.Stream];
@@ -86,7 +94,7 @@ public static class MeshToHelixConverter {
 
                     var value = info.Unpack(data);
                     var floatValues = value.Select(Convert.ToSingle).Concat(new float[4]);
-                    switch (channel) {
+                    switch ((VertexChannel) channel) {
                         case VertexChannel.Vertex: {
                             var vec = new Vector3(floatValues.Take(3).ToArray());
                             if (options.MirrorXPosition) {

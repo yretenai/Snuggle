@@ -164,19 +164,19 @@ public record CompressedMesh(
         return enabled ? dimension : VertexDimension.None;
     }
 
-    public Memory<byte> Decompress(out uint vertexCount, out Dictionary<VertexChannel, ChannelInfo> channels) {
-        var substreams = new Dictionary<VertexChannel, Memory<byte>>();
-        channels = new Dictionary<VertexChannel, ChannelInfo>();
+    public Memory<byte> Decompress(out uint vertexCount, out ChannelInfo[] channels) {
+        var substreams = new Memory<byte>[(int) VertexChannel.MaxChannels];
+        channels = new ChannelInfo[(int) VertexChannel.MaxChannels];
         var offset = 0;
         vertexCount = Vertices.Count / 3;
         if (vertexCount == 0) {
             return Memory<byte>.Empty;
         }
 
-        foreach (var channel in Enum.GetValues<VertexChannel>()) {
+        for(var channel = VertexChannel.Vertex; channel <= VertexChannel.MaxChannels; channel++) {
             var vector = GetVectorForChannel(channel);
             if (vector.Count == 0) {
-                channels[channel] = ChannelInfo.Default;
+                channels[(int) channel] = ChannelInfo.Default;
                 continue;
             }
 
@@ -184,7 +184,7 @@ public record CompressedMesh(
             switch (channel) {
                 case VertexChannel.Vertex: {
                     channelInfo = new ChannelInfo(0, offset, VertexFormat.Single, VertexDimension.RGB, 0);
-                    substreams[channel] = vector.DecompressSingle().AsBytes();
+                    substreams[(int) channel] = vector.DecompressSingle().AsBytes();
                     break;
                 }
                 case VertexChannel.Tangent: {
@@ -218,7 +218,7 @@ public record CompressedMesh(
                         tangents.Span[i * 4 + 3] = w;
                     }
 
-                    substreams[channel] = tangents.AsBytes();
+                    substreams[(int) channel] = tangents.AsBytes();
                     break;
                 }
                 case VertexChannel.Normal: {
@@ -250,12 +250,12 @@ public record CompressedMesh(
                         normals.Span[i * 3 + 2] = z;
                     }
 
-                    substreams[channel] = normals.AsBytes();
+                    substreams[(int) channel] = normals.AsBytes();
                     break;
                 }
                 case VertexChannel.Color: {
                     channelInfo = new ChannelInfo(0, offset, VertexFormat.Color, VertexDimension.RGBA, 0);
-                    substreams[channel] = vector.Decompress().AsBytes();
+                    substreams[(int) channel] = vector.Decompress().AsBytes();
                     break;
                 }
                 case VertexChannel.UV0:
@@ -273,12 +273,12 @@ public record CompressedMesh(
                     }
 
                     channelInfo = new ChannelInfo(0, offset, VertexFormat.Single, uvInfo, 0);
-                    substreams[channel] = vector.DecompressSingle(vertexCount * 2, (int) (uvIndex * 2 * vertexCount)).AsBytes();
+                    substreams[(int) channel] = vector.DecompressSingle(vertexCount * 2, (int) (uvIndex * 2 * vertexCount)).AsBytes();
                     break;
                 }
                 case VertexChannel.SkinBoneIndex: {
-                    channels[VertexChannel.SkinWeight] = new ChannelInfo(0, offset, VertexFormat.Single, VertexDimension.RGBA, 0);
-                    offset += channels[VertexChannel.SkinWeight].GetSize();
+                    channels[(int) VertexChannel.SkinWeight] = new ChannelInfo(0, offset, VertexFormat.Single, VertexDimension.RGBA, 0);
+                    offset += channels[(int) VertexChannel.SkinWeight].GetSize();
                     channelInfo = new ChannelInfo(0, offset, VertexFormat.SInt32, VertexDimension.RGBA, 0);
 
                     var skinIndices = vector.Decompress().Span;
@@ -301,8 +301,8 @@ public record CompressedMesh(
                         }
                     }
 
-                    substreams[VertexChannel.SkinWeight] = new Memory<byte>(MemoryMarshal.AsBytes(normalizedSkinWeights).ToArray());
-                    substreams[channel] = new Memory<byte>(MemoryMarshal.AsBytes(normalizedSkinIndices).ToArray());
+                    substreams[(int) VertexChannel.SkinWeight] = new Memory<byte>(MemoryMarshal.AsBytes(normalizedSkinWeights).ToArray());
+                    substreams[(int) channel] = new Memory<byte>(MemoryMarshal.AsBytes(normalizedSkinIndices).ToArray());
                     break;
                 }
                 case VertexChannel.SkinWeight: // handled in boneWeight
@@ -310,14 +310,15 @@ public record CompressedMesh(
                     continue;
             }
 
-            channels[channel] = channelInfo;
+            channels[(int) channel] = channelInfo;
             offset += channelInfo.GetSize();
         }
 
         var stride = offset;
         Memory<byte> data = new byte[stride * vertexCount];
         for (var i = 0; i < vertexCount; ++i) {
-            foreach (var (channel, info) in channels) {
+            for (var channel = 0; channel < channels.Length; channel++) {
+                var info = channels[channel];
                 if (info.Dimension == VertexDimension.None) {
                     continue;
                 }

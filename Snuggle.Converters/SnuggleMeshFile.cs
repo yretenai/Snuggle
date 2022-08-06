@@ -357,7 +357,7 @@ public static class SnuggleMeshFile {
         var maxPos = new Vector3(float.MinValue);
 
         var skin = mesh.Skin ?? new List<BoneWeight>();
-        var hasSkinStream = descriptors.Any(x => x.Key is VertexChannel.SkinWeight or VertexChannel.SkinBoneIndex);
+        var hasSkinStream = descriptors[(int) VertexChannel.SkinWeight] is not null || descriptors[(int) VertexChannel.SkinBoneIndex] is not null;
         if (skin.Count > 0 && hasSkinStream) {
             Log.Warning("Mesh has skin object but also defines weight data in vertex stream?");
             skin = new List<BoneWeight>();
@@ -371,7 +371,12 @@ public static class SnuggleMeshFile {
         for (var i = 0; i < vertexCount; ++i) {
             var weightsTemp = new[] { 1f, 0, 0, 0 };
             var jointsTemp = new[] { 1, 0, 0, 0 };
-            foreach (var (channel, info) in descriptors) {
+            for (var channel = 0; channel < descriptors.Length; channel++) {
+                var info = descriptors[channel];
+                if (info == null) {
+                    continue;
+                }
+                
                 var stride = strides[info.Stream];
                 var offset = i * stride;
                 var data = vertexStream[info.Stream][(offset + info.Offset)..].Span;
@@ -383,7 +388,7 @@ public static class SnuggleMeshFile {
                 var floatValues = value.Select(x => (float) Convert.ChangeType(x, TypeCode.Single)).Concat(new float[4]);
                 var uintValues = value.Select(x => (int) Convert.ChangeType(x, TypeCode.Int32)).Concat(new int[4]);
                 // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
-                switch (channel) {
+                switch ((VertexChannel) channel) {
                     case VertexChannel.Vertex:
                         positions[i] = new Vector3(floatValues.Take(3).ToArray());
                         if (options.MirrorXPosition) {
@@ -421,8 +426,8 @@ public static class SnuggleMeshFile {
                     case VertexChannel.UV5:
                     case VertexChannel.UV6:
                     case VertexChannel.UV7:
-                        uv[channel - VertexChannel.UV0][i] = new Vector2(floatValues.Take(2).ToArray());
-                        hasUV[channel - VertexChannel.UV0] = true;
+                        uv[channel - (int) VertexChannel.UV0][i] = new Vector2(floatValues.Take(2).ToArray());
+                        hasUV[channel - (int) VertexChannel.UV0] = true;
                         break;
                     case VertexChannel.SkinWeight:
                         weightsTemp = floatValues.Take(4).ToArray();

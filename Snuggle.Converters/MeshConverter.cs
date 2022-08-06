@@ -9,7 +9,7 @@ using Snuggle.Core.Models.Objects.Graphics;
 namespace Snuggle.Converters;
 
 public static class MeshConverter {
-    public static Memory<byte>[] GetVBO(Mesh mesh, out uint vertexCount, out Dictionary<VertexChannel, ChannelInfo> channels, out int[] strides) {
+    public static Memory<byte>[] GetVBO(Mesh mesh, out uint vertexCount, out ChannelInfo?[] channels, out int[] strides) {
         if (mesh.ShouldDeserialize) {
             throw new IncompleteDeserialization();
         }
@@ -26,13 +26,14 @@ public static class MeshConverter {
         return GetVBO(fullBuffer, vertexCount, channels, out strides);
     }
 
-    public static Memory<byte>[] GetVBO(Memory<byte> fullBuffer, uint vertexCount, Dictionary<VertexChannel, ChannelInfo> channels, out int[] strides) {
-        var streamCount = channels.Max(x => x.Value.Stream) + 1;
+    public static Memory<byte>[] GetVBO(Memory<byte> fullBuffer, uint vertexCount, ChannelInfo?[] channelsNull, out int[] strides) {
+        ChannelInfo[] channels = channelsNull.Where(x => x != null).ToArray()!;
+        var streamCount = channels.Max(x => x.Stream) + 1;
         strides = new int[streamCount];
         var vbos = new Memory<byte>[streamCount];
         var offset = 0;
         for (var index = 0; index < streamCount; index++) {
-            var streamChannels = channels.Values.Where(x => x.Stream == index && x.Dimension != VertexDimension.None).ToArray();
+            var streamChannels = channels.Where(x => x.Stream == index && x.Dimension != VertexDimension.None).ToArray();
             if (streamChannels.Length == 0) {
                 continue;
             }

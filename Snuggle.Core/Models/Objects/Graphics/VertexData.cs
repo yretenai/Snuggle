@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.Json.Serialization;
 using Snuggle.Core.Exceptions;
 using Snuggle.Core.IO;
@@ -24,15 +25,17 @@ public enum VertexChannel {
     UV7 = 11,
     SkinWeight = 12,
     SkinBoneIndex = 13,
+    
+    MaxChannels = SkinBoneIndex,
 }
 
-public record VertexData(uint CurrentChannels, uint VertexCount, Dictionary<VertexChannel, ChannelInfo> Channels) {
+public record VertexData(uint CurrentChannels, uint VertexCount, ChannelInfo?[] Channels) {
     private long DataStart { get; init; } = -1;
 
     [JsonIgnore]
     public Memory<byte>? Data { get; set; }
 
-    public static VertexData Default { get; } = new(0, 0, new Dictionary<VertexChannel, ChannelInfo>());
+    public static VertexData Default { get; } = new(0, 0, new ChannelInfo?[(int) VertexChannel.MaxChannels]);
 
     private bool ShouldDeserializeData => DataStart > -1 && Data == null;
 
@@ -48,8 +51,7 @@ public record VertexData(uint CurrentChannels, uint VertexCount, Dictionary<Vert
         var vertexCount = reader.ReadUInt32();
 
         var channelCount = reader.ReadInt32();
-        var channels = new Dictionary<VertexChannel, ChannelInfo>();
-        channels.EnsureCapacity(channelCount);
+        var channels = new ChannelInfo[(int) VertexChannel.MaxChannels];
 
         for (var i = 0; i < channelCount; ++i) {
             var channel = (VertexChannel) i;
@@ -61,7 +63,7 @@ public record VertexData(uint CurrentChannels, uint VertexCount, Dictionary<Vert
                 }
             }
 
-            channels.Add(channel, ChannelInfo.FromReader(reader, file));
+            channels[(int) channel] = ChannelInfo.FromReader(reader, file);
         }
 
         var dataStart = reader.BaseStream.Position;
@@ -83,9 +85,10 @@ public record VertexData(uint CurrentChannels, uint VertexCount, Dictionary<Vert
 
         writer.Write(VertexCount);
 
-        writer.Write(Channels.Count);
-        foreach (var (_, channel) in Channels) {
-            channel.ToWriter(writer, serializedFile, targetVersion);
+        var nonNull = Channels.Where(x => x != null).ToArray();
+        writer.Write(nonNull.Length);
+        foreach (var channel in nonNull) {
+            channel!.ToWriter(writer, serializedFile, targetVersion);
         }
 
         writer.WriteMemory(Data);
