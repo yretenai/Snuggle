@@ -27,6 +27,7 @@ public enum VertexChannel {
     SkinBoneIndex = 13,
     
     MaxChannels = SkinBoneIndex,
+    MaxChannelsPlusOne = MaxChannels + 1
 }
 
 public record VertexData(uint CurrentChannels, uint VertexCount, ChannelInfo?[] Channels) {
@@ -35,7 +36,7 @@ public record VertexData(uint CurrentChannels, uint VertexCount, ChannelInfo?[] 
     [JsonIgnore]
     public Memory<byte>? Data { get; set; }
 
-    public static VertexData Default { get; } = new(0, 0, new ChannelInfo?[(int) VertexChannel.MaxChannels]);
+    public static VertexData Default { get; } = new(0, 0, new ChannelInfo?[(int) VertexChannel.MaxChannelsPlusOne]);
 
     private bool ShouldDeserializeData => DataStart > -1 && Data == null;
 
@@ -51,7 +52,7 @@ public record VertexData(uint CurrentChannels, uint VertexCount, ChannelInfo?[] 
         var vertexCount = reader.ReadUInt32();
 
         var channelCount = reader.ReadInt32();
-        var channels = new ChannelInfo[(int) VertexChannel.MaxChannels];
+        var channels = new ChannelInfo[(int) VertexChannel.MaxChannelsPlusOne];
 
         for (var i = 0; i < channelCount; ++i) {
             var channel = (VertexChannel) i;

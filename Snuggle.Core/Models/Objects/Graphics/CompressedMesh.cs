@@ -165,15 +165,15 @@ public record CompressedMesh(
     }
 
     public Memory<byte> Decompress(out uint vertexCount, out ChannelInfo[] channels) {
-        var substreams = new Memory<byte>[(int) VertexChannel.MaxChannels];
-        channels = new ChannelInfo[(int) VertexChannel.MaxChannels];
+        var substreams = new Memory<byte>[(int) VertexChannel.MaxChannelsPlusOne];
+        channels = new ChannelInfo[(int) VertexChannel.MaxChannelsPlusOne];
         var offset = 0;
         vertexCount = Vertices.Count / 3;
         if (vertexCount == 0) {
             return Memory<byte>.Empty;
         }
 
-        for(var channel = VertexChannel.Vertex; channel <= VertexChannel.MaxChannels; channel++) {
+        for(var channel = VertexChannel.Vertex; channel < VertexChannel.MaxChannelsPlusOne; channel++) {
             var vector = GetVectorForChannel(channel);
             if (vector.Count == 0) {
                 channels[(int) channel] = ChannelInfo.Default;
