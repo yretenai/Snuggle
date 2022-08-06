@@ -18,9 +18,7 @@ using Serilog;
 using Snuggle.Components;
 using Snuggle.Converters;
 using Snuggle.Core;
-using Snuggle.Core.Meta;
 using Snuggle.Core.Options;
-using Snuggle.Core.Options.Game;
 
 namespace Snuggle.Handlers;
 
@@ -232,11 +230,6 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
 
     public void SetOptions(SnuggleCoreOptions options) {
         Settings = Settings with { Options = options with { Reporter = Status } };
-        SaveOptions();
-    }
-
-    public void SetOptions(UnityGame game, IUnityGameOptions options) {
-        Settings.Options.GameOptions.SetOptions(game, options);
         SaveOptions();
     }
 

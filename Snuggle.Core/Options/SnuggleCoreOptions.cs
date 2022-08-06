@@ -16,7 +16,6 @@ public record SnuggleCoreOptions(
     private const int LatestVersion = 6;
     public HashSet<string> IgnoreClassIds { get; set; } = new();
     public int Version { get; set; } = LatestVersion;
-    public UnityGameOptions GameOptions { get; set; } = UnityGameOptions.Default;
 
     [JsonIgnore]
     public IStatusReporter? Reporter { get; set; }
@@ -54,10 +53,6 @@ public record SnuggleCoreOptions(
             options = options with { LoadOnDemand = false };
         }
 
-        if (options.Version <= 3) {
-            options = options with { GameOptions = UnityGameOptions.Default };
-        }
-
         if (options.Version <= 4) {
             options = options with { IgnoreClassIds = new HashSet<string>() };
         }
@@ -65,8 +60,6 @@ public record SnuggleCoreOptions(
         if (options.Version <= 5) {
             options = options with { CacheDirectory = "Cache" };
         }
-
-        options.GameOptions = options.GameOptions.Migrate();
 
         return options with { Version = LatestVersion };
     }

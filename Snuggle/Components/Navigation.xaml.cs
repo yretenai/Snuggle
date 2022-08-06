@@ -15,7 +15,6 @@ using Snuggle.Core.Implementations;
 using Snuggle.Core.Meta;
 using Snuggle.Core.Models.Bundle;
 using Snuggle.Core.Options;
-using Snuggle.Core.Options.Game;
 using Snuggle.Handlers;
 using Snuggle.Windows;
 
@@ -23,7 +22,6 @@ namespace Snuggle.Components;
 
 public partial class Navigation {
     private static readonly Regex SplitPattern = new(@"(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])|(?<=[a-z])(?=[0-9])", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.CultureInvariant);
-    private readonly Dictionary<UniteVersion, MenuItem> PokemonUniteVersionItems = new();
     private readonly Dictionary<RendererType, MenuItem> RendererTypeItems = new();
     private readonly Dictionary<UnityGame, MenuItem> UnityGameItems = new();
 
@@ -40,7 +38,6 @@ public partial class Navigation {
         BuildSettingMenu(SerializationOptions, typeof(SnuggleExportOptions), nameof(SnuggleOptions.ExportOptions));
         BuildSettingMenu(SerializationOptions, typeof(ObjectDeserializationOptions), nameof(SnuggleOptions.ObjectOptions));
         BuildSettingMenu(RendererOptions, typeof(SnuggleMeshExportOptions), nameof(SnuggleOptions.MeshExportOptions));
-        PopulateGameOptions();
         PopulateRecentItems();
         PopulateItemTypes();
 
@@ -178,32 +175,6 @@ public partial class Navigation {
             SnuggleCore.Instance.OnPropertyChanged(objectName);
             SnuggleCore.Instance.OnPropertyChanged($"{objectName}.{targetProperty.Name}");
         }
-    }
-
-    private void PopulateGameOptions() {
-        var selected = SnuggleCore.Instance.Settings.Options.Game;
-
-        GameOptions.Visibility = Visibility.Collapsed;
-
-        if (selected is UnityGame.PokemonUnite) {
-            SetPokemonUniteOptionValues();
-        } else {
-            GameOptions.Items.Clear();
-        }
-    }
-
-    private void SetPokemonUniteOptionValues() {
-        GameOptions.Visibility = Visibility.Visible;
-        GameOptions.Header = UnityGameItems[UnityGame.PokemonUnite].Header + " Options";
-
-        var instance = SnuggleCore.Instance;
-        if (!instance.Settings.Options.GameOptions.TryGetOptionsObject<UniteOptions>(UnityGame.PokemonUnite, out var uniteOptions)) {
-            uniteOptions = UniteOptions.Default;
-        }
-
-        var optionsMenuItem = new MenuItem { Tag = "PokemonUnite_Version", Header = "_Version" };
-        GameOptions.Items.Add(optionsMenuItem);
-        BuildEnumMenu(optionsMenuItem, PokemonUniteVersionItems, new[] { uniteOptions.GameVersion }, UpdatePokemonUniteVersion, CancelPokemonUniteVersionEvent);
     }
 
     private static void BuildEnumMenu<T>(ItemsControl menu, IDictionary<T, MenuItem> items, IReadOnlyCollection<T> currentValue, RoutedEventHandler @checked, RoutedEventHandler @unchecked) where T : struct, Enum {
@@ -363,7 +334,6 @@ public partial class Navigation {
 
         SnuggleCore.Instance.SetOptions(SnuggleCore.Instance.Settings.Options with { Game = tag });
         UnityGameItems[game].IsChecked = false;
-        PopulateGameOptions();
         e.Handled = true;
     }
 
@@ -465,43 +435,6 @@ public partial class Navigation {
     private void ExtractSerialize(object sender, RoutedEventArgs e) {
         var filter = (ExtractFilter) int.Parse((string) ((FrameworkElement) sender).Tag);
         SnuggleFile.Extract(ExtractMode.Serialize, filter);
-    }
-
-    private void UpdatePokemonUniteVersion(object sender, RoutedEventArgs e) {
-        var version = (UniteVersion) ((MenuItem) sender).Tag;
-        var instance = SnuggleCore.Instance;
-        if (!instance.Settings.Options.GameOptions.TryGetOptionsObject<UniteOptions>(UnityGame.PokemonUnite, out var uniteOptions)) {
-            uniteOptions = UniteOptions.Default;
-        }
-
-        instance.SetOptions(UnityGame.PokemonUnite, uniteOptions with { GameVersion = version });
-
-        foreach (var (itemVersion, item) in PokemonUniteVersionItems) {
-            if (itemVersion == version) {
-                continue;
-            }
-
-            item.IsChecked = false;
-        }
-
-        e.Handled = true;
-    }
-
-    private static void CancelPokemonUniteVersionEvent(object sender, RoutedEventArgs e) {
-        if (sender is not MenuItem menuItem) {
-            return;
-        }
-
-        var instance = SnuggleCore.Instance;
-        if (!instance.Settings.Options.GameOptions.TryGetOptionsObject<UniteOptions>(UnityGame.PokemonUnite, out var uniteOptions)) {
-            uniteOptions = UniteOptions.Default;
-        }
-
-        if (menuItem.Tag?.Equals(uniteOptions.Version) == true) {
-            menuItem.IsChecked = true;
-        }
-
-        e.Handled = true;
     }
 
     private void FreeTypes(object sender, RoutedEventArgs e) {

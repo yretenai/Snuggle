@@ -10,7 +10,6 @@ using Snuggle.Core.Models.Objects.Math;
 using Snuggle.Core.Models.Objects.Settings;
 using Snuggle.Core.Models.Serialization;
 using Snuggle.Core.Options;
-using Snuggle.Core.Options.Game;
 
 namespace Snuggle.Core.Implementations;
 
@@ -301,10 +300,8 @@ public class PlayerSettings : SerializedObject {
                         }
 
                         if (SerializedFile.Version >= UnityVersionRegister.Unity2019_4) {
-                            if (SerializedFile.Options.Game is not UnityGame.PokemonUnite || SerializedFile.Options.GameOptions.TryGetOptionsObject<UniteOptions>(UnityGame.PokemonUnite, out var uniteOptions) && uniteOptions.GameVersion >= UniteVersion.Version1_2) {
-                                StadiaPresentMode = reader.ReadInt32();
-                                StadiaTargetFramerate = reader.ReadInt32();
-                            }
+                            StadiaPresentMode = reader.ReadInt32();
+                            StadiaTargetFramerate = reader.ReadInt32();
                         }
 
                         if (SerializedFile.Version > UnityVersionRegister.Unity2019_3) {

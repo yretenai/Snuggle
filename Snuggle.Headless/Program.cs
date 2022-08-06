@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text.Json;
 using DragonLib;
 using DragonLib.CommandLine;
@@ -15,32 +14,14 @@ using Snuggle.Core.Meta;
 using Snuggle.Core.Models;
 using Snuggle.Core.Models.Serialization;
 using Snuggle.Core.Options;
-using Snuggle.Headless.GameFlags;
 
 namespace Snuggle.Headless;
 
 public static class Program {
     public static int Main() {
-        var additionalFlags = new Dictionary<UnityGame, Type>();
-        foreach (var type in Assembly.GetExecutingAssembly().GetTypes().Where(x => x.GetCustomAttribute<GameFlagsAttribute>() != null && x.IsAssignableTo(typeof(GameFlags.GameFlags)))) {
-            var gameFlagsAttr = type.GetCustomAttribute<GameFlagsAttribute>();
-            if (gameFlagsAttr == null) {
-                continue;
-            }
-
-            additionalFlags[gameFlagsAttr.Game] = type;
-        }
-
         Log.Logger = new LoggerConfiguration().WriteTo.Console().CreateLogger();
 
-        var flags = CommandLineFlagsParser.ParseFlags<SnuggleFlags>(
-            (typeMap, helpInvoked) => {
-                CommandLineFlagsParser.PrintHelp(typeMap, helpInvoked);
-                foreach (var (game, t) in additionalFlags) {
-                    Console.WriteLine($"Help for UnityGame.{game:G}");
-                    CommandLineFlagsParser.PrintHelp(t, CommandLineFlagsParser.PrintHelp, helpInvoked);
-                }
-            });
+        var flags = CommandLineFlagsParser.ParseFlags<SnuggleFlags>();
         if (flags == null) {
             return 1;
         }
@@ -48,13 +29,6 @@ public static class Program {
         SystemManagement.DescribeLog();
         Log.Debug(flags.ToString());
         Log.Debug("Args: {Args}", string.Join(' ', Environment.GetCommandLineArgs()[1..]));
-        GameFlags.GameFlags? gameFlags = null;
-        if (flags.Game is not UnityGame.Default && additionalFlags.TryGetValue(flags.Game, out var additionalGameFlags)) {
-            gameFlags = CommandLineFlagsParser.ParseFlags(additionalGameFlags) as GameFlags.GameFlags;
-            if (gameFlags != null) {
-                Log.Debug(gameFlags.ToString());
-            }
-        }
 
         var files = new List<string>();
         foreach (var entry in flags.Paths) {
@@ -91,11 +65,6 @@ public static class Program {
         }
 
         var options = SnuggleCoreOptions.Default with { Game = flags.Game, CacheDataIfLZMA = true, IgnoreClassIds = flags.IgnoreClassIds };
-        if (options.Game is not UnityGame.Default && gameFlags != default) {
-            options.GameOptions.StorageMap[options.Game] = JsonSerializer.SerializeToElement(gameFlags.ToOptions(), SnuggleCoreOptions.JsonOptions);
-        }
-
-        options.GameOptions.Migrate();
 
         foreach (var file in fileSet) {
             collection.LoadFile(file, options);
@@ -218,12 +187,6 @@ public static class Program {
             if (flags.LowMemory) {
                 ConvertCore.ClearMemory(collection);
             }
-        }
-
-        if (options.Game is not UnityGame.Default && options.GameOptions.StorageMap.ContainsKey(options.Game)) {
-            Log.Information("Updated Game Settings");
-            var jsonOptions = new JsonSerializerOptions(SnuggleCoreOptions.JsonOptions) { WriteIndented = false };
-            Log.Information(JsonSerializer.Serialize(options.GameOptions.StorageMap[options.Game], jsonOptions));
         }
 
         return 0;

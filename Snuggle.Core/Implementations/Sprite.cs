@@ -8,14 +8,13 @@ using Snuggle.Core.Models.Objects.Graphics;
 using Snuggle.Core.Models.Objects.Math;
 using Snuggle.Core.Models.Serialization;
 using Snuggle.Core.Options;
-using Snuggle.Core.Options.Game;
 
 namespace Snuggle.Core.Implementations;
 
 [ObjectImplementation(UnityClassId.Sprite)]
 public class Sprite : NamedObject {
     public Sprite(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile) : base(reader, info, serializedFile) {
-        if (serializedFile.Options.Game is UnityGame.PokemonUnite && SerializedFile.Options.GameOptions.TryGetOptionsObject<UniteOptions>(UnityGame.PokemonUnite, out var uniteOptions) && uniteOptions.GameVersion >= UniteVersion.Version1_2) {
+        if (serializedFile.Options.Game is UnityGame.PokemonUnite) {
             var container = GetExtraContainer<UniteSpriteExtension>(UnityClassId.Sprite);
             container.UnknownValue = reader.ReadInt32();
         }
