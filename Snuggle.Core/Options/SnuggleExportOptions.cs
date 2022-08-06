@@ -51,9 +51,7 @@ Available variables:
     public SnuggleExportOptions Migrate() {
         var settings = this;
 
-        // if (Version < 2) { // removed in version 10.
-        // settings = settings with { UseDirectTex = true };
-        // }
+        // Version 2 added UseDirectTex
 
         if (Version < 3) {
             settings = settings with { OnlyWithCABPath = false };
@@ -77,6 +75,8 @@ Available variables:
         if (Version < 9) {
             settings = settings with { UseTextureDecoder = true };
         }
+
+        // Version 10 removed UseDirectTex
 
         return settings with { Version = LatestVersion };
     }
