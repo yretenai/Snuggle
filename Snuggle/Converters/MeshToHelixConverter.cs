@@ -356,11 +356,12 @@ public static partial class MeshToHelixConverter {
                 material.Deserialize(ObjectDeserializationOptions.Default);
             }
 
-            if (material.SavedProperties!.Textures.TryGetValue("_MainTex", out var mainTexPtr) == false) {
-                mainTexPtr = material.SavedProperties.Textures.FirstOrDefault().Value;
+            var mainTex = material.SavedProperties!.Textures.FirstOrDefault(x => x.Key.Contains("MainTex") || x.Key.Contains("Albedo") || x.Key.Contains("Diffuse"));
+            var texture = default(ITexture);
+            if (mainTex.Value.Texture?.IsNull == false) {
+                texture = mainTex.Value.Texture.Value as ITexture;
             }
 
-            var texture = mainTexPtr.Texture.Value as ITexture;
             var textureData = Memory<byte>.Empty;
             if (texture != null) {
                 texture.Deserialize(SnuggleCore.Instance.Settings.ObjectOptions);

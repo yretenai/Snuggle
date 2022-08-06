@@ -651,11 +651,6 @@ public static class SnuggleMeshFile {
             materialElement.PBR.BaseColorTexture = new TextureInfo { TexCoord = 0, Index = mainTexId };
         }
 
-        if (material.SavedProperties.Colors.TryGetValue("_Color", out var baseColor) || material.SavedProperties.Colors.TryGetValue("_BaseColor", out baseColor)) {
-            materialElement.PBR ??= new PBRMaterial();
-            materialElement.PBR.BaseColorFactor = new List<double> { baseColor.R, baseColor.G, baseColor.B, baseColor.A };
-        }
-
         if (normalTexId > -1) {
             materialElement.NormalTexture = new NormalTextureInfo { TexCoord = 0, Index = normalTexId };
         }

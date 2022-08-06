@@ -9,8 +9,8 @@ using Snuggle.Core.Options;
 
 namespace Snuggle.Core.Models.Objects.Animation;
 
-public record StateMachineBehaviourVectorDescription(Dictionary<StateKey, StateRange> BehaviourRanges) {
-    public static StateMachineBehaviourVectorDescription Default { get; } = new(new Dictionary<StateKey, StateRange>());
+public record StateMachineBehaviourVectorDescription(KeyValuePair<StateKey, StateRange>[] BehaviourRanges) {
+    public static StateMachineBehaviourVectorDescription Default { get; } = new(Array.Empty<KeyValuePair<StateKey, StateRange>>());
 
     private long IndicesStart { get; init; } = -1;
     public Memory<uint>? Indices { get; set; }
@@ -21,10 +21,9 @@ public record StateMachineBehaviourVectorDescription(Dictionary<StateKey, StateR
 
     public static StateMachineBehaviourVectorDescription FromReader(BiEndianBinaryReader reader, SerializedFile file) {
         var count = reader.ReadInt32();
-        var ranges = new Dictionary<StateKey, StateRange>();
-        ranges.EnsureCapacity(count);
-        for (var i = 0; i < ranges.Count; ++i) {
-            ranges[StateKey.FromReader(reader, file)] = StateRange.FromReader(reader, file);
+        var ranges = new KeyValuePair<StateKey, StateRange>[count];
+        for (var i = 0; i < count; ++i) {
+            ranges[i] = new KeyValuePair<StateKey, StateRange>(StateKey.FromReader(reader, file), StateRange.FromReader(reader, file));
         }
 
         var start = reader.BaseStream.Position;
@@ -38,7 +37,7 @@ public record StateMachineBehaviourVectorDescription(Dictionary<StateKey, StateR
             throw new IncompleteDeserialization();
         }
 
-        writer.Write(BehaviourRanges.Count);
+        writer.Write(BehaviourRanges.Length);
         foreach (var (key, value) in BehaviourRanges) {
             key.ToWriter(writer, serializedFile, targetVersion);
             value.ToWriter(writer, serializedFile, targetVersion);
