@@ -7,4 +7,5 @@ public enum UnityBuildType {
     Beta = 'b',
     Final = 'f',
     Patch = 'p',
+    Experimental = 'x',
 }
