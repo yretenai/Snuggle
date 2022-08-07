@@ -3,61 +3,13 @@ using System.Runtime.InteropServices;
 
 namespace Snuggle.Core.Models.Objects.Math;
 
-public record struct Matrix4X4(
-    float M11,
-    float M21,
-    float M31,
-    float M41,
-    float M12,
-    float M22,
-    float M32,
-    float M42,
-    float M13,
-    float M23,
-    float M33,
-    float M43,
-    float M14,
-    float M24,
-    float M34,
-    float M44) {
-    public static Matrix4X4 Zero { get; } = new(
-        1,
-        0,
-        0,
-        0,
-        0,
-        1,
-        0,
-        0,
-        0,
-        0,
-        1,
-        0,
-        0,
-        0,
-        0,
-        1);
+public record struct Matrix4X4(Vector4 M1, Vector4 M2, Vector4 M3, Vector4 M4) {
+    public static Matrix4X4 Zero { get; } = new(new Vector4(1, 0, 0, 0), new Vector4(0, 1, 0, 0), new Vector4(0, 0, 1, 0), new Vector4(0, 0, 0, 1));
 
     public float[] GetFloats() {
         return MemoryMarshal.Cast<Matrix4X4, float>(new[] { this }).ToArray();
     }
 
     public Matrix4x4 GetNumerics() =>
-        new(
-            M11,
-            M12,
-            M13,
-            M14,
-            M21,
-            M22,
-            M23,
-            M24,
-            M31,
-            M32,
-            M33,
-            M34,
-            M41,
-            M42,
-            M43,
-            M44);
+        new(M1.X, M1.Y, M1.Z, M1.W, M2.X, M2.Y, M2.Z, M2.W, M3.X, M3.Y, M3.Z, M3.W, M4.X, M4.Y, M4.Z, M4.W);
 }

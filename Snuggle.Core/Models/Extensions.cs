@@ -355,16 +355,11 @@ public static class Extensions {
                 return -1;
         }
 
-        var w = texture.Width;
-        var h = texture.Height;
-
-        var size = 0;
-        for (var i = 0; i < texture.MipCount; ++i) { // TODO: is this optimizeable?
-            size += w * h / pixelsPerBlock * bitsPerPixel / 8;
-            w >>= 1;
-            h >>= 1;
+        var size = (texture.Width * texture.Height / pixelsPerBlock * bitsPerPixel) >> 3;
+        var mask = size;
+        for (var i = 0; i < 8 - 1; ++i) {
+            size ^= (mask >>= 2);
         }
-
         return size;
     }
 }

@@ -52,7 +52,6 @@ public record UnityExternalInfo(string Path, Guid Guid, int Type, string AssetPa
             writer.Write(Type);
         }
 
-        // TODO: Should we store the original path that was not modified and use it here?
         writer.WriteNullString(AssetPath);
     }
 }

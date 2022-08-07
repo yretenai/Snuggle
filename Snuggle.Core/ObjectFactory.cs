@@ -83,7 +83,7 @@ public static class ObjectFactory {
 
     public static SerializedObject GetInstance(Stream stream, UnityObjectInfo info, SerializedFile serializedFile, object? overrideType = null, UnityGame? overrideGame = null) {
         while (true) {
-            if (!TryFindObjectType(info, serializedFile, overrideType, ref overrideGame, out var hasImplementation, out var type)) {
+            if (!TryFindObjectType(info, serializedFile, overrideType, ref overrideGame, out _, out var type)) {
                 continue;
             }
 
@@ -93,14 +93,7 @@ public static class ObjectFactory {
 
             using var reader = new BiEndianBinaryReader(stream, serializedFile.Header.IsBigEndian);
             try {
-                return CreateObjectInstance(
-                    reader,
-                    info,
-                    serializedFile,
-                    type,
-                    hasImplementation,
-                    overrideType,
-                    overrideGame);
+                return CreateObjectInstance(reader, info, serializedFile, type, overrideType);
             } catch (Exception e) {
                 Log.Error(e, "Failed to deserialize object {info.PathId} ({ClassId:G}, {Game:G})", info.PathId, overrideType ?? info.ClassId, overrideGame ?? UnityGame.Default);
                 if (overrideType == null || overrideType.Equals(UnityClassId.Object) == false && overrideType.Equals(UnityClassId.NamedObject) == false) {
@@ -143,21 +136,8 @@ public static class ObjectFactory {
         return true;
     }
 
-    private static SerializedObject CreateObjectInstance(
-        BiEndianBinaryReader reader,
-        UnityObjectInfo info,
-        SerializedFile serializedFile,
-        Type type,
-        bool hasImplementation,
-        object? overrideType,
-        UnityGame? overrideGame) {
-#if DEBUG
-        var currentMemory = GC.GetTotalMemory(false);
-#endif
+    private static SerializedObject CreateObjectInstance(BiEndianBinaryReader reader, UnityObjectInfo info, SerializedFile serializedFile, Type type, object? overrideType) {
         var instance = Activator.CreateInstance(type, reader, info, serializedFile);
-#if DEBUG
-        var memoryUse = GC.GetTotalMemory(false) - currentMemory;
-#endif
         if (instance is not SerializedObject serializedObject) {
             throw new InvalidTypeImplementation(overrideType ?? info.ClassId);
         }
@@ -173,7 +153,7 @@ public static class ObjectFactory {
         if (reader.Unconsumed == 0) {
             return null;
         }
-        
+
         var start = reader.BaseStream.Position;
         object? value;
         try {
@@ -290,7 +270,7 @@ public static class ObjectFactory {
                         break;
                     }
                     case "sphericalharmonicsl2": {
-                        value = reader.ReadArray<float>(3 * 9); // todo(naomi): SphericalHarmonicsL2 3x9 float
+                        value = reader.ReadStruct<SphericalHarmonicsL2>();
                         break;
                     }
                     case "propertyname": {
