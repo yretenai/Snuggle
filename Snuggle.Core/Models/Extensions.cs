@@ -355,10 +355,11 @@ public static class Extensions {
                 return -1;
         }
 
-        var size = (texture.Width * texture.Height / pixelsPerBlock * bitsPerPixel) >> 3;
-        var mask = size;
-        for (var i = 0; i < 8 - 1; ++i) {
-            size ^= (mask >>= 2);
+        var size = 0;
+        var mask = (texture.Width * texture.Height / pixelsPerBlock * bitsPerPixel) >> 3;
+        for (var i = 0; i < texture.MipCount; ++i) {
+            size ^= mask;
+            mask >>= 2;
         }
         return size;
     }
