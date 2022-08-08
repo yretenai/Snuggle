@@ -37,7 +37,7 @@ Snuggle's only benefit over other systems is the ability load large games withou
 |   IL2CPP Integration    |                    ❌                   |           ❌           |                  ✔️[^6]                  |         ❌         |
 | Game Specific Framework |                    ✔️                   |           ❌           |                  ❌[^7]                  |         ❌         |
 |      Plugin System      |                    ❌                   |           ❌           |                  ❌[^7]                  |         ❌         |
-|    Previewing Assets    | Texture, Sprite, Mesh, GameObject Scene |  Texture, Sprite, Mesh  |             Texture, Sprite              |        None         |
+|    Previewing Assets    | Texture, Sprite, Mesh, GameObject Scene, Audio |  Texture, Sprite, Mesh, Audio, Font  |             Texture, Sprite              |        None         |
 |    Deferred Loading     |                    ✔️                   |           ❌           |                    ❌                    |         ❌         |
 |  VFS Container Caching  |                    ✔️                   |           ❌           |                    ❌                    |         ✔️         |
 |    Rebuilding Assets    |                  ✔️[^8]                 |           ❌           |                    ❌                    |       ✔️[^9]       |
