@@ -29,19 +29,19 @@ Snuggle's only benefit over other systems is the ability load large games withou
 |        AudioClip        |                    ✔️                   |           ✔️           |                    ✔️                    |         ❌         |
 |         Terrain         |                    ❌                   |           ❌           |                    ✔️                    |         ❌         |
 |    TypeTree Dumping     |                    ❌                   |           ✔️           |                    ✔️                    |         ❌         |
-|     General Format      |                  json                   |          json           |                json, yaml                |                     |
-|     Texture Formats     |                png, dds                 |   png, tga, jpeg, bmp   | bmp, gif, jpeg, png, pbm, tiff, tga, raw |      png, tga       |
-|      Mesh Formats       |                 glTF 2                  |        obj, fbx         |               glTF 2 (glb)               |                     |
-|      Audio Formats      |              wav, ogg, fsb              | mp3, ogg, wav, m4a, fsb |         wav, m4a, at9, vag, fsb          |                     |
 |   Shader Disassembly    |                    ❌                   |         ✔️[^5]         |                    ✔️                    |         ❌         |
 |   IL2CPP Integration    |                    ❌                   |           ❌           |                  ✔️[^6]                  |         ❌         |
 | Game Specific Framework |                    ✔️                   |           ❌           |                  ❌[^7]                  |         ❌         |
 |      Plugin System      |                    ❌                   |           ❌           |                  ❌[^7]                  |         ❌         |
-|    Previewing Assets    | Texture, Sprite, Mesh, GameObject Scene, Audio |  Texture, Sprite, Mesh, Audio, Font  |             Texture, Sprite              |        None         |
 |    Deferred Loading     |                    ✔️                   |           ❌           |                    ❌                    |         ❌         |
 |  VFS Container Caching  |                    ✔️                   |           ❌           |                    ❌                    |         ✔️         |
 |    Rebuilding Assets    |                  ✔️[^8]                 |           ❌           |                    ❌                    |       ✔️[^9]       |
 |     Scene Hierarchy     |                    ❌                   |           ✔️           |                    ✔️                    |         ✔️         |
+|    Previewing Assets    | Texture, Sprite, Mesh, GameObject Scene, Audio |  Texture, Sprite, Mesh, Audio, Font  |             Texture, Sprite              |        None         |
+|     General Format      |                  json                   |          json           |                json, yaml                |                     |
+|     Texture Formats     |                png, dds                 |   png, tga, jpeg, bmp   | bmp, gif, jpeg, png, pbm, tiff, tga, raw |      png, tga       |
+|      Mesh Formats       |                 glTF 2                  |        obj, fbx         |               glTF 2 (glb)               |                     |
+|      Audio Formats      |              wav, ogg, fsb              | mp3, ogg, wav, m4a, fsb |         wav, m4a, at9, vag, fsb          |                     |
 
 [^1]: AssetRipper has limited support for 3.0.0~3.3.0.
 [^2]: Core Library and Command Line are supported on Windows, Mac, and Linux. GUI is Windows only.
