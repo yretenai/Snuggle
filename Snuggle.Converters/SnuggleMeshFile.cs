@@ -36,8 +36,8 @@ public static class SnuggleMeshFile {
         "TEXCOORD_5",
         "TEXCOORD_6",
         "TEXCOORD_7",
-        "JOINTS_0",
         "WEIGHTS_0",
+        "JOINTS_0",
     };
 
     private static JsonSerializerOptions Options =>
