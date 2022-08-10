@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using Snuggle.Core.IO;
 
 namespace Snuggle.Core.Models.Objects.Graphics;
@@ -15,8 +14,18 @@ public record StaticBatchInfo(ushort FirstSubmesh, ushort SubmeshCount) {
     }
 
     public static StaticBatchInfo FromSubsetIndices(List<int> subsetIndices) {
-        var min = subsetIndices.Min();
-        var max = subsetIndices.Max();
-        return new StaticBatchInfo((ushort) min, (ushort) (max - min + 1));
+        var min = ushort.MaxValue;
+        var max = ushort.MinValue;
+        foreach (var indice in subsetIndices) {
+            if (indice < min) {
+                min = (ushort) indice;
+            }
+
+            if (indice > max) {
+                max = (ushort) indice;
+            }
+        }
+
+        return new StaticBatchInfo(min, (ushort) (max - min + 1));
     }
 }

@@ -35,7 +35,7 @@ public record UnityObjectInfo(
             classId = reader.ReadUInt16();
             typeIndex = types.Select((x, i) => (i, x)).First(x => (int) x.x.ClassId == typeId).i;
         } else {
-            classId = (int) types.ElementAt(typeId).ClassId;
+            classId = (int) types[typeId].ClassId;
         }
 
         var classIdEx = ObjectFactory.GetClassIdForGame(options.Game, classId);
