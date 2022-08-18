@@ -79,7 +79,7 @@ public class AssetCollection : IDisposable {
             options.Reporter?.SetStatus("Rebuilding failed!");
             Log.Error(e, "Rebuilding failed!");
         }
-        
+
         options.Reporter?.Reset();
     }
 
@@ -111,7 +111,10 @@ public class AssetCollection : IDisposable {
 
     public void LoadBundle(Stream dataStream, object tag, IFileHandler handler, SnuggleCoreOptions options, bool leaveOpen = false) => LoadBundle(new Bundle(dataStream, tag, handler, options, leaveOpen));
 
-    public void LoadBundle(string path, SnuggleCoreOptions options, bool leaveOpen = false) => LoadBundle(File.OpenRead(path), path, FileStreamHandler.Instance.Value, options, leaveOpen);
+    public void LoadBundle(string path, SnuggleCoreOptions options, bool leaveOpen = false) {
+        var isSplit = Path.GetExtension(path) == ".split0";
+        LoadBundle(isSplit ? new SplitFileStream(path) : new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), path, isSplit ? OffsetStreamHandler.SplitInstance.Value : OffsetStreamHandler.FileInstance.Value, options, leaveOpen);
+    }
 
     public void LoadBundleSequence(Stream dataStream, object tag, IFileHandler handler, SnuggleCoreOptions options, int align = 1, bool leaveOpen = false) {
         try {
@@ -130,7 +133,10 @@ public class AssetCollection : IDisposable {
         }
     }
 
-    public void LoadBundleSequence(string path, SnuggleCoreOptions options, int align = 1) => LoadBundleSequence(File.OpenRead(path), path, MultiStreamHandler.FileInstance.Value, options, align);
+    public void LoadBundleSequence(string path, SnuggleCoreOptions options, int align = 1) {
+        var isSplit = Path.GetExtension(path) == ".split0";
+        LoadBundleSequence(isSplit ? new SplitFileStream(path) : new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), path, isSplit ? OffsetStreamHandler.SplitInstance.Value : OffsetStreamHandler.FileInstance.Value, options, align);
+    }
 
     public void LoadSerializedFile(Stream dataStream, object tag, IFileHandler handler, SnuggleCoreOptions options, bool leaveOpen = false, UnityVersion? fallbackVersion = null) {
         try {
@@ -162,36 +168,15 @@ public class AssetCollection : IDisposable {
         }
     }
 
-    public void LoadSerializedFile(string path, SnuggleCoreOptions options) => LoadSerializedFile(File.OpenRead(path), path, FileStreamHandler.Instance.Value, options);
-
-    public void LoadSplitFile(string split0Path, SnuggleCoreOptions options, string extTemplate = ".split{0}") {
-        var i = 0;
-        var streams = new List<Stream>();
-        while (File.Exists(split0Path + string.Format(extTemplate, i))) {
-            streams.Add(File.OpenRead(split0Path + string.Format(extTemplate, i++)));
-        }
-
-        LoadSplitFile(streams, options, split0Path);
+    public void LoadSerializedFile(string path, SnuggleCoreOptions options) {
+        var isSplit = Path.GetExtension(path) == ".split0";
+        LoadSerializedFile(isSplit ? new SplitFileStream(path) : new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), path, isSplit ? OffsetStreamHandler.SplitInstance.Value : OffsetStreamHandler.FileInstance.Value, options);
     }
 
-    public void LoadSplitFile(List<Stream> streams, SnuggleCoreOptions options, string hintTag = "splitFile", bool leaveOpen = false) {
-        var memory = new MemoryStream();
-        memory.SetLength(streams.Sum(x => x.Length - x.Position));
-        memory.Seek(0, SeekOrigin.Begin);
-
-        foreach (var stream in streams) {
-            stream.CopyTo(memory);
-            if (!leaveOpen) {
-                stream.Close();
-                stream.Dispose();
-            }
-        }
-
-        memory.Seek(0, SeekOrigin.Begin);
-        LoadFile(memory, hintTag, new MemoryStreamHandler(memory), options, leaveOpen: true);
+    public void LoadFile(string path, SnuggleCoreOptions options) {
+        var isSplit = Path.GetExtension(path) == ".split0";
+        LoadFile(isSplit ? new SplitFileStream(path) : new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), path, isSplit ? OffsetStreamHandler.SplitInstance.Value : OffsetStreamHandler.FileInstance.Value, options);
     }
-
-    public void LoadFile(string path, SnuggleCoreOptions options) => LoadFile(File.OpenRead(path), path, MultiStreamHandler.FileInstance.Value, options);
 
     private void LoadFile(Stream dataStream, object tag, IFileHandler handler, SnuggleCoreOptions options, int align = 1, bool leaveOpen = false) {
         Log.Information("Attempting to load {Tag}", tag);

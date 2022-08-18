@@ -7,9 +7,7 @@ using Snuggle.Core.Options;
 namespace Snuggle.Core.IO;
 
 public class FileStreamHandler : IFileHandler {
-    public static Lazy<FileStreamHandler> Instance { get; } = new();
-
-    public Stream OpenFile(object tag) {
+    public virtual Stream OpenFile(object tag) {
         var path = tag switch {
             FileInfo fi => fi.FullName,
             string str => str,
@@ -42,10 +40,12 @@ public class FileStreamHandler : IFileHandler {
         if (name == null) {
             throw new NullReferenceException();
         }
+
         var parentName = IFileHandler.UnpackTagToString(parent);
         if (parentName == null) {
             throw new NullReferenceException();
         }
+
         var root = options.CacheDirectory ?? Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? "./";
         if (!Path.IsPathRooted(options.CacheDirectory)) {
             root = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, root);

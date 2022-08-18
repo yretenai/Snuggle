@@ -279,7 +279,7 @@ public class SerializedFile : IRenewable {
             switch (handler) {
                 case BundleStreamHandler bsh:
                     return bsh.BundleFile;
-                case MultiStreamHandler msh:
+                case OffsetStreamHandler msh:
                     handler = msh.UnderlyingHandler;
                     continue;
             }

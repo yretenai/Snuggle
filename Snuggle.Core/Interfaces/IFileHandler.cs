@@ -19,7 +19,7 @@ public interface IFileHandler : IDisposable {
                     return fi.Name;
                 case string str:
                     return str;
-                case MultiMetaInfo mmi: {
+                case OffsetInfo mmi: {
                     tag = mmi.Tag;
                     continue;
                 }
@@ -46,5 +46,4 @@ public interface IFileHandler : IDisposable {
         var str = UnpackTagToString(tag);
         return string.IsNullOrEmpty(str) ? null : Path.GetFileNameWithoutExtension(str);
     }
-
 }

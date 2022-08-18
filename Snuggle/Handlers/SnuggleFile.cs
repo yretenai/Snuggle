@@ -85,11 +85,7 @@ public static class SnuggleFile {
                     Log.Information("Loading {Name}", Path.GetFileName(file));
                     instance.Status.SetProgress(instance.Status.Value + 1);
                     var ext = Path.GetExtension(file);
-                    if (ext.StartsWith(".split")) {
-                        if (ext == ".split0") {
-                            instance.Collection.LoadSplitFile(file, instance.Settings.Options);
-                        }
-                    } else {
+                    if (!ext.StartsWith(".split") || ext == ".split0") {
                         instance.Collection.LoadFile(file, instance.Settings.Options);
                     }
                 }

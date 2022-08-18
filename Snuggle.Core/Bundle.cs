@@ -15,7 +15,6 @@ namespace Snuggle.Core;
 
 public class Bundle : IAssetBundle {
     private static Dictionary<string, (UnityFormat, UnityGame)>? _NonStandardLookup;
-    public Bundle(string path, SnuggleCoreOptions options) : this(File.OpenRead(path), path, FileStreamHandler.Instance.Value, options) { }
 
     public Bundle(Stream dataStream, object tag, IFileHandler fileHandler, SnuggleCoreOptions options, bool leaveOpen = false) {
         try {
@@ -130,7 +129,7 @@ public class Bundle : IAssetBundle {
             Container.ToWriter(writer, Header, Options, blocks, dataStream, serializationOptions, start);
             outputStream.Seek(0, SeekOrigin.Begin);
             return true;
-        } catch(Exception e) {
+        } catch (Exception e) {
             Log.Error(e, "Failed to serialize bundle");
             return false;
         }
@@ -144,7 +143,7 @@ public class Bundle : IAssetBundle {
                 break;
             }
 
-            var bundle = new Bundle(new OffsetStream(dataStream), new MultiMetaInfo(tag, start, 0), handler, options, true);
+            var bundle = new Bundle(new OffsetStream(dataStream), new OffsetInfo(tag, start, 0), handler, options, true);
             bundles.Add(bundle);
             dataStream.Seek(start + bundle.Container.Length, SeekOrigin.Begin);
 
