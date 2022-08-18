@@ -13,45 +13,46 @@ Snuggle's only benefit over other systems is the ability load large games withou
 |         Feature         |                 Snuggle                 |       AssetStudio       |               AssetRipper                |        UABEA        |
 | :---------------------: | :-------------------------------------: | :---------------------: | :--------------------------------------: | :-----------------: |
 |  Minimum Unity Version  |                  5.0.0                  |          3.4.0          |                3.4.0[^1]                 |        5.0.0        |
-|  Maximum Unity Version  |                 2021.1                  |         2022.1          |                  2022.1                  |       2021.2        |
-|        Platforms        |                Mixed[^2]                |         Windows         |           Windows, Linux, Mac            | Windows, Linux, Mac |
+|  Maximum Unity Version  |                 2021.1                  |         2022.1          |                2022.1[^2]                |       2021.2[^2]    |
+|        Platforms        |                Mixed[^3]                |         Windows         |           Windows, Linux, Mac            | Windows, Linux, Mac |
 |         License         |                   MIT                   |           MIT           |                  GPLv3                   |         MIT         |
 |         Texture         |                    ✔️                   |           ✔️           |                    ✔️                    |         ✔️         |
 |         Sprite          |                    ✔️                   |           ✔️           |                    ✔️                    |         ❌         |
 |          Mesh           |                    ✔️                   |           ✔️           |                    ✔️                    |         ❌         |
-|      MonoBehaviour      |                    ✔️                   |           ✔️           |                    ✔️                    |       ❌[^3]       |
+|      MonoBehaviour      |                    ✔️                   |           ✔️           |                    ✔️                    |       ❌[^4]       |
 |        FontAsset        |                    ❌                   |           ✔️           |                    ✔️                    |         ❌         |
 |      MovieTexture       |                    ❌                   |           ✔️           |                    ✔️                    |         ❌         |
 |        VideoClip        |                    ❌                   |           ✔️           |                    ✔️                    |         ❌         |
 |        TextAsset        |                    ✔️                   |           ✔️           |                    ✔️                    |         ✔️         |
-|      AnimationClip      |                    ❌                   |         ✔️[^4]         |                    ✔️                    |         ❌         |
-|         Shader          |                    ❌                   |         ✔️[^5]         |                    ✔️                    |         ❌         |
+|      AnimationClip      |                    ❌                   |         ✔️[^5]         |                    ✔️                    |         ❌         |
+|         Shader          |                    ❌                   |         ✔️[^6]         |                    ✔️                    |         ❌         |
 |        AudioClip        |                    ✔️                   |           ✔️           |                    ✔️                    |         ❌         |
 |         Terrain         |                    ❌                   |           ❌           |                    ✔️                    |         ❌         |
 |    TypeTree Dumping     |                    ❌                   |           ✔️           |                    ✔️                    |         ❌         |
-|   Shader Disassembly    |                    ❌                   |         ✔️[^5]         |                    ✔️                    |         ❌         |
-|   IL2CPP Integration    |                    ❌                   |           ❌           |                  ✔️[^6]                  |         ❌         |
-| Game Specific Framework |                    ✔️                   |           ❌           |                  ❌[^7]                  |         ❌         |
-|      Plugin System      |                    ❌                   |           ❌           |                  ❌[^7]                  |         ❌         |
+|   Shader Disassembly    |                    ❌                   |         ✔️[^6]         |                    ✔️                    |         ❌         |
+|   IL2CPP Integration    |                    ❌                   |           ❌           |                  ✔️[^7]                  |         ❌         |
+| Game Specific Framework |                    ✔️                   |           ❌           |                    ❌                    |         ❌         |
+|      Plugin System      |                    ❌                   |           ❌           |                    ✔️                    |         ✔️         |
 |    Deferred Loading     |                    ✔️                   |           ❌           |                    ❌                    |         ❌         |
 |  VFS Container Caching  |                    ✔️                   |           ❌           |                    ❌                    |         ✔️         |
-|    Rebuilding Assets    |                  ✔️[^8]                 |           ❌           |                    ❌                    |       ✔️[^9]       |
+|    Rebuilding Assets    |                  ✔️[^8]                 |           ❌           |                  ❌[^9]                  |       ✔️[^10]      |
 |     Scene Hierarchy     |                    ❌                   |           ✔️           |                    ✔️                    |         ✔️         |
-|    Previewing Assets    | Texture, Sprite, Mesh, GameObject Scene, Audio |  Texture, Sprite, Mesh, Audio, Font  |             Texture, Sprite              |        None         |
-|     General Format      |                  json                   |          json           |                json, yaml                |                     |
+|    Previewing Assets    | Texture, Sprite, Mesh, GameObject Scene, Audio |  Texture, Sprite, Mesh, Audio, Font  |             Texture, Sprite, Audio              |        None         |
+|     General Format      |                  json                   |          json           |                    yaml                  |         json        |
 |     Texture Formats     |                png, dds                 |   png, tga, jpeg, bmp   | bmp, gif, jpeg, png, pbm, tiff, tga, raw |      png, tga       |
 |      Mesh Formats       |                 glTF 2                  |        obj, fbx         |               glTF 2 (glb)               |                     |
-|      Audio Formats      |              wav, ogg, fsb              | mp3, ogg, wav, m4a, fsb |         wav, m4a, at9, vag, fsb          |                     |
+|      Audio Formats      |              wav, ogg, fsb              | mp3, ogg, wav, m4a, fsb |       wav, ogg, m4a, at9, vag, fsb       |                     |
 
 [^1]: AssetRipper has limited support for 3.0.0~3.3.0.
-[^2]: Core Library and Command Line are supported on Windows, Mac, and Linux. GUI is Windows only.
-[^3]: Support is added in AssetTools.NET.
-[^4]: Humanoid Animations are not supported.
-[^5]: Only SPIR-V and GLSL.
-[^6]: Through Cpp2IL.
-[^7]: Plugin system is planned
+[^2]: These tools are designed to easily update for new Unity versions.
+[^3]: Core Library and Command Line are supported on Windows, Mac, and Linux. GUI is Windows only.
+[^4]: Support is added in AssetTools.NET.
+[^5]: Humanoid Animations are not supported.
+[^6]: Only SPIR-V and GLSL.
+[^7]: Through Cpp2IL.
 [^8]: Serialized Files and UnityFS Bundles only, assets are not rebuilt.
-[^9]: Bundles are not supported.
+[^9]: Asset editing is a planned feature for AssetRipper.
+[^10]: Bundles are not supported.
 
 ### Special Thanks
 
