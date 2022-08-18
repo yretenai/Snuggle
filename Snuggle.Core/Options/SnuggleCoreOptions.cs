@@ -60,7 +60,7 @@ public record SnuggleCoreOptions(
         if (options.Version <= 5) {
             options = options with { CacheDirectory = "Cache" };
         }
-        
+
         // Version 6 added GameOptions
         // Version 7 removed GameOptions
 

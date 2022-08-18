@@ -8,7 +8,7 @@ using System.Linq;
 using Mono.Cecil;
 using Unity.CecilTools.Extensions;
 
-namespace Unity.CecilTools; 
+namespace Unity.CecilTools;
 
 public static class CecilUtils {
     public static MethodDefinition FindInTypeExplicitImplementationFor(MethodDefinition interfaceMethod, TypeDefinition typeDefinition) {

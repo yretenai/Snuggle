@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using Mono.Cecil;
 using Unity.CecilTools.Extensions;
 
-namespace Unity.SerializationLogic; 
+namespace Unity.SerializationLogic;
 
 public class UnityEngineTypePredicates {
     private const string Gradient = "UnityEngine.Gradient";

@@ -5,7 +5,7 @@
 using System;
 using Mono.Cecil;
 
-namespace Unity.CecilTools; 
+namespace Unity.CecilTools;
 
 public static class ElementType {
     public static TypeReference For(TypeReference byRefType) {

@@ -56,6 +56,7 @@ public record UnityBundleBlockInfo(int Size, int CompressedSize, UnityBundleBloc
             default:
                 throw new NotSupportedException($"Unity Compression type {serializationOptions.BlockCompressionType:G} is not supported as single chunk");
         }
+
         writer.Write(blockDataStream.Length);
         if (header.Format == UnityFormat.FS) {
             writer.Write((ushort) UnityCompressionType.None);

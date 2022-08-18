@@ -376,7 +376,7 @@ public static class SnuggleMeshFile {
                 if (info == null) {
                     continue;
                 }
-                
+
                 var stride = strides[info.Stream];
                 var offset = i * stride;
                 var data = vertexStream[info.Stream][(offset + info.Offset)..].Span;
@@ -459,7 +459,7 @@ public static class SnuggleMeshFile {
 
         var accessors = new int[(int) VertexChannel.MaxChannelsPlusOne];
         Array.Fill(accessors, -1);
-        
+
         {
             var (accessor, accessorId) = gltf.CreateAccessor(positions, buffer, BufferViewTarget.ArrayBuffer, AccessorType.VEC3, AccessorComponentType.Float);
             accessor.Min = new List<double> { minPos.X, minPos.Y, minPos.Z };

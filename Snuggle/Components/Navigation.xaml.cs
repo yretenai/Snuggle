@@ -53,8 +53,9 @@ public partial class Navigation {
         };
     }
 
+    private static bool LockFilters { get; set; }
+
     private static void BuildSettingMenu(ItemsControl menu, Type type, string objectName) {
-        // typeof(SnuggleOptions).GetProperty(objectName)?.SetValue(SnuggleCore.Instance.Settings, newValue)
         var current = typeof(SnuggleOptions).GetProperty(objectName)!.GetValue(SnuggleCore.Instance.Settings)!;
         var i = 0;
         var descriptions = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
@@ -256,12 +257,11 @@ public partial class Navigation {
         SnuggleCore.Instance.SetOptions(SnuggleCore.Instance.Settings with { RecentFiles = new List<string>(), RecentDirectories = new List<string>() });
     }
 
-    private static bool LockFilters { get; set; } 
     private static void ToggleFilter(object sender, RoutedEventArgs e) {
         if (LockFilters) {
             return;
         }
-        
+
         var tag = ((FrameworkElement) sender).Tag;
         var instance = SnuggleCore.Instance;
         if (instance.Filters.Contains(tag)) {
@@ -281,15 +281,15 @@ public partial class Navigation {
         LockFilters = true;
         UncheckAllMenuItems(Filters.Items);
         LockFilters = false;
-        
+
         var instance = SnuggleCore.Instance;
         instance.Filters.Clear();
         instance.OnPropertyChanged(nameof(SnuggleCore.Filters));
     }
 
     private static void UncheckAllMenuItems(IEnumerable collection) {
-        foreach(var item in collection) {
-            if(item is MenuItem menuItem) {
+        foreach (var item in collection) {
+            if (item is MenuItem menuItem) {
                 if (menuItem.IsCheckable) {
                     menuItem.IsChecked = false;
                 }

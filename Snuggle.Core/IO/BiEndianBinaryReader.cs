@@ -216,7 +216,7 @@ public class BiEndianBinaryReader : BinaryReader {
         if (count == 0) {
             return Array.Empty<T>();
         }
-        
+
         var array = new T[count];
         BaseStream.ReadExactly(MemoryMarshal.AsBytes(array.AsSpan()));
         if (ShouldInvertEndianness) {

@@ -135,6 +135,7 @@ public class Entities {
                             for (var k = 0; k < count; ++k) {
                                 buffer[k] = slice.Slice(16 + k * type.Type.ElementSize, type.Type.ElementSize).ToArray();
                             }
+
                             var bufferData = new EntityComponent(type.Type, type.TypeAssemblies, buffer);
 
                             entityInstance.Components[j] = bufferData;
@@ -168,7 +169,7 @@ public class ObjectReader {
         if (data.Length == 0) {
             return null;
         }
-        
+
         var reader = new MemoryReader(data);
         return ReadUnmanagedObject(ConstructType(resolver, typeRef), reader);
     }
@@ -218,22 +219,22 @@ public class ObjectReader {
         if (UnitySerializationLogic.IsUnityEngineObject(typeReference)) {
             return reader.Read<int>(); // todo: read ReferencedSceneAssets.
         }
-        
+
         var typeDefinition = typeReference.Resolve();
-        
+
         var fields = new Dictionary<string, object?>();
         var baseOffset = -1;
         foreach (var field in typeDefinition.Fields) {
             if (field.IsStatic) {
                 continue;
             }
-            
+
             var cpp2ilAttribute = field.CustomAttributes.FirstOrDefault(x => x.AttributeType.FullName == "Cpp2IlInjected.FieldOffsetAttribute");
             if (cpp2ilAttribute == null) { // we need accurate field offsets.
                 return null;
             }
 
-            var offset = int.Parse(((string)cpp2ilAttribute.Fields.First(x => x.Name == "Offset").Argument.Value)[2..], NumberStyles.HexNumber);
+            var offset = int.Parse(((string) cpp2ilAttribute.Fields.First(x => x.Name == "Offset").Argument.Value)[2..], NumberStyles.HexNumber);
             if (baseOffset == -1) {
                 baseOffset = offset;
                 offset = 0;
@@ -269,6 +270,7 @@ public class ObjectReader {
             var generics = typeRef.Generics.Select(_ => ConstructType(resolver, typeRef)).ToArray();
             return type.MakeGenericInstanceType(generics);
         }
+
         return type;
     }
 }

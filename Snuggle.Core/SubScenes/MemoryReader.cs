@@ -165,6 +165,7 @@ public class MemoryReader {
         if (size == -1) {
             size = Data.Length - pos;
         }
+
         return new MemoryReader(Data.Slice(pos, size));
     }
 

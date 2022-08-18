@@ -9,7 +9,7 @@ using Mono.Cecil;
 using Unity.CecilTools;
 using Unity.CecilTools.Extensions;
 
-namespace Unity.SerializationLogic; 
+namespace Unity.SerializationLogic;
 
 internal class GenericInstanceHolder {
     public int Count;

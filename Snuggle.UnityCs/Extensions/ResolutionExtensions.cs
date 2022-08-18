@@ -5,7 +5,7 @@
 using System;
 using Mono.Cecil;
 
-namespace Unity.CecilTools.Extensions; 
+namespace Unity.CecilTools.Extensions;
 
 public static class ResolutionExtensions {
     public static TypeDefinition CheckedResolve(this TypeReference type) {

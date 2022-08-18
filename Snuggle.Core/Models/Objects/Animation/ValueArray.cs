@@ -7,7 +7,7 @@ using Snuggle.Core.Options;
 namespace Snuggle.Core.Models.Objects.Animation;
 
 public record ValueArray(bool[] BoolValues, int[] IntValues, float[] FloatValues, Vector4[] PositionValues, Quaternion[] RotationValues, Vector4[] ScaleValues) {
-    public static ValueArray Default { get; } = new( Array.Empty<bool>(), Array.Empty<int>(), Array.Empty<float>(), Array.Empty<Vector4>(), Array.Empty<Quaternion>(), Array.Empty<Vector4>());
+    public static ValueArray Default { get; } = new(Array.Empty<bool>(), Array.Empty<int>(), Array.Empty<float>(), Array.Empty<Vector4>(), Array.Empty<Quaternion>(), Array.Empty<Vector4>());
 
     public static ValueArray FromReader(BiEndianBinaryReader reader, ObjectDeserializationOptions options) {
         var bools = reader.ReadArray<bool>(reader.ReadInt32());
@@ -18,7 +18,7 @@ public record ValueArray(bool[] BoolValues, int[] IntValues, float[] FloatValues
         var positions = reader.ReadArray<Vector4>(reader.ReadInt32());
         var rotations = reader.ReadArray<Quaternion>(reader.ReadInt32());
         var scales = reader.ReadArray<Vector4>(reader.ReadInt32());
-        
+
         return new ValueArray(bools, ints, floats, positions, rotations, scales);
     }
 

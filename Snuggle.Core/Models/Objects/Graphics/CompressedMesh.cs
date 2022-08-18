@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text.Json.Serialization;
@@ -173,7 +172,7 @@ public record CompressedMesh(
             return Memory<byte>.Empty;
         }
 
-        for(var channel = VertexChannel.Vertex; channel < VertexChannel.MaxChannelsPlusOne; channel++) {
+        for (var channel = VertexChannel.Vertex; channel < VertexChannel.MaxChannelsPlusOne; channel++) {
             var vector = GetVectorForChannel(channel);
             if (vector.Count == 0) {
                 channels[(int) channel] = ChannelInfo.Default;

@@ -10,7 +10,6 @@ using Snuggle.Converters;
 using Snuggle.Core;
 using Snuggle.Core.Implementations;
 using Snuggle.Core.Interfaces;
-using Snuggle.Core.Meta;
 using Snuggle.Core.Models;
 using Snuggle.Core.Models.Serialization;
 using Snuggle.Core.Options;

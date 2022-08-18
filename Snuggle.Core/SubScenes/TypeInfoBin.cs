@@ -11,6 +11,7 @@ public static class TypeInfoBin {
         if (version > 1) {
             throw new NotSupportedException();
         }
+
         var count = reader.Read<int>();
         var entries = new Dictionary<ulong, TypeMap>(count);
         for (var i = 0; i < count; ++i) {

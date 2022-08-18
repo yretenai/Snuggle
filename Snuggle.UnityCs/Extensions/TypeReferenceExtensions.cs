@@ -4,7 +4,7 @@
 
 using Mono.Cecil;
 
-namespace Unity.CecilTools.Extensions; 
+namespace Unity.CecilTools.Extensions;
 
 public static class TypeReferenceExtensions {
     public static string SafeNamespace(this TypeReference type) {

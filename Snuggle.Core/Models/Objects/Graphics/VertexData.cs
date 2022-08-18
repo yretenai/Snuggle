@@ -24,9 +24,9 @@ public enum VertexChannel {
     UV7 = 11,
     SkinWeight = 12,
     SkinBoneIndex = 13,
-    
+
     MaxChannels = SkinBoneIndex,
-    MaxChannelsPlusOne = MaxChannels + 1
+    MaxChannelsPlusOne = MaxChannels + 1,
 }
 
 public record VertexData(uint CurrentChannels, uint VertexCount, ChannelInfo?[] Channels) {

@@ -184,7 +184,7 @@ public class TypeDefinitionConverter {
                 "Single" => "float",
                 _ => throw new NotSupportedException(),
             };
-            
+
             var primitiveSize = primitiveName switch {
                 "bool" => 1,
                 "byte" => 1,

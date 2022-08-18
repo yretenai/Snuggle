@@ -4,7 +4,7 @@
 
 using Mono.Cecil;
 
-namespace Unity.CecilTools.Extensions; 
+namespace Unity.CecilTools.Extensions;
 
 internal static class MethodDefinitionExtensions {
     public static bool SameAs(this MethodDefinition self, MethodDefinition other) =>

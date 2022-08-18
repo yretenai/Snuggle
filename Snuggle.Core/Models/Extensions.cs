@@ -361,6 +361,7 @@ public static class Extensions {
             size ^= mask;
             mask >>= 2;
         }
+
         return size;
     }
 }
