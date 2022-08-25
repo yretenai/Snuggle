@@ -25,7 +25,8 @@ public static class ObjectFactory {
     }
 
     public static Type BaseType { get; } = typeof(SerializedObject);
-    public static Type NamedBaseType { get; } = typeof(NamedObject);
+    public static Type NamedType { get; } = typeof(NamedObject);
+    public static Type ScriptedType { get; } = typeof(MonoBehaviour);
     public static Type BaseClassIdType { get; } = typeof(UnityClassId);
 
     public static Dictionary<UnityGame, Dictionary<object, Type>> Implementations { get; set; } = new() { { UnityGame.Default, new Dictionary<object, Type>() } };
@@ -97,7 +98,7 @@ public static class ObjectFactory {
             } catch (Exception e) {
                 Log.Error(e, "Failed to deserialize object {info.PathId} ({ClassId:G}, {Game:G})", info.PathId, overrideType ?? info.ClassId, overrideGame ?? UnityGame.Default);
                 if (overrideType == null || overrideType.Equals(UnityClassId.Object) == false && overrideType.Equals(UnityClassId.NamedObject) == false) {
-                    overrideType = type.IsAssignableFrom(NamedBaseType) ? UnityClassId.NamedObject : UnityClassId.Object;
+                    overrideType = Utils.ClassIdIsNamedObject(info.ClassId) ? UnityClassId.NamedObject : UnityClassId.Object;
                     continue;
                 }
 
@@ -132,6 +133,10 @@ public static class ObjectFactory {
         if (overrideGame is UnityGame.Default && serializedFile.Options.Game is not UnityGame.Default && DisabledDefaultImplementations.TryGetValue(overrideType ?? info.ClassId, out var disabledGames) && disabledGames.Contains(serializedFile.Options.Game)) {
             type = BaseType;
         }
+
+        if (type == BaseType && Utils.ClassIdIsNamedObject(overrideType ?? info.ClassId)) {
+            type = NamedType;
+        } 
 
         return true;
     }

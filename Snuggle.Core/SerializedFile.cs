@@ -231,7 +231,8 @@ public class SerializedFile : IRenewable {
                 serializedObject =
                     ObjectFactory.GetInstance(OpenFile(objectInfo, dataStream, dataStream != null), objectInfo, this);
             } else {
-                serializedObject = new SerializedObject(objectInfo, this) { NeedsLoad = true, IsMutated = false };
+                serializedObject = Utils.ClassIdIsNamedObject(objectInfo.ClassId) ? new NamedObject(objectInfo, this) { NeedsLoad = true } : new SerializedObject(objectInfo, this) { NeedsLoad = true };
+                serializedObject.IsMutated = false;
             }
 
             objectInfo.Instance = serializedObject;
@@ -267,7 +268,8 @@ public class SerializedFile : IRenewable {
         var ignored = (options ?? Options).IgnoreClassIds.Contains(objectInfo.ClassId.ToString()!);
         var info = ObjectInfos[index];
         if ((options ?? Options).LoadOnDemand || ignored) {
-            info.Instance = new SerializedObject(objectInfo, this) { NeedsLoad = true, IsMutated = false };
+            info.Instance = Utils.ClassIdIsNamedObject(objectInfo.ClassId) ? new NamedObject(objectInfo, this) { NeedsLoad = true } : new SerializedObject(objectInfo, this) { NeedsLoad = true };
+            info.Instance.IsMutated = false;
         } else {
             info.Instance = ObjectFactory.GetInstance(OpenFile(objectInfo, dataStream, dataStream != null), objectInfo, this);
         }
