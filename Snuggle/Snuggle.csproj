@@ -10,6 +10,7 @@
         <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
         <ApplicationIcon>Snuggle.ico</ApplicationIcon>
         <ApplicationManifest>app.manifest</ApplicationManifest>
+        <EnableWindowsTargeting>true</EnableWindowsTargeting>
     </PropertyGroup>
 
     <ItemGroup>
