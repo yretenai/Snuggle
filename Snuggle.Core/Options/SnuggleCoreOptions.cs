@@ -13,8 +13,9 @@ public record SnuggleCoreOptions(
     bool LoadOnDemand,
     string? CacheDirectory,
     UnityGame Game) {
-    private const int LatestVersion = 7;
+    private const int LatestVersion = 8;
     public HashSet<string> IgnoreClassIds { get; set; } = new();
+    public HashSet<string> ExclusiveClassIds { get; set; } = new();
     public int Version { get; set; } = LatestVersion;
 
     [JsonIgnore]
@@ -63,6 +64,10 @@ public record SnuggleCoreOptions(
 
         // Version 6 added GameOptions
         // Version 7 removed GameOptions
+
+        if (options.Version <= 8) {
+            options = options with { ExclusiveClassIds = new HashSet<string>() };
+        }
 
         return options with { Version = LatestVersion };
     }

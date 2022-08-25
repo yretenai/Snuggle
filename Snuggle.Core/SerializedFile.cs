@@ -8,6 +8,7 @@ using Snuggle.Core.Implementations;
 using Snuggle.Core.Interfaces;
 using Snuggle.Core.IO;
 using Snuggle.Core.Meta;
+using Snuggle.Core.Models;
 using Snuggle.Core.Models.Serialization;
 using Snuggle.Core.Options;
 
@@ -216,7 +217,7 @@ public class SerializedFile : IRenewable {
 
         options ??= Options;
         try {
-            var ignored = options.IgnoreClassIds.Contains(objectInfo.ClassId.ToString()!);
+            var ignored = options.ExclusiveClassIds.Any() ? !options.ExclusiveClassIds.Contains(objectInfo.ClassId.ToString()!) : options.IgnoreClassIds.Contains(objectInfo.ClassId.ToString()!);
             var shouldLoad = !options.LoadOnDemand;
             if (objectInfo.Instance != null) {
                 if (!objectInfo.Instance.NeedsLoad || ignored) {
@@ -265,10 +266,12 @@ public class SerializedFile : IRenewable {
             return;
         }
 
-        var ignored = (options ?? Options).IgnoreClassIds.Contains(objectInfo.ClassId.ToString()!);
+        options ??= Options;
+        
+        var ignored = options.ExclusiveClassIds.Any() ? !options.ExclusiveClassIds.Contains(objectInfo.ClassId.ToString()!) : options.IgnoreClassIds.Contains(objectInfo.ClassId.ToString()!);
         var info = ObjectInfos[index];
-        if ((options ?? Options).LoadOnDemand || ignored) {
-            info.Instance = Utils.ClassIdIsNamedObject(objectInfo.ClassId) ? new NamedObject(objectInfo, this) { NeedsLoad = true } : new SerializedObject(objectInfo, this) { NeedsLoad = true };
+        if (options.LoadOnDemand || ignored) {
+            info.Instance = Utils.ClassIdIsNamedObject(objectInfo.ClassId) ? ObjectFactory.GetInstance(OpenFile(objectInfo, dataStream, dataStream != null), objectInfo, this, UnityClassId.NamedObject) : new SerializedObject(objectInfo, this) { NeedsLoad = true };
             info.Instance.IsMutated = false;
         } else {
             info.Instance = ObjectFactory.GetInstance(OpenFile(objectInfo, dataStream, dataStream != null), objectInfo, this);

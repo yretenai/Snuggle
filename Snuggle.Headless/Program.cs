@@ -52,18 +52,7 @@ public static class Program {
         }
 
         var collection = new AssetCollection();
-
-        if (flags.ExclusiveClassIds.Any()) {
-            foreach (var classId in Enum.GetNames<UnityClassId>()) {
-                if (flags.ExclusiveClassIds.Contains(classId)) {
-                    continue;
-                }
-
-                flags.IgnoreClassIds.Add(classId);
-            }
-        }
-
-        var options = SnuggleCoreOptions.Default with { Game = flags.Game, CacheDataIfLZMA = true, IgnoreClassIds = flags.IgnoreClassIds };
+        var options = SnuggleCoreOptions.Default with { Game = flags.Game, CacheDataIfLZMA = true, IgnoreClassIds = flags.IgnoreClassIds, ExclusiveClassIds = flags.ExclusiveClassIds };
 
         foreach (var file in fileSet) {
             collection.LoadFile(file, options);
