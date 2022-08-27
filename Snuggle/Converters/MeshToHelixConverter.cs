@@ -136,7 +136,7 @@ public static partial class MeshToHelixConverter {
                 }
             }
 
-            objects.Add(new Object3D { Name = $"{mesh.Name}_Submesh{index}", Geometry = geometry });
+            objects.Add(new Object3D { Name = $"Mesh_{mesh.Name}_Submesh{index}", Geometry = geometry });
         }
 
         return objects;
@@ -334,7 +334,7 @@ public static partial class MeshToHelixConverter {
                     RenderWireframe = SnuggleCore.Instance.Settings.MeshExportOptions.DisplayWireframe,
                     WireframeColor = Colors.Red,
                     Geometry = submesh.Geometry,
-                    Name = XAMLSafeCharacters.Replace(submesh.Name, "_"),
+                    Name = "Mesh_" + XAMLSafeCharacters.Replace(submesh.Name, "_"),
                     Material = material3d,
                     Transform = Transform3D.Identity,
                 });
