@@ -80,7 +80,31 @@ public record FATVFS : IVirtualStorage {
 
         data ??= Handler.OpenFile(Tag);
 
-        return new OffsetStream(data, GetClusterAddress(fatEntry.Cluster) + fatEntry.Stack[0], fatEntry.Length, leaveOpen);
+        if (fatEntry.Size < BytesPerCluster) {
+            return new OffsetStream(data, GetClusterAddress(fatEntry.Cluster) + fatEntry.Stack[0], fatEntry.Length, leaveOpen);
+        }
+        
+        var sequence = new uint[fatEntry.Length / BytesPerCluster + (fatEntry.Length % BytesPerCluster == 0 ? 0 : 1)];
+        var cluster = fatEntry.Cluster;
+        var i = 0;
+        do {
+            if(i > sequence.Length) {
+                break;
+            }
+            sequence[i++] = cluster;
+            cluster = FAT[0][cluster] & 0x0FFFFFFF;
+            if (cluster > 0xffffff0) {
+                break;
+            }
+        } while (true);
+
+        // check if it's fragmented
+        if (sequence[^1] - sequence[0] == sequence.Length - 1) {
+            // not fragmented.
+            return new OffsetStream(data, GetClusterAddress(fatEntry.Cluster) + fatEntry.Stack[0], fatEntry.Length, leaveOpen);
+        }
+
+        return new FragmentedFATStream(data, fatEntry.Stack[0], fatEntry.Size, sequence, this);
     }
 
     private void ProcessDirectory(Stream data, uint cluster, uint fat, string parentDir) {
