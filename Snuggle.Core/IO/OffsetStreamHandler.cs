@@ -35,6 +35,7 @@ public class OffsetStreamHandler : IFileHandler {
     public Stream OpenSubFile(object parent, object tag, SnuggleCoreOptions options) => UnderlyingHandler.OpenSubFile(parent is OffsetInfo mmi ? mmi.Tag : tag, tag, options);
 
     public bool FileCreated(object parent, object tag, SnuggleCoreOptions options) => UnderlyingHandler.FileCreated(parent is OffsetInfo mmi ? mmi.Tag : tag, tag, options);
+    public bool SupportsCreation => UnderlyingHandler.SupportsCreation;
 
     public object GetTag(object baseTag, object parent) {
         if (baseTag is not OffsetInfo meta) {

@@ -25,6 +25,7 @@ public class BundleStreamHandler : IFileHandler {
     public Stream OpenSubFile(object parent, object tag, SnuggleCoreOptions options) => throw new NotSupportedException();
 
     public bool FileCreated(object parent, object tag, SnuggleCoreOptions options) => throw new NotSupportedException();
+    public bool SupportsCreation => false;
 
     public object GetTag(object baseTag, object parent) => baseTag;
 

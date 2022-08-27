@@ -21,6 +21,7 @@ namespace Snuggle.Core;
 
 public class AssetCollection : IDisposable {
     public List<IAssetBundle> Bundles { get; } = new();
+    public List<IVirtualStorage> VFSes { get; } = new();
     public AssemblyResolver Assemblies { get; set; } = new();
     public ConcurrentDictionary<string, ObjectNode> Types { get; } = new();
     public ConcurrentDictionary<string, SerializedFile> Files { get; } = new(StringComparer.InvariantCultureIgnoreCase);
@@ -38,6 +39,14 @@ public class AssetCollection : IDisposable {
         foreach (var bundle in Bundles) {
             try {
                 bundle.Dispose();
+            } catch {
+                // ignored 
+            }
+        }
+
+        foreach (var virtualStorage in VFSes) {
+            try {
+                (virtualStorage as IDisposable)?.Dispose();
             } catch {
                 // ignored 
             }
@@ -140,11 +149,10 @@ public class AssetCollection : IDisposable {
 
     public void LoadSerializedFile(Stream dataStream, object tag, IFileHandler handler, SnuggleCoreOptions options, bool leaveOpen = false, UnityVersion? fallbackVersion = null) {
         try {
-            var path = tag switch {
-                UnityBundleBlock block => block.Path,
-                string str => Path.GetFileName(str),
-                _ => throw new NotSupportedException($"{tag.GetType().FullName} is not supported"),
-            };
+            var path = IFileHandler.UnpackTagToName(tag);
+            if (string.IsNullOrEmpty(path)) {
+                return;
+            }
 
             if (Files.ContainsKey(path)) {
                 return;
@@ -173,13 +181,25 @@ public class AssetCollection : IDisposable {
         LoadSerializedFile(isSplit ? new SplitFileStream(path) : new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), path, isSplit ? OffsetStreamHandler.SplitInstance.Value : OffsetStreamHandler.FileInstance.Value, options);
     }
 
+    public void LoadVFS(Stream dataStream, object tag, IFileHandler handler, SnuggleCoreOptions options, bool leaveOpen = false) {
+        var vfs = IVirtualStorage.Init(dataStream, tag, handler, options, leaveOpen);
+        var vfsHandler = new VFSStreamHandler(vfs);
+        VFSes.Add(vfs);
+
+        foreach (var file in vfs.Entries) {
+            using var stream = vfs.Open(file, dataStream, true);
+            LoadFile(stream, file, vfsHandler, options, leaveOpen: leaveOpen);
+        }
+    }
+
     public void LoadFile(string path, SnuggleCoreOptions options) {
         var isSplit = Path.GetExtension(path) == ".split0";
         LoadFile(isSplit ? new SplitFileStream(path) : new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), path, isSplit ? OffsetStreamHandler.SplitInstance.Value : OffsetStreamHandler.FileInstance.Value, options);
     }
 
     private void LoadFile(Stream dataStream, object tag, IFileHandler handler, SnuggleCoreOptions options, int align = 1, bool leaveOpen = false) {
-        Log.Information("Attempting to load {Tag}", tag);
+        var path = IFileHandler.UnpackTagToString(tag);
+        Log.Information("Attempting to load {Tag}", path ?? tag);
         if (dataStream.Length == 0) {
             return;
         }
@@ -191,13 +211,15 @@ public class AssetCollection : IDisposable {
                 LoadAssembly(dataStream, Path.GetDirectoryName(fs.Name) ?? "./", options, leaveOpen);
             } else if (SerializedFile.IsSerializedFile(dataStream)) {
                 LoadSerializedFile(dataStream, tag, handler, options, leaveOpen);
+            } else if (IVirtualStorage.IsVFSFile(tag, dataStream, options)) {
+                LoadVFS(dataStream, tag, handler, options, leaveOpen);
             } else {
-                if (tag is not string path) {
-                    throw new NotSupportedException($"{tag.GetType().FullName} is not supported");
+                if (string.IsNullOrEmpty(path)) {
+                    return;
                 }
 
                 path = Path.GetFileName(path);
-                var ext = Path.GetExtension(path).ToLower();
+                var ext = Path.GetExtension(path)?.ToLower() ?? "";
                 switch (ext) {
                     case ".ress":
                     case ".resource":

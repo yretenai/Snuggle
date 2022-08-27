@@ -103,7 +103,7 @@ public class Bundle : IAssetBundle {
     }
 
     public Stream OpenFile(UnityBundleBlock block) {
-        if (Handler.FileCreated(Tag, block.Path, Options)) {
+        if (Handler.SupportsCreation && Handler.FileCreated(Tag, block.Path, Options)) {
             return Handler.OpenSubFile(Tag, block.Path, Options);
         }
 
@@ -165,6 +165,10 @@ public class Bundle : IAssetBundle {
     }
 
     public void SaveContainers(BiEndianBinaryReader reader) {
+        if (!Handler.SupportsCreation) {
+            return;
+        }
+
         Stream? data = null;
         foreach (var block in Container.Blocks) {
             if (Handler.FileCreated(Tag, block.Path, Options)) {

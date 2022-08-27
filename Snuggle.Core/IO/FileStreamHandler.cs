@@ -28,6 +28,7 @@ public class FileStreamHandler : IFileHandler {
     }
 
     public bool FileCreated(object parent, object tag, SnuggleCoreOptions options) => File.Exists(GetSubFilePath(parent, tag, options));
+    public bool SupportsCreation => true;
 
     public object GetTag(object baseTag, object parent) => baseTag;
 

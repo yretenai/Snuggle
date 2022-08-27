@@ -7,6 +7,7 @@ using Snuggle.Core.Options;
 namespace Snuggle.Core.Interfaces;
 
 public interface IFileHandler : IDisposable {
+    public bool SupportsCreation { get; }
     public Stream OpenFile(object tag);
     public Stream OpenSubFile(object parent, object tag, SnuggleCoreOptions options);
     public bool FileCreated(object parent, object tag, SnuggleCoreOptions options);
@@ -25,6 +26,8 @@ public interface IFileHandler : IDisposable {
                 }
                 case UnityBundleBlock ubb:
                     return ubb.Path;
+                case IVirtualStorageEntry vfs:
+                    return vfs.Path;
                 case null:
                     return null;
                 default:
