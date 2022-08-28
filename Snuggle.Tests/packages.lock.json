@@ -68,6 +68,11 @@
           "System.Memory": "4.5.3"
         }
       },
+      "Kyaru.Texture2DDecoder": {
+        "type": "Transitive",
+        "resolved": "0.16.40",
+        "contentHash": "CS/HWNUgLwx7VpDro2fLdhJOzsjMNfZmM0YsAh0cGLStpxSzBanRbOCZ88FF1cZLETIWHJsXrfVPmOA9F35iaQ=="
+      },
       "Microsoft.CodeCoverage": {
         "type": "Transitive",
         "resolved": "17.2.0",
@@ -628,38 +633,35 @@
       "snuggle.converters": {
         "type": "Project",
         "dependencies": {
-          "AssetRipper.TextureDecoder": "1.1.0",
-          "BCnEncoder.Net": "2.1.0",
-          "DirectXTexNet": "1.0.3",
-          "Serilog": "2.11.0",
-          "SixLabors.ImageSharp": "2.1.3",
-          "SixLabors.ImageSharp.Drawing": "1.0.0-beta14",
-          "Snuggle.Core": "1.0.0",
-          "Snuggle.Native": "1.0.0",
-          "Snuggle.glTF": "1.0.0"
+          "AssetRipper.TextureDecoder": "[1.1.0, )",
+          "BCnEncoder.Net": "[2.1.0, )",
+          "DirectXTexNet": "[1.0.3, )",
+          "Kyaru.Texture2DDecoder": "[0.16.40, )",
+          "Serilog": "[2.11.0, )",
+          "SixLabors.ImageSharp": "[2.1.3, )",
+          "SixLabors.ImageSharp.Drawing": "[1.0.0-beta14, )",
+          "Snuggle.Core": "[1.0.0, )",
+          "Snuggle.glTF": "[1.0.0, )"
         }
       },
       "snuggle.core": {
         "type": "Project",
         "dependencies": {
-          "DragonLib": "3.0.1",
-          "K4os.Compression.LZ4.Streams": "1.2.16",
-          "Mono.Cecil": "0.11.4",
-          "Serilog": "2.11.0",
-          "SevenZip": "19.0.0",
-          "Snuggle.UnityCs": "1.0.0"
+          "DragonLib": "[3.0.1, )",
+          "K4os.Compression.LZ4.Streams": "[1.2.16, )",
+          "Mono.Cecil": "[0.11.4, )",
+          "Serilog": "[2.11.0, )",
+          "SevenZip": "[19.0.0, )",
+          "Snuggle.UnityCs": "[1.0.0, )"
         }
       },
       "snuggle.gltf": {
         "type": "Project"
       },
-      "snuggle.native": {
-        "type": "Project"
-      },
       "snuggle.unitycs": {
         "type": "Project",
         "dependencies": {
-          "Mono.Cecil": "0.11.4"
+          "Mono.Cecil": "[0.11.4, )"
         }
       }
     }

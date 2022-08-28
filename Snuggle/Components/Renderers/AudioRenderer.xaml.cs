@@ -1,9 +1,11 @@
 ﻿using System;
 using System.ComponentModel;
+using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Windows;
 using NAudio.Utils;
+using NAudio.Vorbis;
 using NAudio.Wave;
 using Snuggle.Converters;
 using Snuggle.Core.Implementations;
@@ -76,7 +78,7 @@ public sealed partial class AudioRenderer : INotifyPropertyChanged {
     }
 
     private WaveOutEvent? OutputDevice { get; set; }
-    private RawSourceWaveStream? Source { get; set; }
+    private WaveStream? Source { get; set; }
 
     private Timer Timer { get; }
     private CancellationTokenSource CancellationTokenSource { get; set; } = new();
@@ -123,18 +125,21 @@ public sealed partial class AudioRenderer : INotifyPropertyChanged {
             return;
         }
 
-        var data = SnuggleAudioFile.GetPCM(clip, out var info);
-        if (token.IsCancellationRequested || data.IsEmpty) {
+        var data = SnuggleAudioFile.GetPCM(clip, out var ext);
+        if (token.IsCancellationRequested || data.Length == 0) {
             return;
         }
 
-        var waveFormat = info.isFloat ? WaveFormat.CreateIeeeFloatWaveFormat(info.Frequency, info.Channels) : new WaveFormat(info.Frequency, info.Bits, info.Channels);
-        if (token.IsCancellationRequested) {
-            return;
-        }
 
         Source?.Dispose();
-        Source = new RawSourceWaveStream(data.ToArray(), 0, data.Length, waveFormat);
+        if (ext == "ogg") {
+            Source = new VorbisWaveReader(new MemoryStream(data), true);
+        } else {
+            using var br = new BinaryReader(new MemoryStream(data));
+            br.BaseStream.Position = 20;
+            Source = new RawSourceWaveStream(data, 0, 0, WaveFormat.FromFormatChunk(br, 16));
+        }
+
         if (token.IsCancellationRequested) {
             return;
         }

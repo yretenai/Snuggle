@@ -1,51 +1,15 @@
 ﻿using System;
 using System.Buffers.Binary;
 using System.IO;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using FMOD;
-using Serilog;
+using Fmod5Sharp;
 using Snuggle.Core.Exceptions;
 using Snuggle.Core.Implementations;
 using Snuggle.Core.Options;
-using Snuggle.Native;
-
-// ReSharper disable TemplateIsNotCompileTimeConstantProblem
-
 namespace Snuggle.Converters;
 
 public static class SnuggleAudioFile {
-    public enum WaveFormatType : ushort {
-        PCM = 1,
-        Float = 3,
-        ALaw = 6,
-        MuLaw = 7,
-    }
 
-    public static Memory<byte> BuildWAV(AudioClip clip) {
-        var pcm = GetPCM(clip, out var info);
-        if (pcm.IsEmpty) {
-            return Memory<byte>.Empty;
-        }
-
-        var buffer = new byte[pcm.Length + 44].AsMemory();
-        var riff = new WaveRIFF(buffer.Length);
-        MemoryMarshal.Write(buffer.Span, ref riff);
-        var ofs = Unsafe.SizeOf<WaveRIFF>();
-
-        var format = new WaveFormat(info);
-        MemoryMarshal.Write(buffer.Span[ofs..], ref format);
-        ofs += Unsafe.SizeOf<WaveFormat>();
-
-        var chunk = new WaveChunk(WaveFormat.DATA, pcm.Length);
-        MemoryMarshal.Write(buffer.Span[ofs..], ref chunk);
-        ofs += Unsafe.SizeOf<WaveChunk>();
-        pcm.CopyTo(buffer[ofs..]);
-
-        return buffer;
-    }
-
-    public static (string ext, bool supportsWav) GetExt(AudioClip clip) {
+    public static (string ext, bool supportsConversion) GetExt(AudioClip clip) {
         if (clip.ShouldDeserialize) {
             throw new IncompleteDeserialization();
         }
@@ -72,17 +36,17 @@ public static class SnuggleAudioFile {
             Directory.CreateDirectory(dir);
         }
 
-        var (ext, wav) = GetExt(clip);
+        var (ext, canConvert) = GetExt(clip);
         path = Path.ChangeExtension(path, ext);
         if (!clip.Data.HasValue || clip.Data.Value.IsEmpty) {
             return path;
         }
 
-        if (!options.WriteNativeAudio && wav) {
-            var wavPath = Path.ChangeExtension(path, ".wav");
-            var pcm = BuildWAV(clip);
-            if (!pcm.IsEmpty) {
-                File.WriteAllBytes(wavPath, pcm.ToArray());
+        if (!options.WriteNativeAudio && canConvert) {
+            var pcm = GetPCM(clip, out ext);
+            var wavPath = Path.ChangeExtension(path, "." + ext);
+            if (pcm.Length > 0) {
+                File.WriteAllBytes(wavPath, pcm);
                 return wavPath;
             }
         }
@@ -91,153 +55,30 @@ public static class SnuggleAudioFile {
         return path;
     }
 
-    public static Memory<byte> GetPCM(AudioClip clip, out AudioInfo info) {
+    public static byte[] GetPCM(AudioClip clip, out string? ext) {
         if (clip.ShouldDeserialize) {
             throw new IncompleteDeserialization();
         }
 
-        info = AudioInfo.Default;
+        ext = null;
 
         if (!clip.Data.HasValue || clip.Data.Value.IsEmpty || clip.Data.Value.Length < 4) {
-            return Memory<byte>.Empty;
+            return Array.Empty<byte>();
         }
 
         // ReSharper disable once ConvertIfStatementToReturnStatement
         if (BinaryPrimitives.ReadUInt32BigEndian(clip.Data.Value.Span) == 0x46534235) { // 46534235 = 'FSB5' -- FMOD Sample Bank version 5
-            return GetFMODPCM(clip, ref info);
+            return GetFMODPCM(clip, out ext);
         }
 
-        return Memory<byte>.Empty;
+        return Array.Empty<byte>();
     }
 
     // ReSharper disable once RedundantAssignment
-    private static unsafe Memory<byte> GetFMODPCM(AudioClip clip, ref AudioInfo info) {
-        SnuggleIntegration.Register();
-
-        info = AudioInfo.Default;
-
-        var result = Factory.System_Create(out var system);
-        if (result != RESULT.OK) {
-            Log.Error(Error.String(result));
-            return Memory<byte>.Empty;
-        }
-
-        // this is giving me VC++ COMPTR trauma flashbacks. 
-        try {
-            result = system.init(clip.Channels, INITFLAGS.NORMAL, IntPtr.Zero);
-            if (result != RESULT.OK) {
-                Log.Error(Error.String(result));
-                return Memory<byte>.Empty;
-            }
-
-            var exinfo = new CREATESOUNDEXINFO { cbsize = Unsafe.SizeOf<CREATESOUNDEXINFO>(), length = (uint) clip.Data!.Value.Length };
-            using var pinned = clip.Data.Value.Pin();
-            result = system.createSound((IntPtr) pinned.Pointer, MODE.OPENMEMORY, ref exinfo, out var sound);
-            if (result != RESULT.OK) {
-                Log.Error(Error.String(result));
-                return Memory<byte>.Empty;
-            }
-
-            try {
-                result = sound.getNumSubSounds(out var numSubSounds);
-                if (result != RESULT.OK) {
-                    return null;
-                }
-
-                if (numSubSounds == 0 || numSubSounds < clip.SubsoundIndex) {
-                    return GetFMODPCM(sound, ref info);
-                }
-
-                result = sound.getSubSound(clip.SubsoundIndex, out var subSound);
-                if (result != RESULT.OK) {
-                    Log.Error(Error.String(result));
-                    return Memory<byte>.Empty;
-                }
-
-                try {
-                    return GetFMODPCM(subSound, ref info);
-                } finally {
-                    subSound.release();
-                }
-            } finally {
-                sound.release();
-            }
-        } finally {
-            system.release();
-        }
+    private static byte[] GetFMODPCM(AudioClip clip, out string? ext) {
+        var fsb = FsbLoader.LoadFsbFromByteArray(clip.Data!.Value.ToArray());
+        var sample = fsb.Samples[0];
+        return sample.RebuildAsStandardFileFormat(out var data, out ext) ? data : Array.Empty<byte>();
     }
 
-    private static Memory<byte> GetFMODPCM(Sound sound, ref AudioInfo info) {
-        var result = sound.getFormat(out _, out var format, out var channels, out var bits);
-        if (result != RESULT.OK) {
-            Log.Error(Error.String(result));
-            return Memory<byte>.Empty;
-        }
-
-        result = sound.getDefaults(out var frequency, out _);
-        if (result != RESULT.OK) {
-            Log.Error(Error.String(result));
-            return Memory<byte>.Empty;
-        }
-
-        info = new AudioInfo((int) frequency, bits, channels, format == SOUND_FORMAT.PCMFLOAT);
-
-        result = sound.getLength(out var length, TIMEUNIT.PCMBYTES);
-        if (result != RESULT.OK) {
-            Log.Error(Error.String(result));
-            return Memory<byte>.Empty;
-        }
-
-        result = sound.@lock(0, length, out var ptr1, out var ptr2, out var len1, out var len2);
-        if (result != RESULT.OK) {
-            Log.Error(Error.String(result));
-            return null;
-        }
-
-        try {
-            var data = new byte[len1];
-            Marshal.Copy(ptr1, data, 0, (int) len1);
-            return data;
-        } finally {
-            sound.unlock(ptr1, ptr2, len1, len2);
-        }
-    }
-
-    [StructLayout(LayoutKind.Sequential, Pack = 4)]
-    private record struct WaveRIFF(uint Id, int Size, uint Format) {
-        public WaveRIFF(int size) : this(0x46464952, size, 0x45564157) { }
-    }
-
-    [StructLayout(LayoutKind.Sequential, Pack = 4)]
-    private record struct WaveChunk(uint Id, int Size);
-
-    [StructLayout(LayoutKind.Sequential, Pack = 2)]
-    private record struct WaveFormat(
-        uint Id,
-        int Size,
-        WaveFormatType Type,
-        ushort Channels,
-        int SampleRate,
-        int ByteRate,
-        ushort BlockAlign,
-        ushort BitRate) {
-        public const uint DATA = 0x61746164;
-        private WaveFormat(WaveFormatType type, ushort channels, int sampleRate, ushort bitRate) : this(type, channels, sampleRate, bitRate * sampleRate * channels / 8, (ushort) (bitRate * channels / 8), bitRate) { }
-
-        private WaveFormat(WaveFormatType type, ushort channels, int sampleRate, int byteRate, ushort BlockAlign, ushort bitRate) : this(
-            0x20746D66,
-            16,
-            type,
-            channels,
-            sampleRate,
-            byteRate,
-            BlockAlign,
-            bitRate) { }
-
-        public WaveFormat(AudioInfo info) : this(info.isFloat ? WaveFormatType.Float : WaveFormatType.PCM, (ushort) info.Channels, info.Frequency, (ushort) info.Bits) { }
-    }
-
-    public record AudioInfo(int Frequency, int Bits, int Channels, bool isFloat) {
-        public static AudioInfo Default { get; } = new(44100, 16, 1, false);
-    }
 }

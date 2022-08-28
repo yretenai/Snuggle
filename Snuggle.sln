@@ -13,8 +13,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Snuggle.Converters", "Snugg
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Snuggle.Headless", "Snuggle.Headless\Snuggle.Headless.csproj", "{7BDAD5C2-EB28-4255-9B0C-CAA833E3E650}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Snuggle.Native", "Snuggle.Native\Snuggle.Native.csproj", "{4A644649-A767-4F80-8A3D-36C1C4EAC035}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Snuggle.glTF", "Snuggle.glTF\Snuggle.glTF.csproj", "{BFC08112-A133-42B6-B830-5E49E653ACFE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Snuggle.UnityCs", "Snuggle.UnityCs\Snuggle.UnityCs.csproj", "{C68F1E94-2218-402F-909B-8B83182B56EB}"
@@ -52,10 +50,6 @@ Global
 		{7BDAD5C2-EB28-4255-9B0C-CAA833E3E650}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7BDAD5C2-EB28-4255-9B0C-CAA833E3E650}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7BDAD5C2-EB28-4255-9B0C-CAA833E3E650}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4A644649-A767-4F80-8A3D-36C1C4EAC035}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4A644649-A767-4F80-8A3D-36C1C4EAC035}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4A644649-A767-4F80-8A3D-36C1C4EAC035}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4A644649-A767-4F80-8A3D-36C1C4EAC035}.Release|Any CPU.Build.0 = Release|Any CPU
 		{BFC08112-A133-42B6-B830-5E49E653ACFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{BFC08112-A133-42B6-B830-5E49E653ACFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BFC08112-A133-42B6-B830-5E49E653ACFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
