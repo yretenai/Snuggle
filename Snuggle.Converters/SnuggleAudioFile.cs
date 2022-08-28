@@ -44,7 +44,7 @@ public static class SnuggleAudioFile {
 
         if (!options.WriteNativeAudio && canConvert) {
             var pcm = GetPCM(clip, out ext);
-            var wavPath = Path.ChangeExtension(path, "." + ext);
+            var wavPath = Path.ChangeExtension(path, ext);
             if (pcm.Length > 0) {
                 File.WriteAllBytes(wavPath, pcm);
                 return wavPath;
