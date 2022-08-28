@@ -2,15 +2,16 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using AssetRipper.TextureDecoder.Astc;
 using AssetRipper.TextureDecoder.Atc;
+using AssetRipper.TextureDecoder.Bc;
 using AssetRipper.TextureDecoder.Etc;
 using AssetRipper.TextureDecoder.Pvrtc;
 using AssetRipper.TextureDecoder.Rgb;
+using AssetRipper.TextureDecoder.Rgb.Formats;
 using AssetRipper.TextureDecoder.Yuy2;
-using BCnEncoder.Decoder;
-using BCnEncoder.Shared;
 using Snuggle.Converters.DXGI;
 using Snuggle.Core;
 using Snuggle.Core.Exceptions;
@@ -22,7 +23,6 @@ using Snuggle.Core.Models;
 using Snuggle.Core.Models.Objects.Graphics;
 using Snuggle.Core.Models.Serialization;
 using Texture2DDecoder;
-using Half = System.Half;
 
 namespace Snuggle.Converters;
 
@@ -47,8 +47,13 @@ public static class Texture2DConverter {
         return tex;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void WrapRgbConverter<InColor, InType>(Memory<byte> textureMem, Memory<byte> imageData) where InColor : unmanaged, IColor<InType> where InType : unmanaged {
+        RgbConverter.Convert<InColor, InType, ColorBGRA32, byte>(MemoryMarshal.Cast<byte, InColor>(textureMem.Span), MemoryMarshal.Cast<byte, ColorBGRA32>(imageData.Span));
+    }
+
     private static Memory<byte> DecodeFrame(ITexture texture, bool useTextureDecoder, Memory<byte> textureMem) {
-        if (useTextureDecoder || texture.TextureFormat == TextureFormat.RGB565) {
+        if (useTextureDecoder) {
             var textureData = textureMem.ToArray();
             // ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault
             switch (texture.TextureFormat) {
@@ -182,137 +187,95 @@ public static class Texture2DConverter {
 
         switch (texture.TextureFormat) {
             case TextureFormat.Alpha8:
-                RgbConverter.A8ToBGRA32(textureMem.Span, texture.Width, texture.Height, imageData.Span);
+                WrapRgbConverter<ColorA8, byte>(textureMem, imageData);
                 break;
             case TextureFormat.ARGB4444:
-                RgbConverter.ARGB16ToBGRA32(textureMem.Span, texture.Width, texture.Height, imageData.Span);
+                WrapRgbConverter<ColorARGB16, byte>(textureMem, imageData);
                 break;
             case TextureFormat.RGB24:
-                RgbConverter.RGB24ToBGRA32(textureMem.Span, texture.Width, texture.Height, imageData.Span);
+                WrapRgbConverter<ColorRGB24, byte>(textureMem, imageData);
                 break;
             case TextureFormat.RGBA32:
-                RgbConverter.RGBA32ToBGRA32(textureMem.Span, texture.Width, texture.Height, imageData.Span);
+                WrapRgbConverter<ColorRGBA32, byte>(textureMem, imageData);
                 break;
             case TextureFormat.ARGB32:
-                RgbConverter.ARGB32ToBGRA32(textureMem.Span, texture.Width, texture.Height, imageData.Span);
+                WrapRgbConverter<ColorARGB32, byte>(textureMem, imageData);
                 break;
             case TextureFormat.RGB565:
-                throw new NotSupportedException();
+                WrapRgbConverter<ColorRGB16, byte>(textureMem, imageData);
+                break;
             case TextureFormat.R16:
-                RgbConverter.R16ToBGRA32(textureMem.Span, texture.Width, texture.Height, imageData.Span);
+                WrapRgbConverter<ColorR16, ushort>(textureMem, imageData);
                 break;
             case TextureFormat.RGBA4444:
-                RgbConverter.RGBA16ToBGRA32(textureMem.Span, texture.Width, texture.Height, imageData.Span);
+                WrapRgbConverter<ColorRGBA16, byte>(textureMem, imageData);
                 break;
             case TextureFormat.RHalf:
-                RgbConverter.RHalfToBGRA32(textureMem.Span, texture.Width, texture.Height, imageData.Span);
+                WrapRgbConverter<ColorRHalf, Half>(textureMem, imageData);
                 break;
             case TextureFormat.RGHalf:
-                RgbConverter.RGHalfToBGRA32(textureMem.Span, texture.Width, texture.Height, imageData.Span);
+                WrapRgbConverter<ColorRGHalf, Half>(textureMem, imageData);
                 break;
             case TextureFormat.RGBAHalf:
-                RgbConverter.RGBAHalfToBGRA32(textureMem.Span, texture.Width, texture.Height, imageData.Span);
+                WrapRgbConverter<ColorRGBAHalf, Half>(textureMem, imageData);
                 break;
             case TextureFormat.RFloat:
-                RgbConverter.RFloatToBGRA32(textureMem.Span, texture.Width, texture.Height, imageData.Span);
+                WrapRgbConverter<ColorRFloat, float>(textureMem, imageData);
                 break;
             case TextureFormat.RGFloat:
-                RgbConverter.RGFloatToBGRA32(textureMem.Span, texture.Width, texture.Height, imageData.Span);
+                WrapRgbConverter<ColorRGFloat, float>(textureMem, imageData);
                 break;
             case TextureFormat.RGBAFloat:
-                RgbConverter.RGBAFloatToBGRA32(textureMem.Span, texture.Width, texture.Height, imageData.Span);
+                WrapRgbConverter<ColorRGBAFloat, float>(textureMem, imageData);
                 break;
             case TextureFormat.RGB9e5Float:
-                RgbConverter.RGB9e5FloatToBGRA32(textureMem.Span, texture.Width, texture.Height, imageData.Span);
+                WrapRgbConverter<ColorRGB9e5, double>(textureMem, imageData);
                 break;
             case TextureFormat.RG16:
-                RgbConverter.RG16ToBGRA32(textureMem.Span, texture.Width, texture.Height, imageData.Span);
+                WrapRgbConverter<ColorRG16, byte>(textureMem, imageData);
                 break;
             case TextureFormat.R8:
-                RgbConverter.R8ToBGRA32(textureMem.Span, texture.Width, texture.Height, imageData.Span);
+                WrapRgbConverter<ColorR8, byte>(textureMem, imageData);
                 break;
             case TextureFormat.YUV2:
-                Yuy2Decoder.DecompressYUY2(textureMem.Span, texture.Width, texture.Height, imageData.Span);
+                Yuy2Decoder.DecompressYUY2<ColorBGRA32, byte>(textureMem.Span, texture.Width, texture.Height, imageData.Span);
                 break;
             case TextureFormat.DXT1: {
-                var bc = new BcDecoder();
-                var pixels = bc.DecodeRaw(textureMem.ToArray(),
-                    texture.Width,
-                    texture.Height,
-                    CompressionFormat.Bc1WithAlpha);
-                if (pixels != null) {
-                    MemoryMarshal.AsBytes(pixels.AsSpan()).CopyTo(imageData.Span);
-                }
-
+                BcDecoder.DecompressBC1(textureMem.Span, texture.Width, texture.Height, imageData.Span);
                 break;
             }
             case TextureFormat.DXT1Crunched when UnpackCrunch(texture.SerializedFile.Version,
                 texture.TextureFormat,
                 textureMem.ToArray(),
                 out var data): {
-                var bc = new BcDecoder();
-                var pixels = bc.DecodeRaw(data, texture.Width, texture.Height, CompressionFormat.Bc1);
-                if (pixels != null) {
-                    MemoryMarshal.AsBytes(pixels.AsSpan()).CopyTo(imageData.Span);
-                }
-
+                BcDecoder.DecompressBC1(data, texture.Width, texture.Height, imageData.Span);
                 break;
             }
             case TextureFormat.DXT5: {
-                var bc = new BcDecoder();
-                var pixels = bc.DecodeRaw(textureMem.ToArray(), texture.Width, texture.Height, CompressionFormat.Bc3);
-                if (pixels != null) {
-                    MemoryMarshal.AsBytes(pixels.AsSpan()).CopyTo(imageData.Span);
-                }
-
+                BcDecoder.DecompressBC3(textureMem.Span, texture.Width, texture.Height, imageData.Span);
                 break;
             }
             case TextureFormat.DXT5Crunched when UnpackCrunch(texture.SerializedFile.Version,
                 texture.TextureFormat,
                 textureMem.ToArray(),
                 out var data): {
-                var bc = new BcDecoder();
-                var pixels = bc.DecodeRaw(data, texture.Width, texture.Height, CompressionFormat.Bc3);
-                if (pixels != null) {
-                    MemoryMarshal.AsBytes(pixels.AsSpan()).CopyTo(imageData.Span);
-                }
-
+                BcDecoder.DecompressBC3(data, texture.Width, texture.Height, imageData.Span);
                 break;
             }
             case TextureFormat.BC4: {
-                var bc = new BcDecoder();
-                var pixels = bc.DecodeRaw(textureMem.ToArray(), texture.Width, texture.Height, CompressionFormat.Bc4);
-                if (pixels != null) {
-                    MemoryMarshal.AsBytes(pixels.AsSpan()).CopyTo(imageData.Span);
-                }
-
+                BcDecoder.DecompressBC4(textureMem.Span, texture.Width, texture.Height, imageData.Span);
                 break;
             }
             case TextureFormat.BC5: {
-                var bc = new BcDecoder();
-                var pixels = bc.DecodeRaw(textureMem.ToArray(), texture.Width, texture.Height, CompressionFormat.Bc5);
-                if (pixels != null) {
-                    MemoryMarshal.AsBytes(pixels.AsSpan()).CopyTo(imageData.Span);
-                }
-
+                BcDecoder.DecompressBC5(textureMem.Span, texture.Width, texture.Height, imageData.Span);
                 break;
             }
             case TextureFormat.BC6H: {
-                var bc = new BcDecoder();
-                var pixels = bc.DecodeRaw(textureMem.ToArray(), texture.Width, texture.Height, CompressionFormat.Bc6S);
-                if (pixels != null) {
-                    MemoryMarshal.AsBytes(pixels.AsSpan()).CopyTo(imageData.Span);
-                }
-
+                BcDecoder.DecompressBC6H(textureMem.Span, texture.Width, texture.Height, false, imageData.Span);
                 break;
             }
             case TextureFormat.BC7: {
-                var bc = new BcDecoder();
-                var pixels = bc.DecodeRaw(textureMem.ToArray(), texture.Width, texture.Height, CompressionFormat.Bc7);
-                if (pixels != null) {
-                    MemoryMarshal.AsBytes(pixels.AsSpan()).CopyTo(imageData.Span);
-                }
-
+                BcDecoder.DecompressBC7(textureMem.Span, texture.Width, texture.Height, imageData.Span);
                 break;
             }
             case TextureFormat.PVRTC_RGB2:

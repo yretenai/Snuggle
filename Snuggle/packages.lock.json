@@ -112,23 +112,10 @@
           "WindowsAPICodePack-Core": "1.1.1"
         }
       },
-      "BCnEncoder.Net": {
-        "type": "Transitive",
-        "resolved": "2.1.0",
-        "contentHash": "bBKYUDhpYenmp8vy5BVUHmS2LFym0NMga9V+S1eMJ+4zQLBwDw63Bs83AKOyqBKC2AqqgxXdTFA2a2V+SmGoIw==",
-        "dependencies": {
-          "Microsoft.Toolkit.HighPerformance": "7.0.2"
-        }
-      },
       "Cyotek.Drawing.BitmapFont": {
         "type": "Transitive",
         "resolved": "2.0.0",
         "contentHash": "t6vYF0sXgNb6dP9QNbJxJWw3RdCEWC6Llv47oPYpobYAhmKcgmAZJv6HXK03DEUmo7ff6yPvsyEWTkia+UAONw=="
-      },
-      "DirectXTexNet": {
-        "type": "Transitive",
-        "resolved": "1.0.3",
-        "contentHash": "v7eEJhC9jtZCrS/ptdcIRGNN2vNSV6ZGifyKZQvqNH5gqSbDNhzpRbJtqzuBqsUj1t18Oxk7DTR68WGu39Mrrw=="
       },
       "Fmod5Sharp": {
         "type": "Transitive",
@@ -209,11 +196,6 @@
         "type": "Transitive",
         "resolved": "1.1.0",
         "contentHash": "aOZA3BWfz9RXjpzt0sRJJMjAscAUm3Hoa4UWAfceV9UTYxgwZ1lZt5nO2myFf+/jetYQo4uTP7zS8sJY67BBxg=="
-      },
-      "Microsoft.Toolkit.HighPerformance": {
-        "type": "Transitive",
-        "resolved": "7.0.2",
-        "contentHash": "tG6v0AhDw/yJMtiH/tI4F6I/+sNIfu4++6WFfN73FyNcPh31et33w45wo8Lx1sfxcfLtkYk+w2fvU/MubYg4VQ=="
       },
       "Microsoft.Win32.Primitives": {
         "type": "Transitive",
@@ -1535,27 +1517,25 @@
       "snuggle.converters": {
         "type": "Project",
         "dependencies": {
-          "AssetRipper.TextureDecoder": "1.1.0",
-          "BCnEncoder.Net": "2.1.0",
-          "DirectXTexNet": "1.0.3",
-          "Fmod5Sharp": "3.0.1",
-          "Kyaru.Texture2DDecoder": "0.16.40",
-          "Serilog": "2.11.0",
-          "SixLabors.ImageSharp": "2.1.3",
-          "SixLabors.ImageSharp.Drawing": "1.0.0-beta14",
-          "Snuggle.Core": "1.0.0",
-          "Snuggle.glTF": "1.0.0"
+          "AssetRipper.TextureDecoder": "[1.1.0, )",
+          "Fmod5Sharp": "[3.0.1, )",
+          "Kyaru.Texture2DDecoder": "[0.16.40, )",
+          "Serilog": "[2.11.0, )",
+          "SixLabors.ImageSharp": "[2.1.3, )",
+          "SixLabors.ImageSharp.Drawing": "[1.0.0-beta14, )",
+          "Snuggle.Core": "[1.0.0, )",
+          "Snuggle.glTF": "[1.0.0, )"
         }
       },
       "snuggle.core": {
         "type": "Project",
         "dependencies": {
-          "DragonLib": "3.0.1",
-          "K4os.Compression.LZ4.Streams": "1.2.16",
-          "Mono.Cecil": "0.11.4",
-          "Serilog": "2.11.0",
-          "SevenZip": "19.0.0",
-          "Snuggle.UnityCs": "1.0.0"
+          "DragonLib": "[3.0.1, )",
+          "K4os.Compression.LZ4.Streams": "[1.2.16, )",
+          "Mono.Cecil": "[0.11.4, )",
+          "Serilog": "[2.11.0, )",
+          "SevenZip": "[19.0.0, )",
+          "Snuggle.UnityCs": "[1.0.0, )"
         }
       },
       "snuggle.gltf": {
@@ -1564,7 +1544,7 @@
       "snuggle.unitycs": {
         "type": "Project",
         "dependencies": {
-          "Mono.Cecil": "0.11.4"
+          "Mono.Cecil": "[0.11.4, )"
         }
       }
     }

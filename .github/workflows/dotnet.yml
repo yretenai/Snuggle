@@ -27,14 +27,8 @@ jobs:
                 with:
                     dotnet-version: 7.0.x
                     include-prerelease: true
-            -   name: Add msbuild to PATH
-                uses: microsoft/setup-msbuild@v1.0.2
-            -   name: Build Texture2DDecoderNative
-                run: ./Build-SnuggleNativeLibs.ps1
             -   name: Restore project
                 run: dotnet restore
-            -   name: Run tests
-                run: dotnet test Snuggle.Tests
             -   name: Build Release
                 run: dotnet build -c Release -o dist/release
             -   name: Upload Release

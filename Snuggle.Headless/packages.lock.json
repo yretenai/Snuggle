@@ -21,19 +21,6 @@
           "System.Text.Encoding.CodePages": "5.0.0"
         }
       },
-      "BCnEncoder.Net": {
-        "type": "Transitive",
-        "resolved": "2.1.0",
-        "contentHash": "bBKYUDhpYenmp8vy5BVUHmS2LFym0NMga9V+S1eMJ+4zQLBwDw63Bs83AKOyqBKC2AqqgxXdTFA2a2V+SmGoIw==",
-        "dependencies": {
-          "Microsoft.Toolkit.HighPerformance": "7.0.2"
-        }
-      },
-      "DirectXTexNet": {
-        "type": "Transitive",
-        "resolved": "1.0.3",
-        "contentHash": "v7eEJhC9jtZCrS/ptdcIRGNN2vNSV6ZGifyKZQvqNH5gqSbDNhzpRbJtqzuBqsUj1t18Oxk7DTR68WGu39Mrrw=="
-      },
       "Fmod5Sharp": {
         "type": "Transitive",
         "resolved": "3.0.1",
@@ -81,11 +68,6 @@
         "type": "Transitive",
         "resolved": "5.0.0",
         "contentHash": "VyPlqzH2wavqquTcYpkIIAQ6WdenuKoFN0BdYBbCWsclXacSOHNQn66Gt4z5NBqEYW0FAPm5rlvki9ZiCij5xQ=="
-      },
-      "Microsoft.Toolkit.HighPerformance": {
-        "type": "Transitive",
-        "resolved": "7.0.2",
-        "contentHash": "tG6v0AhDw/yJMtiH/tI4F6I/+sNIfu4++6WFfN73FyNcPh31et33w45wo8Lx1sfxcfLtkYk+w2fvU/MubYg4VQ=="
       },
       "Mono.Cecil": {
         "type": "Transitive",
@@ -174,8 +156,6 @@
         "type": "Project",
         "dependencies": {
           "AssetRipper.TextureDecoder": "[1.1.0, )",
-          "BCnEncoder.Net": "[2.1.0, )",
-          "DirectXTexNet": "[1.0.3, )",
           "Fmod5Sharp": "[3.0.1, )",
           "Kyaru.Texture2DDecoder": "[0.16.40, )",
           "Serilog": "[2.11.0, )",

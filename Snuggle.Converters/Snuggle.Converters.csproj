@@ -9,8 +9,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="BCnEncoder.Net" Version="2.1.0" />
-        <PackageReference Include="DirectXTexNet" Version="1.0.3" />
         <PackageReference Include="Fmod5Sharp" Version="3.0.1" />
         <PackageReference Include="Kyaru.Texture2DDecoder" Version="0.16.40" />
         <PackageReference Include="Serilog" Version="2.11.0" />
