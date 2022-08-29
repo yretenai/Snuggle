@@ -106,15 +106,15 @@ public sealed record ZipVFS : IVirtualStorage {
         var offset = (long) zipEntry.Header.Offset;
         var zipInfoComposite = zipEntry.Extra.FirstOrDefault(x => x.Value is ZIP64ExtendedInformation);
         if (zipInfoComposite.Value is ZIP64ExtendedInformation zipInfo) {
-            if (zipInfoComposite.Key.Length <= 8 && zipEntry.Header.CompressedSize == uint.MaxValue) {
+            if (zipInfoComposite.Key.Length >= 8 && zipEntry.Header.CompressedSize == uint.MaxValue) {
                 csize = zipInfo.CompressedSize;
             }
 
-            if (zipInfoComposite.Key.Length <= 16 && zipEntry.Header.UncompressedSize == uint.MaxValue) {
+            if (zipInfoComposite.Key.Length >= 16 && zipEntry.Header.UncompressedSize == uint.MaxValue) {
                 msize = zipInfo.UncompressedSize;
             }
 
-            if (zipInfoComposite.Key.Length <= 24 && zipEntry.Header.Offset == uint.MaxValue) {
+            if (zipInfoComposite.Key.Length >= 24 && zipEntry.Header.Offset == uint.MaxValue) {
                 offset = zipInfo.Offset;
             }
         }
