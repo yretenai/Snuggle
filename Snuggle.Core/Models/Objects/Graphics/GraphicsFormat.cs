@@ -1,5 +1,8 @@
-﻿namespace Snuggle.Core.Models.Objects.Graphics;
+﻿using System.Diagnostics.CodeAnalysis;
 
+namespace Snuggle.Core.Models.Objects.Graphics;
+
+[SuppressMessage("Design", "CA1069:Enums values should not be duplicated")]
 public enum GraphicsFormat {
     None = 0,
 

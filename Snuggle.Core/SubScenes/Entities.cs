@@ -124,6 +124,7 @@ public class Entities {
                     var size = archetype.Sizes.Span[j];
                     var offset = archetype.Offsets.Span[j] + size * i;
                     var slice = chunk.Slice(0x40 + offset, size).ToArray().AsMemory();
+                    // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
                     switch (type.Type.Category) {
                         case TypeCategory.ComponentData:
                         case TypeCategory.EntityData:

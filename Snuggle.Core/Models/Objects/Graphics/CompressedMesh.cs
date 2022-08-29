@@ -124,6 +124,7 @@ public record CompressedMesh(
     }
 
     public PackedBitVector GetVectorForChannel(VertexChannel channel) {
+        // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
         switch (channel) {
             case VertexChannel.Vertex:
                 return Vertices;
@@ -180,6 +181,7 @@ public record CompressedMesh(
             }
 
             var channelInfo = ChannelInfo.Default;
+            // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
             switch (channel) {
                 case VertexChannel.Vertex: {
                     channelInfo = new ChannelInfo(0, offset, VertexFormat.Single, VertexDimension.RGB, 0);

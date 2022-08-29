@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Snuggle.Core.Extensions;
 using Snuggle.Core.IO;
@@ -48,6 +49,8 @@ public record UnityTypeTree(UnityTypeTreeNode[] Nodes, Memory<byte> StringBuffer
         writer.Write(StringBuffer.Span);
     }
 
+    // ReSharper disable once MemberCanBeMadeStatic.Local
+    [SuppressMessage("ReSharper", "UnusedParameter.Local")]
     private void ToWriterLegacy(BiEndianBinaryWriter writer, UnitySerializedFile header, SnuggleCoreOptions options, AssetSerializationOptions serializationOptions) {
         throw new NotSupportedException("Writing legacy type trees is currently not supported");
     }

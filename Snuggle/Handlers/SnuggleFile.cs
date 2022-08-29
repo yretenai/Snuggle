@@ -93,7 +93,7 @@ public static class SnuggleFile {
             false);
 
         instance.WorkerAction("CacheGameObjectClassIds",
-            token => {
+            _ => {
                 instance.Status.Reset();
                 instance.Status.SetStatus("Caching GameObject ClassIds...");
                 Log.Information("Caching GameObject ClassIds...");
@@ -258,7 +258,7 @@ public static class SnuggleFile {
         return "bytes";
     }
 
-    private static void ExtractConvert(SerializedObject serializedObject, string resultDir, string resultPath) {
+    private static void ExtractConvert(ISerialized serializedObject, string resultDir, string resultPath) {
         serializedObject.Deserialize(SnuggleCore.Instance.Settings.ObjectOptions);
 
         var instance = SnuggleCore.Instance;
@@ -320,7 +320,7 @@ public static class SnuggleFile {
         }
     }
 
-    private static void ExtractJson(SerializedObject serializedObject, string resultDir, string resultPath) {
+    private static void ExtractJson(ISerialized serializedObject, string resultDir, string resultPath) {
         serializedObject.Deserialize(SnuggleCore.Instance.Settings.ObjectOptions);
 
         var data = JsonSerializer.Serialize<object>(serializedObject, SnuggleCoreOptions.JsonOptions);

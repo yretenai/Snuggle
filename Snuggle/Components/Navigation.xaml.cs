@@ -21,7 +21,7 @@ using Snuggle.Windows;
 namespace Snuggle.Components;
 
 public partial class Navigation {
-    private static readonly Regex SplitPattern = new(@"(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])|(?<=[a-z])(?=[0-9])", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.CultureInvariant);
+    private static readonly Regex SplitPattern = SplitPatternRegex();
     private readonly Dictionary<RendererType, MenuItem> RendererTypeItems = new();
     private readonly Dictionary<UnityGame, MenuItem> UnityGameItems = new();
 
@@ -483,4 +483,7 @@ public partial class Navigation {
             },
             false);
     }
+
+    [RegexGenerator("(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])|(?<=[a-z])(?=[0-9])", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.CultureInvariant)]
+    private static partial Regex SplitPatternRegex();
 }

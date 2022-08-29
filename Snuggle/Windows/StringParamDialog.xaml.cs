@@ -4,8 +4,8 @@ using System.Windows;
 namespace Snuggle.Windows;
 
 public partial class StringParamDialog {
-    public static readonly DependencyProperty HeaderProperty = DependencyProperty.Register("Header", typeof(string), typeof(StringParamDialog), new PropertyMetadata(""));
-    public static readonly DependencyProperty TextProperty = DependencyProperty.Register("Text", typeof(string), typeof(StringParamDialog), new PropertyMetadata(""));
+    public static readonly DependencyProperty HeaderProperty = DependencyProperty.Register(nameof(Header), typeof(string), typeof(StringParamDialog), new PropertyMetadata(""));
+    public static readonly DependencyProperty TextProperty = DependencyProperty.Register(nameof(Text), typeof(string), typeof(StringParamDialog), new PropertyMetadata(""));
 
     public StringParamDialog() {
         InitializeComponent();
@@ -18,7 +18,7 @@ public partial class StringParamDialog {
 
     public string Header {
         get => (string) GetValue(HeaderProperty);
-        set => SetValue(HeaderProperty, value);
+        init => SetValue(HeaderProperty, value);
     }
 
     public string Text {

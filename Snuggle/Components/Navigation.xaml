@@ -72,7 +72,6 @@
             <MenuItem Header="_Dump Game Object Hierarchy" ToolTip="Dumps game object hierarchy to a text file"
                       Click="DumpGameObjectTree" />
             <MenuItem Header="_Game" x:Name="UnityGameList" />
-            <MenuItem Header="Game _Options" x:Name="GameOptions" Visibility="Collapsed" />
         </MenuItem>
         <MenuItem Header="_Filter" Height="30" x:Name="Filters" IsEnabled="{Binding IsFree}" />
     </Menu>

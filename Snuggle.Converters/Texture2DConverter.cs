@@ -147,7 +147,7 @@ public static class Texture2DConverter {
                 case TextureFormat.RGBA32:
                 case TextureFormat.BGRA32:
                 case TextureFormat.ARGB32:
-                    return textureData[..(texture.Width * texture.Height * 4)];
+                    return textureData.AsMemory()[..(texture.Width * texture.Height * 4)];
                 case TextureFormat.RGB565:
                     return DecodeRGB565(texture.Width, texture.Height, textureData);
                 case TextureFormat.R16:
@@ -185,6 +185,7 @@ public static class Texture2DConverter {
 
         var imageData = new byte[texture.Width * texture.Height * 4].AsMemory();
 
+        // ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault
         switch (texture.TextureFormat) {
             case TextureFormat.Alpha8:
                 WrapRgbConverter<ColorA8, byte>(textureMem, imageData);
@@ -663,7 +664,7 @@ public static class Texture2DConverter {
         return memory;
     }
 
-    public static Span<byte> ToDDS(ITexture texture, bool forceSingle) {
+    public static Span<byte> ToDDS(ITexture texture) {
         if (texture.ShouldDeserialize) {
             throw new IncompleteDeserialization();
         }

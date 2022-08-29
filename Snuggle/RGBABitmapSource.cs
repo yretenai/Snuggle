@@ -63,14 +63,11 @@ public class RGBABitmapSource : BitmapSource {
     public override void CopyPixels(Int32Rect sourceRect, Array pixels, int stride, int offset) {
         var span = Buffer.Span[(int) (Width * Height * 4 * Frame)..];
 
-        byte[] shuffle;
-        if (!ForceRGBA && BaseFormat.IsAlphaFirst()) {
-            shuffle = new byte[] { 3, 0, 1, 2 };
-        } else if (!ForceRGBA && BaseFormat.IsBGRA(SnuggleCore.Instance.Settings.ExportOptions.UseTextureDecoder)) {
-            shuffle = new byte[] { 2, 1, 0, 3 };
-        } else {
-            shuffle = new byte[] { 0, 1, 2, 3 };
-        }
+        var shuffle = ForceRGBA switch {
+            false when BaseFormat.IsAlphaFirst() => new byte[] { 3, 0, 1, 2 },
+            false when BaseFormat.IsBGRA(SnuggleCore.Instance.Settings.ExportOptions.UseTextureDecoder) => new byte[] { 2, 1, 0, 3 },
+            _ => new byte[] { 0, 1, 2, 3 },
+        };
 
         for (var y = sourceRect.Y; y < sourceRect.Y + sourceRect.Height; y++) {
             for (var x = sourceRect.X; x < sourceRect.X + sourceRect.Width; x++) {

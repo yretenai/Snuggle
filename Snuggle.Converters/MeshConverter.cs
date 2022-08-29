@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Snuggle.Core;
 using Snuggle.Core.Exceptions;
@@ -25,7 +26,7 @@ public static class MeshConverter {
         return GetVBO(fullBuffer, vertexCount, channels, out strides);
     }
 
-    public static Memory<byte>[] GetVBO(Memory<byte> fullBuffer, uint vertexCount, ChannelInfo?[] channelsNull, out int[] strides) {
+    public static Memory<byte>[] GetVBO(Memory<byte> fullBuffer, uint vertexCount, IEnumerable<ChannelInfo?> channelsNull, out int[] strides) {
         ChannelInfo[] channels = channelsNull.Where(x => x != null).ToArray()!;
         var streamCount = channels.Max(x => x.Stream) + 1;
         strides = new int[streamCount];

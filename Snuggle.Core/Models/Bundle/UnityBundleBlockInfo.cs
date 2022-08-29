@@ -44,6 +44,7 @@ public record UnityBundleBlockInfo(int Size, int CompressedSize, UnityBundleBloc
     public static void ToWriter(BiEndianBinaryWriter writer, UnityBundle header, BundleSerializationOptions serializationOptions, Stream blockDataStream, Stream blockData) {
         writer.Write(blockData.Length);
         blockData.Seek(0, SeekOrigin.Begin);
+        // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
         switch (serializationOptions.BlockCompressionType) {
             case UnityCompressionType.None: {
                 blockData.CopyTo(blockDataStream);

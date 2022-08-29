@@ -8,8 +8,8 @@ using System.Windows.Media.Imaging;
 namespace Snuggle.Components.Renderers;
 
 public sealed partial class SpriteRenderer {
-    public static readonly DependencyProperty CanvasBackgroundProperty = DependencyProperty.Register("CanvasBackground", typeof(Brush), typeof(SpriteRenderer), new PropertyMetadata(new SolidColorBrush(Colors.White)));
-    public static readonly DependencyProperty RenderingModeProperty = DependencyProperty.Register("RenderingMode", typeof(BitmapScalingMode), typeof(SpriteRenderer), new PropertyMetadata(BitmapScalingMode.Fant));
+    public static readonly DependencyProperty CanvasBackgroundProperty = DependencyProperty.Register(nameof(CanvasBackground), typeof(Brush), typeof(SpriteRenderer), new PropertyMetadata(new SolidColorBrush(Colors.White)));
+    public static readonly DependencyProperty RenderingModeProperty = DependencyProperty.Register(nameof(RenderingMode), typeof(BitmapScalingMode), typeof(SpriteRenderer), new PropertyMetadata(BitmapScalingMode.Fant));
 
     public SpriteRenderer() {
         InitializeComponent();

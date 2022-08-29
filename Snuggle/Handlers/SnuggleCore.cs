@@ -74,7 +74,7 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
     public static Visibility IsDebugVisibility => Debugger.IsAttached ? Visibility.Visible : Visibility.Collapsed;
 #endif
 
-    public Visibility HasAssetsVisibility => Collection.Files.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+    public Visibility HasAssetsVisibility => Collection.Files.IsEmpty ? Visibility.Visible : Visibility.Collapsed;
 
     public string ProjectName { get; } = Assembly.GetExecutingAssembly().GetName().Name ?? "Snuggle";
     public string FormattedProjectName { get; } = Navigation.SplitName(Assembly.GetExecutingAssembly().GetName().Name ?? "Snuggle");
@@ -127,7 +127,7 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
                     Log.Information("Spent {Elapsed} working on {Name} task", elapsed, name);
                     sw.Reset();
                 } catch (Exception e) {
-                    Log.Error(e, "Failed to perform {name} task", name);
+                    Log.Error(e, "Failed to perform {Name} task", name);
                 } finally {
                     IsFree = true;
                     if (!GlobalTokenSource.Token.IsCancellationRequested) {
@@ -214,7 +214,7 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
                     }
                 } catch (Exception e) {
                     Instance.Status.SetStatus($"{name} failed! {e.Message}");
-                    Log.Error(e, "{name} failed!", name);
+                    Log.Error(e, "{Name} failed!", name);
                 }
             }));
     }
@@ -236,7 +236,7 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
                     tcs.SetCanceled(token);
                 } catch (Exception e) {
                     Instance.Status.SetStatus($"{name} failed! {e.Message}");
-                    Log.Error(e, "{name} failed!", name);
+                    Log.Error(e, "{Name} failed!", name);
                     tcs.SetException(e);
                 }
             }));

@@ -94,6 +94,7 @@ public static partial class MeshToHelixConverter {
 
                     var value = info.Unpack(data);
                     var floatValues = value.Select(Convert.ToSingle).Concat(new float[4]);
+                    // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
                     switch ((VertexChannel) channel) {
                         case VertexChannel.Vertex: {
                             var vec = new Vector3(floatValues.Take(3).ToArray());

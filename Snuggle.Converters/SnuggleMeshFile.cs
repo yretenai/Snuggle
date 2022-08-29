@@ -387,7 +387,7 @@ public static class SnuggleMeshFile {
                 var value = info.Unpack(data);
                 var floatValues = value.Select(x => (float) Convert.ChangeType(x, TypeCode.Single)).Concat(new float[4]);
                 var uintValues = value.Select(x => (int) Convert.ChangeType(x, TypeCode.Int32)).Concat(new int[4]);
-                // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
+                // ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault
                 switch ((VertexChannel) channel) {
                     case VertexChannel.Vertex:
                         positions[i] = new Vector3(floatValues.Take(3).ToArray());

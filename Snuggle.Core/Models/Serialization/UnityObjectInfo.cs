@@ -111,12 +111,14 @@ public record UnityObjectInfo(
             writer.Write((ushort) (int) ClassId);
         }
 
-        if (serializationOptions.TargetFileVersion < UnitySerializedFileVersion.ObjectDestroyedRemoved) {
-            writer.Write((ushort) (IsDestroyed ? 1 : 0));
-        }
-
-        if (serializationOptions.TargetFileVersion is >= UnitySerializedFileVersion.ScriptTypeIndex and < UnitySerializedFileVersion.NewTypeData) {
-            writer.Write(ScriptTypeIndex);
+        switch (serializationOptions.TargetFileVersion)
+        {
+            case < UnitySerializedFileVersion.ObjectDestroyedRemoved:
+                writer.Write((ushort) (IsDestroyed ? 1 : 0));
+                break;
+            case >= UnitySerializedFileVersion.ScriptTypeIndex and < UnitySerializedFileVersion.NewTypeData:
+                writer.Write(ScriptTypeIndex);
+                break;
         }
 
         if (serializationOptions.TargetFileVersion is UnitySerializedFileVersion.StrippedObject or UnitySerializedFileVersion.NewClassId) {

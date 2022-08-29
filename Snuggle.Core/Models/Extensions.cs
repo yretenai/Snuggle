@@ -260,6 +260,7 @@ public static class Extensions {
         int bitsPerPixel;
         var pixelsPerBlock = 1;
 
+        // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
         switch (texture.TextureFormat) {
             case TextureFormat.Alpha8:
                 bitsPerPixel = 8;

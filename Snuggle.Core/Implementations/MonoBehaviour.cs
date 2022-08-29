@@ -84,11 +84,7 @@ public class MonoBehaviour : Behaviour {
             return Name;
         }
 
-        if (Script.Value != null) {
-            return Script.Value.ToString();
-        }
-
-        return base.ToString();
+        return Script.Value != null ? Script.Value.ToString() : base.ToString();
     }
 
     public override void Free() {

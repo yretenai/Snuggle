@@ -8,6 +8,5 @@ public enum UnityFSFlags : uint {
     CombinedData = 0x40,
     BlocksInfoAtEnd = 0x80,
     OldBrowserFallback = 0x100,
-    Encrypted = 0x200,
     BlockInfoNeedPaddingAtStart = 0x200,
 }

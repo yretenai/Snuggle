@@ -26,7 +26,7 @@ public static class Program {
         }
 
         SystemManagement.DescribeLog();
-        Log.Debug(flags.ToString());
+        Log.Debug("{Flags}", flags.ToString());
         Log.Debug("Args: {Args}", string.Join(' ', Environment.GetCommandLineArgs()[1..]));
 
         var files = new List<string>();
@@ -68,8 +68,7 @@ public static class Program {
 
         if (flags.DumpSerializedInfo) {
             foreach (var (_, file) in collection.Files) {
-                var ext = "json";
-                var path = PathFormatter.Format(flags.OutputFormat, ext, new SerializedObject(new UnityObjectInfo(0, 0, 0, 0, UnityClassId.Object, 0, false, 0, false), file));
+                var path = PathFormatter.Format(flags.OutputFormat, "json", new SerializedObject(new UnityObjectInfo(0, 0, 0, 0, UnityClassId.Object, 0, false, 0, false), file));
                 var fullPath = Path.Combine(flags.OutputPath, path);
                 if (File.Exists(fullPath)) {
                     continue;

@@ -84,7 +84,7 @@ public static class ObjectFactory {
 
     public static SerializedObject GetInstance(Stream stream, UnityObjectInfo info, SerializedFile serializedFile, object? overrideType = null, UnityGame? overrideGame = null) {
         while (true) {
-            if (!TryFindObjectType(info, serializedFile, overrideType, ref overrideGame, out _, out var type)) {
+            if (!TryFindObjectType(info, serializedFile, overrideType, ref overrideGame, out var type)) {
                 continue;
             }
 
@@ -107,7 +107,7 @@ public static class ObjectFactory {
         }
     }
 
-    private static bool TryFindObjectType(UnityObjectInfo info, SerializedFile serializedFile, object? overrideType, ref UnityGame? overrideGame, out bool hasImplementation, [MaybeNullWhen(false)] out Type type) {
+    private static bool TryFindObjectType(UnityObjectInfo info, SerializedFile serializedFile, object? overrideType, ref UnityGame? overrideGame, [MaybeNullWhen(false)] out Type type) {
         type = null;
         overrideGame ??= serializedFile.Options.Game;
 
@@ -116,8 +116,7 @@ public static class ObjectFactory {
             gameImplementations = Implementations[UnityGame.Default];
         }
 
-        hasImplementation = gameImplementations.TryGetValue(overrideType ?? info.ClassId, out type);
-        if (!hasImplementation) {
+        if (!gameImplementations.TryGetValue(overrideType ?? info.ClassId, out type)) {
             if (overrideGame is not UnityGame.Default) {
                 overrideGame = UnityGame.Default;
                 return false;

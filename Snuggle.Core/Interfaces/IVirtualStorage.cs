@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using Snuggle.Core.Options;
 using Snuggle.Core.VFS;
@@ -12,6 +13,7 @@ public interface IVirtualStorage : IRenewable {
     public Stream Open(string path, bool leaveOpen = false);
     public Stream Open(IVirtualStorageEntry entry, Stream? data = null, bool leaveOpen = false);
 
+    [SuppressMessage("ReSharper", "UnusedParameter.Global")]
     public static bool IsVFSFile(object tag, Stream stream, SnuggleCoreOptions options) => ZipVFS.IsZipVFS(stream) || FATVFS.IsFAT32VFS(stream);
 
     public static IVirtualStorage Init(Stream stream, object tag, IFileHandler handler, SnuggleCoreOptions options, bool leaveOpen = false) {

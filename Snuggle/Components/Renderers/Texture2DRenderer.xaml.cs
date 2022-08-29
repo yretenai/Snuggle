@@ -11,10 +11,10 @@ using Snuggle.Core.Interfaces;
 namespace Snuggle.Components.Renderers;
 
 public sealed partial class Texture2DRenderer {
-    public static readonly DependencyProperty CanvasBackgroundProperty = DependencyProperty.Register("CanvasBackground", typeof(Brush), typeof(Texture2DRenderer), new PropertyMetadata(new SolidColorBrush(Colors.White)));
-    public static readonly DependencyProperty RenderingModeProperty = DependencyProperty.Register("RenderingMode", typeof(BitmapScalingMode), typeof(Texture2DRenderer), new PropertyMetadata(BitmapScalingMode.Fant));
-    public static readonly DependencyProperty FrameProperty = DependencyProperty.Register("Frame", typeof(int), typeof(Texture2DRenderer), new PropertyMetadata(0));
-    public static readonly DependencyProperty FramesProperty = DependencyProperty.Register("Frames", typeof(int[]), typeof(Texture2DRenderer), new PropertyMetadata(new[] { 0 }));
+    public static readonly DependencyProperty CanvasBackgroundProperty = DependencyProperty.Register(nameof(CanvasBackground), typeof(Brush), typeof(Texture2DRenderer), new PropertyMetadata(new SolidColorBrush(Colors.White)));
+    public static readonly DependencyProperty RenderingModeProperty = DependencyProperty.Register(nameof(RenderingMode), typeof(BitmapScalingMode), typeof(Texture2DRenderer), new PropertyMetadata(BitmapScalingMode.Fant));
+    public static readonly DependencyProperty FrameProperty = DependencyProperty.Register(nameof(Frame), typeof(int), typeof(Texture2DRenderer), new PropertyMetadata(0));
+    public static readonly DependencyProperty FramesProperty = DependencyProperty.Register(nameof(Frames), typeof(int[]), typeof(Texture2DRenderer), new PropertyMetadata(new[] { 0 }));
 
     public Texture2DRenderer() {
         InitializeComponent();

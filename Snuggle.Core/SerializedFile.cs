@@ -63,7 +63,7 @@ public class SerializedFile : IRenewable {
     public UnitySerializedType[] ReferenceTypes { get; set; } = Array.Empty<UnitySerializedType>();
     public string UserInformation { get; init; } = string.Empty;
     public UnityVersion Version { get; set; }
-    public AssetCollection? Assets { get; set; }
+    public AssetCollection? Assets { get; init; }
     public string Name { get; init; } = string.Empty;
     public object Tag { get; set; }
     public IFileHandler Handler { get; set; }

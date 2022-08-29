@@ -103,6 +103,6 @@ public static class SnuggleTextureFile {
 
         using var fs = File.OpenWrite(path);
         fs.SetLength(0);
-        fs.Write(Texture2DConverter.ToDDS(texture, true));
+        fs.Write(Texture2DConverter.ToDDS(texture));
     }
 }

@@ -54,7 +54,7 @@ public partial class App {
 
     private void Cleanup(object? sender, EventArgs e) {
         if (e is ExitEventArgs exitEventArgs) {
-            Log.Information("Exiting ({ExitCode:X8})", exitEventArgs);
+            Log.Information("Exiting ({ExitCode:X8})", exitEventArgs.ApplicationExitCode);
         } else {
             Log.Information("Exiting");
         }

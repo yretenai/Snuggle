@@ -9,8 +9,8 @@ using Snuggle.Core.Interfaces;
 
 namespace Snuggle.Converters;
 
-public static class PathFormatter {
-    private static readonly Regex Pattern = new(@"\{(\w+)\}", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Singleline);
+public static partial class PathFormatter {
+    private static readonly Regex Pattern = PatternRegex();
 
     public static string Format(string template, string ext, ISerializedObject asset) {
         var builder = new StringBuilder();
@@ -118,4 +118,7 @@ public static class PathFormatter {
 
         return result;
     }
+
+    [RegexGenerator("\\{(\\w+)\\}", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Singleline)]
+    private static partial Regex PatternRegex();
 }

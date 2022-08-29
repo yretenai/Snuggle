@@ -13,5 +13,4 @@ public class UniteAssetBundleExtension : ISerialized {
     public void Free() { }
 
     public bool ShouldDeserialize => false;
-    public (long, string) GetCompositeId() => (0, "Unite");
 }

@@ -217,7 +217,7 @@ public class AssetCollection : IDisposable {
                 }
 
                 path = Path.GetFileName(path);
-                var ext = Path.GetExtension(path).ToLower() ?? "";
+                var ext = Path.GetExtension(path).ToLower();
                 switch (ext) {
                     case ".ress":
                     case ".resource":
@@ -254,6 +254,7 @@ public class AssetCollection : IDisposable {
         Types.Clear();
     }
 
+    // ReSharper disable once UnusedParameter.Global
     public void LoadAssembly(Stream dataStream, string assemblyLocation, SnuggleCoreOptions options, bool leaveOpen = false) {
         try {
             Assemblies.RemoveSearchDirectory(assemblyLocation);
