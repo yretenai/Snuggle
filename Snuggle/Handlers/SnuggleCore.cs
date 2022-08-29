@@ -41,6 +41,7 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
     public SnuggleStatus Status { get; } = new();
     public SnuggleOptions Settings { get; private set; } = SnuggleOptions.Default;
     public Thread WorkerThread { get; private set; }
+    public CancellationTokenSource GlobalTokenSource { get; private set; } = new();
     public CancellationTokenSource TokenSource { get; private set; } = new();
     private BlockingCollection<(string Name, Action<CancellationToken> Work)> Tasks { get; set; } = new();
     public List<SnuggleObject> Objects => Collection.Files.SelectMany(x => x.Value.GetAllObjects()).Select(x => new SnuggleObject(x!)).ToList();
@@ -110,7 +111,12 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
         try {
             var tasks = Tasks;
             var sw = new Stopwatch();
-            foreach (var (name, task) in tasks.GetConsumingEnumerable(TokenSource.Token)) {
+            foreach (var (name, task) in tasks.GetConsumingEnumerable(GlobalTokenSource.Token)) {
+                if (TokenSource.Token.IsCancellationRequested) {
+                    TokenSource.Dispose();
+                    TokenSource = new CancellationTokenSource();
+                }
+
                 try {
                     sw.Start();
                     IsFree = false;
@@ -122,11 +128,14 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
                     sw.Reset();
                 } catch (Exception e) {
                     Log.Error(e, "Failed to perform {name} task", name);
+                } finally {
+                    IsFree = true;
+                    if (!GlobalTokenSource.Token.IsCancellationRequested) {
+                        Dispatcher.Invoke(() => OnPropertyChanged(nameof(IsFree)));
+                    }
                 }
 
                 Log.Information("Memory Tension: {Size}", GC.GetTotalMemory(false).GetHumanReadableBytes());
-                IsFree = true;
-                Dispatcher.Invoke(() => OnPropertyChanged(nameof(IsFree)));
             }
         } catch (TaskCanceledException) {
             // ignored
@@ -134,17 +143,43 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
             // ignored
         } catch (Exception e) {
             Log.Error(e, "Failed to get tasks");
+        } finally {
+            try {
+                Dispatcher.Invoke(() => OnPropertyChanged(nameof(IsFree)));
+            } catch {
+                // ignored
+                if (!GlobalTokenSource.Token.IsCancellationRequested) {
+                    Dispatcher.Invoke(() => OnPropertyChanged(nameof(IsFree)));
+                }
+            }
         }
+    }
+
+    public void Respawn() {
+        TokenSource.Cancel();
+    }
+
+    public void Iterate() {
+        OnPropertyChanged(nameof(Objects));
+        OnPropertyChanged(nameof(HasAssetsVisibility));
+        OnPropertyChanged(nameof(Title));
+        OnPropertyChanged(nameof(Filters));
+        OnPropertyChanged(nameof(SelectedObject));
+        OnPropertyChanged(nameof(SelectedObjects));
+        OnPropertyChanged(nameof(IsFree));
     }
 
     public void Reset(bool respawn = true) {
         Tasks.CompleteAdding();
         Tasks = new BlockingCollection<(string Name, Action<CancellationToken> Work)>();
+        GlobalTokenSource.Cancel();
         TokenSource.Cancel();
-        TokenSource.Dispose();
         if (respawn) {
             WorkerThread.Join();
         }
+
+        TokenSource.Dispose();
+        GlobalTokenSource.Dispose();
 
         SelectedObject = null;
         Status.Reset();
@@ -154,19 +189,16 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
         SnuggleSpriteFile.ClearMemory();
         Collection.Reset();
         if (respawn) {
+            GlobalTokenSource = new CancellationTokenSource();
             TokenSource = new CancellationTokenSource();
             WorkerThread = new Thread(WorkLoop);
             WorkerThread.Start();
-            OnPropertyChanged(nameof(Objects));
-            OnPropertyChanged(nameof(HasAssetsVisibility));
-            OnPropertyChanged(nameof(Title));
-            OnPropertyChanged(nameof(Filters));
-            OnPropertyChanged(nameof(SelectedObject));
-            OnPropertyChanged(nameof(SelectedObjects));
+            Iterate();
         }
     }
 
     public void WorkerAction(string name, Action<CancellationToken> action, bool report) {
+        Log.Information("Enqueuing {Name} task", name);
         Tasks.Add(
             (name, token => {
                 try {
@@ -178,7 +210,7 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
                     action(token);
                     if (report) {
                         Instance.Status.SetStatus($"{name} done.");
-                        Log.Information("{Name} done.", name);
+                        Log.Information("{Name} done", name);
                     }
                 } catch (Exception e) {
                     Instance.Status.SetStatus($"{name} failed! {e.Message}");

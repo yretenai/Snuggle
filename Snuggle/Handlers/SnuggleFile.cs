@@ -89,7 +89,20 @@ public static class SnuggleFile {
                         instance.Collection.LoadFile(file, instance.Settings.Options);
                     }
                 }
+            },
+            false);
 
+        instance.WorkerAction("CacheGameObjectClassIds",
+            token => {
+                instance.Status.Reset();
+                instance.Status.SetStatus("Caching GameObject ClassIds...");
+                Log.Information("Caching GameObject ClassIds...");
+                instance.Collection.CacheGameObjectClassIds();
+            },
+            true);
+
+        instance.WorkerAction("Finalize",
+            _ => {
                 instance.Status.Reset();
                 instance.Status.SetStatus("Caching GameObject ClassIds...");
                 Log.Information("Caching GameObject ClassIds...");
@@ -97,9 +110,6 @@ public static class SnuggleFile {
                 instance.Status.SetStatus("Finding container paths...");
                 Log.Information("Finding container paths...");
                 instance.Collection.FindResources();
-                instance.Status.SetStatus("Building GameObject Graph...");
-                Log.Information("Building GameObject Graph...");
-                instance.Collection.BuildGraph();
                 instance.Status.SetStatus($"Loaded {instance.Collection.Files.Count} files");
                 Log.Information("Loaded {Count} files", instance.Collection.Files.Count);
                 instance.WorkerAction("Collect", _ => AssetCollection.Collect(), false);
@@ -108,7 +118,7 @@ public static class SnuggleFile {
                 instance.OnPropertyChanged(nameof(SnuggleCore.Filters));
                 instance.OnPropertyChanged(nameof(SnuggleCore.Title));
             },
-            false);
+            true);
     }
 
     public static void Extract(ExtractMode mode, ExtractFilter filter) {
@@ -222,7 +232,7 @@ public static class SnuggleFile {
                         throw new NotSupportedException();
                 }
             } catch (Exception e) {
-                Log.Error(e, "Failure while extracting file.");
+                Log.Error(e, "Failure while extracting file");
             }
         }
 

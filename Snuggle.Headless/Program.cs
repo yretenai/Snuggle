@@ -44,7 +44,7 @@ public static class Program {
         }
 
         var fileSet = files.ToHashSet();
-        Log.Information("Found {Count} files.", files.Count);
+        Log.Information("Found {Count} files", files.Count);
 
         if (files.Count == 0) {
             Log.Information("No files found, exiting...");
@@ -62,8 +62,6 @@ public static class Program {
         collection.CacheGameObjectClassIds();
         Log.Information("Finding container paths...");
         collection.FindResources();
-        Log.Information("Building GameObject Graph...");
-        collection.BuildGraph();
         Log.Information("Collecting Memory...");
         AssetCollection.Collect();
         Log.Information("Memory Tension: {Size}", GC.GetTotalMemory(false).GetHumanReadableBytes());

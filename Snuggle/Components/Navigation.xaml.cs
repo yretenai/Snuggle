@@ -394,6 +394,10 @@ public partial class Navigation {
         SnuggleCore.Instance.Reset();
     }
 
+    private void RespawnTrampoline(object sender, RoutedEventArgs e) {
+        SnuggleCore.Instance.Respawn();
+    }
+
     private void FreeMemory(object sender, RoutedEventArgs e) {
         var instance = SnuggleCore.Instance;
         instance.WorkerAction("FreeMemory", _ => { SnuggleCore.Instance.FreeMemory(); }, true);
@@ -414,7 +418,7 @@ public partial class Navigation {
 
         using var file = new FileStream(selection.FileName, FileMode.Create);
         using var writer = new StreamWriter(file);
-        var nodes = BuildTreeNode(SnuggleCore.Instance.Collection.GameObjectTree);
+        var nodes = BuildTreeNode(SnuggleCore.Instance.Collection.BuildGraph());
         TreePrinter.PrintTree(writer, nodes);
     }
 

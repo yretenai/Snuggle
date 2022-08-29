@@ -9,6 +9,7 @@
              TextElement.FontSize="13"
              TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="Auto"
+             Loaded="UpdateCulture"
              d:DataContext="{d:DesignInstance handlers:SnuggleCore}"
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
@@ -29,16 +30,17 @@
             </ListView.Resources>
             <ListView.ItemContainerStyle>
                 <Style TargetType="{x:Type ListViewItem}" BasedOn="{StaticResource {x:Type ListViewItem}}">
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                     <Setter Property="ContextMenu" Value="{StaticResource Context}" />
                 </Style>
             </ListView.ItemContainerStyle>
             <ListView.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <VirtualizingStackPanel />
+                    <VirtualizingStackPanel Orientation="Vertical" HorizontalAlignment="Stretch" />
                 </ItemsPanelTemplate>
             </ListView.ItemsPanel>
             <ListView.View>
-                <GridView d:DataContext="{d:DesignInstance handlers:SnuggleObject}">
+                <GridView d:DataContext="{d:DesignInstance handlers:SnuggleObject}" AllowsColumnReorder="true">
                     <GridViewColumn Header="Id" DisplayMemberBinding="{Binding PathId, Mode=OneWay}" />
                     <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Name, Mode=OneWay}" />
                     <GridViewColumn Header="Type" DisplayMemberBinding="{Binding ClassId, Mode=OneWay}" />

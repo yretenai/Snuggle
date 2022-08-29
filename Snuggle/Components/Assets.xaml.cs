@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -137,5 +138,10 @@ public partial class Assets {
         } catch {
             // return
         }
+    }
+
+    private void UpdateCulture(object sender, RoutedEventArgs e) {
+        var dataView = CollectionViewSource.GetDefaultView(Entries.ItemsSource);
+        dataView.Culture = CultureInfo.InvariantCulture;
     }
 }

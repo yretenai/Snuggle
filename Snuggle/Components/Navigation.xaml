@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:converters="clr-namespace:Snuggle.Converters"
              xmlns:handlers="clr-namespace:Snuggle.Handlers"
              mc:Ignorable="d"
              TextElement.FontWeight="Regular"
@@ -11,6 +12,9 @@
              TextOptions.TextRenderingMode="Auto"
              d:DataContext="{d:DesignInstance handlers:SnuggleCore}"
              d:DesignHeight="30" d:DesignWidth="500">
+    <UserControl.Resources>
+        <converters:InvertBooleanConverter x:Key="InvertBooleanConverter" />
+    </UserControl.Resources>
     <Menu Height="30">
         <MenuItem Header="_File" Height="30">
             <MenuItem Header="Load _Directory" Click="LoadDirectories" IsEnabled="{Binding IsFree}" />
@@ -29,6 +33,8 @@
             <MenuItem Header="_Clear Type Data"
                       ToolTip="This will remove all Unity TypeTree information, requiring Assembly Data on MonoBehaviour Deserialization"
                       Click="FreeTypes" IsEnabled="{Binding IsFree}" />
+            <MenuItem Header="_Cancel Current Operation" Click="RespawnTrampoline"
+                      IsEnabled="{Binding IsFree, Converter={StaticResource InvertBooleanConverter}}" />
             <MenuItem Header="_Reset" Click="ResetTrampoline" />
             <MenuItem Header="_Exit" Click="ExitTrampoline" />
         </MenuItem>

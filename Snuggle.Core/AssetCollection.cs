@@ -26,7 +26,6 @@ public class AssetCollection : IDisposable {
     public ConcurrentDictionary<string, ObjectNode> Types { get; } = new();
     public ConcurrentDictionary<string, SerializedFile> Files { get; } = new(StringComparer.InvariantCultureIgnoreCase);
     public ConcurrentDictionary<string, (object Tag, IFileHandler Handler)> Resources { get; } = new(StringComparer.InvariantCultureIgnoreCase);
-    public List<GameObject> GameObjectTree { get; set; } = new();
     public PlayerSettings? PlayerSettings { get; internal set; }
 
     public void Dispose() {
@@ -62,7 +61,6 @@ public class AssetCollection : IDisposable {
         Assemblies.Clear();
         Files.Clear();
         Resources.Clear();
-        GameObjectTree.Clear();
         Types.Clear();
         Collect();
     }
@@ -219,7 +217,7 @@ public class AssetCollection : IDisposable {
                 }
 
                 path = Path.GetFileName(path);
-                var ext = Path.GetExtension(path)?.ToLower() ?? "";
+                var ext = Path.GetExtension(path).ToLower() ?? "";
                 switch (ext) {
                     case ".ress":
                     case ".resource":
@@ -330,7 +328,8 @@ public class AssetCollection : IDisposable {
         }
     }
 
-    public void BuildGraph() {
+    public List<GameObject> BuildGraph() {
+        var tree = new List<GameObject>();
         foreach (var (_, file) in Files) {
             foreach (var info in file.ObjectInfos) {
                 if (!info.ClassId.Equals(UnityClassId.GameObject)) {
@@ -345,8 +344,10 @@ public class AssetCollection : IDisposable {
                     continue;
                 }
 
-                GameObjectTree.Add(gameObject);
+                tree.Add(gameObject);
             }
         }
+
+        return tree;
     }
 }
