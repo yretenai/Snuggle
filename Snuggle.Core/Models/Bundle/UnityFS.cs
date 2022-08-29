@@ -100,7 +100,7 @@ public record UnityFS(long Size, int CompressedBlockInfoSize, int BlockInfoSize,
         var fs = new UnityFS(size, compressedBlockSize, blockSize, flags);
         var pos = reader.BaseStream.Position;
         if (fs.Flags.HasFlag(UnityFSFlags.BlocksInfoAtEnd)) {
-            reader.BaseStream.Seek(fs.CompressedBlockInfoSize, SeekOrigin.End);
+            reader.BaseStream.Seek(-fs.CompressedBlockInfoSize, SeekOrigin.End);
         } else if (header.FormatVersion >= 7) {
             reader.Align(16);
         }

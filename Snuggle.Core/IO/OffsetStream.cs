@@ -84,7 +84,7 @@ public class OffsetStream : Stream {
         var absolutePosition = origin switch {
             SeekOrigin.Begin => Start + offset,
             SeekOrigin.Current => BaseStream.Position + offset,
-            SeekOrigin.End => End - offset,
+            SeekOrigin.End => End + offset,
             _ => throw new IOException("Unknown seek origin"),
         };
 

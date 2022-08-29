@@ -18,7 +18,7 @@ public interface IVirtualStorage : IRenewable {
 
     public static IVirtualStorage Init(Stream stream, object tag, IFileHandler handler, SnuggleCoreOptions options, bool leaveOpen = false) {
         if (ZipVFS.IsZipVFS(stream)) {
-            return new ZipVFS(stream, tag, handler, leaveOpen);
+            return new ZipVFS(stream, tag, handler);
         }
 
         if (FATVFS.IsFAT32VFS(stream)) {
