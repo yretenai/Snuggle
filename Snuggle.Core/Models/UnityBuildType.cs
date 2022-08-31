@@ -8,4 +8,5 @@ public enum UnityBuildType {
     Final = 'f', // public
     Patch = 'p',
     Experimental = 'x',
+    China = 'c', // basically final
 }
