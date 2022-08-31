@@ -2,10 +2,10 @@
 
 public enum UnityBuildType {
     None = 0,
-    Release = 'r',
+    Candidate = 'r', // rc
     Alpha = 'a',
     Beta = 'b',
-    Final = 'f',
+    Final = 'f', // public
     Patch = 'p',
     Experimental = 'x',
 }
