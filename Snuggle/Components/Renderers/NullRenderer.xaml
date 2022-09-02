@@ -14,5 +14,7 @@
                 DATA ONLY
             </Span>
         </TextBlock>
+        <Image Source="/Snuggle;component/Snuggle.png" MaxWidth="466" MaxHeight="512" Opacity="0.07"
+               VerticalAlignment="Top" HorizontalAlignment="Left" />
     </Grid>
 </UserControl>

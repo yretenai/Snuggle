@@ -18,26 +18,26 @@ Snuggle's only benefit over other systems is the ability load large games withou
 |  Maximum Unity Version  |                 2021.1                  |         2022.1          |                2022.1[^2]                |       2021.2[^2]    |
 |        Platforms        |                Mixed[^3]                |         Windows         |           Windows, Linux, Mac            | Windows, Linux, Mac |
 |         License         |                   MIT                   |           MIT           |                  GPLv3                   |         MIT         |
-|         Texture         |                    ✔️                   |           ✔️           |                    ✔️                    |         ✔️         |
-|         Sprite          |                    ✔️                   |           ✔️           |                    ✔️                    |         ❌         |
-|          Mesh           |                    ✔️                   |           ✔️           |                    ✔️                    |         ❌         |
-|      MonoBehaviour      |                    ✔️                   |           ✔️           |                    ✔️                    |       ❌[^4]       |
-|        FontAsset        |                    ❌                   |           ✔️           |                    ✔️                    |         ❌         |
-|      MovieTexture       |                    ❌                   |           ✔️           |                    ✔️                    |         ❌         |
-|        VideoClip        |                    ❌                   |           ✔️           |                    ✔️                    |         ❌         |
-|        TextAsset        |                    ✔️                   |           ✔️           |                    ✔️                    |         ✔️         |
-|      AnimationClip      |                    ❌                   |         ✔️[^5]         |                    ✔️                    |         ❌         |
-|         Shader          |                    ❌                   |         ✔️[^6]         |                    ✔️                    |         ❌         |
-|        AudioClip        |                    ✔️                   |           ✔️           |                    ✔️                    |         ❌         |
+|         Texture         |                    ✔️                 |           ✔️         |                    ✔️                    |         ✔️         |
+|         Sprite          |                    ✔️                 |           ✔️         |                    ✔️                    |         ❌         |
+|          Mesh           |                    ✔️                 |           ✔️         |                    ✔️                    |         ❌         |
+|      MonoBehaviour      |                    ✔️                 |           ✔️         |                    ✔️                    |       ❌[^4]       |
+|        FontAsset        |                    ❌                   |           ✔️         |                    ✔️                    |         ❌         |
+|      MovieTexture       |                    ❌                   |           ✔️         |                    ✔️                    |         ❌         |
+|        VideoClip        |                    ❌                   |           ✔️         |                    ✔️                    |         ❌         |
+|        TextAsset        |                    ✔️                 |           ✔️         |                    ✔️                    |         ✔️         |
+|      AnimationClip      |                    ❌                   |         ✔️[^5]       |                    ✔️                    |         ❌         |
+|         Shader          |                    ❌                   |         ✔️[^6]       |                    ✔️                    |         ❌         |
+|        AudioClip        |                    ✔️                 |           ✔️         |                    ✔️                    |         ❌         |
 |         Terrain         |                    ❌                   |           ❌           |                    ✔️                    |         ❌         |
-|    TypeTree Dumping     |                    ❌                   |           ✔️           |                    ✔️                    |         ❌         |
-|   Shader Disassembly    |                    ❌                   |         ✔️[^6]         |                    ✔️                    |         ❌         |
-|   IL2CPP Integration    |                    ❌                   |           ❌           |                  ✔️[^7]                  |         ❌         |
-| Game Specific Framework |                    ✔️                   |           ❌           |                    ❌                    |         ❌         |
+|    TypeTree Dumping     |                    ❌                   |           ✔️         |                    ✔️                    |         ❌         |
+|   Shader Disassembly    |                    ❌                   |         ✔️[^6]       |                    ✔️                    |         ❌         |
+|   IL2CPP Integration    |                    ✔️[^7]             |           ❌          |                  ✔️[^7]                  |         ❌         |
+| Game Specific Framework |                    ✔️                 |           ❌           |                    ❌                    |         ❌         |
 |      Plugin System      |                    ❌                   |           ❌           |                    ✔️                    |         ✔️         |
-|    Deferred Loading     |                    ✔️                   |           ❌           |                    ❌                    |         ❌         |
-|  VFS Container Caching  |                    ✔️                   |           ❌           |                    ❌                    |         ✔️         |
-|    Rebuilding Assets    |                  ✔️[^8]                 |           ❌           |                  ❌[^9]                  |       ✔️[^10]      |
+|    Deferred Loading     |                    ✔️                 |           ❌           |                    ❌                    |         ❌         |
+|  VFS Container Caching  |                    ✔️                 |           ❌           |                    ❌                    |         ✔️         |
+|    Rebuilding Assets    |                  ✔️[^8]               |           ❌           |                  ❌[^9]                  |       ✔️[^10]      |
 |     Scene Hierarchy     |                    ❌                   |           ✔️           |                    ✔️                    |         ✔️         |
 |    Previewing Assets    | Texture, Sprite, Mesh, GameObject Scene, Audio |  Texture, Sprite, Mesh, Audio, Font  |             Texture, Sprite, Audio              |        None         |
 |     General Format      |                  json                   |          json           |                    yaml                  |         json        |

@@ -7,7 +7,7 @@ using Snuggle.Core.Models;
 namespace Snuggle.Core.Meta;
 
 // ReSharper disable once StructCanBeMadeReadOnly
-public record struct UnityVersion(int Major, int Minor = 0, int Build = 0, UnityBuildType Type = UnityBuildType.Release, int Revision = 0, string? ExtraVersion = null) : IComparable<UnityVersion>, IComparable<int> {
+public record struct UnityVersion(int Major, int Minor = 0, int Build = 0, UnityBuildType Type = UnityBuildType.Final, int Revision = 0, string? ExtraVersion = null) : IComparable<UnityVersion>, IComparable<int> {
     public static UnityVersion MaxValue { get; } = new(int.MaxValue, int.MaxValue, int.MaxValue);
     public static UnityVersion MinValue { get; } = new(0);
     public static UnityVersion Default { get; } = new(5);
@@ -132,7 +132,7 @@ public record struct UnityVersion(int Major, int Minor = 0, int Build = 0, Unity
         var builder = new StringBuilder(32);
         builder.Append($"{Major}.{Minor}.{Build}");
 
-        if (Type is UnityBuildType.None or UnityBuildType.Release) {
+        if (Type is UnityBuildType.None or UnityBuildType.Final) {
             return builder.ToString();
         }
 
@@ -151,6 +151,8 @@ public record struct UnityVersion(int Major, int Minor = 0, int Build = 0, Unity
         builder.Append(ExtraVersion);
         return builder.ToString();
     }
+
+    public int[] ToInts() => new[] { Major, Minor, Build };
 
     public string ToStringSafe() => new(ToString().Select(x => x is '*' or '.' or '+' || char.IsLetterOrDigit(x) ? x : '.').ToArray());
 }

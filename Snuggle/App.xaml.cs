@@ -1,5 +1,7 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Threading;
@@ -17,7 +19,7 @@ public partial class App {
 
     public App() {
         InitializeComponent();
-        Log.Logger = new LoggerConfiguration().WriteTo.Debug().WriteTo.File($"Logs/{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}.log").CreateLogger();
+        Log.Logger = new LoggerConfiguration().WriteTo.Debug().WriteTo.File($"{Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().Location)}.log").CreateLogger();
         SystemManagement.DescribeLog();
         AppDomain.CurrentDomain.UnhandledException += Crash;
         AppDomain.CurrentDomain.ProcessExit += Cleanup;

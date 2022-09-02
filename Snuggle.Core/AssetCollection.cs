@@ -5,9 +5,11 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using Cpp2IL.Core;
 using DragonLib;
 using Mono.Cecil;
 using Serilog;
+using Snuggle.Core.Extensions;
 using Snuggle.Core.Implementations;
 using Snuggle.Core.Interfaces;
 using Snuggle.Core.IO;
@@ -20,17 +22,27 @@ using Snuggle.Core.Options;
 namespace Snuggle.Core;
 
 public class AssetCollection : IDisposable {
+    // in order: windows, mac, linux, android, switch
+    public readonly string[] ILAssemblyNames = { "GameAssembly.dll", "GameAssembly.dylib", "GameAssembly.so", "libil2cpp.so", "main" };
     public List<IAssetBundle> Bundles { get; } = new();
     public List<IVirtualStorage> VFSes { get; } = new();
     public AssemblyResolver Assemblies { get; set; } = new();
+    internal bool HasProcessedGlobalMetadata { get; set; }
+    internal bool NeedToCleanCpp2IL { get; set; }
     public ConcurrentDictionary<string, ObjectNode> Types { get; } = new();
     public ConcurrentDictionary<string, SerializedFile> Files { get; } = new(StringComparer.InvariantCultureIgnoreCase);
     public ConcurrentDictionary<string, (object Tag, IFileHandler Handler)> Resources { get; } = new(StringComparer.InvariantCultureIgnoreCase);
+    public ConcurrentDictionary<string, (object Tag, IFileHandler Handler)> FlatFiles { get; } = new();
     public PlayerSettings? PlayerSettings { get; internal set; }
 
     public void Dispose() {
         Reset();
         Assemblies.Dispose();
+        if (NeedToCleanCpp2IL) {
+            Cpp2IlApi.DisposeAndCleanupAll();
+            NeedToCleanCpp2IL = false;
+        }
+
         GC.SuppressFinalize(this);
     }
 
@@ -62,7 +74,37 @@ public class AssetCollection : IDisposable {
         Files.Clear();
         Resources.Clear();
         Types.Clear();
+        if (NeedToCleanCpp2IL) {
+            Cpp2IlApi.DisposeAndCleanupAll();
+            NeedToCleanCpp2IL = false;
+        }
+
+        HasProcessedGlobalMetadata = false;
         Collect();
+    }
+
+    public Stream? GetGlobalMetadata() {
+        Logger.Info("Looking for global metadata...");
+        var globalMetadata = FlatFiles.FirstOrDefault(x => Path.GetFileName(x.Key).Equals("global-metadata.dat", StringComparison.InvariantCulture));
+        if (string.IsNullOrWhiteSpace(globalMetadata.Key)) {
+            return null;
+        }
+
+        Logger.Info("Found! {Name}", globalMetadata.Key);
+        return globalMetadata.Value.Handler.OpenFile(globalMetadata.Value.Tag);
+    }
+
+    public Stream? GetILAssembly() {
+        Logger.Info("Looking for il2cpp binary...");
+        foreach (var assemblyName in ILAssemblyNames) {
+            var assembly = FlatFiles.FirstOrDefault(x => Path.GetFileName(x.Key).Equals(assemblyName, StringComparison.InvariantCulture));
+            if (!string.IsNullOrWhiteSpace(assembly.Key)) {
+                Logger.Info("Found! {Name}", assembly.Key);
+                return assembly.Value.Handler.OpenFile(assembly.Value.Tag);
+            }
+        }
+
+        return null;
     }
 
     public void RebuildBundles(string outputDir, BundleSerializationOptions bundleOptions, SnuggleCoreOptions options, CancellationToken cancellationToken) {
@@ -114,6 +156,37 @@ public class AssetCollection : IDisposable {
         }
 
         Bundles.Add(bundle);
+    }
+
+    public void ProcessIL2CPP() {
+        if (!HasProcessedGlobalMetadata && Files.Any()) {
+            HasProcessedGlobalMetadata = true;
+            using var metadata = GetGlobalMetadata();
+            using var il = GetILAssembly();
+
+            if (metadata is not null && il is not null) {
+                Log.Information("Trying to use IL2Cpp via Cpp2IL...");
+                Log.Information("Initializing Cpp2IL...");
+                try {
+                    Cpp2IlApi.InitializeLibCpp2Il(il.ToBytes(), metadata.ToBytes(), Files.First().Value.Version.ToInts(), false);
+                    NeedToCleanCpp2IL = true;
+                    Log.Information("Making DummyDLLs");
+                    Cpp2IlApi.MakeDummyDLLs();
+                    Log.Information("Restoring attributes");
+                    Cpp2IlApi.RunAttributeRestorationForAllAssemblies(Cpp2IlApi.ScanForKeyFunctionAddresses());
+                    Log.Information("Registering assemblies");
+                    Assemblies.RegisterAssemblies(Cpp2IlApi.GeneratedAssemblies);
+                } catch (Exception e) {
+                    Log.Error(e, "Failed to perform Cpp2IL magic");
+                    if (NeedToCleanCpp2IL) {
+                        Cpp2IlApi.DisposeAndCleanupAll();
+                    }
+
+                    NeedToCleanCpp2IL = false;
+                    HasProcessedGlobalMetadata = false;
+                }
+            }
+        }
     }
 
     public void LoadBundle(Stream dataStream, object tag, IFileHandler handler, SnuggleCoreOptions options, bool leaveOpen = false) => LoadBundle(new Bundle(dataStream, tag, handler, options, leaveOpen));
@@ -216,14 +289,14 @@ public class AssetCollection : IDisposable {
                     return;
                 }
 
-                path = Path.GetFileName(path);
                 var ext = Path.GetExtension(path).ToLower();
                 switch (ext) {
                     case ".ress":
                     case ".resource":
-                        Resources[path] = (tag, handler);
+                        Resources[Path.GetFileName(path)] = (tag, handler);
                         break;
                     default:
+                        FlatFiles[path] = (tag, handler);
                         return;
                 }
             }

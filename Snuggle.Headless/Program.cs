@@ -62,6 +62,7 @@ public static class Program {
         collection.CacheGameObjectClassIds();
         Log.Information("Finding container paths...");
         collection.FindResources();
+        collection.ProcessIL2CPP();
         Log.Information("Collecting Memory...");
         AssetCollection.Collect();
         Log.Information("Memory Tension: {Size}", GC.GetTotalMemory(false).GetHumanReadableBytes());

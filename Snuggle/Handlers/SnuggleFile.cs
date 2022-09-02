@@ -110,6 +110,9 @@ public static class SnuggleFile {
                 instance.Status.SetStatus("Finding container paths...");
                 Log.Information("Finding container paths...");
                 instance.Collection.FindResources();
+                instance.Status.SetStatus("Building IL2CPP Data via Cpp2IL...");
+                Log.Information("Building IL2CPP Data via CPP2IL...");
+                instance.Collection.ProcessIL2CPP();
                 instance.Status.SetStatus($"Loaded {instance.Collection.Files.Count} files");
                 Log.Information("Loaded {Count} files", instance.Collection.Files.Count);
                 instance.WorkerAction("Collect", _ => AssetCollection.Collect(), false);

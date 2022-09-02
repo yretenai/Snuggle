@@ -44,6 +44,12 @@ public class AssemblyResolver : BaseAssemblyResolver {
         Cache[name] = assembly;
     }
 
+    public void RegisterAssemblies(IEnumerable<AssemblyDefinition> assemblies) {
+        foreach (var assembly in assemblies) {
+            RegisterAssembly(assembly);
+        }
+    }
+
     protected override void Dispose(bool disposing) {
         Clear();
         base.Dispose(disposing);

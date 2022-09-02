@@ -31,6 +31,10 @@
         <PackageReference Include="WindowsAPICodePack-Shell" Version="1.1.1" NoWarn="NU1701" />
     </ItemGroup>
 
+    <ItemGroup>
+        <Resource Include="Snuggle.png" />
+    </ItemGroup>
+
     <Target Name="CustomAfterBuild" AfterTargets="AfterBuild">
         <Copy SourceFiles="$(SolutionDir)ATTRIBUTION.txt" DestinationFolder="$(TargetDir)" ContinueOnError="true" />
     </Target>

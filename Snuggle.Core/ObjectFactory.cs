@@ -135,7 +135,7 @@ public static class ObjectFactory {
 
         if (type == BaseType && Utils.ClassIdIsNamedObject(overrideType ?? info.ClassId)) {
             type = NamedType;
-        } 
+        }
 
         return true;
     }

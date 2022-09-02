@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace Snuggle.Core.Extensions;
 
@@ -33,5 +34,17 @@ public static class SystemExtensions {
         }
 
         return string.Join(", ", values);
+    }
+
+    public static byte[] ToBytes(this Stream stream) {
+        var pos = stream.Position;
+        var length = stream.Length - pos;
+        if (length <= 0) {
+            return Array.Empty<byte>();
+        }
+
+        var buffer = new byte[length];
+        stream.ReadExactly(buffer);
+        return buffer;
     }
 }
