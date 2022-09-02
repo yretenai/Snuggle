@@ -5,6 +5,8 @@ Snuggle is NOT feature complete and there is NO ETA on when it will be. Use [Ass
 
 ## Snuggle and it's contributors are not affiliated with, or sponsored by, or authorized by, Unity Technologies.
 
+The "[Snuggle](Snuggle/Snuggle.ico)" icon is generated with help from Midjourney.
+
 ### Feature Level Comparison 
 
 Snuggle's only benefit over other systems is the ability load large games without running out of memory due to Snuggle having deferred loading. Heavy assets such as textures and models are not fully loaded until they're accessed.
