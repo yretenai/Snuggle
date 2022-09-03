@@ -21,6 +21,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DragonLib", "Library\Dragon
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libraries", "Libraries", "{4D13CF78-F8E3-4C24-9265-9780B027B2F2}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Repository", "Repository", "{5EACB720-C9AF-46B4-9C2A-B576BC1044D7}"
+	ProjectSection(SolutionItems) = preProject
+		ATTRIBUTION.txt = ATTRIBUTION.txt
+		dotnet.yml = .github/workflows/dotnet.yml
+		.editorconfig = .editorconfig
+		LICENSE = LICENSE
+		README.md = README.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

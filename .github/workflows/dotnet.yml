@@ -36,3 +36,10 @@ jobs:
                 with:
                     name: snuggle-net7-win-x86-64-rel
                     path: dist/release
+            -   name: Build Standalone
+                run: dotnet build Snuggle/Snuggle.csproj -r win-x64 --sc -c Release -o dist/sc
+            -   name: Upload Standalone
+                uses: actions/upload-artifact@v2
+                with:
+                    name: snuggle-net7-win-x86-64-rel-standalone
+                    path: dist/sc
