@@ -174,13 +174,8 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
         Tasks = new BlockingCollection<(string Name, Action<CancellationToken> Work)>();
         GlobalTokenSource.Cancel();
         TokenSource.Cancel();
-        if (respawn) {
-            WorkerThread.Join();
-        }
-
         TokenSource.Dispose();
         GlobalTokenSource.Dispose();
-
         SelectedObject = null;
         Status.Reset();
         Search = string.Empty;

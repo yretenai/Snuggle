@@ -74,16 +74,7 @@ public static class SnuggleTextureFile {
             return new Image<Rgba32>(1, 1, new Rgba32(0));
         }
 
-        Image<Rgba32> image;
-        if (texture.TextureFormat.IsAlphaFirst()) {
-            using var temp = Image.WrapMemory<Argb32>(data, texture.Width, texture.Height);
-            image = temp.CloneAs<Rgba32>();
-        } else if (texture.TextureFormat.IsBGRA(useTextureDecoder)) {
-            using var temp = Image.WrapMemory<Bgra32>(data, texture.Width, texture.Height);
-            image = temp.CloneAs<Rgba32>();
-        } else {
-            image = Image.WrapMemory<Rgba32>(data, texture.Width, texture.Height);
-        }
+        var image = Image.WrapMemory<Bgra32>(data, texture.Width, texture.Height).CloneAs<Rgba32>();
 
         if (flip) {
             image.Mutate(context => context.Flip(FlipMode.Vertical));

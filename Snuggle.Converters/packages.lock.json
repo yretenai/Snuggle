@@ -20,6 +20,24 @@
         "resolved": "0.16.40",
         "contentHash": "CS/HWNUgLwx7VpDro2fLdhJOzsjMNfZmM0YsAh0cGLStpxSzBanRbOCZ88FF1cZLETIWHJsXrfVPmOA9F35iaQ=="
       },
+      "Kyaru.Texture2DDecoder.Linux": {
+        "type": "Direct",
+        "requested": "[0.1.0, )",
+        "resolved": "0.1.0",
+        "contentHash": "WduhkOdBQXWi30bXjh09lwt9NSvuFI9OrHED/agQGHmv+EP+gc6GgEFcPuSISCpJM5dDZ0WJRhJbfmUeQAPGXA=="
+      },
+      "Kyaru.Texture2DDecoder.macOS": {
+        "type": "Direct",
+        "requested": "[0.1.0, )",
+        "resolved": "0.1.0",
+        "contentHash": "3e918me27H+1yxvVA5A2LPxEZ4NEVsDp2hOAuBhk/2cAbpm2/iKGV4HqRenaxM7hl2js6Ts4b7JdrhLKzW59Lg=="
+      },
+      "Kyaru.Texture2DDecoder.Windows": {
+        "type": "Direct",
+        "requested": "[0.1.0, )",
+        "resolved": "0.1.0",
+        "contentHash": "zAX95ybCio7xrrXaa3LkFMWoDxrwiasccXSZ6A3KykOWlgMDaZzyJdPp52uyubtN9CIxWdnD+u+aWvKvHHmCsw=="
+      },
       "Serilog": {
         "type": "Direct",
         "requested": "[2.11.0, )",
