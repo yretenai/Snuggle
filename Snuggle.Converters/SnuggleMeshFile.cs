@@ -27,7 +27,7 @@ public static class SnuggleMeshFile {
         "POSITION",
         "NORMAL",
         "TANGENT",
-        "COLOR",
+        "COLOR_0",
         "TEXCOORD_0",
         "TEXCOORD_1",
         "TEXCOORD_2",
