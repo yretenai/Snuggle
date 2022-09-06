@@ -154,6 +154,6 @@ public record PackedBitVector(uint Count, byte BitSize) {
     }
 
     public void Free() {
-        Data = Memory<byte>.Empty;
+        Data = null;
     }
 }

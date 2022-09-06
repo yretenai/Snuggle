@@ -9,21 +9,7 @@ public static class TextureExtensions {
     public static bool IsBC(this TextureFormat format) => format is TextureFormat.DXT1 or TextureFormat.DXT5 or TextureFormat.DXT1Crunched or TextureFormat.DXT5Crunched or TextureFormat.BC4 or TextureFormat.BC5 or TextureFormat.BC6H or TextureFormat.BC7;
     public static bool UseDDSConversion(this TextureFormat textureFormat) => Environment.OSVersion.Platform == PlatformID.Win32NT && textureFormat.CanSupportDDS();
     public static bool HasNativeConversion(this TextureFormat format) => format is >= TextureFormat.ETC_RGB4Crunched or <= TextureFormat.ETC2_RGBA8_3DS and >= TextureFormat.BC6H or TextureFormat.DXT1 or TextureFormat.DXT5;
-
-    public static bool IsBGRA(this TextureFormat format, bool UseTextureDecoder) {
-        if (format is TextureFormat.BGRA32 or TextureFormat.YUV2) {
-            return true;
-        }
-
-        if (UseTextureDecoder) {
-            return format.HasNativeConversion();
-        }
-
-        return !IsBC(format);
-    }
-
-    public static bool IsAlphaFirst(this TextureFormat format) => format is TextureFormat.ARGB4444 or TextureFormat.ARGB32;
-
+    
     public static TextureFormat ToTextureFormat(this DXGIPixelFormat format) {
         // ReSharper disable once SwitchExpressionHandlesSomeKnownEnumValuesWithExceptionInDefault
         return format switch {

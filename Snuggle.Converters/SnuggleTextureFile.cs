@@ -19,16 +19,15 @@ public static class SnuggleTextureFile {
 
     private static ConcurrentDictionary<(long, string), ReadOnlyMemory<byte>> CachedData { get; set; } = new();
 
-    public static Memory<byte> LoadCachedTexture(ITexture texture, bool useTextureDecoder) {
+    public static Memory<byte> LoadCachedTexture(ITexture texture) {
         var memory = CachedData.GetOrAdd(
             texture.GetCompositeId(),
-            static (_, arg) => {
-                var (texture, useTextureDecoder) = arg;
+            static (_, texture) => {
                 texture.Deserialize(ObjectDeserializationOptions.Default);
-                var data = Texture2DConverter.ToRGBA(texture, useTextureDecoder);
+                var data = Texture2DConverter.ToRGBA(texture);
                 return data;
             },
-            (texture, useTextureDecoder));
+            (texture));
         var newMemory = new Memory<byte>(new byte[memory.Length]);
         memory.CopyTo(newMemory);
         return newMemory;
@@ -55,21 +54,21 @@ public static class SnuggleTextureFile {
         }
 
         path = Path.ChangeExtension(path, ".png");
-        SavePNG(texture, path, flip, options.UseTextureDecoder);
+        SavePNG(texture, path, flip);
         return path;
     }
 
-    public static void SavePNG(ITexture texture, string path, bool flip, bool useTextureDecoder) {
+    public static void SavePNG(ITexture texture, string path, bool flip) {
         if (File.Exists(path)) {
             return;
         }
 
-        using var image = ConvertImage(texture, flip, useTextureDecoder);
+        using var image = ConvertImage(texture, flip);
         image.SaveAsPng(path);
     }
 
-    public static Image<Rgba32> ConvertImage(ITexture texture, bool flip, bool useTextureDecoder) {
-        var data = LoadCachedTexture(texture, useTextureDecoder);
+    public static Image<Rgba32> ConvertImage(ITexture texture, bool flip) {
+        var data = LoadCachedTexture(texture);
         if (data.IsEmpty) {
             return new Image<Rgba32>(1, 1, new Rgba32(0));
         }
