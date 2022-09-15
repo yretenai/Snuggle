@@ -119,6 +119,6 @@ public static partial class PathFormatter {
         return result;
     }
 
-    [RegexGenerator("\\{(\\w+)\\}", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Singleline)]
+    [GeneratedRegex("\\{(\\w+)\\}", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Singleline)]
     private static partial Regex PatternRegex();
 }

@@ -29,7 +29,7 @@ namespace Snuggle.Converters;
 
 public static partial class MeshToHelixConverter {
 
-    [RegexGenerator("[^a-zA-Z0-9_]", RegexOptions.Compiled)]
+    [GeneratedRegex("[^a-zA-Z0-9_]", RegexOptions.Compiled)]
     private static partial Regex XAMLSafeCharactersRegex();
     private static readonly Regex XAMLSafeCharacters = XAMLSafeCharactersRegex();
 

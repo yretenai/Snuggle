@@ -484,6 +484,6 @@ public partial class Navigation {
             false);
     }
 
-    [RegexGenerator("(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])|(?<=[a-z])(?=[0-9])", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.CultureInvariant)]
+    [GeneratedRegex("(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])|(?<=[a-z])(?=[0-9])", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.CultureInvariant)]
     private static partial Regex SplitPatternRegex();
 }
