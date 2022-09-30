@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
-using Microsoft.WindowsAPICodePack.Dialogs;
+using Ookii.Dialogs.Wpf;
 using Serilog;
 using Snuggle.Converters;
 using Snuggle.Core;
@@ -19,33 +19,29 @@ namespace Snuggle.Handlers;
 
 public static class SnuggleFile {
     public static void LoadDirectories() {
-        using var selection = new CommonOpenFileDialog {
-            IsFolderPicker = true,
+        var selection = new VistaFolderBrowserDialog {
             Multiselect = true,
-            AllowNonFileSystemItems = false,
-            Title = "Select folder to load",
-            InitialDirectory = Path.GetDirectoryName(SnuggleCore.Instance.Settings.RecentDirectories.LastOrDefault()),
-            ShowPlacesList = true,
+            UseDescriptionForTitle = true,
+            Description = "Select folder to load",
+            SelectedPath = Path.GetDirectoryName(SnuggleCore.Instance.Settings.RecentDirectories.LastOrDefault()),
+            ShowNewFolderButton = false,
         };
 
-        if (selection.ShowDialog() != CommonFileDialogResult.Ok) {
+        if (selection.ShowDialog() != true) {
             return;
         }
 
-        LoadDirectoriesAndFiles(selection.FileNames.ToArray());
+        LoadDirectoriesAndFiles(selection.SelectedPaths);
     }
 
-    public static void LoadFiles() {
-        using var selection = new CommonOpenFileDialog {
-            IsFolderPicker = false,
+    public static void LoadFiles() { 
+        var selection = new VistaOpenFileDialog {
             Multiselect = true,
-            AllowNonFileSystemItems = false,
             InitialDirectory = Path.GetDirectoryName(SnuggleCore.Instance.Settings.RecentFiles.LastOrDefault()),
             Title = "Select files to load",
-            ShowPlacesList = true,
         };
 
-        if (selection.ShowDialog() != CommonFileDialogResult.Ok) {
+        if (selection.ShowDialog() != true) {
             return;
         }
 
@@ -125,20 +121,19 @@ public static class SnuggleFile {
     }
 
     public static void Extract(ExtractMode mode, ExtractFilter filter) {
-        using var selection = new CommonOpenFileDialog {
-            IsFolderPicker = true,
+        var selection = new VistaFolderBrowserDialog {
+            ShowNewFolderButton = true,
             Multiselect = false,
-            AllowNonFileSystemItems = false,
-            InitialDirectory = SnuggleCore.Instance.Settings.LastSaveDirectory,
-            Title = "Select folder to save to",
-            ShowPlacesList = true,
+            SelectedPath = SnuggleCore.Instance.Settings.LastSaveDirectory,
+            UseDescriptionForTitle = true,
+            Description = "Select folder to save to",
         };
 
-        if (selection.ShowDialog() != CommonFileDialogResult.Ok) {
+        if (selection.ShowDialog() != true) {
             return;
         }
 
-        var outputDirectory = selection.FileNames.First();
+        var outputDirectory = selection.SelectedPath;
         if (string.IsNullOrEmpty(outputDirectory)) {
             return;
         }

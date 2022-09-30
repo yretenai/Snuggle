@@ -98,6 +98,11 @@
         "resolved": "0.1.0",
         "contentHash": "zAX95ybCio7xrrXaa3LkFMWoDxrwiasccXSZ6A3KykOWlgMDaZzyJdPp52uyubtN9CIxWdnD+u+aWvKvHHmCsw=="
       },
+      "LZMA-SDK": {
+        "type": "Transitive",
+        "resolved": "19.0.0",
+        "contentHash": "/4yPB/YNtttdbxmHifyNUw6rUiBqCCUgeuokXsWvM/X9CDXJq1eQdI9uVgNpJdrzAZhTIAqNzbOP7Z2ogZt+2g=="
+      },
       "Microsoft.NETCore.Platforms": {
         "type": "Transitive",
         "resolved": "5.0.0",
@@ -188,11 +193,6 @@
         "type": "Transitive",
         "resolved": "2.11.0",
         "contentHash": "ysv+hBzTul6Dp+Hvm10FlhJO3yMQcFKSAleus+LpiIzvNstpeV4Z7gGuIZ1OPNfIMulSHOjmLuGAEDKzpnV8ZQ=="
-      },
-      "SevenZip": {
-        "type": "Transitive",
-        "resolved": "19.0.0",
-        "contentHash": "+Eeb/uvC0REvMlG1auBqlBMiFiPZs+WizlLroHPSKtBh/V7NR/qOocgk+/7S0lNzciYsurMCeJzUL7LYIqVnWw=="
       },
       "SixLabors.Fonts": {
         "type": "Transitive",
@@ -553,10 +553,10 @@
         "dependencies": {
           "DragonLib": "[3.0.1, )",
           "K4os.Compression.LZ4.Streams": "[1.2.16, )",
+          "LZMA-SDK": "[19.0.0, )",
           "Mono.Cecil": "[0.11.4, )",
           "Samboy063.Cpp2IL.Core": "[2022.0.5, )",
           "Serilog": "[2.11.0, )",
-          "SevenZip": "[19.0.0, )",
           "Snuggle.UnityCs": "[1.0.0, )"
         }
       },

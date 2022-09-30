@@ -10,7 +10,7 @@ using System.Windows;
 using System.Windows.Controls;
 using AdonisUI;
 using DragonLib.IO;
-using Microsoft.WindowsAPICodePack.Dialogs;
+using Ookii.Dialogs.Wpf;
 using Snuggle.Core.Implementations;
 using Snuggle.Core.Meta;
 using Snuggle.Core.Models.Bundle;
@@ -404,19 +404,19 @@ public partial class Navigation {
     }
 
     private void DumpGameObjectTree(object sender, RoutedEventArgs e) {
-        using var selection = new CommonSaveFileDialog {
-            DefaultFileName = "gametree.txt",
-            Filters = { new CommonFileDialogFilter("JSON File", ".json") },
+        var selection = new VistaSaveFileDialog {
+            DefaultExt = ".json",
+            FileName = "GameObjectTree.json",
+            Filter = "JSON Files (*.json)|*.json",
             InitialDirectory = SnuggleCore.Instance.Settings.LastSaveDirectory,
-            Title = "Select file to save to",
-            ShowPlacesList = true,
+            Title = "Select file to save to"
         };
 
-        if (selection.ShowDialog() != CommonFileDialogResult.Ok) {
+        if (selection.ShowDialog() != true) {
             return;
         }
 
-        using var file = new FileStream(selection.FileName, FileMode.Create);
+        using var file = selection.OpenFile();
         using var writer = new StreamWriter(file);
         var nodes = BuildTreeNode(SnuggleCore.Instance.Collection.BuildGraph());
         TreePrinter.PrintTree(writer, nodes);
@@ -455,20 +455,19 @@ public partial class Navigation {
             return;
         }
 
-        using var selection = new CommonOpenFileDialog {
-            IsFolderPicker = true,
+        var selection = new VistaFolderBrowserDialog {
             Multiselect = false,
-            AllowNonFileSystemItems = false,
-            Title = "Select folder to save to",
-            ShowPlacesList = true,
+            UseDescriptionForTitle = true,
+            Description = "Select folder to save to",
+            ShowNewFolderButton = true,
         };
 
-        if (selection.ShowDialog() != CommonFileDialogResult.Ok) {
+        if (selection.ShowDialog() != true) {
             return;
         }
 
         var instance = SnuggleCore.Instance;
-        var path = selection.FileName;
+        var path = selection.SelectedPath;
         instance.WorkerAction(
             "RebuildAssets",
             token => {

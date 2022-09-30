@@ -13,7 +13,7 @@ using System.Windows;
 using System.Windows.Threading;
 using AdonisUI;
 using DragonLib;
-using Microsoft.WindowsAPICodePack.Dialogs;
+using Ookii.Dialogs.Wpf;
 using Serilog;
 using Snuggle.Components;
 using Snuggle.Converters;
@@ -273,18 +273,15 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
             return (null, null);
         }
 
-        using var selection = new CommonOpenFileDialog {
-            IsFolderPicker = false,
+        var selection = new VistaOpenFileDialog {
             Multiselect = false,
-            DefaultFileName = assemblyName,
-            AllowNonFileSystemItems = false,
+            FileName = assemblyName,
             InitialDirectory = Path.GetDirectoryName(Settings.RecentFiles.LastOrDefault()),
             Title = "Select Assembly",
-            ShowPlacesList = true,
+            Filter = "Assembly Files (*.dll)|*.dll|All Files (*.*)|*.*",
         };
-        selection.Filters.Add(new CommonFileDialogFilter("Assembly", "*.dll"));
 
-        return selection.ShowDialog() != CommonFileDialogResult.Ok ? (null, null) : (selection.FileName, Settings.Options);
+        return selection.ShowDialog() != true ? (null, null) : (selection.FileName, Settings.Options);
     }
 
     public void FreeMemory() {

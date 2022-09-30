@@ -12,6 +12,12 @@
           "K4os.Hash.xxHash": "1.0.6"
         }
       },
+      "LZMA-SDK": {
+        "type": "Direct",
+        "requested": "[19.0.0, )",
+        "resolved": "19.0.0",
+        "contentHash": "/4yPB/YNtttdbxmHifyNUw6rUiBqCCUgeuokXsWvM/X9CDXJq1eQdI9uVgNpJdrzAZhTIAqNzbOP7Z2ogZt+2g=="
+      },
       "Mono.Cecil": {
         "type": "Direct",
         "requested": "[0.11.4, )",
@@ -39,12 +45,6 @@
         "requested": "[2.11.0, )",
         "resolved": "2.11.0",
         "contentHash": "ysv+hBzTul6Dp+Hvm10FlhJO3yMQcFKSAleus+LpiIzvNstpeV4Z7gGuIZ1OPNfIMulSHOjmLuGAEDKzpnV8ZQ=="
-      },
-      "SevenZip": {
-        "type": "Direct",
-        "requested": "[19.0.0, )",
-        "resolved": "19.0.0",
-        "contentHash": "+Eeb/uvC0REvMlG1auBqlBMiFiPZs+WizlLroHPSKtBh/V7NR/qOocgk+/7S0lNzciYsurMCeJzUL7LYIqVnWw=="
       },
       "HarmonyX": {
         "type": "Transitive",
@@ -430,7 +430,7 @@
       "snuggle.unitycs": {
         "type": "Project",
         "dependencies": {
-          "Mono.Cecil": "0.11.4"
+          "Mono.Cecil": "[0.11.4, )"
         }
       }
     }
