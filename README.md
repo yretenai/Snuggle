@@ -1,4 +1,5 @@
 # Snuggle [![Snuggle](https://github.com/yretenai/Snuggle/actions/workflows/dotnet.yml/badge.svg)](https://github.com/yretenai/Snuggle/actions/workflows/dotnet.yml)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fyretenai%2FSnuggle.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fyretenai%2FSnuggle?ref=badge_shield)
 Unity Processor
 
 Snuggle is NOT feature complete and there is NO ETA on when it will be. Use [AssetRipper](https://github.com/AssetRipper/AssetRipper/) or [AssetStudio](https://github.com/Perfare/AssetStudio) as both are more feature rich and stable.
@@ -63,3 +64,7 @@ Snuggle's only benefit over other systems is the ability load large games withou
 - [AssetRipper's TypeTreeDumps](https://github.com/AssetRipper/TypeTreeDumps) for hosting type tree dumps
 
 See [ATTRIBUTION.txt](ATTRIBUTION.txt)
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fyretenai%2FSnuggle.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fyretenai%2FSnuggle?ref=badge_large)
