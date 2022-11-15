@@ -63,3 +63,5 @@ Snuggle's only benefit over other systems is the ability load large games withou
 - [AssetRipper's TypeTreeDumps](https://github.com/AssetRipper/TypeTreeDumps) for hosting type tree dumps
 
 See [ATTRIBUTION.txt](ATTRIBUTION.txt)
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fyretenai%2FSnuggle.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fyretenai%2FSnuggle?ref=badge_large)
