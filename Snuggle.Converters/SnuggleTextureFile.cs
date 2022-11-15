@@ -27,7 +27,7 @@ public static class SnuggleTextureFile {
                 var data = Texture2DConverter.ToRGBA(texture);
                 return data;
             },
-            (texture));
+            texture);
         var newMemory = new Memory<byte>(new byte[memory.Length]);
         memory.CopyTo(newMemory);
         return newMemory;
@@ -73,7 +73,7 @@ public static class SnuggleTextureFile {
             return new Image<Rgba32>(1, 1, new Rgba32(0));
         }
 
-        var image = Image.WrapMemory<Bgra32>(data, texture.Width, texture.Height).CloneAs<Rgba32>();
+        var image = Image.WrapMemory<Rgba32>(data, texture.Width, texture.Height);
 
         if (flip) {
             image.Mutate(context => context.Flip(FlipMode.Vertical));
