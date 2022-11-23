@@ -3,8 +3,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Runtime.Intrinsics;
-using System.Runtime.Intrinsics.X86;
 using AssetRipper.TextureDecoder.Astc;
 using AssetRipper.TextureDecoder.Atc;
 using AssetRipper.TextureDecoder.Bc;
