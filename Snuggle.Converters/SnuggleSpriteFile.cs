@@ -25,7 +25,7 @@ public static class SnuggleSpriteFile {
     private static ConcurrentDictionary<(long, string), (ReadOnlyMemory<byte>, Size, TextureFormat)> CachedData { get; set; } = new();
 
     // Perfare's Asset Studio - SpriteHelper.cs.
-    public static (Memory<byte> RGBA, Size Size, TextureFormat baseFormat) ConvertSprite(Sprite sprite, ObjectDeserializationOptions options) {
+    public static (Memory<byte> Pixels, Size Size, TextureFormat baseFormat) ConvertSprite(Sprite sprite, ObjectDeserializationOptions options) {
         var (memory, size, format) = CachedData.GetOrAdd(
             sprite.GetCompositeId(),
             static (_, arg) => {
@@ -34,7 +34,7 @@ public static class SnuggleSpriteFile {
                     spriteAtlasData.Texture.Value.Deserialize(options);
                     using var image = ConvertSprite(sprite, spriteAtlasData.Texture.Value!, spriteAtlasData.TextureRect, spriteAtlasData.TextureRectOffset, spriteAtlasData.Settings);
                     if (image != null) {
-                        return (image.ToRGBA(), image.Size(), spriteAtlasData.Texture.Value.TextureFormat);
+                        return (image.ToPixelBuffer(), image.Size(), spriteAtlasData.Texture.Value.TextureFormat);
                     }
                 }
 
@@ -42,7 +42,7 @@ public static class SnuggleSpriteFile {
                     sprite.RenderData.Texture.Value.Deserialize(options);
                     using var image = ConvertSprite(sprite, sprite.RenderData.Texture.Value, sprite.RenderData.TextureRect, sprite.RenderData.TextureRectOffset, sprite.RenderData.Settings);
                     if (image != null) {
-                        return (image.ToRGBA(), image.Size(), sprite.RenderData.Texture.Value.TextureFormat);
+                        return (image.ToPixelBuffer(), image.Size(), sprite.RenderData.Texture.Value.TextureFormat);
                     }
                 }
 
@@ -61,7 +61,7 @@ public static class SnuggleSpriteFile {
         Configuration.Default.MemoryAllocator.ReleaseRetainedResources();
     }
 
-    private static Image<Rgba32>? ConvertSprite(Sprite sprite, ITexture texture, Rect textureRect, Vector2 textureOffset, SpriteSettings settings) {
+    private static Image<Bgra32>? ConvertSprite(Sprite sprite, ITexture texture, Rect textureRect, Vector2 textureOffset, SpriteSettings settings) {
         using var originalImage = SnuggleTextureFile.ConvertImage(texture, false);
         var rectX = (int) Math.Floor(textureRect.X);
         var rectY = (int) Math.Floor(textureRect.Y);
@@ -165,7 +165,7 @@ public static class SnuggleSpriteFile {
 
         path = Path.ChangeExtension(path, ".png");
         var (data, (width, height), _) = ConvertSprite(sprite, options);
-        var image = Image.WrapMemory<Rgba32>(data, width, height);
+        var image = Image.WrapMemory<Bgra32>(data, width, height);
         image.SaveAsPng(path);
 
         return path;

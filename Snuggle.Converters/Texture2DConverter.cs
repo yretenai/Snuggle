@@ -31,7 +31,7 @@ public static class Texture2DConverter {
     public static bool SupportsDDS(ITexture texture) => texture.TextureFormat.CanSupportDDS();
     public static bool UseDDSConversion(TextureFormat textureFormat) => textureFormat.CanSupportDDS();
 
-    public static Memory<byte> ToRGBA(ITexture texture) {
+    public static Memory<byte> ToPixels(ITexture texture) {
         if (texture.TextureData!.Value.IsEmpty) {
             return Memory<byte>.Empty;
         }
@@ -50,12 +50,11 @@ public static class Texture2DConverter {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void WrapRgbConverter<InColor, InType>(Memory<byte> textureMem, Memory<byte> imageData) where InColor : unmanaged, IColor<InType> where InType : unmanaged {
-        RgbConverter.Convert<InColor, InType, ColorRGBA32, byte>(MemoryMarshal.Cast<byte, InColor>(textureMem.Span), MemoryMarshal.Cast<byte, ColorRGBA32>(imageData.Span));
+        RgbConverter.Convert<InColor, InType, ColorBGRA32, byte>(MemoryMarshal.Cast<byte, InColor>(textureMem.Span), MemoryMarshal.Cast<byte, ColorBGRA32>(imageData.Span));
     }
 
     private static Memory<byte> DecodeFrame(ITexture texture, Memory<byte> textureMem) {
         var imageData = new byte[texture.Width * texture.Height * 4].AsMemory();
-        // ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault
         switch (texture.TextureFormat) {
             case TextureFormat.Alpha8:
                 WrapRgbConverter<ColorA8, byte>(textureMem, imageData);
@@ -63,14 +62,32 @@ public static class Texture2DConverter {
             case TextureFormat.ARGB4444:
                 WrapRgbConverter<ColorARGB16, byte>(textureMem, imageData);
                 break;
+            case TextureFormat.R8:
+                WrapRgbConverter<ColorR8, byte>(textureMem, imageData);
+                break;
+            case TextureFormat.RG16:
+                WrapRgbConverter<ColorRG16, byte>(textureMem, imageData);
+                break;
             case TextureFormat.RGB24:
                 WrapRgbConverter<ColorRGB24, byte>(textureMem, imageData);
                 break;
             case TextureFormat.RGBA32:
-                textureMem[..imageData.Length].CopyTo(imageData);
+                WrapRgbConverter<ColorRGBA32, byte>(textureMem, imageData);
+                break;
+            case TextureFormat.R8_SIGNED:
+                WrapRgbConverter<ColorR8Signed, sbyte>(textureMem, imageData);
+                break;
+            case TextureFormat.RG16_SIGNED:
+                WrapRgbConverter<ColorRG16Signed, sbyte>(textureMem, imageData);
+                break;
+            case TextureFormat.RGB24_SIGNED:
+                WrapRgbConverter<ColorRGB24Signed, sbyte>(textureMem, imageData);
+                break;
+            case TextureFormat.RGBA32_SIGNED:
+                WrapRgbConverter<ColorRGBA32Signed, sbyte>(textureMem, imageData);
                 break;
             case TextureFormat.BGRA32:
-                WrapRgbConverter<ColorBGRA32, byte>(textureMem, imageData);
+                textureMem[..imageData.Length].CopyTo(imageData);
                 break;
             case TextureFormat.ARGB32:
                 WrapRgbConverter<ColorARGB32, byte>(textureMem, imageData);
@@ -81,43 +98,56 @@ public static class Texture2DConverter {
             case TextureFormat.R16:
                 WrapRgbConverter<ColorR16, ushort>(textureMem, imageData);
                 break;
+            case TextureFormat.RG32:
+                WrapRgbConverter<ColorRG32, ushort>(textureMem, imageData);
+                break;
+            case TextureFormat.RGB48:
+                WrapRgbConverter<ColorRGB48, ushort>(textureMem, imageData);
+                break;
+            case TextureFormat.RGBA64:
+                WrapRgbConverter<ColorRGBA64, ushort>(textureMem, imageData);
+                break;
+            case TextureFormat.R16_SIGNED:
+                WrapRgbConverter<ColorR16Signed, short>(textureMem, imageData);
+                break;
+            case TextureFormat.RG32_SIGNED:
+                WrapRgbConverter<ColorRG32Signed, short>(textureMem, imageData);
+                break;
+            case TextureFormat.RGB48_SIGNED:
+                WrapRgbConverter<ColorRGB48Signed, short>(textureMem, imageData);
+                break;
+            case TextureFormat.RGBA64_SIGNED:
+                WrapRgbConverter<ColorRGBA64Signed, short>(textureMem, imageData);
+                break;
             case TextureFormat.RGBA4444:
                 WrapRgbConverter<ColorRGBA16, byte>(textureMem, imageData);
                 break;
             case TextureFormat.RHalf:
-                WrapRgbConverter<ColorRHalf, Half>(textureMem, imageData);
+                WrapRgbConverter<ColorR16Half, Half>(textureMem, imageData);
                 break;
             case TextureFormat.RGHalf:
-                WrapRgbConverter<ColorRGHalf, Half>(textureMem, imageData);
+                WrapRgbConverter<ColorRG32Half, Half>(textureMem, imageData);
                 break;
             case TextureFormat.RGBAHalf:
-                WrapRgbConverter<ColorRGBAHalf, Half>(textureMem, imageData);
+                WrapRgbConverter<ColorRGBA64Half, Half>(textureMem, imageData);
                 break;
             case TextureFormat.RFloat:
-                WrapRgbConverter<ColorRFloat, float>(textureMem, imageData);
+                WrapRgbConverter<ColorR32Single, float>(textureMem, imageData);
                 break;
             case TextureFormat.RGFloat:
-                WrapRgbConverter<ColorRGFloat, float>(textureMem, imageData);
+                WrapRgbConverter<ColorRG64Single, float>(textureMem, imageData);
                 break;
             case TextureFormat.RGBAFloat:
-                WrapRgbConverter<ColorRGBAFloat, float>(textureMem, imageData);
+                WrapRgbConverter<ColorRGBA128Single, float>(textureMem, imageData);
                 break;
             case TextureFormat.RGB9e5Float:
                 WrapRgbConverter<ColorRGB9e5, double>(textureMem, imageData);
                 break;
-            case TextureFormat.RG16:
-                WrapRgbConverter<ColorRG16, byte>(textureMem, imageData);
-                break;
-            case TextureFormat.R8:
-                WrapRgbConverter<ColorR8, byte>(textureMem, imageData);
-                break;
             case TextureFormat.YUV2:
                 Yuy2Decoder.DecompressYUY2<ColorBGRA32, byte>(textureMem.Span, texture.Width, texture.Height, imageData.Span);
-                SwapRB(imageData);
                 break;
             case TextureFormat.DXT1: {
                 BcDecoder.DecompressBC1(textureMem.Span, texture.Width, texture.Height, imageData.Span);
-                SwapRB(imageData);
                 break;
             }
             case TextureFormat.DXT1Crunched when UnpackCrunch(texture.SerializedFile.Version,
@@ -125,12 +155,10 @@ public static class Texture2DConverter {
                 textureMem.ToArray(),
                 out var data): {
                 BcDecoder.DecompressBC1(data, texture.Width, texture.Height, imageData.Span);
-                SwapRB(imageData);
                 break;
             }
             case TextureFormat.DXT5: {
                 BcDecoder.DecompressBC3(textureMem.Span, texture.Width, texture.Height, imageData.Span);
-                SwapRB(imageData);
                 break;
             }
             case TextureFormat.DXT5Crunched when UnpackCrunch(texture.SerializedFile.Version,
@@ -138,155 +166,115 @@ public static class Texture2DConverter {
                 textureMem.ToArray(),
                 out var data): {
                 BcDecoder.DecompressBC3(data, texture.Width, texture.Height, imageData.Span);
-                SwapRB(imageData);
                 break;
             }
             case TextureFormat.BC4: {
                 BcDecoder.DecompressBC4(textureMem.Span, texture.Width, texture.Height, imageData.Span);
-                SwapRB(imageData);
                 break;
             }
             case TextureFormat.BC5: {
                 BcDecoder.DecompressBC5(textureMem.Span, texture.Width, texture.Height, imageData.Span);
-                SwapRB(imageData);
                 break;
             }
             case TextureFormat.BC6H: {
                 BcDecoder.DecompressBC6H(textureMem.Span, texture.Width, texture.Height, false, imageData.Span);
-                SwapRB(imageData);
                 break;
             }
             case TextureFormat.BC7: {
                 BcDecoder.DecompressBC7(textureMem.Span, texture.Width, texture.Height, imageData.Span);
-                SwapRB(imageData);
                 break;
             }
             case TextureFormat.PVRTC_RGB2:
             case TextureFormat.PVRTC_RGBA2:
                 PvrtcDecoder.DecompressPVRTC(textureMem.Span, texture.Width, texture.Height, true, imageData.Span);
-                SwapRB(imageData);
                 break;
             case TextureFormat.PVRTC_RGB4:
             case TextureFormat.PVRTC_RGBA4:
                 PvrtcDecoder.DecompressPVRTC(textureMem.Span, texture.Width, texture.Height, false, imageData.Span);
-                SwapRB(imageData);
                 break;
             case TextureFormat.ATC_RGB4:
                 AtcDecoder.DecompressAtcRgb4(textureMem.Span, texture.Width, texture.Height, imageData.Span);
-                SwapRB(imageData);
                 break;
             case TextureFormat.ATC_RGBA8:
                 AtcDecoder.DecompressAtcRgba8(textureMem.Span, texture.Width, texture.Height, imageData.Span);
-                SwapRB(imageData);
                 break;
             case TextureFormat.ETC_RGB4:
             case TextureFormat.ETC_RGB4_3DS:
                 EtcDecoder.DecompressETC(textureMem.Span, texture.Width, texture.Height, imageData.Span);
-                SwapRB(imageData);
                 break;
             case TextureFormat.ETC_RGB4Crunched when UnpackCrunch(texture.SerializedFile.Version,
                 texture.TextureFormat,
                 textureMem.ToArray(),
                 out var data): {
                 EtcDecoder.DecompressETC(data, texture.Width, texture.Height, imageData.Span);
-                SwapRB(imageData);
                 break;
             }
             case TextureFormat.EAC_R:
                 EtcDecoder.DecompressEACRUnsigned(textureMem.Span, texture.Width, texture.Height, imageData.Span);
-                SwapRB(imageData);
                 break;
             case TextureFormat.EAC_R_SIGNED:
                 EtcDecoder.DecompressEACRSigned(textureMem.Span, texture.Width, texture.Height, imageData.Span);
-                SwapRB(imageData);
                 break;
             case TextureFormat.EAC_RG:
                 EtcDecoder.DecompressEACRGUnsigned(textureMem.Span, texture.Width, texture.Height, imageData.Span);
-                SwapRB(imageData);
                 break;
             case TextureFormat.EAC_RG_SIGNED:
                 EtcDecoder.DecompressEACRGSigned(textureMem.Span, texture.Width, texture.Height, imageData.Span);
-                SwapRB(imageData);
                 break;
+            case TextureFormat.ETC2_RGBA8_3DS:
             case TextureFormat.ETC2_RGB:
                 EtcDecoder.DecompressETC2(textureMem.Span, texture.Width, texture.Height, imageData.Span);
-                SwapRB(imageData);
                 break;
             case TextureFormat.ETC2_RGBA1:
                 EtcDecoder.DecompressETC2A1(textureMem.Span, texture.Width, texture.Height, imageData.Span);
-                SwapRB(imageData);
                 break;
             case TextureFormat.ETC2_RGBA8:
                 EtcDecoder.DecompressETC2A8(textureMem.Span, texture.Width, texture.Height, imageData.Span);
-                SwapRB(imageData);
                 break;
             case TextureFormat.ETC2_RGBA8Crunched when UnpackCrunch(texture.SerializedFile.Version,
                 texture.TextureFormat,
                 textureMem.ToArray(),
                 out var data): {
                 EtcDecoder.DecompressETC2A8(data, texture.Width, texture.Height, imageData.Span);
-                SwapRB(imageData);
                 break;
             }
             case TextureFormat.ASTC_4x4:
             case TextureFormat.ASTC_RGBA_4x4:
             case TextureFormat.ASTC_HDR_4x4:
                 AstcDecoder.DecodeASTC(textureMem.Span, texture.Width, texture.Height, 4, 4, imageData.Span);
-                SwapRB(imageData);
                 break;
             case TextureFormat.ASTC_5x5:
             case TextureFormat.ASTC_RGBA_5x5:
             case TextureFormat.ASTC_HDR_5x5:
                 AstcDecoder.DecodeASTC(textureMem.Span, texture.Width, texture.Height, 5, 5, imageData.Span);
-                SwapRB(imageData);
                 break;
             case TextureFormat.ASTC_6x6:
             case TextureFormat.ASTC_RGBA_6x6:
             case TextureFormat.ASTC_HDR_6x6:
                 AstcDecoder.DecodeASTC(textureMem.Span, texture.Width, texture.Height, 6, 6, imageData.Span);
-                SwapRB(imageData);
                 break;
             case TextureFormat.ASTC_8x8:
             case TextureFormat.ASTC_RGBA_8x8:
             case TextureFormat.ASTC_HDR_8x8:
                 AstcDecoder.DecodeASTC(textureMem.Span, texture.Width, texture.Height, 8, 8, imageData.Span);
-                SwapRB(imageData);
                 break;
             case TextureFormat.ASTC_10x10:
             case TextureFormat.ASTC_RGBA_10x10:
             case TextureFormat.ASTC_HDR_10x10:
                 AstcDecoder.DecodeASTC(textureMem.Span, texture.Width, texture.Height, 10, 10, imageData.Span);
-                SwapRB(imageData);
                 break;
             case TextureFormat.ASTC_12x12:
             case TextureFormat.ASTC_RGBA_12x12:
             case TextureFormat.ASTC_HDR_12x12:
                 AstcDecoder.DecodeASTC(textureMem.Span, texture.Width, texture.Height, 12, 12, imageData.Span);
-                SwapRB(imageData);
                 break;
+            case TextureFormat.Unknown:
+            case TextureFormat.None:
+            default:
+                throw new NotSupportedException($"Texture format {texture.TextureFormat} is not supported");
         }
 
         return imageData;
-    }
-    
-    private static readonly Vector256<byte> RGBAShuffle = Vector256.Create(new byte[] { 2, 1, 0, 3, 6, 5, 4, 7, 10, 9, 8, 11, 14, 13, 12, 15, 18, 17, 16, 19, 22, 21, 20, 23, 26, 25, 24, 27, 30, 29, 28, 31 });
-
-    private static void SwapRB(Memory<byte> imageData) {
-        var span = imageData.Span;
-        var offset = 0;
-        if (Avx2.IsSupported) {
-            for (var i = 0; i < span.Length / 32; i++) {
-                var vec = Unsafe.ReadUnaligned<Vector256<byte>>(ref span[i * 32]);
-                vec = Avx2.Shuffle(vec, RGBAShuffle);
-                Unsafe.WriteUnaligned(ref span[i * 32], vec);
-            }
-            
-            offset = span.Length - span.Length % 32;
-        }
-
-        for (var i = offset; i < span.Length; i += 4) {
-            (span[i], span[i + 2]) = (span[i + 2], span[i]);
-        }
     }
     
     private static bool UnpackCrunch(UnityVersion unityVersion, TextureFormat textureFormat, byte[] crunchedData, [MaybeNullWhen(false)] out byte[] data) {

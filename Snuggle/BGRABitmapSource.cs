@@ -5,28 +5,28 @@ using System.Windows.Media.Imaging;
 
 namespace Snuggle;
 
-public class RGBABitmapSource : BitmapSource {
+public class BGRABitmapSource : BitmapSource {
     private readonly int BackingPixelHeight;
     private readonly int BackingPixelWidth;
     public readonly int Frames;
 
-    public RGBABitmapSource(Memory<byte> rgbaBuffer, int pixelWidth, int pixelHeight, int frames) {
-        Buffer = rgbaBuffer;
+    public BGRABitmapSource(Memory<byte> buffer, int pixelWidth, int pixelHeight, int frames) {
+        Buffer = buffer;
         BackingPixelWidth = pixelWidth;
         BackingPixelHeight = pixelHeight;
         Frames = frames;
     }
 
-    public RGBABitmapSource(RGBABitmapSource rgba) {
-        Buffer = rgba.Buffer;
-        BackingPixelWidth = rgba.BackingPixelWidth;
-        BackingPixelHeight = rgba.BackingPixelHeight;
-        HideRed = rgba.HideRed;
-        HideGreen = rgba.HideGreen;
-        HideBlue = rgba.HideBlue;
-        HideAlpha = rgba.HideAlpha;
-        Frames = rgba.Frames;
-        Frame = rgba.Frame;
+    public BGRABitmapSource(BGRABitmapSource bitmap) {
+        Buffer = bitmap.Buffer;
+        BackingPixelWidth = bitmap.BackingPixelWidth;
+        BackingPixelHeight = bitmap.BackingPixelHeight;
+        HideRed = bitmap.HideRed;
+        HideGreen = bitmap.HideGreen;
+        HideBlue = bitmap.HideBlue;
+        HideAlpha = bitmap.HideAlpha;
+        Frames = bitmap.Frames;
+        Frame = bitmap.Frame;
     }
 
     private Memory<byte> Buffer { get; }
@@ -53,24 +53,21 @@ public class RGBABitmapSource : BitmapSource {
 
     public override void CopyPixels(Int32Rect sourceRect, Array pixels, int stride, int offset) {
         var span = Buffer.Span[(int) (Width * Height * 4 * Frame)..];
+        var pix = (byte[]) pixels;
 
         for (var y = sourceRect.Y; y < sourceRect.Y + sourceRect.Height; y++) {
             for (var x = sourceRect.X; x < sourceRect.X + sourceRect.Width; x++) {
                 var i = stride * y + 4 * x;
-                var a = HideAlpha ? (byte) 0xFF : span[i + 3];
-                var r = HideRed ? (byte) 0 : (byte) (span[i + 0] * a / 0xFF);
-                var g = HideGreen ? (byte) 0 : (byte) (span[i + 1] * a / 0xFF);
-                var b = HideBlue ? (byte) 0 : (byte) (span[i + 2] * a / 0xFF);
-
-                pixels.SetValue(b, i + offset);
-                pixels.SetValue(g, i + offset + 1);
-                pixels.SetValue(r, i + offset + 2);
-                pixels.SetValue(a, i + offset + 3);
+                var a =  HideAlpha ? (byte) 0xFF : span[i + 3];
+                pix[i + offset + 3] = a;
+                pix[i + offset] = HideBlue ? (byte) 0 : (byte) (span[i + 0] * a / 0xFF);
+                pix[i + offset + 1] = HideGreen ? (byte) 0 : (byte) (span[i + 1] * a / 0xFF);
+                pix[i + offset + 2] = HideRed ? (byte) 0 : (byte) (span[i + 2] * a / 0xFF);
             }
         }
     }
 
-    protected override Freezable CreateInstanceCore() => new RGBABitmapSource(Buffer, PixelWidth, PixelHeight, Frames) { Frame = Frame };
+    protected override Freezable CreateInstanceCore() => new BGRABitmapSource(Buffer, PixelWidth, PixelHeight, Frames) { Frame = Frame };
 
 #pragma warning disable 67
     public override event EventHandler<DownloadProgressEventArgs>? DownloadProgress;

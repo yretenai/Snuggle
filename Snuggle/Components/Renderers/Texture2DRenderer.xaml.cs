@@ -82,7 +82,7 @@ public sealed partial class Texture2DRenderer {
         tt.Y = 0;
 
         var result = ImageView.DataContext as TaskCompletionNotifier<BitmapSource?>;
-        if (result?.Task.Result is not RGBABitmapSource rgba) {
+        if (result?.Task.Result is not BGRABitmapSource rgba) {
             return;
         }
 
@@ -101,11 +101,11 @@ public sealed partial class Texture2DRenderer {
 
         var result = ImageView.DataContext as TaskCompletionNotifier<BitmapSource?>;
 
-        if (result?.Task.Result is not RGBABitmapSource rgba) {
+        if (result?.Task.Result is not BGRABitmapSource rgba) {
             return;
         }
 
-        result.Result = new RGBABitmapSource(rgba) {
+        result.Result = new BGRABitmapSource(rgba) {
             HideRed = Red.IsChecked == false, HideGreen = Green.IsChecked == false, HideBlue = Blue.IsChecked == false, HideAlpha = Alpha.IsChecked == false, Frame = Frame,
         };
 

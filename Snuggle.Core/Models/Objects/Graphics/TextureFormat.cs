@@ -71,5 +71,13 @@ public enum TextureFormat {
     RG32 = 72,
     RGB48 = 73,
     RGBA64 = 74,
+    R8_SIGNED = 75,
+    RG16_SIGNED = 76,
+    RGB24_SIGNED = 77,
+    RGBA32_SIGNED = 78,
+    R16_SIGNED = 79,
+    RG32_SIGNED = 80,
+    RGB48_SIGNED = 81,
+    RGBA64_SIGNED = 82,
 }
 // ReSharper restore InconsistentNaming

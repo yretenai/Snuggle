@@ -21,7 +21,7 @@ public class SpriteToBitmapConverter : MarkupExtension, IValueConverter {
             _ => {
                 sprite.Deserialize(SnuggleCore.Instance.Settings.ObjectOptions);
                 var (memory, (width, height), _) = SnuggleSpriteFile.ConvertSprite(sprite, SnuggleCore.Instance.Settings.ObjectOptions);
-                return memory.Length == 0 ? null : dispatcher.Invoke(() => new RGBABitmapSource(memory, width, height, 1));
+                return memory.Length == 0 ? null : dispatcher.Invoke(() => new BGRABitmapSource(memory, width, height, 1));
             },
             true);
     }

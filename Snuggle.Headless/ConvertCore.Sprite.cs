@@ -21,7 +21,7 @@ public static partial class ConvertCore {
         sprite.Deserialize(ObjectDeserializationOptions.Default);
 
         var (data, (width, height), _) = SnuggleSpriteFile.ConvertSprite(sprite, ObjectDeserializationOptions.Default);
-        var image = Image.WrapMemory<Rgba32>(data, width, height);
+        var image = Image.WrapMemory<Bgra32>(data, width, height);
 
         image.SaveAsPng(fullPath);
     }

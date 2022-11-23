@@ -21,7 +21,7 @@ public class Texture2DToBitmapConverter : MarkupExtension, IValueConverter {
             _ => {
                 texture.Deserialize(SnuggleCore.Instance.Settings.ObjectOptions);
                 var memory = SnuggleTextureFile.LoadCachedTexture(texture);
-                return memory.Length == 0 ? null : dispatcher.Invoke(() => new RGBABitmapSource(memory, texture.Width, texture.Height, texture.Depth));
+                return memory.Length == 0 ? null : dispatcher.Invoke(() => new BGRABitmapSource(memory, texture.Width, texture.Height, texture.Depth));
             },
             true);
     }

@@ -24,7 +24,7 @@ public static class SnuggleTextureFile {
             texture.GetCompositeId(),
             static (_, texture) => {
                 texture.Deserialize(ObjectDeserializationOptions.Default);
-                var data = Texture2DConverter.ToRGBA(texture);
+                var data = Texture2DConverter.ToPixels(texture);
                 return data;
             },
             texture);
@@ -67,13 +67,13 @@ public static class SnuggleTextureFile {
         image.SaveAsPng(path);
     }
 
-    public static Image<Rgba32> ConvertImage(ITexture texture, bool flip) {
+    public static Image<Bgra32> ConvertImage(ITexture texture, bool flip) {
         var data = LoadCachedTexture(texture);
         if (data.IsEmpty) {
-            return new Image<Rgba32>(1, 1, new Rgba32(0));
+            return new Image<Bgra32>(1, 1, new Bgra32(0, 0, 0, 0xFF));
         }
 
-        var image = Image.WrapMemory<Rgba32>(data, texture.Width, texture.Height);
+        var image = Image.WrapMemory<Bgra32>(data, texture.Width, texture.Height);
 
         if (flip) {
             image.Mutate(context => context.Flip(FlipMode.Vertical));

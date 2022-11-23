@@ -66,22 +66,22 @@ public sealed partial class SpriteRenderer {
         tt.Y = 0;
 
         var result = ImageView.DataContext as TaskCompletionNotifier<BitmapSource?>;
-        if (result?.Task.Result is not RGBABitmapSource rgba) {
+        if (result?.Task.Result is not BGRABitmapSource bitmap) {
             return;
         }
 
-        result.Result = rgba;
+        result.Result = bitmap;
         result.Refresh();
         Refresh(this, new DependencyPropertyChangedEventArgs());
     }
 
     private void ToggleColor(object sender, RoutedEventArgs e) {
         var result = ImageView.DataContext as TaskCompletionNotifier<BitmapSource?>;
-        if (result?.Task.Result is not RGBABitmapSource rgba) {
+        if (result?.Task.Result is not BGRABitmapSource bitmap) {
             return;
         }
 
-        result.Result = new RGBABitmapSource(rgba) {
+        result.Result = new BGRABitmapSource(bitmap) {
             HideRed = Red.IsChecked == false, HideGreen = Green.IsChecked == false, HideBlue = Blue.IsChecked == false, HideAlpha = Alpha.IsChecked == false,
         };
         result.Refresh();
