@@ -189,7 +189,15 @@ public class AssetCollection : IDisposable {
         }
     }
 
-    public void LoadBundle(Stream dataStream, object tag, IFileHandler handler, SnuggleCoreOptions options, bool leaveOpen = false) => LoadBundle(new Bundle(dataStream, tag, handler, options, leaveOpen));
+    public void LoadBundle(Stream dataStream, object tag, IFileHandler handler, SnuggleCoreOptions options, bool leaveOpen = false) {
+        var bundle = new Bundle(dataStream, tag, handler, options, leaveOpen);
+        if (bundle.Length == -1 || bundle.Length > dataStream.Length) {
+            // skip partial bundles
+            return;
+        }
+
+        LoadBundle(bundle);
+    }
 
     public void LoadBundle(string path, SnuggleCoreOptions options, bool leaveOpen = false) {
         var isSplit = Path.GetExtension(path) == ".split0";

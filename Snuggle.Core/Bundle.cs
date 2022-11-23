@@ -144,6 +144,11 @@ public class Bundle : IAssetBundle {
             }
 
             var bundle = new Bundle(new OffsetStream(dataStream), new OffsetInfo(tag, start, 0), handler, options, true);
+            if (bundle.Length == -1 || start + bundle.Length > dataStream.Length) {
+                // skip partial bundles
+                break;
+            }
+
             bundles.Add(bundle);
             dataStream.Seek(start + bundle.Container.Length, SeekOrigin.Begin);
 
