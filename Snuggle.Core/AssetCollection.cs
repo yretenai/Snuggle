@@ -190,8 +190,9 @@ public class AssetCollection : IDisposable {
     }
 
     public void LoadBundle(Stream dataStream, object tag, IFileHandler handler, SnuggleCoreOptions options, bool leaveOpen = false) {
+        var ds = dataStream.Length;
         var bundle = new Bundle(dataStream, tag, handler, options, leaveOpen);
-        if (bundle.Length == -1 || bundle.Length > dataStream.Length) {
+        if (bundle.Length == -1 || bundle.Length > ds) {
             // skip partial bundles
             return;
         }
