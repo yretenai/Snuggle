@@ -4,6 +4,7 @@
         <OutputType>Exe</OutputType>
         <TargetFramework>net7.0</TargetFramework>
         <Nullable>enable</Nullable>
+        <TieredPGO>true</TieredPGO>
         <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
         <ApplicationIcon>..\Snuggle\Snuggle.ico</ApplicationIcon>
     </PropertyGroup>

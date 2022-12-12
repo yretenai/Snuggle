@@ -121,6 +121,6 @@ public record UnityTypeTreeNode(
             return string.Empty;
         }
 
-        return buffer[safeOffset..].ReadString() ?? string.Empty;
+        return buffer[safeOffset..].ReadUTF8String() ?? string.Empty;
     }
 }
