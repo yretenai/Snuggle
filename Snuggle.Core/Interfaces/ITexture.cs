@@ -11,4 +11,5 @@ public interface ITexture : ISerializedResource, ISerializedObject {
     public int MipCount { get; set; }
     public Memory<byte>? TextureData { get; set; }
     public TextureUsageMode UsageMode { get; set; }
+    public ColorSpace ColorSpace { get; set; }
 }

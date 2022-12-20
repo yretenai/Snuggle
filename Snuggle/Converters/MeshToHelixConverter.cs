@@ -327,7 +327,7 @@ public static partial class MeshToHelixConverter {
             var material3d = new PBRMaterial { AlbedoColor = Color4.White };
             var (texture, textureData) = textures.ElementAtOrDefault(index);
             if (texture != null && !textureData.IsEmpty) {
-                material3d.AlbedoMap = new TextureModel(textureData.ToArray(), Format.R8G8B8A8_UNorm, texture.Width, texture.Height);
+                material3d.AlbedoMap = new TextureModel(textureData.ToArray(), texture.ColorSpace is ColorSpace.sRGB ? Format.B8G8R8A8_UNorm_SRgb : Format.B8G8R8A8_UNorm, texture.Width, texture.Height);
             }
 
             collection.Add(
