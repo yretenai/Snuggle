@@ -22,13 +22,14 @@
       },
       "HelixToolkit.SharpDX.Core.Wpf": {
         "type": "Direct",
-        "requested": "[2.21.1, )",
-        "resolved": "2.21.1",
-        "contentHash": "TzFzZVdfdemsrmgshhIkPjJk+WYBF3Z0bkh9KRKrXTBcgB68Vz6GEbxxdlpWA7fj2hFI9Py3qgbucUnWTRSjMg==",
+        "requested": "[2.23.0, )",
+        "resolved": "2.23.0",
+        "contentHash": "4WRhhH2L6Aun8MLez/P+MP2pn0uyeQHyMd8uKXy8nT/DxhS7l1R9oa3fLloDLHN4Gj9POARb2kasn4hmtJx3JA==",
         "dependencies": {
           "Cyotek.Drawing.BitmapFont": "2.0.0",
-          "HelixToolkit": "[2.21.1]",
-          "HelixToolkit.SharpDX.Core": "[2.21.1]",
+          "HelixToolkit": "[2.23.0]",
+          "HelixToolkit.SharpDX.Core": "[2.23.0]",
+          "Microsoft.Extensions.Logging.Abstractions": "6.0.0",
           "SharpDX": "4.2.0",
           "SharpDX.D3DCompiler": "4.2.0",
           "SharpDX.DXGI": "4.2.0",
@@ -103,6 +104,11 @@
           "System.Text.Encoding.CodePages": "5.0.0"
         }
       },
+      "CommunityToolkit.HighPerformance": {
+        "type": "Transitive",
+        "resolved": "8.0.0",
+        "contentHash": "S5Iv1d5UJZNJLJbe/xzJmLqYJ2mhefbLAvhXCZEh3G4sFadUBuQZhQioE4oJG4enY69QMuJX3AX9+6P9rH1bMw=="
+      },
       "Cyotek.Drawing.BitmapFont": {
         "type": "Transitive",
         "resolved": "2.0.0",
@@ -130,16 +136,20 @@
       },
       "HelixToolkit": {
         "type": "Transitive",
-        "resolved": "2.21.1",
-        "contentHash": "sMqLy3MtpvIbqGaQ1MoO4qq0abWb/tJ7eGJoUKDL1DwGqLAXhw4+NTcTdhc6/XAUdzVxl4K8vhAtkXZDsOSr2A=="
+        "resolved": "2.23.0",
+        "contentHash": "qjNdihQ3KuOpZo7KciAHd3NvHVQ6pMy00ymf3irs/0srTiZBa1+iCgTJkF9reSr9sCybFUKOTw7L7BCJC2dHMg==",
+        "dependencies": {
+          "Microsoft.Extensions.Logging.Abstractions": "6.0.0"
+        }
       },
       "HelixToolkit.SharpDX.Core": {
         "type": "Transitive",
-        "resolved": "2.21.1",
-        "contentHash": "xYwJuPXu4zAsohj/NQX/zrp1qgg5MHUXTf+SLGbMPJ3xXGi02a1y6QbcdPebTc/ELyJohqoAYauBU8x1XeeNog==",
+        "resolved": "2.23.0",
+        "contentHash": "IS1n9XhsdTZ78TG3qVn0ABzrAW29Yjr9fhdJekMPmvphnhnlCWbRAeRoH8Ngtt7Xv3SZnZRV4i4CRvwpUaBicA==",
         "dependencies": {
           "Cyotek.Drawing.BitmapFont": "2.0.0",
-          "HelixToolkit": "[2.21.1]",
+          "HelixToolkit": "[2.23.0]",
+          "Microsoft.Extensions.Logging.Abstractions": "6.0.0",
           "SharpDX": "4.2.0",
           "SharpDX.D3DCompiler": "4.2.0",
           "SharpDX.DXGI": "4.2.0",
@@ -194,8 +204,8 @@
       },
       "Kyaru.Texture2DDecoder": {
         "type": "Transitive",
-        "resolved": "0.16.40",
-        "contentHash": "CS/HWNUgLwx7VpDro2fLdhJOzsjMNfZmM0YsAh0cGLStpxSzBanRbOCZ88FF1cZLETIWHJsXrfVPmOA9F35iaQ=="
+        "resolved": "0.17.0",
+        "contentHash": "HbIwq7qqRJbfP3WT8EaJ9kIz8i1LW0Hr70UqPdPZ+Xb48gCwx/JYv3oBj3hm2KVU0+etnnZFOv19QfznsgRUUw=="
       },
       "Kyaru.Texture2DDecoder.Linux": {
         "type": "Transitive",
@@ -214,8 +224,13 @@
       },
       "LZMA-SDK": {
         "type": "Transitive",
-        "resolved": "19.0.0",
-        "contentHash": "/4yPB/YNtttdbxmHifyNUw6rUiBqCCUgeuokXsWvM/X9CDXJq1eQdI9uVgNpJdrzAZhTIAqNzbOP7Z2ogZt+2g=="
+        "resolved": "22.1.0",
+        "contentHash": "89+Cft+4xLBWtkWom2vozYHh9P2LIIF5htgVexKmlOl+fwvlUYgjRLSo21BxcQkBBLOjDBHafeuP3WvL407eFA=="
+      },
+      "Microsoft.Extensions.Logging.Abstractions": {
+        "type": "Transitive",
+        "resolved": "6.0.0",
+        "contentHash": "/HggWBbTwy8TgebGSX5DBZ24ndhzi93sHUBDvP1IxbZD7FDokYzdAr6+vbWGjw2XAfR2EJ1sfKUotpjHnFWPxA=="
       },
       "Microsoft.NETCore.Platforms": {
         "type": "Transitive",
@@ -512,14 +527,14 @@
       },
       "Samboy063.Cpp2IL.Core": {
         "type": "Transitive",
-        "resolved": "2022.0.5",
-        "contentHash": "5JipfyEmJWePqLLnvwzxWx9dQXxNfgN0wcZ4IcmuabWKVvk4gA5Rux4vgDh9NrWf8q9LzkizWHkrnMaG1niF7g==",
+        "resolved": "2022.0.7.2",
+        "contentHash": "e17CAhKSxdAp7vFcYEVxjSc7t7rcvVGBipGhgE9tAjRXY85wZXLlHEVO0AEvMRkLmf9U+if4wK/nZEC1AX6VqQ==",
         "dependencies": {
           "HarmonyX": "2.5.5",
           "Iced": "1.11.1",
           "IndexRange": "1.0.0",
           "Mono.Cecil": "0.11.4",
-          "Samboy063.LibCpp2IL": "2022.0.5",
+          "Samboy063.LibCpp2IL": "2022.0.7.2",
           "System.Runtime.InteropServices": "4.3.0",
           "System.ValueTuple": "4.5.0",
           "js6pak.Gee.External.Capstone": "2.1.0"
@@ -527,8 +542,8 @@
       },
       "Samboy063.LibCpp2IL": {
         "type": "Transitive",
-        "resolved": "2022.0.5",
-        "contentHash": "eH+/FBclsKDxboa9N/tFoiM8kwvietVX0FtXYxvcexSp/geYCyTt2XUGOQjinqd3Yqg/QxmpIqBO7qy4MQHrhw==",
+        "resolved": "2022.0.7.2",
+        "contentHash": "DpVeU0dQkUJCpbw0f1xKOG8vimdK2oYhrVABC7HDE3/ikGjhnMZd3i5b1joKDHZ+AiL90TWOaEXPcy24rCZ0dA==",
         "dependencies": {
           "IndexRange": "1.0.0",
           "Samboy063.WasmDisassembler": "2022.0.2"
@@ -541,8 +556,8 @@
       },
       "Serilog": {
         "type": "Transitive",
-        "resolved": "2.11.0",
-        "contentHash": "ysv+hBzTul6Dp+Hvm10FlhJO3yMQcFKSAleus+LpiIzvNstpeV4Z7gGuIZ1OPNfIMulSHOjmLuGAEDKzpnV8ZQ=="
+        "resolved": "2.12.0",
+        "contentHash": "xaiJLIdu6rYMKfQMYUZgTy8YK7SMZjB4Yk50C/u//Z4OsvxkUfSPJy4nknfvwAC34yr13q7kcyh4grbwhSxyZg=="
       },
       "SharpDX": {
         "type": "Transitive",
@@ -1578,13 +1593,13 @@
       "snuggle.converters": {
         "type": "Project",
         "dependencies": {
-          "AssetRipper.TextureDecoder": "[1.1.0, )",
+          "AssetRipper.TextureDecoder": "[1.2.0, )",
           "Fmod5Sharp": "[3.0.1, )",
-          "Kyaru.Texture2DDecoder": "[0.16.40, )",
+          "Kyaru.Texture2DDecoder": "[0.17.0, )",
           "Kyaru.Texture2DDecoder.Linux": "[0.1.0, )",
           "Kyaru.Texture2DDecoder.Windows": "[0.1.0, )",
           "Kyaru.Texture2DDecoder.macOS": "[0.1.0, )",
-          "Serilog": "[2.11.0, )",
+          "Serilog": "[2.12.0, )",
           "SixLabors.ImageSharp": "[2.1.3, )",
           "SixLabors.ImageSharp.Drawing": "[1.0.0-beta14, )",
           "Snuggle.Core": "[1.0.0, )",
@@ -1594,12 +1609,13 @@
       "snuggle.core": {
         "type": "Project",
         "dependencies": {
-          "DragonLib": "[3.0.1, )",
+          "CommunityToolkit.HighPerformance": "[8.0.0, )",
+          "DragonLib": "[3.1.0-prerel, )",
           "K4os.Compression.LZ4.Streams": "[1.2.16, )",
-          "LZMA-SDK": "[19.0.0, )",
+          "LZMA-SDK": "[22.1.0, )",
           "Mono.Cecil": "[0.11.4, )",
-          "Samboy063.Cpp2IL.Core": "[2022.0.5, )",
-          "Serilog": "[2.11.0, )",
+          "Samboy063.Cpp2IL.Core": "[2022.0.7.2, )",
+          "Serilog": "[2.12.0, )",
           "Snuggle.UnityCs": "[1.0.0, )"
         }
       },

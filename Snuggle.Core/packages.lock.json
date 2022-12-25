@@ -2,6 +2,12 @@
   "version": 1,
   "dependencies": {
     "net7.0": {
+      "CommunityToolkit.HighPerformance": {
+        "type": "Direct",
+        "requested": "[8.0.0, )",
+        "resolved": "8.0.0",
+        "contentHash": "S5Iv1d5UJZNJLJbe/xzJmLqYJ2mhefbLAvhXCZEh3G4sFadUBuQZhQioE4oJG4enY69QMuJX3AX9+6P9rH1bMw=="
+      },
       "K4os.Compression.LZ4.Streams": {
         "type": "Direct",
         "requested": "[1.2.16, )",
@@ -14,9 +20,9 @@
       },
       "LZMA-SDK": {
         "type": "Direct",
-        "requested": "[19.0.0, )",
-        "resolved": "19.0.0",
-        "contentHash": "/4yPB/YNtttdbxmHifyNUw6rUiBqCCUgeuokXsWvM/X9CDXJq1eQdI9uVgNpJdrzAZhTIAqNzbOP7Z2ogZt+2g=="
+        "requested": "[22.1.0, )",
+        "resolved": "22.1.0",
+        "contentHash": "89+Cft+4xLBWtkWom2vozYHh9P2LIIF5htgVexKmlOl+fwvlUYgjRLSo21BxcQkBBLOjDBHafeuP3WvL407eFA=="
       },
       "Mono.Cecil": {
         "type": "Direct",
@@ -26,15 +32,15 @@
       },
       "Samboy063.Cpp2IL.Core": {
         "type": "Direct",
-        "requested": "[2022.0.5, )",
-        "resolved": "2022.0.5",
-        "contentHash": "5JipfyEmJWePqLLnvwzxWx9dQXxNfgN0wcZ4IcmuabWKVvk4gA5Rux4vgDh9NrWf8q9LzkizWHkrnMaG1niF7g==",
+        "requested": "[2022.0.7.2, )",
+        "resolved": "2022.0.7.2",
+        "contentHash": "e17CAhKSxdAp7vFcYEVxjSc7t7rcvVGBipGhgE9tAjRXY85wZXLlHEVO0AEvMRkLmf9U+if4wK/nZEC1AX6VqQ==",
         "dependencies": {
           "HarmonyX": "2.5.5",
           "Iced": "1.11.1",
           "IndexRange": "1.0.0",
           "Mono.Cecil": "0.11.4",
-          "Samboy063.LibCpp2IL": "2022.0.5",
+          "Samboy063.LibCpp2IL": "2022.0.7.2",
           "System.Runtime.InteropServices": "4.3.0",
           "System.ValueTuple": "4.5.0",
           "js6pak.Gee.External.Capstone": "2.1.0"
@@ -42,9 +48,9 @@
       },
       "Serilog": {
         "type": "Direct",
-        "requested": "[2.11.0, )",
-        "resolved": "2.11.0",
-        "contentHash": "ysv+hBzTul6Dp+Hvm10FlhJO3yMQcFKSAleus+LpiIzvNstpeV4Z7gGuIZ1OPNfIMulSHOjmLuGAEDKzpnV8ZQ=="
+        "requested": "[2.12.0, )",
+        "resolved": "2.12.0",
+        "contentHash": "xaiJLIdu6rYMKfQMYUZgTy8YK7SMZjB4Yk50C/u//Z4OsvxkUfSPJy4nknfvwAC34yr13q7kcyh4grbwhSxyZg=="
       },
       "HarmonyX": {
         "type": "Transitive",
@@ -124,8 +130,8 @@
       },
       "Samboy063.LibCpp2IL": {
         "type": "Transitive",
-        "resolved": "2022.0.5",
-        "contentHash": "eH+/FBclsKDxboa9N/tFoiM8kwvietVX0FtXYxvcexSp/geYCyTt2XUGOQjinqd3Yqg/QxmpIqBO7qy4MQHrhw==",
+        "resolved": "2022.0.7.2",
+        "contentHash": "DpVeU0dQkUJCpbw0f1xKOG8vimdK2oYhrVABC7HDE3/ikGjhnMZd3i5b1joKDHZ+AiL90TWOaEXPcy24rCZ0dA==",
         "dependencies": {
           "IndexRange": "1.0.0",
           "Samboy063.WasmDisassembler": "2022.0.2"
