@@ -11,7 +11,7 @@ using Snuggle.Handlers;
 
 namespace Snuggle.Converters;
 
-public class Texture2DToBitmapConverter : MarkupExtension, IValueConverter {
+public class Texture2DToBitmapConverter : MarkupExtension, IValueConverter, IDisposable {
     private CancellationTokenSource Token { get; set; } = new();
     public object? Convert(object? value, Type targetType, object parameter, CultureInfo culture) {
         if (value is not ITexture texture) {
@@ -22,6 +22,10 @@ public class Texture2DToBitmapConverter : MarkupExtension, IValueConverter {
         Token.Dispose();
         Token = new CancellationTokenSource();
         return new TaskCompletionNotifier<BitmapSource?>(texture, ConvertTexture(texture, Dispatcher.CurrentDispatcher));
+    }
+
+    ~Texture2DToBitmapConverter() {
+        DisposeInner();
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotSupportedException($"{nameof(Texture2DToBitmapConverter)} only supports converting to BitmapSource");
@@ -41,4 +45,13 @@ public class Texture2DToBitmapConverter : MarkupExtension, IValueConverter {
     }
 
     public override object ProvideValue(IServiceProvider serviceProvider) => this;
+    public void Dispose() {
+        DisposeInner();
+        GC.SuppressFinalize(this);
+    }
+
+    private void DisposeInner() {
+        Token.Cancel();
+        Token.Dispose();
+    }
 }
