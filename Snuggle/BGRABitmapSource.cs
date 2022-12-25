@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using CommunityToolkit.HighPerformance.Buffers;
 
 namespace Snuggle;
 
@@ -10,7 +11,7 @@ public class BGRABitmapSource : BitmapSource {
     private readonly int BackingPixelWidth;
     public readonly int Frames;
 
-    public BGRABitmapSource(Memory<byte> buffer, int pixelWidth, int pixelHeight, int frames) {
+    public BGRABitmapSource(MemoryOwner<byte> buffer, int pixelWidth, int pixelHeight, int frames) {
         Buffer = buffer;
         BackingPixelWidth = pixelWidth;
         BackingPixelHeight = pixelHeight;
@@ -29,7 +30,7 @@ public class BGRABitmapSource : BitmapSource {
         Frame = bitmap.Frame;
     }
 
-    private Memory<byte> Buffer { get; }
+    private MemoryOwner<byte> Buffer { get; }
 
     public bool HideRed { get; init; }
     public bool HideGreen { get; init; }

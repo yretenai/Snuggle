@@ -1,6 +1,6 @@
-using System;
 using System.Collections.Concurrent;
 using System.IO;
+using CommunityToolkit.HighPerformance.Buffers;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Memory;
 using SixLabors.ImageSharp.PixelFormats;
@@ -17,25 +17,25 @@ public static class SnuggleTextureFile {
         old.ReleaseRetainedResources();
     }
 
-    private static ConcurrentDictionary<(long, string), ReadOnlyMemory<byte>> CachedData { get; set; } = new();
+    private static ConcurrentDictionary<(long, string), MemoryOwner<byte>> CachedData { get; set; } = new();
 
-    public static Memory<byte> LoadCachedTexture(ITexture texture) {
-        var memory = CachedData.GetOrAdd(
+    public static MemoryOwner<byte> LoadCachedTexture(ITexture texture) {
+        return CachedData.GetOrAdd(
             texture.GetCompositeId(),
             static (_, texture) => {
                 texture.Deserialize(ObjectDeserializationOptions.Default);
-                var data = Texture2DConverter.ToPixels(texture);
-                return data;
+                return Texture2DConverter.ToPixels(texture);
             },
             texture);
-        var newMemory = new Memory<byte>(new byte[memory.Length]);
-        memory.CopyTo(newMemory);
-        return newMemory;
     }
 
     public static void ClearMemory() {
+        foreach(var (_, data) in CachedData) {
+            data.Dispose();
+        }
+        
         CachedData.Clear();
-        CachedData = new ConcurrentDictionary<(long, string), ReadOnlyMemory<byte>>();
+        CachedData = new ConcurrentDictionary<(long, string), MemoryOwner<byte>>();
         Configuration.Default.MemoryAllocator.ReleaseRetainedResources();
     }
 
@@ -69,7 +69,7 @@ public static class SnuggleTextureFile {
 
     public static Image<Bgra32> ConvertImage(ITexture texture, bool flip) {
         var data = LoadCachedTexture(texture);
-        if (data.IsEmpty) {
+        if (data.Length == 0) {
             return new Image<Bgra32>(1, 1, new Bgra32(0, 0, 0, 0xFF));
         }
 

@@ -153,7 +153,7 @@ public static partial class MeshToHelixConverter {
                     return;
                 }
 
-                var meshData = new Dictionary<(long, string), (List<Object3D> submeshes, List<(ITexture? texture, Memory<byte> textureData)>)>();
+                var meshData = new Dictionary<(long, string), (List<Object3D> submeshes, List<(ITexture? texture, byte[] textureData)>)>();
                 FindGeometryMeshData(gameObject, meshData, cts.Token);
 
                 dispatcher.Invoke(
@@ -190,14 +190,14 @@ public static partial class MeshToHelixConverter {
             true);
     }
 
-    private static void FindGeometryMeshData(GameObject gameObject, IDictionary<(long, string), (List<Object3D> submeshes, List<(ITexture? texture, Memory<byte> textureData)>)> meshData, CancellationToken token) {
+    private static void FindGeometryMeshData(GameObject gameObject, IDictionary<(long, string), (List<Object3D> submeshes, List<(ITexture? texture, byte[] textureData)>)> meshData, CancellationToken token) {
         var submeshes = new List<Object3D>();
         if (gameObject.FindComponent(UnityClassId.MeshFilter).Value is MeshFilter filter && filter.Mesh.Value != null) {
             filter.Mesh.Value.Deserialize(ObjectDeserializationOptions.Default);
             submeshes = GetSubmeshes(filter.Mesh.Value, token);
         }
 
-        var textureData = new List<(ITexture? texture, Memory<byte> textureData)>();
+        var textureData = new List<(ITexture? texture, byte[] textureData)>();
         if (gameObject.FindComponent(UnityClassId.MeshRenderer, UnityClassId.SkinnedMeshRenderer).Value is Renderer renderer) {
             textureData = FindTextureData(renderer.Materials.Select(x => x.Value), token);
 
@@ -232,7 +232,7 @@ public static partial class MeshToHelixConverter {
         Matrix? parentMatrix,
         LineBuilder builder,
         BillboardText3D labels,
-        IReadOnlyDictionary<(long, string), (List<Object3D> submeshes, List<(ITexture? texture, Memory<byte> textureData)>)> meshData,
+        IReadOnlyDictionary<(long, string), (List<Object3D> submeshes, List<(ITexture? texture, byte[] textureData)>)> meshData,
         CancellationToken token) {
         if (gameObject.FindComponent(UnityClassId.Transform).Value is not Transform transform) {
             return;
@@ -312,8 +312,8 @@ public static partial class MeshToHelixConverter {
             true);
     }
 
-    private static void BuildSubmeshes(ICollection<Element3D> collection, IReadOnlyList<Object3D> submeshes, IReadOnlyCollection<(ITexture? texture, Memory<byte> textureData)>? textures, CancellationToken token) {
-        textures ??= new List<(ITexture? texture, Memory<byte> textureData)>();
+    private static void BuildSubmeshes(ICollection<Element3D> collection, IReadOnlyList<Object3D> submeshes, IReadOnlyCollection<(ITexture? texture, byte[] textureData)>? textures, CancellationToken token) {
+        textures ??= new List<(ITexture? texture, byte[] textureData)>();
         for (var index = 0; index < submeshes.Count; index++) {
             if (token.IsCancellationRequested) {
                 return;
@@ -326,7 +326,7 @@ public static partial class MeshToHelixConverter {
             var submesh = submeshes[index];
             var material3d = new PBRMaterial { AlbedoColor = Color4.White };
             var (texture, textureData) = textures.ElementAtOrDefault(index);
-            if (texture != null && !textureData.IsEmpty) {
+            if (texture != null && textureData.Length is not 0) {
                 material3d.AlbedoMap = new TextureModel(textureData.ToArray(), texture.ColorSpace is ColorSpace.sRGB ? Format.B8G8R8A8_UNorm_SRgb : Format.B8G8R8A8_UNorm, texture.Width, texture.Height);
             }
 
@@ -342,8 +342,8 @@ public static partial class MeshToHelixConverter {
         }
     }
 
-    private static List<(ITexture? texture, Memory<byte> textureData)> FindTextureData(IEnumerable<Material?> materials, CancellationToken token) {
-        List<(ITexture? texture, Memory<byte> textureData)> textures = new();
+    private static List<(ITexture? texture, byte[] textureData)> FindTextureData(IEnumerable<Material?> materials, CancellationToken token) {
+        List<(ITexture? texture, byte[] textureData)> textures = new();
         foreach (var material in materials) {
             if (token.IsCancellationRequested) {
                 return textures;
@@ -363,12 +363,14 @@ public static partial class MeshToHelixConverter {
                 texture = mainTex.Value.Texture.Value as ITexture;
             }
 
-            var textureData = Memory<byte>.Empty;
+            var textureData = Array.Empty<byte>();
             if (texture != null) {
                 texture.Deserialize(SnuggleCore.Instance.Settings.ObjectOptions);
-                textureData = SnuggleTextureFile.LoadCachedTexture(texture);
+                var existing = SnuggleTextureFile.LoadCachedTexture(texture);
+                textureData = new byte[existing.Length];
+                existing.Span.CopyTo(textureData.AsSpan());
                 for (var i = 0; i < textureData.Length / 4; ++i) {
-                    textureData.Span[i * 4 + 3] = 0xFF;
+                    textureData[i * 4 + 3] = 0xFF;
                 }
             }
 

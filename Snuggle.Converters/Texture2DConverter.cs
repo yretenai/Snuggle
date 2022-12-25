@@ -11,6 +11,7 @@ using AssetRipper.TextureDecoder.Pvrtc;
 using AssetRipper.TextureDecoder.Rgb;
 using AssetRipper.TextureDecoder.Rgb.Formats;
 using AssetRipper.TextureDecoder.Yuy2;
+using CommunityToolkit.HighPerformance.Buffers;
 using Snuggle.Converters.DXGI;
 using Snuggle.Core;
 using Snuggle.Core.Exceptions;
@@ -29,18 +30,18 @@ public static class Texture2DConverter {
     public static bool SupportsDDS(ITexture texture) => texture.TextureFormat.CanSupportDDS();
     public static bool UseDDSConversion(TextureFormat textureFormat) => textureFormat.CanSupportDDS();
 
-    public static Memory<byte> ToPixels(ITexture texture) {
+    public static MemoryOwner<byte> ToPixels(ITexture texture) {
         if (texture.TextureData!.Value.IsEmpty) {
-            return Memory<byte>.Empty;
+            return MemoryOwner<byte>.Empty;
         }
 
         var srcPitch = texture.GetPitch();
         var dstPitch = texture.Width * texture.Height * 4;
         var textureData = texture.TextureData.Value;
         var frames = srcPitch > 0 ? texture.Depth : 1;
-        var tex = new byte[dstPitch * frames].AsMemory();
+        var tex = MemoryOwner<byte>.Allocate(dstPitch * frames);
         for (var i = 0; i < frames; ++i) {
-            DecodeFrame(texture, textureData[(srcPitch * i)..]).CopyTo(tex[(dstPitch * i)..]);
+            DecodeFrame(texture, textureData[(srcPitch * i)..], tex.Memory[(dstPitch * i)..]);
         }
 
         return tex;
@@ -51,8 +52,7 @@ public static class Texture2DConverter {
         RgbConverter.Convert<InColor, InType, ColorBGRA32, byte>(MemoryMarshal.Cast<byte, InColor>(textureMem.Span), MemoryMarshal.Cast<byte, ColorBGRA32>(imageData.Span));
     }
 
-    private static Memory<byte> DecodeFrame(ITexture texture, Memory<byte> textureMem) {
-        var imageData = new byte[texture.Width * texture.Height * 4].AsMemory();
+    private static void DecodeFrame(ITexture texture, Memory<byte> textureMem, Memory<byte> imageData) {
         switch (texture.TextureFormat) {
             case TextureFormat.Alpha8:
                 WrapRgbConverter<ColorA8, byte>(textureMem, imageData);
@@ -150,7 +150,7 @@ public static class Texture2DConverter {
             }
             case TextureFormat.DXT1Crunched when UnpackCrunch(texture.SerializedFile.Version,
                 texture.TextureFormat,
-                textureMem.ToArray(),
+                textureMem.Span,
                 out var data): {
                 BcDecoder.DecompressBC1(data, texture.Width, texture.Height, imageData.Span);
                 break;
@@ -161,7 +161,7 @@ public static class Texture2DConverter {
             }
             case TextureFormat.DXT5Crunched when UnpackCrunch(texture.SerializedFile.Version,
                 texture.TextureFormat,
-                textureMem.ToArray(),
+                textureMem.Span,
                 out var data): {
                 BcDecoder.DecompressBC3(data, texture.Width, texture.Height, imageData.Span);
                 break;
@@ -202,7 +202,7 @@ public static class Texture2DConverter {
                 break;
             case TextureFormat.ETC_RGB4Crunched when UnpackCrunch(texture.SerializedFile.Version,
                 texture.TextureFormat,
-                textureMem.ToArray(),
+                textureMem.Span,
                 out var data): {
                 EtcDecoder.DecompressETC(data, texture.Width, texture.Height, imageData.Span);
                 break;
@@ -231,7 +231,7 @@ public static class Texture2DConverter {
                 break;
             case TextureFormat.ETC2_RGBA8Crunched when UnpackCrunch(texture.SerializedFile.Version,
                 texture.TextureFormat,
-                textureMem.ToArray(),
+                textureMem.Span,
                 out var data): {
                 EtcDecoder.DecompressETC2A8(data, texture.Width, texture.Height, imageData.Span);
                 break;
@@ -271,11 +271,9 @@ public static class Texture2DConverter {
             default:
                 throw new NotSupportedException($"Texture format {texture.TextureFormat} is not supported");
         }
-
-        return imageData;
     }
     
-    private static bool UnpackCrunch(UnityVersion unityVersion, TextureFormat textureFormat, byte[] crunchedData, [MaybeNullWhen(false)] out byte[] data) {
+    private static bool UnpackCrunch(UnityVersion unityVersion, TextureFormat textureFormat, Span<byte> crunchedData, [MaybeNullWhen(false)] out byte[] data) {
         if (unityVersion >= UnityVersionRegister.Unity2017_3 || textureFormat is TextureFormat.ETC_RGB4Crunched or TextureFormat.ETC2_RGBA8Crunched) {
             data = TextureDecoder.UnpackUnityCrunch(crunchedData);
         } else {

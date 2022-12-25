@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using CommunityToolkit.HighPerformance.Buffers;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing;
 using SixLabors.ImageSharp.Drawing.Processing;
@@ -22,11 +23,11 @@ using Vector2 = Snuggle.Core.Models.Objects.Math.Vector2;
 namespace Snuggle.Converters;
 
 public static class SnuggleSpriteFile {
-    private static ConcurrentDictionary<(long, string), (ReadOnlyMemory<byte>, Size, TextureFormat)> CachedData { get; set; } = new();
+    private static ConcurrentDictionary<(long, string), (MemoryOwner<byte>, Size, TextureFormat)> CachedData { get; set; } = new();
 
     // Perfare's Asset Studio - SpriteHelper.cs.
-    public static (Memory<byte> Pixels, Size Size, TextureFormat baseFormat) ConvertSprite(Sprite sprite, ObjectDeserializationOptions options) {
-        var (memory, size, format) = CachedData.GetOrAdd(
+    public static (MemoryOwner<byte> Pixels, Size Size, TextureFormat baseFormat) ConvertSprite(Sprite sprite, ObjectDeserializationOptions options) {
+        return CachedData.GetOrAdd(
             sprite.GetCompositeId(),
             static (_, arg) => {
                 var (sprite, options) = arg;
@@ -46,18 +47,18 @@ public static class SnuggleSpriteFile {
                     }
                 }
 
-                return (ReadOnlyMemory<byte>.Empty, Size.Empty, TextureFormat.None);
+                return (MemoryOwner<byte>.Empty, Size.Empty, TextureFormat.None);
             },
             (sprite, options));
-
-        var newMemory = new Memory<byte>(new byte[memory.Length]);
-        memory.CopyTo(newMemory);
-        return (newMemory, size, format);
     }
 
     public static void ClearMemory() {
+        foreach(var (_, (data, _, _)) in CachedData) {
+            data.Dispose();
+        }
+        
         CachedData.Clear();
-        CachedData = new ConcurrentDictionary<(long, string), (ReadOnlyMemory<byte>, Size, TextureFormat)>();
+        CachedData = new ConcurrentDictionary<(long, string), (MemoryOwner<byte>, Size, TextureFormat)>();
         Configuration.Default.MemoryAllocator.ReleaseRetainedResources();
     }
 
