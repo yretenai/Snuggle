@@ -226,6 +226,7 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
     }
 
     public Task<T> WorkerAction<T>(string name, Func<CancellationToken, T> task, bool report, CancellationToken token = new()) {
+        Log.Information("Enqueuing {Name} task", name);
         var tcs = new TaskCompletionSource<T>();
         Tasks.Add(
             (name, token, link => {
@@ -280,6 +281,7 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
     }
 
     public Task<T> AsyncWorkerAction<T>(string name, Func<CancellationToken, Task<T>> task, bool report, CancellationToken token = new()) {
+        Log.Information("Enqueuing {Name} task", name);
         var tcs = new TaskCompletionSource<T>();
         Tasks.Add(
             (name, token, async link => {
