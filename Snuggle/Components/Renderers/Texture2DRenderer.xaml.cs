@@ -101,6 +101,10 @@ public sealed partial class Texture2DRenderer {
 
         var result = ImageView.DataContext as TaskCompletionNotifier<BitmapSource?>;
 
+        if (result?.Task.IsCompleted == false) {
+            return;
+        }
+
         if (result?.Task.Result is not BGRABitmapSource rgba) {
             return;
         }

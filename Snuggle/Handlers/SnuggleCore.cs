@@ -43,7 +43,7 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
     public Thread WorkerThread { get; private set; }
     public CancellationTokenSource GlobalTokenSource { get; private set; } = new();
     public CancellationTokenSource TokenSource { get; private set; } = new();
-    private BlockingCollection<(string Name, Action<CancellationToken> Work)> Tasks { get; set; } = new();
+    private BlockingCollection<(string Name, CancellationToken CarryToken, Func<CancellationToken, Task> Work)> Tasks { get; set; } = new();
     public List<SnuggleObject> Objects => Collection.Files.SelectMany(x => x.Value.GetAllObjects()).Select(x => new SnuggleObject(x!)).ToList();
     public SnuggleObject? SelectedObject { get; set; }
     public HashSet<object> Filters { get; init; } = new();
@@ -111,17 +111,24 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
         try {
             var tasks = Tasks;
             var sw = new Stopwatch();
-            foreach (var (name, task) in tasks.GetConsumingEnumerable(GlobalTokenSource.Token)) {
+            foreach (var (name, token, task) in tasks.GetConsumingEnumerable(GlobalTokenSource.Token)) {
                 if (TokenSource.Token.IsCancellationRequested) {
                     TokenSource.Dispose();
                     TokenSource = new CancellationTokenSource();
                 }
 
+                if (token.IsCancellationRequested) {
+                    continue;
+                }
+                
+                
+                var cts = CancellationTokenSource.CreateLinkedTokenSource(TokenSource.Token);
+
                 try {
                     sw.Start();
                     IsFree = false;
                     Dispatcher.Invoke(() => OnPropertyChanged(nameof(IsFree)));
-                    task(TokenSource.Token);
+                    task(cts.Token).Wait(cts.Token);
                     sw.Stop();
                     var elapsed = sw.Elapsed;
                     Log.Information("Spent {Elapsed} working on {Name} task", elapsed, name);
@@ -171,7 +178,7 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
 
     public void Reset(bool respawn = true) {
         Tasks.CompleteAdding();
-        Tasks = new BlockingCollection<(string Name, Action<CancellationToken> Work)>();
+        Tasks = new BlockingCollection<(string, CancellationToken, Func<CancellationToken, Task>)>();
         GlobalTokenSource.Cancel();
         TokenSource.Cancel();
         TokenSource.Dispose();
@@ -192,49 +199,111 @@ public class SnuggleCore : Singleton<SnuggleCore>, INotifyPropertyChanged, IDisp
         }
     }
 
-    public void WorkerAction(string name, Action<CancellationToken> action, bool report) {
+    public void WorkerAction(string name, Action<CancellationToken> action, bool report, CancellationToken token = new()) {
         Log.Information("Enqueuing {Name} task", name);
         Tasks.Add(
-            (name, token => {
+            (name, token, linkedToken => {
                 try {
                     if (report) {
                         Instance.Status.SetStatus($"Working on {name}...");
-                        Log.Information("Working on {Name}...", name);
                     }
 
-                    action(token);
+                    Log.Information("Working on {Name}...", name);
+                    action(linkedToken);
                     if (report) {
                         Instance.Status.SetStatus($"{name} done.");
-                        Log.Information("{Name} done", name);
                     }
+
+                    Log.Information("{Name} done", name);
                 } catch (Exception e) {
                     Instance.Status.SetStatus($"{name} failed! {e.Message}");
                     Log.Error(e, "{Name} failed!", name);
                 }
-            }));
+                
+                return Task.CompletedTask;
+            }),
+            token);
     }
 
-    public Task<T> WorkerAction<T>(string name, Func<CancellationToken, T> task, bool report) {
+    public Task<T> WorkerAction<T>(string name, Func<CancellationToken, T> task, bool report, CancellationToken token = new()) {
         var tcs = new TaskCompletionSource<T>();
         Tasks.Add(
-            (name, token => {
+            (name, token, link => {
                 try {
                     if (report) {
                         Instance.Status.SetStatus($"Working on {name}...");
                     }
 
-                    tcs.SetResult(task(token));
+                    Log.Information("Working on {Name}...", name);
+                    tcs.SetResult(task(link));
                     if (report) {
                         Instance.Status.SetStatus($"{name} done.");
                     }
+
+                    Log.Information("{Name} done", name);
                 } catch (TaskCanceledException) {
-                    tcs.SetCanceled(token);
+                    tcs.SetCanceled(link);
                 } catch (Exception e) {
                     Instance.Status.SetStatus($"{name} failed! {e.Message}");
                     Log.Error(e, "{Name} failed!", name);
                     tcs.SetException(e);
                 }
-            }));
+
+                return Task.CompletedTask;
+            }),
+            token);
+        return tcs.Task;
+    }
+
+    public void AsyncWorkerAction(string name, Func<CancellationToken, Task> action, bool report, CancellationToken token = new()) {
+        Log.Information("Enqueuing {Name} task", name);
+        Tasks.Add(
+            (name, token, async linkedToken => {
+                try {
+                    if (report) {
+                        Instance.Status.SetStatus($"Working on {name}...");
+                    }
+
+                    Log.Information("Working on {Name}...", name);
+                    await action(linkedToken);
+                    if (report) {
+                        Instance.Status.SetStatus($"{name} done.");
+                    }
+
+                    Log.Information("{Name} done", name);
+                } catch (Exception e) {
+                    Instance.Status.SetStatus($"{name} failed! {e.Message}");
+                    Log.Error(e, "{Name} failed!", name);
+                }
+            }),
+            token);
+    }
+
+    public Task<T> AsyncWorkerAction<T>(string name, Func<CancellationToken, Task<T>> task, bool report, CancellationToken token = new()) {
+        var tcs = new TaskCompletionSource<T>();
+        Tasks.Add(
+            (name, token, async link => {
+                try {
+                    if (report) {
+                        Instance.Status.SetStatus($"Working on {name}...");
+                    }
+
+                    Log.Information("Working on {Name}...", name);
+                    tcs.SetResult(await task(link));
+                    if (report) {
+                        Instance.Status.SetStatus($"{name} done.");
+                    }
+
+                    Log.Information("{Name} done", name);
+                } catch (TaskCanceledException) {
+                    tcs.SetCanceled(link);
+                } catch (Exception e) {
+                    Instance.Status.SetStatus($"{name} failed! {e.Message}");
+                    Log.Error(e, "{Name} failed!", name);
+                    tcs.SetException(e);
+                }
+            }),
+            token);
         return tcs.Task;
     }
 
