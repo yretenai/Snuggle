@@ -1,7 +1,10 @@
 # Snuggle [![Snuggle](https://github.com/yretenai/Snuggle/actions/workflows/dotnet.yml/badge.svg)](https://github.com/yretenai/Snuggle/actions/workflows/dotnet.yml)
-Unity Processor
 
-Snuggle is NOT feature complete and there is NO ETA on when it will be. Use [AssetRipper](https://github.com/AssetRipper/AssetRipper/) or [AssetStudio](https://github.com/Perfare/AssetStudio) as both are more feature rich and stable.
+## This project is on hold indefinitely. 
+
+Due to mental health wellness I am infinitely pausing from maintaining Snuggle.
+
+Use [AssetRipper](https://github.com/AssetRipper/AssetRipper/) or [AssetStudio](https://github.com/Perfare/AssetStudio) as both are more feature rich and stable.
 
 ## Snuggle and it's contributors are not affiliated with, or sponsored by, or authorized by, Unity Technologies.
 
